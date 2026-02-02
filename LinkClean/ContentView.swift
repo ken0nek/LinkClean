@@ -6,56 +6,38 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
+        NavigationStack {
+            VStack(spacing: 24) {
+                Image(systemName: "link.badge.plus")
+                    .font(.system(size: 64))
+                    .foregroundStyle(.tint)
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
+                Text("LinkClean")
+                    .font(.largeTitle.bold())
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+                Text("Remove tracking parameters from URLs.")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Open Safari or any app with a link", systemImage: "1.circle")
+                    Label("Tap the Share button", systemImage: "2.circle")
+                    Label("Select \"Clean URL\"", systemImage: "3.circle")
+                    Label("The cleaned URL is copied to your clipboard", systemImage: "4.circle")
+                }
+                .font(.body)
+                .padding()
+                .background(.fill.tertiary, in: .rect(cornerRadius: 12))
             }
+            .padding()
+            .navigationTitle("How to Use")
         }
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
