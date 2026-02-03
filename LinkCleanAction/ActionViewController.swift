@@ -7,6 +7,7 @@
 
 import UIKit
 import UniformTypeIdentifiers
+import LinkCleanCommon
 
 class ActionViewController: UIViewController {
 

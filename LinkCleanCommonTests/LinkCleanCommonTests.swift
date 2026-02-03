@@ -1,12 +1,13 @@
 //
-//  LinkCleanTests.swift
-//  LinkCleanTests
+//  LinkCleanCommonTests.swift
+//  LinkCleanCommonTests
 //
-//  Created by Ken Tominaga on 2/1/26.
+//  Created by Ken Tominaga on 2/2/26.
 //
 
 import Testing
-@testable import LinkClean
+import Foundation
+@testable import LinkCleanCommon
 
 struct URLCleanerTests {
 

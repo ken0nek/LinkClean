@@ -1,13 +1,13 @@
 //
 //  URLCleaner.swift
-//  LinkCleanAction
+//  LinkCleanCommon
 //
 //  Created by Ken Tominaga on 2/1/26.
 //
 
 import Foundation
 
-nonisolated enum URLCleaner {
+public nonisolated enum URLCleaner {
 
     private static let trackingParameters: Set<String> = [
         // UTM
@@ -90,7 +90,7 @@ nonisolated enum URLCleaner {
         "ga_session",
     ]
 
-    static func clean(_ urlString: String) -> String {
+    public static func clean(_ urlString: String) -> String {
         guard var components = URLComponents(string: urlString) else {
             return urlString
         }
@@ -108,7 +108,7 @@ nonisolated enum URLCleaner {
         return components.string ?? urlString
     }
 
-    static func clean(_ url: URL) -> URL {
+    public static func clean(_ url: URL) -> URL {
         let cleaned = clean(url.absoluteString)
         return URL(string: cleaned) ?? url
     }
