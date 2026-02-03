@@ -30,6 +30,6 @@
 - PRs should include: a brief description, test notes (Xcode run or `xcodebuild test`), and screenshots for any UI changes (app + extension if affected).
 
 ## Platform & Feature Notes
-- Target platforms: iOS 26+, iPadOS 26+, watchOS 26+.
+- Target platforms: iOS 18+, iPadOS 18+.
 - If introducing on-device AI, check `SystemLanguageModel.default.availability` before use.
 - Prefer SwiftUI-native components and WebView; avoid UIKit bridging unless there is no SwiftUI equivalent.

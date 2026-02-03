@@ -1,5 +1,5 @@
 ## Platform
-iOS 26+ · iPadOS 26+ · watchOS 26+ · Swift 6.2 · SwiftUI · SwiftData
+iOS 18+ · iPadOS 18+ · Swift 6.2 · SwiftUI · SwiftData
 
 ## Build Settings
 Default actor isolation is **MainActor** (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`). Use `nonisolated` to opt out for background work.
