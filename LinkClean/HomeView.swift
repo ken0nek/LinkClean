@@ -13,6 +13,8 @@ struct HomeView: View {
     @State private var inputText = ""
     @State private var copyTask: Task<Void, Never>?
     @State private var didCopy = false
+    @State private var showClipboardToast = false
+    @State private var toastTask: Task<Void, Never>?
     @State private var isHomeVisible = false
     @FocusState private var isInputFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
@@ -153,6 +155,26 @@ struct HomeView: View {
             .shadow(color: .black.opacity(0.18), radius: 18, x: 0, y: 12)
             .padding()
         }
+        .overlay(alignment: .top) {
+            if showClipboardToast {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.yellow)
+                    Text("Clipboard doesn’t contain a valid URL")
+                        .font(.subheadline.weight(.semibold))
+                }
+                .padding(.vertical, 10)
+                .padding(.horizontal, 14)
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(.white.opacity(0.12))
+                )
+                .shadow(color: .black.opacity(0.18), radius: 10, x: 0, y: 6)
+                .padding(.top, 16)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
         .background(
             LinearGradient(
                 colors: [
@@ -205,15 +227,33 @@ struct HomeView: View {
         let pasteboard = UIPasteboard.general
         let candidate = pasteboard.url?.absoluteString ?? pasteboard.string ?? ""
         let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
         guard let url = URL(string: trimmed),
               let scheme = url.scheme?.lowercased(),
               scheme == "http" || scheme == "https"
         else {
+            showInvalidClipboardToast()
             return
         }
 
         inputText = trimmed
         isInputFocused = false
+    }
+
+    private func showInvalidClipboardToast() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            showClipboardToast = true
+        }
+
+        toastTask?.cancel()
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(2))
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showClipboardToast = false
+                }
+            }
+        }
     }
 }
 
