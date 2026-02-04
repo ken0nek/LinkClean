@@ -33,6 +33,10 @@ struct SettingsView: View {
                 NavigationLink("Default parameters") {
                     ManageParametersView()
                 }
+
+                NavigationLink("Custom parameters") {
+                    CustomParametersView()
+                }
             }
 
             Section("How to Use") {

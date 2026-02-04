@@ -218,3 +218,31 @@ struct URLCleanerTests {
         #expect(result == "https://www.example.com/dp/B08N5WRWNW?tag=mystore")
     }
 }
+
+struct TrackingParameterStoreTests {
+
+    @Test func normalizesAndEnablesCustomParameters() {
+        let suiteName = "LinkCleanCommonTests.custom.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+
+        let store = TrackingParameterStore(suiteName: suiteName)
+        store.addCustomParameter("  UTM_Source  ")
+
+        #expect(store.customParameters() == ["utm_source"])
+        #expect(store.enabledParameters().contains("utm_source"))
+    }
+
+    @Test func removesCustomParameters() {
+        let suiteName = "LinkCleanCommonTests.custom.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+
+        let store = TrackingParameterStore(suiteName: suiteName)
+        store.addCustomParameter("custom_param")
+        store.removeCustomParameter("custom_param")
+
+        #expect(store.customParameters().isEmpty)
+        #expect(!store.enabledParameters().contains("custom_param"))
+    }
+}
