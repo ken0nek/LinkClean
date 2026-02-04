@@ -8,6 +8,8 @@ Default actor isolation is **MainActor** (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainA
 
 **Observation:** `@Observable` classes + `@State` in views. Never `ObservableObject`, `@Published`, or `@StateObject`.
 
+**Architecture:** See `ARCHITECTURE.md`.
+
 **SwiftData:** `@Model` for persistence, `@Query` for reactive fetches, `ModelContext` from environment only.
 
 **On-Device AI:** `@Generable` structs for type-safe Foundation Models output. Check `SystemLanguageModel.default.availability` before use.

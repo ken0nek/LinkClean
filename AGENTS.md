@@ -1,5 +1,8 @@
 # Repository Guidelines
 
+## Architecture
+- See `ARCHITECTURE.md` for the MVVM/Observation layering and dependency wiring conventions used in this repo.
+
 ## Project Structure & Module Organization
 - `LinkClean/`: SwiftUI app source (`LinkCleanApp.swift`, `ContentView.swift`, `URLCleaner.swift`) plus assets in `LinkClean/Assets.xcassets`.
 - `LinkCleanAction/`: Action Extension target (`ActionViewController.swift`, `Info.plist`, extension-specific `URLCleaner.swift`). Keep cleaner logic in sync with the app.
