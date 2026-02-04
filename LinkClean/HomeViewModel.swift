@@ -71,10 +71,12 @@ final class HomeViewModel {
     func onAppear() {
         isHomeVisible = true
 
-        guard !didRunInitialPaste else { return }
-        guard isAutoPasteEnabled else { return }
-        didRunInitialPaste = true
-        tryPasteFromClipboard()
+        if !didRunInitialPaste, isAutoPasteEnabled {
+            didRunInitialPaste = true
+            tryPasteFromClipboard()
+        }
+
+        refreshCleanedURL()
     }
 
     func onDisappear() {

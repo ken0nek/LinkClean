@@ -9,87 +9,6 @@ import Foundation
 
 public nonisolated enum URLCleaner {
 
-    private static let trackingParameters: Set<String> = [
-        // UTM
-        "utm_source",
-        "utm_medium",
-        "utm_campaign",
-        "utm_term",
-        "utm_content",
-        // Facebook
-        "fbclid",
-        // Google Ads
-        "gclid",
-        "gclsrc",
-        // Mailchimp
-        "mc_eid",
-        "mc_cid",
-        // Vero
-        "vero_id",
-        "vero_conv",
-        // Oly
-        "oly_enc_id",
-        "oly_anon_id",
-        // HubSpot
-        "__hssc",
-        "__hstc",
-        "__hsfp",
-        "hsctatracking",
-        // Google Analytics
-        "_ga",
-        "_gl",
-        // Referral
-        "ref",
-        "ref_src",
-        "ref_url",
-        // Microsoft / Bing Ads
-        "s_kwcid",
-        "msclkid",
-        // LinkedIn
-        "rcm",
-        // Social
-        "igshid",
-        "share_source_type",
-        "si",
-        "feature",
-        "app",
-        // X (formerly Twitter)
-        "s",
-        "t",
-        // TikTok Extended
-        "_ttp",
-        // YouTube
-        "si",
-        "pp",
-        // Native Advertising - Taboola
-        "campaign_id",
-        "campaign_item_id",
-        "creative_name",
-        "custom_id",
-        "site",
-        "site_id",
-        "platform",
-        "cpc",
-        // Native Advertising - Outbrain
-        "ob_click_id",
-        "ad_id",
-        "ad_name",
-        "doc_id",
-        "doc_title",
-        "doc_author",
-        "section_id",
-        "section_name",
-        "publisher_id",
-        "publisher_name",
-        // Affiliate Marketing
-        "subid",
-        "SharedID",
-        "aid",
-        // GA4
-        "ga",
-        "ga_session",
-    ]
-
     public static func isValidURL(_ urlString: String) -> Bool {
         let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty,
@@ -106,6 +25,10 @@ public nonisolated enum URLCleaner {
     }
 
     public static func clean(_ urlString: String) -> String {
+        clean(urlString, removing: TrackingParameterCatalog.defaultEnabledSet)
+    }
+
+    public static func clean(_ urlString: String, removing parameters: Set<String>) -> String {
         guard var components = URLComponents(string: urlString) else {
             return urlString
         }
@@ -114,8 +37,9 @@ public nonisolated enum URLCleaner {
             return urlString
         }
 
+        let normalized = Set(parameters.map { $0.lowercased() })
         let filtered = queryItems.filter { item in
-            !trackingParameters.contains(item.name.lowercased())
+            !normalized.contains(item.name.lowercased())
         }
 
         components.queryItems = filtered.isEmpty ? nil : filtered
@@ -124,7 +48,11 @@ public nonisolated enum URLCleaner {
     }
 
     public static func clean(_ url: URL) -> URL {
-        let cleaned = clean(url.absoluteString)
+        clean(url, removing: TrackingParameterCatalog.defaultEnabledSet)
+    }
+
+    public static func clean(_ url: URL, removing parameters: Set<String>) -> URL {
+        let cleaned = clean(url.absoluteString, removing: parameters)
         return URL(string: cleaned) ?? url
     }
 }

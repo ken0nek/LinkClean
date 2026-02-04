@@ -14,6 +14,12 @@ protocol URLCleaningService: Sendable {
 }
 
 struct DefaultURLCleaningService: URLCleaningService {
+    private let store: TrackingParameterStore
+
+    init(store: TrackingParameterStore = TrackingParameterStore()) {
+        self.store = store
+    }
+
     func isValidURL(_ input: String) -> Bool {
         URLCleaner.isValidURL(input)
     }
@@ -28,7 +34,7 @@ struct DefaultURLCleaningService: URLCleaningService {
             return nil
         }
 
-        let output = URLCleaner.clean(trimmed)
+        let output = URLCleaner.clean(trimmed, removing: store.enabledParameters())
         return CleanedURL(input: trimmed, output: output)
     }
 }

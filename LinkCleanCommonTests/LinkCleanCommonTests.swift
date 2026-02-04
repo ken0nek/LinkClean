@@ -38,6 +38,22 @@ struct URLCleanerTests {
         #expect(result == "https://example.com")
     }
 
+    // MARK: - Custom Removal Sets
+
+    @Test func removesOnlyEnabledParameters() {
+        let removing: Set<String> = ["utm_source"]
+        let result = URLCleaner.clean(
+            "https://example.com?utm_source=twitter&gclid=abc&ref=home",
+            removing: removing
+        )
+        #expect(result == "https://example.com?gclid=abc&ref=home")
+    }
+
+    @Test func lowercasesAndRemovesSharedID() {
+        let result = URLCleaner.clean("https://example.com?SharedID=abc&aid=123")
+        #expect(result == "https://example.com")
+    }
+
     // MARK: - Ad Platform Parameters
 
     @Test func removesFbclid() {

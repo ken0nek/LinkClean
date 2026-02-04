@@ -10,6 +10,7 @@ import UniformTypeIdentifiers
 import LinkCleanCommon
 
 class ActionViewController: UIViewController {
+    private let parameterStore = TrackingParameterStore()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +29,7 @@ class ActionViewController: UIViewController {
                 return
             }
 
-            let cleaned = URLCleaner.clean(url)
+            let cleaned = URLCleaner.clean(url, removing: parameterStore.enabledParameters())
             UIPasteboard.general.url = cleaned
 
             let generator = UINotificationFeedbackGenerator()

@@ -29,6 +29,12 @@ struct SettingsView: View {
                 Text("When enabled, LinkClean automatically pastes a valid URL from your clipboard when you open the app or return to it.")
             }
 
+            Section("Cleaning") {
+                NavigationLink("Default parameters") {
+                    ManageParametersView()
+                }
+            }
+
             Section("How to Use") {
                 Label("Open Safari or any app with a link", systemImage: "1.circle")
                 Label("Tap the Share button", systemImage: "2.circle")
