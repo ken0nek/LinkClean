@@ -6,39 +6,11 @@
 //
 
 import SwiftUI
-import UIKit
-import LinkCleanCommon
 
 struct HomeView: View {
-    @State private var inputText = ""
-    @State private var copyTask: Task<Void, Never>?
-    @State private var didCopy = false
-    @State private var showClipboardToast = false
-    @State private var toastTask: Task<Void, Never>?
-    @State private var isHomeVisible = false
-    @State private var didRunInitialPaste = false
+    @State private var viewModel: HomeViewModel
     @FocusState private var isInputFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
-
-    private var isInputEmpty: Bool {
-        inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    private var isInputValidURL: Bool {
-        URLCleaner.isValidURL(inputText)
-    }
-
-    private var shouldShowInvalidInputMessage: Bool {
-        !isInputEmpty && !isInputValidURL
-    }
-
-    private var cleanedText: String {
-        guard !isInputEmpty, isInputValidURL else {
-            return ""
-        }
-
-        return URLCleaner.clean(inputText.trimmingCharacters(in: .whitespacesAndNewlines))
-    }
 
     private var cardBackground: some ShapeStyle {
         LinearGradient(
@@ -51,7 +23,12 @@ struct HomeView: View {
         )
     }
 
+    init(viewModel: HomeViewModel = HomeViewModel()) {
+        _viewModel = State(initialValue: viewModel)
+    }
+
     var body: some View {
+        @Bindable var viewModel = viewModel
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -65,7 +42,7 @@ struct HomeView: View {
                         Spacer()
 
                         Button {
-                            inputText = ""
+                            viewModel.clearInput()
                         } label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 14, weight: .semibold))
@@ -78,11 +55,11 @@ struct HomeView: View {
                                 )
                         }
                         .buttonStyle(.plain)
-                        .disabled(isInputEmpty)
+                        .disabled(viewModel.isInputEmpty)
                         .accessibilityLabel("Clear input")
                     }
 
-                    TextField("Paste a URL to clean", text: $inputText, axis: .vertical)
+                    TextField("Paste a URL to clean", text: $viewModel.inputText, axis: .vertical)
                         .lineLimit(1...8)
                         .font(.system(.title3, design: .rounded).weight(.semibold))
                         .keyboardType(.URL)
@@ -95,12 +72,6 @@ struct HomeView: View {
                         .onSubmit {
                             isInputFocused = false
                         }
-                        .onChange(of: inputText) { _, newValue in
-                            if newValue.contains("\n") {
-                                inputText = newValue.replacingOccurrences(of: "\n", with: "")
-                                isInputFocused = false
-                            }
-                        }
                         .padding(12)
                         .background(.ultraThinMaterial, in: .rect(cornerRadius: 14))
                         .overlay(
@@ -108,7 +79,7 @@ struct HomeView: View {
                                 .stroke(.white.opacity(0.08))
                         )
 
-                    if shouldShowInvalidInputMessage {
+                    if viewModel.shouldShowInvalidInputMessage {
                         Text("Enter a valid URL")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -128,11 +99,11 @@ struct HomeView: View {
                         Spacer()
 
                         Button {
-                            copyCleanedURL()
+                            viewModel.copyCleanedURL()
                         } label: {
-                            Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
+                            Image(systemName: viewModel.didCopy ? "checkmark" : "doc.on.doc")
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(didCopy ? .green : .primary)
+                                .foregroundStyle(viewModel.didCopy ? .green : .primary)
                                 .frame(width: 34, height: 34)
                                 .background(.ultraThinMaterial, in: Circle())
                                 .overlay(
@@ -141,17 +112,17 @@ struct HomeView: View {
                                 )
                         }
                         .buttonStyle(.plain)
-                        .disabled(cleanedText.isEmpty)
-                        .symbolEffect(.bounce, value: didCopy)
-                        .accessibilityLabel(didCopy ? "Copied" : "Copy cleaned URL")
+                        .disabled(viewModel.cleanedText.isEmpty)
+                        .symbolEffect(.bounce, value: viewModel.didCopy)
+                        .accessibilityLabel(viewModel.didCopy ? "Copied" : "Copy cleaned URL")
                     }
 
                     Group {
-                        if cleanedText.isEmpty {
+                        if viewModel.cleanedText.isEmpty {
                             Text("Cleaned URL will appear here")
                                 .foregroundStyle(.secondary)
                         } else {
-                            Text(cleanedText)
+                            Text(viewModel.cleanedText)
                                 .foregroundStyle(.tint)
                                 .textSelection(.enabled)
                         }
@@ -171,7 +142,7 @@ struct HomeView: View {
             .padding()
         }
         .overlay(alignment: .top) {
-            if showClipboardToast {
+            if viewModel.showClipboardToast {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.yellow)
@@ -203,70 +174,20 @@ struct HomeView: View {
         )
         .navigationTitle("Home")
         .onAppear {
-            isHomeVisible = true
-            if !didRunInitialPaste {
-                didRunInitialPaste = true
-                tryPasteFromClipboard()
-            }
+            viewModel.onAppear()
         }
         .onDisappear {
-            isHomeVisible = false
+            viewModel.onDisappear()
         }
         .onChange(of: scenePhase) { _, newValue in
-            guard newValue == .active, isHomeVisible else { return }
-            tryPasteFromClipboard()
+            guard newValue == .active else { return }
+            viewModel.handleSceneBecameActive()
         }
-    }
-
-    private func copyCleanedURL() {
-        guard !cleanedText.isEmpty else { return }
-        UIPasteboard.general.string = cleanedText
-
-        withAnimation(.easeInOut(duration: 0.2)) {
-            didCopy = true
+        .onChange(of: viewModel.focusResetToken) { _, _ in
+            isInputFocused = false
         }
-
-        copyTask?.cancel()
-        copyTask = Task {
-            try? await Task.sleep(for: .seconds(1.4))
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    didCopy = false
-                }
-            }
-        }
-    }
-
-    private func tryPasteFromClipboard() {
-        guard isInputEmpty else { return }
-
-        let pasteboard = UIPasteboard.general
-        let candidate = pasteboard.url?.absoluteString ?? pasteboard.string ?? ""
-        let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        guard URLCleaner.isValidURL(trimmed) else {
-            showInvalidClipboardToast()
-            return
-        }
-
-        inputText = trimmed
-        isInputFocused = false
-    }
-
-    private func showInvalidClipboardToast() {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            showClipboardToast = true
-        }
-
-        toastTask?.cancel()
-        toastTask = Task {
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    showClipboardToast = false
-                }
-            }
-        }
+        .animation(.easeInOut(duration: 0.2), value: viewModel.showClipboardToast)
+        .animation(.easeInOut(duration: 0.2), value: viewModel.didCopy)
     }
 }
 
