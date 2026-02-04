@@ -13,15 +13,20 @@ struct HomeView: View {
     @State private var inputText = ""
     @State private var copyTask: Task<Void, Never>?
     @State private var didCopy = false
+    @State private var isHomeVisible = false
     @FocusState private var isInputFocused: Bool
+    @Environment(\.scenePhase) private var scenePhase
+
+    private var isInputEmpty: Bool {
+        inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     private var cleanedText: String {
-        let trimmed = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
+        guard !isInputEmpty else {
             return ""
         }
 
-        return URLCleaner.clean(trimmed)
+        return URLCleaner.clean(inputText.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     private var cardBackground: some ShapeStyle {
@@ -39,11 +44,32 @@ struct HomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Input URL")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .textCase(.uppercase)
-                        .tracking(1.1)
+                    HStack {
+                        Text("Input URL")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .textCase(.uppercase)
+                            .tracking(1.1)
+
+                        Spacer()
+
+                        Button {
+                            inputText = ""
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(.secondary)
+                                .frame(width: 34, height: 34)
+                                .background(.ultraThinMaterial, in: Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(.white.opacity(0.12))
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(isInputEmpty)
+                        .accessibilityLabel("Clear input")
+                    }
 
                     TextField("Paste a URL to clean", text: $inputText, axis: .vertical)
                         .lineLimit(1...8)
@@ -54,13 +80,15 @@ struct HomeView: View {
                         .autocorrectionDisabled()
                         .submitLabel(.done)
                         .focused($isInputFocused)
+                        .accessibilityIdentifier("input-url")
                         .onSubmit {
                             isInputFocused = false
                         }
                         .onChange(of: inputText) { _, newValue in
-                            guard newValue.contains("\n") else { return }
-                            inputText = newValue.replacingOccurrences(of: "\n", with: "")
-                            isInputFocused = false
+                            if newValue.contains("\n") {
+                                inputText = newValue.replacingOccurrences(of: "\n", with: "")
+                                isInputFocused = false
+                            }
                         }
                         .padding(12)
                         .background(.ultraThinMaterial, in: .rect(cornerRadius: 14))
@@ -137,6 +165,19 @@ struct HomeView: View {
             .ignoresSafeArea()
         )
         .navigationTitle("Home")
+        .onAppear {
+            isHomeVisible = true
+            if scenePhase == .active {
+                tryPasteFromClipboard()
+            }
+        }
+        .onDisappear {
+            isHomeVisible = false
+        }
+        .onChange(of: scenePhase) { _, newValue in
+            guard newValue == .active, isHomeVisible else { return }
+            tryPasteFromClipboard()
+        }
     }
 
     private func copyCleanedURL() {
@@ -156,6 +197,23 @@ struct HomeView: View {
                 }
             }
         }
+    }
+
+    private func tryPasteFromClipboard() {
+        guard isInputEmpty else { return }
+
+        let pasteboard = UIPasteboard.general
+        let candidate = pasteboard.url?.absoluteString ?? pasteboard.string ?? ""
+        let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: trimmed),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https"
+        else {
+            return
+        }
+
+        inputText = trimmed
+        isInputFocused = false
     }
 }
 
