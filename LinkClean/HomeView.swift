@@ -161,17 +161,7 @@ struct HomeView: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .background(
-            LinearGradient(
-                colors: [
-                    Color(.systemBackground),
-                    Color(.secondarySystemBackground)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-        )
+        .screenBackground()
         .navigationTitle("Home")
         .onAppear {
             viewModel.onAppear()

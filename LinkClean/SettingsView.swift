@@ -40,6 +40,8 @@ struct SettingsView: View {
                 LabeledContent("Version", value: "\(version) (\(build))")
             }
         }
+        .scrollContentBackground(.hidden)
+        .screenBackground()
         .navigationTitle("Settings")
     }
 }
