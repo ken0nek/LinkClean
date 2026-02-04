@@ -16,6 +16,7 @@ struct HomeView: View {
     @State private var showClipboardToast = false
     @State private var toastTask: Task<Void, Never>?
     @State private var isHomeVisible = false
+    @State private var didRunInitialPaste = false
     @FocusState private var isInputFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
 
@@ -189,7 +190,8 @@ struct HomeView: View {
         .navigationTitle("Home")
         .onAppear {
             isHomeVisible = true
-            if scenePhase == .active {
+            if !didRunInitialPaste {
+                didRunInitialPaste = true
                 tryPasteFromClipboard()
             }
         }
