@@ -20,10 +20,6 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("About") {
-                LabeledContent("Version", value: "\(version) (\(build))")
-            }
-
             Section {
                 Toggle("Auto Paste", isOn: $autoPasteEnabled)
                     .accessibilityIdentifier("settings-auto-paste-toggle")
@@ -38,6 +34,10 @@ struct SettingsView: View {
                 Label("Tap the Share button", systemImage: "2.circle")
                 Label("Select \"Clean URL\"", systemImage: "3.circle")
                 Label("The cleaned URL is copied to your clipboard", systemImage: "4.circle")
+            }
+
+            Section("About") {
+                LabeledContent("Version", value: "\(version) (\(build))")
             }
         }
         .navigationTitle("Settings")
