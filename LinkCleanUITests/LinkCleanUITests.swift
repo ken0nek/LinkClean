@@ -9,33 +9,41 @@ import XCTest
 
 final class LinkCleanUITests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testAutoPasteToggleDefaultsOnAndToggles() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["-uiTesting"]
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        dismissPastePermissionIfNeeded()
+
+        let settingsTab = app.tabBars.buttons["Settings"]
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 2))
+        settingsTab.tap()
+
+        let toggleContainer = app.switches["settings-auto-paste-toggle"]
+        XCTAssertTrue(toggleContainer.waitForExistence(timeout: 2))
+
+        // SwiftUI Forms can expose a "switch container" element. The real UISwitch is often a nested descendant.
+        let toggle = toggleContainer.switches.firstMatch
+        XCTAssertTrue(toggle.waitForExistence(timeout: 2))
+        XCTAssertEqual(toggle.value as? String, "1")
+
+        toggle.tap()
+        XCTAssertEqual(toggle.value as? String, "0")
     }
 
     @MainActor
-    func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+    private func dismissPastePermissionIfNeeded() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let alert = springboard.alerts.firstMatch
+        guard alert.waitForExistence(timeout: 0.8) else { return }
+
+        // Clipboard permission alert has 2 buttons: top is "Don't Allow", bottom is "Allow".
+        // Use index to avoid localization issues.
+        let allowButton = alert.buttons.element(boundBy: 1)
+        if allowButton.exists {
+            allowButton.tap()
         }
     }
 }

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @AppStorage(SettingsKeys.autoPasteEnabled) private var autoPasteEnabled = true
+
     private var version: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
     }
@@ -20,6 +22,15 @@ struct SettingsView: View {
         Form {
             Section("About") {
                 LabeledContent("Version", value: "\(version) (\(build))")
+            }
+
+            Section {
+                Toggle("Auto Paste", isOn: $autoPasteEnabled)
+                    .accessibilityIdentifier("settings-auto-paste-toggle")
+            } header: {
+                Text("Clipboard")
+            } footer: {
+                Text("When enabled, LinkClean automatically pastes a valid URL from your clipboard when you open the app or return to it.")
             }
 
             Section("How to Use") {

@@ -32,6 +32,10 @@ final class HomeViewModel {
         self.service = service
     }
 
+    private var isAutoPasteEnabled: Bool {
+        UserDefaults.standard.object(forKey: SettingsKeys.autoPasteEnabled) as? Bool ?? true
+    }
+
     var isInputEmpty: Bool {
         trimmedInput.isEmpty
     }
@@ -66,10 +70,11 @@ final class HomeViewModel {
 
     func onAppear() {
         isHomeVisible = true
-        if !didRunInitialPaste {
-            didRunInitialPaste = true
-            tryPasteFromClipboard()
-        }
+
+        guard !didRunInitialPaste else { return }
+        guard isAutoPasteEnabled else { return }
+        didRunInitialPaste = true
+        tryPasteFromClipboard()
     }
 
     func onDisappear() {
@@ -77,11 +82,12 @@ final class HomeViewModel {
     }
 
     func handleSceneBecameActive() {
-        guard isHomeVisible else { return }
+        guard isHomeVisible, isAutoPasteEnabled else { return }
         tryPasteFromClipboard()
     }
 
     func tryPasteFromClipboard() {
+        guard isAutoPasteEnabled else { return }
         guard isInputEmpty else { return }
 
         let pasteboard = UIPasteboard.general
