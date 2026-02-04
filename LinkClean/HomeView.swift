@@ -24,8 +24,16 @@ struct HomeView: View {
         inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var isInputValidURL: Bool {
+        URLCleaner.isValidURL(inputText)
+    }
+
+    private var shouldShowInvalidInputMessage: Bool {
+        !isInputEmpty && !isInputValidURL
+    }
+
     private var cleanedText: String {
-        guard !isInputEmpty else {
+        guard !isInputEmpty, isInputValidURL else {
             return ""
         }
 
@@ -99,6 +107,12 @@ struct HomeView: View {
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .stroke(.white.opacity(0.08))
                         )
+
+                    if shouldShowInvalidInputMessage {
+                        Text("Enter a valid URL")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 Divider()
@@ -230,10 +244,7 @@ struct HomeView: View {
         let candidate = pasteboard.url?.absoluteString ?? pasteboard.string ?? ""
         let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        guard let url = URL(string: trimmed),
-              let scheme = url.scheme?.lowercased(),
-              scheme == "http" || scheme == "https"
-        else {
+        guard URLCleaner.isValidURL(trimmed) else {
             showInvalidClipboardToast()
             return
         }

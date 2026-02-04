@@ -155,6 +155,28 @@ struct URLCleanerTests {
         #expect(result == "https://example.com/a/b/c")
     }
 
+    // MARK: - URL Validation
+
+    @Test func validatesHttpsURL() {
+        #expect(URLCleaner.isValidURL("https://example.com"))
+    }
+
+    @Test func validatesHttpURL() {
+        #expect(URLCleaner.isValidURL("http://example.com"))
+    }
+
+    @Test func rejectsEmptyURL() {
+        #expect(!URLCleaner.isValidURL("   "))
+    }
+
+    @Test func rejectsInvalidURL() {
+        #expect(!URLCleaner.isValidURL("not a url"))
+    }
+
+    @Test func rejectsMissingScheme() {
+        #expect(!URLCleaner.isValidURL("example.com"))
+    }
+
     // MARK: - URL Overload
 
     @Test func cleanURLOverload() {

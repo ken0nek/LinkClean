@@ -90,6 +90,21 @@ public nonisolated enum URLCleaner {
         "ga_session",
     ]
 
+    public static func isValidURL(_ urlString: String) -> Bool {
+        let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty,
+              let components = URLComponents(string: trimmed),
+              let scheme = components.scheme?.lowercased(),
+              scheme == "http" || scheme == "https",
+              let host = components.host,
+              !host.isEmpty
+        else {
+            return false
+        }
+
+        return true
+    }
+
     public static func clean(_ urlString: String) -> String {
         guard var components = URLComponents(string: urlString) else {
             return urlString
