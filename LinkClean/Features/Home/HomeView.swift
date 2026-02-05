@@ -103,7 +103,7 @@ struct HomeView: View {
 
                         Button {
                             viewModel.copyCleanedURL()
-                            if let cleanedURL = viewModel.cleanedURL {
+                            if viewModel.isSaveHistoryEnabled, let cleanedURL = viewModel.cleanedURL {
                                 let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
                                 modelContext.insert(entry)
                             }

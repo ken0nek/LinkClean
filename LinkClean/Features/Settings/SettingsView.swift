@@ -13,7 +13,9 @@ import LinkCleanCommon
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage(SettingsKeys.autoPasteEnabled) private var autoPasteEnabled = true
+    @AppStorage(SettingsKeys.saveHistoryEnabled, store: UserDefaults(suiteName: AppGroup.identifier)) private var saveHistoryEnabled = true
     @State private var showClearHistoryConfirmation = false
+    @State private var showDisableHistoryConfirmation = false
 
     private var version: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -45,8 +47,21 @@ struct SettingsView: View {
             }
 
             Section("Data") {
-                Button("Clear History", role: .destructive) {
-                    showClearHistoryConfirmation = true
+                Toggle("Save History", isOn: Binding(
+                    get: { saveHistoryEnabled },
+                    set: { newValue in
+                        if newValue {
+                            saveHistoryEnabled = true
+                        } else {
+                            showDisableHistoryConfirmation = true
+                        }
+                    }
+                ))
+
+                if saveHistoryEnabled {
+                    Button("Clear History", role: .destructive) {
+                        showClearHistoryConfirmation = true
+                    }
                 }
             }
 
@@ -64,6 +79,15 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .screenBackground()
         .navigationTitle("Settings")
+        .alert("Disable History?", isPresented: $showDisableHistoryConfirmation) {
+            Button("Disable & Delete", role: .destructive) {
+                saveHistoryEnabled = false
+                try? modelContext.delete(model: HistoryEntry.self)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("All existing history will be permanently deleted.")
+        }
         .alert("Clear History?", isPresented: $showClearHistoryConfirmation) {
             Button("Delete", role: .destructive) {
                 try? modelContext.delete(model: HistoryEntry.self)

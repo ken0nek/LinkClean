@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LinkCleanCommon
 import Observation
 import UIKit
 
@@ -34,6 +35,11 @@ final class HomeViewModel {
 
     private var isAutoPasteEnabled: Bool {
         UserDefaults.standard.object(forKey: SettingsKeys.autoPasteEnabled) as? Bool ?? true
+    }
+
+    var isSaveHistoryEnabled: Bool {
+        UserDefaults(suiteName: AppGroup.identifier)?
+            .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
     }
 
     var isInputEmpty: Bool {

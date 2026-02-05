@@ -7,5 +7,6 @@
 
 enum SettingsKeys {
     static let autoPasteEnabled = "autoPasteEnabled"
+    static let saveHistoryEnabled = "saveHistoryEnabled"
 }
 

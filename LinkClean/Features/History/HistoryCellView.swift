@@ -6,13 +6,11 @@
 //
 
 import LinkCleanCommon
-import SwiftData
 import SwiftUI
 
 struct HistoryCellView: View {
     let entry: HistoryEntry
     let viewModel: HistoryViewModel
-    let modelContext: ModelContext
 
     @Environment(\.openURL) private var openURL
 
@@ -108,14 +106,14 @@ struct HistoryCellView: View {
             Divider()
 
             Button(role: .destructive) {
-                viewModel.deleteEntry(entry, from: modelContext)
+                viewModel.deleteEntry(entry)
             } label: {
                 Label("Delete", systemImage: "trash")
             }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                viewModel.deleteEntry(entry, from: modelContext)
+                viewModel.deleteEntry(entry)
             } label: {
                 Label("Delete", systemImage: "trash")
             }
@@ -130,16 +128,14 @@ struct HistoryCellView: View {
                 input: "https://x.com/user/status/123456?s=20&t=abc",
                 output: "https://x.com/user/status/123456"
             ),
-            viewModel: HistoryViewModel(),
-            modelContext: try! ModelContext(ModelContainer(for: HistoryEntry.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+            viewModel: HistoryViewModel()
         )
         HistoryCellView(
             entry: HistoryEntry(
                 input: "https://www.example.com/page?utm_source=test",
                 output: "https://www.example.com/page"
             ),
-            viewModel: HistoryViewModel(),
-            modelContext: try! ModelContext(ModelContainer(for: HistoryEntry.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+            viewModel: HistoryViewModel()
         )
     }
 }
