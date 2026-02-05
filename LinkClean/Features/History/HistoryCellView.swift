@@ -42,28 +42,27 @@ struct HistoryCellView: View {
                     Text(title)
                         .font(.body)
                         .foregroundStyle(.primary)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 } else {
                     Text(entry.output)
                         .font(.body)
                         .foregroundStyle(.tint)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
 
-                HStack(spacing: 4) {
-                    Text(domain)
-                        .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 4) {
+                        Text(domain)
+                            .foregroundStyle(.secondary)
 
-                    Text("·")
-                        .foregroundStyle(.tertiary)
+                        if isFetching {
+                            ProgressView()
+                                .controlSize(.mini)
+                        }
+                    }
 
                     Text(entry.createdAt, format: .relative(presentation: .named))
                         .foregroundStyle(.tertiary)
-
-                    if isFetching {
-                        ProgressView()
-                            .controlSize(.mini)
-                    }
                 }
                 .font(.footnote)
                 .lineLimit(1)
@@ -150,8 +149,8 @@ struct HistoryCellView: View {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFill()
-                .frame(width: 40, height: 40)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         } else {
             domainInitialView
         }
@@ -159,10 +158,10 @@ struct HistoryCellView: View {
 
     private var domainInitialView: some View {
         Text(domainInitial)
-            .font(.system(size: 18, weight: .bold, design: .rounded))
+            .font(.system(size: 26, weight: .bold, design: .rounded))
             .foregroundStyle(.white)
-            .frame(width: 40, height: 40)
-            .background(.tint, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .frame(width: 64, height: 64)
+            .background(.tint, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
 
