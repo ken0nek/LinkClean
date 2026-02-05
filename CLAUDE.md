@@ -33,6 +33,9 @@ Swift Testing framework: `@Test`, `#expect`, `#require`.
 - Direct service/network calls from Views
 - Two mechanisms reading the same underlying state in one screen
 
+## Git
+Only commit staged changes. Never stage additional files unless explicitly asked.
+
 ## File Placement
 ```
 LinkClean/
