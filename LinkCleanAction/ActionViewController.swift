@@ -32,6 +32,10 @@ class ActionViewController: UIViewController {
             let cleaned = URLCleaner.clean(url, removing: parameterStore.enabledParameters())
             UIPasteboard.general.url = cleaned
 
+            if let container = HistoryContainer.makeShared() {
+                try? HistoryRecorder.save(input: url.absoluteString, output: cleaned.absoluteString, in: container)
+            }
+
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.success)
 

@@ -5,12 +5,15 @@
 //  Created by Ken Tominaga on 2/4/26.
 //
 
+import LinkCleanCommon
+import SwiftData
 import SwiftUI
 
 struct HomeView: View {
     @State private var viewModel: HomeViewModel
     @FocusState private var isInputFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.modelContext) private var modelContext
 
     private var cardBackground: some ShapeStyle {
         LinearGradient(
@@ -100,6 +103,10 @@ struct HomeView: View {
 
                         Button {
                             viewModel.copyCleanedURL()
+                            if let cleanedURL = viewModel.cleanedURL {
+                                let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
+                                modelContext.insert(entry)
+                            }
                         } label: {
                             Image(systemName: viewModel.didCopy ? "checkmark" : "doc.on.doc")
                                 .font(.system(size: 14, weight: .semibold))
