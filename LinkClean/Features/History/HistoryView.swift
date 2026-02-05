@@ -11,6 +11,8 @@ import SwiftUI
 
 struct HistoryView: View {
     @Query(sort: \HistoryEntry.createdAt, order: .reverse) private var entries: [HistoryEntry]
+    @State private var viewModel = HistoryViewModel()
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         Group {
@@ -22,26 +24,16 @@ struct HistoryView: View {
                 )
             } else {
                 List(entries) { entry in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(entry.output)
-                            .font(.body)
-                            .foregroundStyle(.tint)
-                            .lineLimit(1)
-
-                        Text(entry.input)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-
-                        Text(entry.createdAt, style: .relative)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    }
+                    HistoryCellView(entry: entry, viewModel: viewModel, modelContext: modelContext)
                 }
+                .contentMargins(.top, 16)
             }
         }
         .screenBackground()
         .navigationTitle("History")
+        .onDisappear {
+            viewModel.cancelTasks()
+        }
     }
 }
 
