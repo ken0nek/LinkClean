@@ -62,6 +62,7 @@ struct CustomParametersView: View {
                             .accessibilityIdentifier("custom-parameter-delete-\(parameter)")
                         }
                     }
+                    .onDelete(perform: viewModel.deleteParameters)
                 }
             }
         }
