@@ -103,10 +103,6 @@ struct HomeView: View {
 
                         Button {
                             viewModel.copyCleanedURL()
-                            if viewModel.isSaveHistoryEnabled, let cleanedURL = viewModel.cleanedURL {
-                                let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
-                                modelContext.insert(entry)
-                            }
                         } label: {
                             Image(systemName: viewModel.didCopy ? "checkmark" : "doc.on.doc")
                                 .font(.system(size: 14, weight: .semibold))
@@ -170,6 +166,9 @@ struct HomeView: View {
         }
         .screenBackground()
         .navigationTitle("Home")
+        .task {
+            viewModel.setModelContext(modelContext)
+        }
         .onAppear {
             viewModel.onAppear()
         }

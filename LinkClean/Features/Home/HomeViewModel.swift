@@ -8,6 +8,7 @@
 import Foundation
 import LinkCleanCommon
 import Observation
+import SwiftData
 import UIKit
 
 @MainActor
@@ -26,6 +27,7 @@ final class HomeViewModel {
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
+    @ObservationIgnored private var modelContext: ModelContext?
     @ObservationIgnored private var isHomeVisible = false
     @ObservationIgnored private var didRunInitialPaste = false
 
@@ -62,10 +64,19 @@ final class HomeViewModel {
         inputText = ""
     }
 
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+    }
+
     func copyCleanedURL() {
         guard !cleanedText.isEmpty else { return }
         UIPasteboard.general.string = cleanedText
         didCopy = true
+
+        if isSaveHistoryEnabled, let cleanedURL {
+            let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
+            modelContext?.insert(entry)
+        }
 
         copyTask?.cancel()
         copyTask = Task { @MainActor in

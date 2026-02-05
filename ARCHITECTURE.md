@@ -57,6 +57,27 @@ If using SwiftData:
 - One ViewModel per screen/feature: `@MainActor @Observable final class`.
 - Expose intent-based methods (named after user actions).
 - Keep dependencies and internal tasks out of observation using `@ObservationIgnored`.
+- ViewModels read external state (UserDefaults, feature flags) via computed properties — never `@AppStorage`.
+- **Single-owner rule:** each piece of state has exactly one owner. If the ViewModel exposes it, the View must not independently read the same source.
+
+Construction template:
+```swift
+// ViewModel
+@MainActor @Observable final class FeatureViewModel {
+    @ObservationIgnored private let service: SomeService
+    init(service: SomeService = DefaultSomeService()) {
+        self.service = service
+    }
+}
+
+// Owning View
+struct FeatureView: View {
+    @State private var viewModel: FeatureViewModel
+    init(viewModel: FeatureViewModel = FeatureViewModel()) {
+        _viewModel = State(initialValue: viewModel)
+    }
+}
+```
 
 Async behavior conventions:
 - Model loading/error/ready explicitly (avoid “hidden” loading flags scattered around).
@@ -67,8 +88,11 @@ Async behavior conventions:
 **Goal:** render state; forward intent; no business rules.
 - The owning view stores the ViewModel in `@State` for stable lifetime.
 - Use `@Bindable` inside `body` when you need bindings to observable properties.
+- **With a ViewModel:** View owns `@State` (the ViewModel), `@FocusState`, `@Environment`, `@Query`, presentation-only `@State` (alerts, sheets). All business state and settings reads live in the ViewModel.
+- **Without a ViewModel:** Simple settings forms that only bind `@AppStorage` toggles with no async work or complex state may skip the ViewModel. If the screen grows to need coordination or async work, extract a ViewModel.
 - Use `.task {}` for lifecycle-bound async work (auto-cancels when the view disappears).
 - Presentation-only logic is fine (formatting, conditional rendering); business rules stay in the ViewModel.
+- `@Query` belongs in the View (SwiftUI integration). Write operations (`insert`, `delete`) belong in the ViewModel.
 
 ## Testing & Previews
 **Goal:** fast tests that don’t hit real side effects.
@@ -81,3 +105,5 @@ This repo includes shared logic used by multiple targets (e.g. app + action exte
 - Keep pure, framework-agnostic domain logic in shared modules (e.g. `LinkCleanCommon`).
 - Keep target-specific UI and side effects in the target.
 - When the extension must use UIKit, apply the same separation: minimal controller orchestration + shared domain/services underneath.
+- App-only settings → `UserDefaults.standard`. Shared settings (read by action extension) → `UserDefaults(suiteName: AppGroup.identifier)`.
+- All keys defined in `SettingsKeys`. Never hard-code key strings.
