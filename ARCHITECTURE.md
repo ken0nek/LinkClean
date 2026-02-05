@@ -57,7 +57,7 @@ If using SwiftData:
 - One ViewModel per screen/feature: `@MainActor @Observable final class`.
 - Expose intent-based methods (named after user actions).
 - Keep dependencies and internal tasks out of observation using `@ObservationIgnored`.
-- ViewModels read external state (UserDefaults, feature flags) via computed properties — never `@AppStorage`.
+- ViewModels read external state (UserDefaults, feature flags) via **stored properties** refreshed at lifecycle boundaries (e.g. `onAppear`) — never `@AppStorage`. Computed properties over external sources are invisible to `@Observable` tracking.
 - **Single-owner rule:** each piece of state has exactly one owner. If the ViewModel exposes it, the View must not independently read the same source.
 
 Construction template:

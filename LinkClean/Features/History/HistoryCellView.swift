@@ -7,6 +7,7 @@
 
 import LinkCleanCommon
 import SwiftUI
+import UIKit
 
 struct HistoryCellView: View {
     let entry: HistoryEntry
@@ -28,19 +29,26 @@ struct HistoryCellView: View {
         return String(first).uppercased()
     }
 
+    private var isFetching: Bool {
+        viewModel.fetchingEntryIDs.contains(entry.id)
+    }
+
     var body: some View {
         HStack(spacing: 14) {
-            Text(domainInitial)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
-                .frame(width: 40, height: 40)
-                .background(.tint, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            thumbnail
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(entry.output)
-                    .font(.body)
-                    .foregroundStyle(.tint)
-                    .lineLimit(1)
+                if let title = entry.pageTitle {
+                    Text(title)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                } else {
+                    Text(entry.output)
+                        .font(.body)
+                        .foregroundStyle(.tint)
+                        .lineLimit(1)
+                }
 
                 HStack(spacing: 4) {
                     Text(domain)
@@ -51,6 +59,11 @@ struct HistoryCellView: View {
 
                     Text(entry.createdAt, format: .relative(presentation: .named))
                         .foregroundStyle(.tertiary)
+
+                    if isFetching {
+                        ProgressView()
+                            .controlSize(.mini)
+                    }
                 }
                 .font(.footnote)
                 .lineLimit(1)
@@ -84,6 +97,9 @@ struct HistoryCellView: View {
             }
         }
         .padding(.vertical, 4)
+        .task(id: entry.id) {
+            viewModel.fetchMetadataIfNeeded(for: entry)
+        }
         .contextMenu {
             Button {
                 viewModel.copyURL(for: entry)
@@ -103,6 +119,14 @@ struct HistoryCellView: View {
                 Label("Open in Browser", systemImage: "safari")
             }
 
+            if entry.metadataFetchAttempted && entry.pageTitle == nil {
+                Button {
+                    viewModel.retryMetadataFetch(for: entry)
+                } label: {
+                    Label("Retry Metadata", systemImage: "arrow.clockwise")
+                }
+            }
+
             Divider()
 
             Button(role: .destructive) {
@@ -118,6 +142,27 @@ struct HistoryCellView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
+    }
+
+    @ViewBuilder
+    private var thumbnail: some View {
+        if let data = entry.thumbnailData, let uiImage = UIImage(data: data) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 40, height: 40)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        } else {
+            domainInitialView
+        }
+    }
+
+    private var domainInitialView: some View {
+        Text(domainInitial)
+            .font(.system(size: 18, weight: .bold, design: .rounded))
+            .foregroundStyle(.white)
+            .frame(width: 40, height: 40)
+            .background(.tint, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 

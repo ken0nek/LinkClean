@@ -28,7 +28,7 @@ Swift Testing framework: `@Test`, `#expect`, `#require`.
 - GCD (use async/await, TaskGroup, actors)
 - Force unwraps without documented invariants
 - UIKit unless no SwiftUI equivalent exists
-- `@AppStorage` in a View that has a ViewModel (ViewModel reads settings instead)
+- `@AppStorage` in a View that has a ViewModel (ViewModel owns settings as stored properties, refreshed on appear)
 - Business logic in View button/action closures (call a ViewModel method)
 - Direct service/network calls from Views
 - Two mechanisms reading the same underlying state in one screen
@@ -38,7 +38,6 @@ Swift Testing framework: `@Test`, `#expect`, `#require`.
 LinkClean/
   App/                      – Entry point, root ContentView
   Features/{FeatureName}/   – View + ViewModel pairs, feature-scoped types
-  Shared/Config/            – App-wide constants (SettingsKeys)
   Shared/Models/            – Domain types used across features
   Shared/Services/          – Service protocols and implementations
   Shared/UI/                – Reusable view modifiers, components

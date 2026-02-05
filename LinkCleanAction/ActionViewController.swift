@@ -33,7 +33,7 @@ class ActionViewController: UIViewController {
             UIPasteboard.general.url = cleaned
 
             let saveHistory = UserDefaults(suiteName: AppGroup.identifier)?
-                .object(forKey: "saveHistoryEnabled") as? Bool ?? true
+                .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
             if saveHistory, let container = HistoryContainer.makeShared() {
                 try? HistoryRecorder.save(input: url.absoluteString, output: cleaned.absoluteString, in: container)
             }

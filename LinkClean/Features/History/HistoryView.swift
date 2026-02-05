@@ -13,6 +13,7 @@ struct HistoryView: View {
     @Query(sort: \HistoryEntry.createdAt, order: .reverse) private var entries: [HistoryEntry]
     @State private var viewModel: HistoryViewModel
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
 
     init(viewModel: HistoryViewModel = HistoryViewModel()) {
         _viewModel = State(initialValue: viewModel)
@@ -44,6 +45,14 @@ struct HistoryView: View {
         .navigationTitle("History")
         .task {
             viewModel.setModelContext(modelContext)
+        }
+        .onAppear {
+            viewModel.refreshSettings()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                viewModel.refreshSettings()
+            }
         }
         .onDisappear {
             viewModel.cancelTasks()
