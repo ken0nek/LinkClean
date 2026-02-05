@@ -5,10 +5,15 @@
 //  Created by Ken Tominaga on 2/4/26.
 //
 
+import SwiftData
 import SwiftUI
 
+import LinkCleanCommon
+
 struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
     @AppStorage(SettingsKeys.autoPasteEnabled) private var autoPasteEnabled = true
+    @State private var showClearHistoryConfirmation = false
 
     private var version: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -39,6 +44,12 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Data") {
+                Button("Clear History", role: .destructive) {
+                    showClearHistoryConfirmation = true
+                }
+            }
+
             Section("How to Use") {
                 Label("Open Safari or any app with a link", systemImage: "1.circle")
                 Label("Tap the Share button", systemImage: "2.circle")
@@ -53,6 +64,14 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .screenBackground()
         .navigationTitle("Settings")
+        .alert("Clear History?", isPresented: $showClearHistoryConfirmation) {
+            Button("Delete", role: .destructive) {
+                try? modelContext.delete(model: HistoryEntry.self)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("All cleaning history will be permanently deleted.")
+        }
     }
 }
 
