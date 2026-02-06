@@ -6,6 +6,7 @@
 import Testing
 import Foundation
 import SwiftData
+import UIKit
 @testable import LinkClean
 import LinkCleanCommon
 
@@ -137,5 +138,48 @@ struct HistoryViewModelTests {
         vm.refreshSettings()
 
         #expect(vm.viewState(hasEntries: true) == .populated)
+    }
+
+    // MARK: - Copy as Markdown
+
+    @Test func copyMarkdownWithTitle() {
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let entry = HistoryEntry(
+            input: "https://example.com?utm_source=tw",
+            output: "https://example.com",
+            pageTitle: "Example Site"
+        )
+
+        vm.copyMarkdown(for: entry)
+
+        #expect(UIPasteboard.general.string == "[Example Site](https://example.com)")
+        #expect(vm.copiedEntryID == entry.id)
+    }
+
+    @Test func copyMarkdownWithoutTitle() {
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let entry = HistoryEntry(
+            input: "https://example.com?utm_source=tw",
+            output: "https://example.com"
+        )
+
+        vm.copyMarkdown(for: entry)
+
+        #expect(UIPasteboard.general.string == "[https://example.com](https://example.com)")
+        #expect(vm.copiedEntryID == entry.id)
+    }
+
+    @Test func copyMarkdownEscapesBracketsInTitle() {
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let entry = HistoryEntry(
+            input: "https://example.com?ref=home",
+            output: "https://example.com",
+            pageTitle: "Title [with] brackets"
+        )
+
+        vm.copyMarkdown(for: entry)
+
+        #expect(UIPasteboard.general.string == "[Title \\[with\\] brackets](https://example.com)")
+        #expect(vm.copiedEntryID == entry.id)
     }
 }

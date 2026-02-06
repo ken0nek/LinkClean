@@ -61,6 +61,18 @@ final class HistoryViewModel {
 
     func copyURL(for entry: HistoryEntry) {
         UIPasteboard.general.string = entry.output
+        showCopiedFeedback(for: entry)
+    }
+
+    func copyMarkdown(for entry: HistoryEntry) {
+        let title = (entry.pageTitle ?? entry.output)
+            .replacingOccurrences(of: "[", with: "\\[")
+            .replacingOccurrences(of: "]", with: "\\]")
+        UIPasteboard.general.string = "[\(title)](\(entry.output))"
+        showCopiedFeedback(for: entry)
+    }
+
+    private func showCopiedFeedback(for entry: HistoryEntry) {
         copiedEntryID = entry.id
 
         copyTask?.cancel()

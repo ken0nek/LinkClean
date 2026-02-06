@@ -106,6 +106,12 @@ struct HistoryCellView: View {
                 Label("Copy Clean URL", systemImage: "doc.on.doc")
             }
 
+            Button {
+                viewModel.copyMarkdown(for: entry)
+            } label: {
+                Label("Copy as Markdown", systemImage: "curlybraces")
+            }
+
             ShareLink(item: entry.output) {
                 Label("Share", systemImage: "square.and.arrow.up")
             }
