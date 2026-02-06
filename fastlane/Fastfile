@@ -1,0 +1,59 @@
+default_platform(:ios)
+
+APP_TARGETS = ["LinkClean", "LinkCleanAction"].freeze
+
+platform :ios do
+  desc "Bump version number (type: major|minor|patch, or version: X.Y.Z)"
+  lane :bump_version do |options|
+    APP_TARGETS.each do |target|
+      if options[:version]
+        increment_version_number_in_xcodeproj(
+          version_number: options[:version],
+          target: target
+        )
+      else
+        increment_version_number_in_xcodeproj(
+          bump_type: options[:type] || "patch",
+          target: target
+        )
+      end
+    end
+  end
+
+  desc "Bump build number (number: N, or auto-increments by 1)"
+  lane :bump_build do |options|
+    APP_TARGETS.each do |target|
+      if options[:number]
+        increment_build_number_in_xcodeproj(
+          build_number: options[:number].to_s,
+          target: target
+        )
+      else
+        increment_build_number_in_xcodeproj(
+          target: target
+        )
+      end
+    end
+  end
+
+  desc "Bump both version and build number"
+  lane :bump do |options|
+    bump_version(type: options[:type], version: options[:version])
+    bump_build(number: options[:number])
+  end
+
+  desc "Bump build, build IPA, and upload to TestFlight (changelog: 'What to test')"
+  lane :testflight do |options|
+    bump_build
+    build_app(
+      project: "LinkClean.xcodeproj",
+      scheme: "LinkClean",
+      clean: true,
+      export_method: "app-store"
+    )
+    upload_to_testflight(
+      changelog: options[:changelog],
+      skip_waiting_for_build_processing: true
+    )
+  end
+end
