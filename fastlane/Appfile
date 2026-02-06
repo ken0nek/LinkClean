@@ -1,0 +1,3 @@
+app_identifier("com.ken0nek.LinkClean") # The bundle identifier of your app
+apple_id("ken.for.develop@gmail.com") # Your Apple Developer Portal username
+itc_team_id("10674868") # App Store Connect Team ID
