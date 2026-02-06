@@ -103,16 +103,22 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E90AAB5B2F2F4ED30021A4A1 /* LinkClean */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LinkClean;
 			sourceTree = "<group>";
 		};
 		E90AAB6B2F2F4ED30021A4A1 /* LinkCleanTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LinkCleanTests;
 			sourceTree = "<group>";
 		};
 		E90AAB752F2F4ED30021A4A1 /* LinkCleanUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LinkCleanUITests;
 			sourceTree = "<group>";
 		};
@@ -126,11 +132,15 @@
 		};
 		E90AABD12F3169B10021A4A1 /* LinkCleanCommon */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LinkCleanCommon;
 			sourceTree = "<group>";
 		};
 		E90AABDE2F3169B10021A4A1 /* LinkCleanCommonTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LinkCleanCommonTests;
 			sourceTree = "<group>";
 		};
@@ -253,8 +263,6 @@
 				E90AAB5B2F2F4ED30021A4A1 /* LinkClean */,
 			);
 			name = LinkClean;
-			packageProductDependencies = (
-			);
 			productName = LinkClean;
 			productReference = E90AAB592F2F4ED30021A4A1 /* LinkClean.app */;
 			productType = "com.apple.product-type.application";
@@ -276,8 +284,6 @@
 				E90AAB6B2F2F4ED30021A4A1 /* LinkCleanTests */,
 			);
 			name = LinkCleanTests;
-			packageProductDependencies = (
-			);
 			productName = LinkCleanTests;
 			productReference = E90AAB682F2F4ED30021A4A1 /* LinkCleanTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -299,8 +305,6 @@
 				E90AAB752F2F4ED30021A4A1 /* LinkCleanUITests */,
 			);
 			name = LinkCleanUITests;
-			packageProductDependencies = (
-			);
 			productName = LinkCleanUITests;
 			productReference = E90AAB722F2F4ED30021A4A1 /* LinkCleanUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -322,8 +326,6 @@
 				E90AAB8D2F3058F40021A4A1 /* LinkCleanAction */,
 			);
 			name = LinkCleanAction;
-			packageProductDependencies = (
-			);
 			productName = LinkCleanAction;
 			productReference = E90AAB892F3058F40021A4A1 /* LinkCleanAction.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -345,8 +347,6 @@
 				E90AABD12F3169B10021A4A1 /* LinkCleanCommon */,
 			);
 			name = LinkCleanCommon;
-			packageProductDependencies = (
-			);
 			productName = LinkCleanCommon;
 			productReference = E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */;
 			productType = "com.apple.product-type.framework";
@@ -369,8 +369,6 @@
 				E90AABDE2F3169B10021A4A1 /* LinkCleanCommonTests */,
 			);
 			name = LinkCleanCommonTests;
-			packageProductDependencies = (
-			);
 			productName = LinkCleanCommonTests;
 			productReference = E90AABD82F3169B10021A4A1 /* LinkCleanCommonTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -691,7 +689,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LinkClean/LinkClean.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -724,7 +722,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LinkClean/LinkClean.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -833,7 +831,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanAction/LinkCleanAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanAction/Info.plist;
@@ -862,7 +860,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanAction/LinkCleanAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanAction/Info.plist;
