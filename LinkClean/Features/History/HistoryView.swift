@@ -20,6 +20,7 @@ struct HistoryView: View {
     }
 
     var body: some View {
+        @Bindable var viewModel = viewModel
         Group {
             switch viewModel.viewState(hasEntries: !entries.isEmpty) {
             case .disabled:
@@ -35,10 +36,17 @@ struct HistoryView: View {
                     description: Text("Cleaned URLs you copy will appear here.")
                 )
             case .populated:
-                List(entries) { entry in
+                List(viewModel.filteredEntries(from: entries)) { entry in
                     HistoryCellView(entry: entry, viewModel: viewModel)
                 }
-                .contentMargins(.top, 16)
+                .contentMargins(.top, 8)
+                .searchable(text: $viewModel.searchText)
+                .scrollDismissesKeyboard(.immediately)
+                .overlay {
+                    if viewModel.filteredEntries(from: entries).isEmpty && !viewModel.searchText.isEmpty {
+                        ContentUnavailableView.search
+                    }
+                }
             }
         }
         .screenBackground()

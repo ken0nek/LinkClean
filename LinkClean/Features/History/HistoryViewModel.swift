@@ -13,6 +13,7 @@ import UIKit
 @MainActor
 @Observable
 final class HistoryViewModel {
+    var searchText = ""
     var copiedEntryID: UUID?
     var fetchingEntryIDs: Set<UUID> = []
     @ObservationIgnored private var copyTask: Task<Void, Never>?
@@ -38,6 +39,14 @@ final class HistoryViewModel {
     func refreshSettings() {
         isSaveHistoryEnabled = UserDefaults(suiteName: AppGroup.identifier)?
             .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
+    }
+
+    func filteredEntries(from entries: [HistoryEntry]) -> [HistoryEntry] {
+        guard !searchText.isEmpty else { return entries }
+        return entries.filter { entry in
+            (entry.pageTitle?.localizedStandardContains(searchText) ?? false)
+                || entry.output.localizedStandardContains(searchText)
+        }
     }
 
     func viewState(hasEntries: Bool) -> ViewState {
