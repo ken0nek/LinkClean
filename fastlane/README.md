@@ -39,10 +39,10 @@ Bump build number (number: N, or auto-increments by 1)
 
 Bump both version and build number
 
-### ios testflight
+### ios beta
 
 ```sh
-[bundle exec] fastlane ios testflight
+[bundle exec] fastlane ios beta
 ```
 
 Bump build, build IPA, and upload to TestFlight (changelog: 'What to test')

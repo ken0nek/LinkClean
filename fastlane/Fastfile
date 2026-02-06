@@ -43,7 +43,7 @@ platform :ios do
   end
 
   desc "Bump build, build IPA, and upload to TestFlight (changelog: 'What to test')"
-  lane :testflight do |options|
+  lane :beta do |options|
     bump_build
     build_app(
       project: "LinkClean.xcodeproj",
