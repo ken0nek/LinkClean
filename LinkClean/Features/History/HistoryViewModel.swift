@@ -65,10 +65,7 @@ final class HistoryViewModel {
     }
 
     func copyMarkdown(for entry: HistoryEntry) {
-        let title = (entry.pageTitle ?? entry.output)
-            .replacingOccurrences(of: "[", with: "\\[")
-            .replacingOccurrences(of: "]", with: "\\]")
-        UIPasteboard.general.string = "[\(title)](\(entry.output))"
+        UIPasteboard.general.string = MarkdownFormatter.markdownLink(title: entry.pageTitle, url: entry.output)
         showCopiedFeedback(for: entry)
     }
 
