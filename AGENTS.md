@@ -23,10 +23,18 @@
 - SwiftData: use `@Model`, `@Query`, and `ModelContext` from the environment.
 - Avoid Combine and GCD; prefer async/await, actors, and TaskGroup. Avoid force unwraps unless invariants are documented.
 
+## Collaboration
+- Ask the user when uncertain about requirements, scope, or approach, or when more data is needed.
+- Hand off tasks that require Xcode GUI or Apple Developer portal: creating targets, configuring App Groups, entitlements, signing, capabilities, adding frameworks via Xcode UI.
+- When handing off, state exactly what needs to be done so the user can act quickly.
+
 ## Testing Guidelines
 - Framework: Swift Testing (`import Testing`, `@Test`, `#expect`, `#require`).
 - Naming: files end with `*Tests.swift` and test functions are descriptive verbs (e.g., `removesUtmSource`).
 - No explicit coverage threshold; add tests when changing URL-cleaning rules or UI flows.
+
+## Debugging
+- Prefer `print()` debugging first—add prints, build & run, read logs, remove prints. Don't over-engineer logging.
 
 ## Commit & Pull Request Guidelines
 - Commit messages are short, imperative, and unprefixed (e.g., "Add Action Extension for cleaning and copying URLs").

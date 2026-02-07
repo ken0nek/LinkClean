@@ -8,6 +8,11 @@ Default actor isolation is **MainActor** (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainA
 Find the closest existing example in the codebase and match its pattern.
 If no precedent exists, state that explicitly before choosing an approach.
 
+## Collaboration
+- Stop and ask the user when unsure about requirements, scope, or approach.
+- Hand off tasks that require Xcode GUI or Apple Developer portal: creating targets, configuring App Groups, entitlements, signing, capabilities, adding frameworks via Xcode UI.
+- When handing off, state exactly what needs to be done so the user can act quickly.
+
 ## Patterns
 
 **Observation:** `@Observable` classes + `@State` in views. Never `ObservableObject`, `@Published`, or `@StateObject`.
@@ -22,6 +27,10 @@ If no precedent exists, state that explicitly before choosing an approach.
 
 ## Testing
 Swift Testing framework: `@Test`, `#expect`, `#require`.
+
+## Debugging
+- Prefer `print()` debugging first—it's simple and effective.
+- Add prints, build & run, read logs, remove prints. Don't over-engineer logging.
 
 ## Avoid
 - Combine (use async sequences)
