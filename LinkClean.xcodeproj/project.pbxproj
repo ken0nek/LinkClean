@@ -15,7 +15,6 @@
 		E9D4BFFE2F36AD6B00B2D6EC /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AAB8B2F3058F40021A4A1 /* UniformTypeIdentifiers.framework */; };
 		E9D4C0092F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E9D4C0242F36ADB500B2D6EC /* LinkCleanCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */; };
-		E9D4C0252F36ADB500B2D6EC /* LinkCleanCommon.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,17 +96,6 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E9D4C0282F36ADB600B2D6EC /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				E9D4C0252F36ADB500B2D6EC /* LinkCleanCommon.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -177,6 +165,8 @@
 		};
 		E90AABDE2F3169B10021A4A1 /* LinkCleanCommonTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LinkCleanCommonTests;
 			sourceTree = "<group>";
 		};
@@ -436,7 +426,6 @@
 				E9D4BFF92F36AD6B00B2D6EC /* Sources */,
 				E9D4BFFA2F36AD6B00B2D6EC /* Frameworks */,
 				E9D4BFFB2F36AD6B00B2D6EC /* Resources */,
-				E9D4C0282F36ADB600B2D6EC /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -447,8 +436,6 @@
 				E9D4BFFF2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */,
 			);
 			name = LinkCleanMarkdownAction;
-			packageProductDependencies = (
-			);
 			productName = LinkCleanMarkdownAction;
 			productReference = E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -797,7 +784,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LinkClean/LinkClean.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -830,7 +817,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LinkClean/LinkClean.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -939,7 +926,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanAction/LinkCleanAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanAction/Info.plist;
@@ -968,7 +955,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanAction/LinkCleanAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanAction/Info.plist;
@@ -1117,7 +1104,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanMarkdownAction/LinkCleanMarkdownAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanMarkdownAction/Info.plist;
@@ -1145,7 +1132,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanMarkdownAction/LinkCleanMarkdownAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanMarkdownAction/Info.plist;
