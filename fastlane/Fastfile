@@ -1,6 +1,6 @@
 default_platform(:ios)
 
-APP_TARGETS = ["LinkClean", "LinkCleanAction"].freeze
+APP_TARGETS = ["LinkClean", "LinkCleanAction", "LinkCleanMarkdownAction"].freeze
 
 platform :ios do
   desc "Bump version number (type: major|minor|patch, or version: X.Y.Z)"

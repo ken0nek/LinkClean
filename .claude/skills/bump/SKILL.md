@@ -5,7 +5,7 @@ description: "Bump version and/or build number. Usage: /bump (build+1), /bump bu
 
 # Bump Version & Build
 
-Bump version and/or build numbers via fastlane for the app and action extension targets.
+Bump version and/or build numbers via fastlane for the app and action extension targets (LinkClean, LinkCleanAction, LinkCleanMarkdownAction).
 
 ## Argument parsing
 
