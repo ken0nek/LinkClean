@@ -29,8 +29,8 @@ If no precedent exists, state that explicitly before choosing an approach.
 Swift Testing framework: `@Test`, `#expect`, `#require`.
 
 ## Debugging
-- Prefer `print()` debugging first—it's simple and effective.
-- Add prints, build & run, read logs, remove prints. Don't over-engineer logging.
+- **Logger** (`Log.logger.debug(...)` via `LinkCleanCommon/Log.swift`): use for permanently useful operational messages that stay in the codebase.
+- **print()**: use for one-time investigation debugging — add, build & run, read logs, remove.
 
 ## Avoid
 - Combine (use async sequences)

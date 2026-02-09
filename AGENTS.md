@@ -34,7 +34,8 @@
 - No explicit coverage threshold; add tests when changing URL-cleaning rules or UI flows.
 
 ## Debugging
-- Prefer `print()` debugging first—add prints, build & run, read logs, remove prints. Don't over-engineer logging.
+- **Logger** (`Log.logger.debug(...)` via `LinkCleanCommon/Log.swift`): use for permanently useful operational messages that stay in the codebase.
+- **print()**: use for one-time investigation debugging — add, build & run, read logs, remove.
 
 ## Commit & Pull Request Guidelines
 - Commit messages are short, imperative, and unprefixed (e.g., "Add Action Extension for cleaning and copying URLs").
