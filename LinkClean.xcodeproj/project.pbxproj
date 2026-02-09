@@ -12,6 +12,10 @@
 		E90AABD92F3169B10021A4A1 /* LinkCleanCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */; };
 		E90AABE32F3169B10021A4A1 /* LinkCleanCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */; };
 		E90AABEC2F316FCD0021A4A1 /* LinkCleanCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */; };
+		E9D4BFFE2F36AD6B00B2D6EC /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AAB8B2F3058F40021A4A1 /* UniformTypeIdentifiers.framework */; };
+		E9D4C0092F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E9D4C0242F36ADB500B2D6EC /* LinkCleanCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */; };
+		E9D4C0252F36ADB500B2D6EC /* LinkCleanCommon.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +68,20 @@
 			remoteGlobalIDString = E90AABCF2F3169B10021A4A1;
 			remoteInfo = LinkCleanCommon;
 		};
+		E9D4C0072F36AD6B00B2D6EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E90AAB512F2F4ED20021A4A1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E9D4BFFC2F36AD6B00B2D6EC;
+			remoteInfo = LinkCleanMarkdownAction;
+		};
+		E9D4C0262F36ADB500B2D6EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E90AAB512F2F4ED20021A4A1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E90AABCF2F3169B10021A4A1;
+			remoteInfo = LinkCleanCommon;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -74,8 +92,20 @@
 			dstSubfolderSpec = 13;
 			files = (
 				E90AAB972F3058F40021A4A1 /* LinkCleanAction.appex in Embed Foundation Extensions */,
+				E9D4C0092F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9D4C0282F36ADB600B2D6EC /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E9D4C0252F36ADB500B2D6EC /* LinkCleanCommon.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -88,6 +118,7 @@
 		E90AAB8B2F3058F40021A4A1 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LinkCleanCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E90AABD82F3169B10021A4A1 /* LinkCleanCommonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LinkCleanCommonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LinkCleanMarkdownAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -97,6 +128,13 @@
 				Info.plist,
 			);
 			target = E90AAB882F3058F40021A4A1 /* LinkCleanAction */;
+		};
+		E9D4C00C2F36AD6B00B2D6EC /* Exceptions for "LinkCleanMarkdownAction" folder in "LinkCleanMarkdownAction" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E9D4BFFC2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -139,9 +177,15 @@
 		};
 		E90AABDE2F3169B10021A4A1 /* LinkCleanCommonTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = LinkCleanCommonTests;
+			sourceTree = "<group>";
+		};
+		E9D4BFFF2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E9D4C00C2F36AD6B00B2D6EC /* Exceptions for "LinkCleanMarkdownAction" folder in "LinkCleanMarkdownAction" target */,
+			);
+			path = LinkCleanMarkdownAction;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -193,6 +237,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E9D4BFFA2F36AD6B00B2D6EC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9D4BFFE2F36AD6B00B2D6EC /* UniformTypeIdentifiers.framework in Frameworks */,
+				E9D4C0242F36ADB500B2D6EC /* LinkCleanCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -205,6 +258,7 @@
 				E90AAB8D2F3058F40021A4A1 /* LinkCleanAction */,
 				E90AABD12F3169B10021A4A1 /* LinkCleanCommon */,
 				E90AABDE2F3169B10021A4A1 /* LinkCleanCommonTests */,
+				E9D4BFFF2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */,
 				E90AAB8A2F3058F40021A4A1 /* Frameworks */,
 				E90AAB5A2F2F4ED30021A4A1 /* Products */,
 			);
@@ -219,6 +273,7 @@
 				E90AAB892F3058F40021A4A1 /* LinkCleanAction.appex */,
 				E90AABD02F3169B10021A4A1 /* LinkCleanCommon.framework */,
 				E90AABD82F3169B10021A4A1 /* LinkCleanCommonTests.xctest */,
+				E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -258,6 +313,7 @@
 			dependencies = (
 				E90AAB962F3058F40021A4A1 /* PBXTargetDependency */,
 				E90AABE22F3169B10021A4A1 /* PBXTargetDependency */,
+				E9D4C0082F36AD6B00B2D6EC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E90AAB5B2F2F4ED30021A4A1 /* LinkClean */,
@@ -373,6 +429,30 @@
 			productReference = E90AABD82F3169B10021A4A1 /* LinkCleanCommonTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		E9D4BFFC2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9D4C00D2F36AD6B00B2D6EC /* Build configuration list for PBXNativeTarget "LinkCleanMarkdownAction" */;
+			buildPhases = (
+				E9D4BFF92F36AD6B00B2D6EC /* Sources */,
+				E9D4BFFA2F36AD6B00B2D6EC /* Frameworks */,
+				E9D4BFFB2F36AD6B00B2D6EC /* Resources */,
+				E9D4C0282F36ADB600B2D6EC /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E9D4C0272F36ADB500B2D6EC /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E9D4BFFF2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */,
+			);
+			name = LinkCleanMarkdownAction;
+			packageProductDependencies = (
+			);
+			productName = LinkCleanMarkdownAction;
+			productReference = E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -404,6 +484,9 @@
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = E90AAB582F2F4ED30021A4A1;
 					};
+					E9D4BFFC2F36AD6B00B2D6EC = {
+						CreatedOnToolsVersion = 26.2;
+					};
 				};
 			};
 			buildConfigurationList = E90AAB542F2F4ED20021A4A1 /* Build configuration list for PBXProject "LinkClean" */;
@@ -426,6 +509,7 @@
 				E90AAB882F3058F40021A4A1 /* LinkCleanAction */,
 				E90AABCF2F3169B10021A4A1 /* LinkCleanCommon */,
 				E90AABD72F3169B10021A4A1 /* LinkCleanCommonTests */,
+				E9D4BFFC2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */,
 			);
 		};
 /* End PBXProject section */
@@ -467,6 +551,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E90AABD62F3169B10021A4A1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9D4BFFB2F36AD6B00B2D6EC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -518,6 +609,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E9D4BFF92F36AD6B00B2D6EC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -555,6 +653,16 @@
 			isa = PBXTargetDependency;
 			target = E90AABCF2F3169B10021A4A1 /* LinkCleanCommon */;
 			targetProxy = E90AABEE2F316FCD0021A4A1 /* PBXContainerItemProxy */;
+		};
+		E9D4C0082F36AD6B00B2D6EC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E9D4BFFC2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */;
+			targetProxy = E9D4C0072F36AD6B00B2D6EC /* PBXContainerItemProxy */;
+		};
+		E9D4C0272F36ADB500B2D6EC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E90AABCF2F3169B10021A4A1 /* LinkCleanCommon */;
+			targetProxy = E9D4C0262F36ADB500B2D6EC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1004,6 +1112,62 @@
 			};
 			name = Release;
 		};
+		E9D4C00A2F36AD6B00B2D6EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = LinkCleanMarkdownAction/LinkCleanMarkdownAction.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				DEVELOPMENT_TEAM = G4F57UX422;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LinkCleanMarkdownAction/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LinkCleanMarkdownAction;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ken0nek.LinkClean.LinkCleanMarkdownAction;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E9D4C00B2F36AD6B00B2D6EC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = LinkCleanMarkdownAction/LinkCleanMarkdownAction.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				DEVELOPMENT_TEAM = G4F57UX422;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LinkCleanMarkdownAction/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LinkCleanMarkdownAction;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ken0nek.LinkClean.LinkCleanMarkdownAction;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1066,6 +1230,15 @@
 			buildConfigurations = (
 				E90AABEA2F3169B10021A4A1 /* Debug */,
 				E90AABEB2F3169B10021A4A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E9D4C00D2F36AD6B00B2D6EC /* Build configuration list for PBXNativeTarget "LinkCleanMarkdownAction" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9D4C00A2F36AD6B00B2D6EC /* Debug */,
+				E9D4C00B2F36AD6B00B2D6EC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
