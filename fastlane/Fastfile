@@ -54,7 +54,6 @@ platform :ios do
     upload_to_testflight(
       changelog: options[:changelog],
       skip_waiting_for_build_processing: true,
-      uses_non_exempt_encryption: false,
       distribute_external: true
     )
   end
