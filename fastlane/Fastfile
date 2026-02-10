@@ -54,7 +54,8 @@ platform :ios do
     upload_to_testflight(
       changelog: options[:changelog],
       skip_waiting_for_build_processing: true,
-      distribute_external: true
+      distribute_external: true,
+      groups: ["dogfooding"]
     )
   end
 end
