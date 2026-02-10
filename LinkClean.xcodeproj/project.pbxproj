@@ -784,7 +784,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LinkClean/LinkClean.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -818,7 +818,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LinkClean/LinkClean.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -928,7 +928,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanAction/LinkCleanAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanAction/Info.plist;
@@ -957,7 +957,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanAction/LinkCleanAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanAction/Info.plist;
@@ -1106,7 +1106,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanMarkdownAction/LinkCleanMarkdownAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanMarkdownAction/Info.plist;
@@ -1134,7 +1134,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LinkCleanMarkdownAction/LinkCleanMarkdownAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = G4F57UX422;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LinkCleanMarkdownAction/Info.plist;
