@@ -6,7 +6,8 @@
 ## Project Structure & Module Organization
 - `LinkClean/`: SwiftUI app source (`LinkCleanApp.swift`, `ContentView.swift`, `URLCleaner.swift`) plus assets in `LinkClean/Assets.xcassets`.
 - `LinkCleanAction/`: Action Extension target (`ActionViewController.swift`, `Info.plist`, extension-specific `URLCleaner.swift`). Keep cleaner logic in sync with the app.
-- `LinkCleanTests/`: Unit tests using the Swift Testing framework.
+- `LinkCleanKit/`: Local Swift package (`Package.swift`) containing shared library code in `Sources/LinkCleanKit` and package tests in `Tests/LinkCleanKitTests`.
+- `LinkCleanTests/`: App unit tests using the Swift Testing framework.
 - `LinkCleanUITests/`: UI test target.
 - `LinkClean.xcodeproj`: Xcode project with schemes `LinkClean` and `LinkCleanAction`.
 
@@ -34,7 +35,7 @@
 - No explicit coverage threshold; add tests when changing URL-cleaning rules or UI flows.
 
 ## Debugging
-- **Logger** (`Log.logger.debug(...)` via `LinkCleanCommon/Log.swift`): use for permanently useful operational messages that stay in the codebase.
+- **Logger** (`Log.logger.debug(...)` via `LinkCleanKit/Sources/LinkCleanKit/Log.swift`): use for permanently useful operational messages that stay in the codebase.
 - **print()**: use for one-time investigation debugging — add, build & run, read logs, remove.
 
 ## Commit & Pull Request Guidelines

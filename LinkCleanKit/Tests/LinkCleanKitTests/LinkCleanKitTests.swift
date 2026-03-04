@@ -1,13 +1,13 @@
 //
-//  LinkCleanCommonTests.swift
-//  LinkCleanCommonTests
+//  LinkCleanKitTests.swift
+//  LinkCleanKitTests
 //
 //  Created by Ken Tominaga on 2/2/26.
 //
 
 import Testing
 import Foundation
-@testable import LinkCleanCommon
+@testable import LinkCleanKit
 
 struct URLCleanerTests {
 
@@ -222,7 +222,7 @@ struct URLCleanerTests {
 struct TrackingParameterStoreTests {
 
     @Test func normalizesAndEnablesCustomParameters() {
-        let suiteName = "LinkCleanCommonTests.custom.\(UUID().uuidString)"
+        let suiteName = "LinkCleanKitTests.custom.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)
         defer { defaults?.removePersistentDomain(forName: suiteName) }
 
@@ -234,7 +234,7 @@ struct TrackingParameterStoreTests {
     }
 
     @Test func removesCustomParameters() {
-        let suiteName = "LinkCleanCommonTests.custom.\(UUID().uuidString)"
+        let suiteName = "LinkCleanKitTests.custom.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)
         defer { defaults?.removePersistentDomain(forName: suiteName) }
 

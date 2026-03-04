@@ -9,7 +9,7 @@ import UIKit
 import UniformTypeIdentifiers
 import LinkPresentation
 import OSLog
-import LinkCleanCommon
+import LinkCleanKit
 
 class ActionViewController: ActionExtensionViewController {
     override func processInputItems() {

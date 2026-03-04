@@ -29,7 +29,7 @@ If no precedent exists, state that explicitly before choosing an approach.
 Swift Testing framework: `@Test`, `#expect`, `#require`.
 
 ## Debugging
-- **Logger** (`Log.logger.debug(...)` via `LinkCleanCommon/Log.swift`): use for permanently useful operational messages that stay in the codebase.
+- **Logger** (`Log.logger.debug(...)` via `LinkCleanKit/Sources/LinkCleanKit/Log.swift`): use for permanently useful operational messages that stay in the codebase.
 - **print()**: use for one-time investigation debugging — add, build & run, read logs, remove.
 
 ## Avoid
@@ -53,6 +53,6 @@ LinkClean/
   Shared/Models/            – Domain types used across features
   Shared/Services/          – Service protocols and implementations
   Shared/UI/                – Reusable view modifiers, components
-LinkCleanCommon/            – Shared with action extension (domain logic, SwiftData models, stores)
+LinkCleanKit/               – Local package shared with extensions (domain logic, SwiftData models, stores)
 LinkCleanAction/            – Action extension target
 ```

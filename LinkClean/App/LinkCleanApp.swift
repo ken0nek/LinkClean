@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LinkCleanCommon
+import LinkCleanKit
 import SwiftData
 import SwiftUI
 import UIKit
