@@ -7,7 +7,7 @@
 
 import Foundation
 import Observation
-import LinkCleanCommon
+import LinkCleanKit
 
 @MainActor
 @Observable

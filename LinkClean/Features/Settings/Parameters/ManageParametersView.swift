@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import LinkCleanCommon
+import LinkCleanKit
 
 struct ManageParametersView: View {
     @State private var viewModel: ManageParametersViewModel

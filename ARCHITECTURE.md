@@ -102,7 +102,7 @@ Async behavior conventions:
 
 ## Repo Notes (Shared Logic)
 This repo includes shared logic used by multiple targets (e.g. app + action extension).
-- Keep pure, framework-agnostic domain logic in shared modules (e.g. `LinkCleanCommon`).
+- Keep pure, framework-agnostic domain logic in shared modules (e.g. `LinkCleanKit`).
 - Keep target-specific UI and side effects in the target.
 - When the extension must use UIKit, apply the same separation: minimal controller orchestration + shared domain/services underneath.
 - App-only settings → `UserDefaults.standard`. Shared settings (read by action extension) → `UserDefaults(suiteName: AppGroup.identifier)`.

@@ -1,6 +1,6 @@
 //
 //  URLCleaner.swift
-//  LinkCleanCommon
+//  LinkCleanKit
 //
 //  Created by Ken Tominaga on 2/1/26.
 //

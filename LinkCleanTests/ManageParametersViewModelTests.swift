@@ -6,7 +6,7 @@
 import Testing
 import Foundation
 @testable import LinkClean
-import LinkCleanCommon
+import LinkCleanKit
 
 @MainActor
 struct ManageParametersViewModelTests {
