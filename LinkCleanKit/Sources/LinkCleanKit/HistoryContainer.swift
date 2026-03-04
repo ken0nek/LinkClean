@@ -1,6 +1,6 @@
 //
 //  HistoryContainer.swift
-//  LinkCleanCommon
+//  LinkCleanKit
 //
 //  Created by Ken Tominaga on 2/4/26.
 //
@@ -24,6 +24,7 @@ public enum HistoryContainer {
 
     public static func makeInMemory() -> ModelContainer {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        // Safe: in-memory ModelConfiguration has no persistent store and cannot fail to initialise.
         return try! ModelContainer(for: HistoryEntry.self, configurations: configuration)
     }
 }

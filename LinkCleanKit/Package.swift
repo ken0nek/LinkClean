@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 
 import PackageDescription
 
@@ -15,7 +15,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "LinkCleanKit"
+            name: "LinkCleanKit",
+            swiftSettings: [
+                .defaultIsolation(MainActor.self)
+            ]
         ),
         .testTarget(
             name: "LinkCleanKitTests",

@@ -18,8 +18,8 @@ class ActionViewController: ActionExtensionViewController {
             }
 
             let cleaned = URLCleaner.clean(url, removing: parameterStore.enabledParameters())
-            Log.logger.debug("Input URL: \(url.absoluteString, privacy: .public)")
-            Log.logger.debug("Cleaned URL: \(cleaned.absoluteString, privacy: .public)")
+            Log.action.debug("Input URL: \(url.absoluteString, privacy: .public)")
+            Log.action.debug("Cleaned URL: \(cleaned.absoluteString, privacy: .public)")
             UIPasteboard.general.url = cleaned
 
             saveHistory(input: url.absoluteString, output: cleaned.absoluteString)

@@ -14,11 +14,11 @@ import LinkCleanKit
 class ActionViewController: ActionExtensionViewController {
     override func processInputItems() {
         Task {
-            Log.logger.debug("processInputItems started")
+            Log.action.debug("processInputItems started")
 
             // 1. Always try JS extraction first (Safari only provides URLs via JS)
             let jsResult = await extractFromJavaScript()
-            Log.logger.debug("JS extraction: title = \(jsResult?.title ?? "nil", privacy: .public), url = \(jsResult?.url.absoluteString ?? "nil", privacy: .public)")
+            Log.action.debug("JS extraction: title = \(jsResult?.title ?? "nil", privacy: .public), url = \(jsResult?.url.absoluteString ?? "nil", privacy: .public)")
 
             // 2. Determine URL: prefer JS URL, fall back to extractURL
             let url: URL
@@ -27,7 +27,7 @@ class ActionViewController: ActionExtensionViewController {
             } else if let fallbackURL = await extractURL() {
                 url = fallbackURL
             } else {
-                Log.logger.debug("No URL extracted from JS or fallback, dismissing")
+                Log.action.debug("No URL extracted from JS or fallback, dismissing")
                 dismissExtension()
                 return
             }
@@ -36,15 +36,15 @@ class ActionViewController: ActionExtensionViewController {
             let title: String?
             if let jsTitle = jsResult?.title {
                 title = jsTitle
-                Log.logger.debug("Using JS title: \(jsTitle, privacy: .public)")
+                Log.action.debug("Using JS title: \(jsTitle, privacy: .public)")
             } else {
                 title = await fetchTitle(for: url)
-                Log.logger.debug("Using LPMetadataProvider title: \(title ?? "nil", privacy: .public)")
+                Log.action.debug("Using LPMetadataProvider title: \(title ?? "nil", privacy: .public)")
             }
 
             let cleaned = URLCleaner.clean(url, removing: parameterStore.enabledParameters())
             let markdown = MarkdownFormatter.markdownLink(title: title, url: cleaned.absoluteString)
-            Log.logger.debug("Markdown output: \(markdown, privacy: .public)")
+            Log.action.debug("Markdown output: \(markdown, privacy: .public)")
             UIPasteboard.general.string = markdown
 
             saveHistory(input: url.absoluteString, output: cleaned.absoluteString)
@@ -86,7 +86,7 @@ class ActionViewController: ActionExtensionViewController {
             }
         }
 
-        Log.logger.debug("extractFromJavaScript: no JS data found")
+        Log.action.debug("extractFromJavaScript: no JS data found")
         return nil
     }
 

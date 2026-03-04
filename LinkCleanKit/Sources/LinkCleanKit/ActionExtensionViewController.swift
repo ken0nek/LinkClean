@@ -1,6 +1,6 @@
 //
 //  ActionExtensionViewController.swift
-//  LinkCleanCommon
+//  LinkCleanKit
 //
 //  Created by Ken Tominaga on 2/9/26.
 //
@@ -57,7 +57,7 @@ open class ActionExtensionViewController: UIViewController {
             }
         }
 
-        Log.logger.debug("extractURL: no URL found in input items")
+        Log.action.debug("extractURL: no URL found in input items")
         return nil
     }
 
@@ -70,7 +70,7 @@ open class ActionExtensionViewController: UIViewController {
             do {
                 try HistoryRecorder.save(input: input, output: output, in: container)
             } catch {
-                Log.logger.debug("saveHistory failed: \(error.localizedDescription, privacy: .public)")
+                Log.action.debug("saveHistory failed: \(error.localizedDescription, privacy: .public)")
             }
         }
     }
@@ -138,7 +138,7 @@ open class ActionExtensionViewController: UIViewController {
     }
 
     public func dismissExtension() {
-        Log.logger.debug("dismissExtension")
+        Log.action.debug("dismissExtension")
         extensionContext?.completeRequest(returningItems: nil)
     }
 }

@@ -1,6 +1,6 @@
 //
 //  HistoryEntry.swift
-//  LinkCleanCommon
+//  LinkCleanKit
 //
 //  Created by Ken Tominaga on 2/4/26.
 //
