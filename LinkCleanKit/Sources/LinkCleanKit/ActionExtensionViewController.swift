@@ -94,7 +94,7 @@ open class ActionExtensionViewController: UIViewController {
         checkmark.contentMode = .scaleAspectFit
 
         let label = UILabel()
-        label.text = String(localized: "Copied", bundle: .main, comment: "Toast shown after copying cleaned URL")
+        label.text = String(localized: "Copied", bundle: .module, comment: "Toast shown after copying cleaned URL")
         let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
             .withSymbolicTraits(.traitBold) ?? UIFontDescriptor.preferredFontDescriptor(withTextStyle: .subheadline)
         label.font = UIFont(descriptor: descriptor, size: 0)

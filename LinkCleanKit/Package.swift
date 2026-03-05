@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "LinkCleanKit",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v18)
     ],
@@ -16,6 +17,7 @@ let package = Package(
     targets: [
         .target(
             name: "LinkCleanKit",
+            resources: [.process("Localizable.xcstrings")],
             swiftSettings: [
                 .defaultIsolation(MainActor.self)
             ]

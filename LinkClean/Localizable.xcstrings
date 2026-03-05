@@ -1,0 +1,174 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "About" : {
+
+    },
+    "Add" : {
+
+    },
+    "Add Custom Parameter" : {
+
+    },
+    "All cleaning history will be permanently deleted." : {
+
+    },
+    "All existing history will be permanently deleted." : {
+
+    },
+    "Auto Paste" : {
+
+    },
+    "Can't Add Parameter" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Clean URL" : {
+
+    },
+    "Cleaned URL will appear here" : {
+
+    },
+    "Cleaned URLs you copy will appear here." : {
+
+    },
+    "Cleaning" : {
+
+    },
+    "Clear History" : {
+
+    },
+    "Clear History?" : {
+
+    },
+    "Clear input" : {
+
+    },
+    "Clipboard" : {
+
+    },
+    "Clipboard doesn’t contain a valid URL" : {
+
+    },
+    "Copied" : {
+
+    },
+    "Copy as Markdown" : {
+
+    },
+    "Copy Clean URL" : {
+
+    },
+    "Copy cleaned URL" : {
+
+    },
+    "Custom parameters" : {
+
+    },
+    "Custom Parameters" : {
+
+    },
+    "Data" : {
+
+    },
+    "Default parameters" : {
+
+    },
+    "Default Parameters" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delete %@" : {
+
+    },
+    "Delete Custom Parameter?" : {
+
+    },
+    "Disable & Delete" : {
+
+    },
+    "Disable History?" : {
+
+    },
+    "Enter a valid URL" : {
+
+    },
+    "History" : {
+
+    },
+    "History Disabled" : {
+
+    },
+    "History is currently disabled. Enable history in Settings to save your cleaned URLs." : {
+
+    },
+    "Home" : {
+
+    },
+    "How to Use" : {
+
+    },
+    "Input URL" : {
+
+    },
+    "No custom parameters yet." : {
+
+    },
+    "No History" : {
+
+    },
+    "OK" : {
+
+    },
+    "Open in Browser" : {
+
+    },
+    "Open Safari or any app with a link" : {
+
+    },
+    "Parameter name" : {
+
+    },
+    "Paste a URL to clean" : {
+
+    },
+    "Retry Metadata" : {
+
+    },
+    "Save History" : {
+
+    },
+    "Select \"Clean URL\"" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Share" : {
+
+    },
+    "Share cleaned URL" : {
+
+    },
+    "Tap the Share button" : {
+
+    },
+    "The cleaned URL is copied to your clipboard" : {
+
+    },
+    "This will remove \"%@\" from your custom parameters." : {
+
+    },
+    "Version" : {
+
+    },
+    "When enabled, LinkClean automatically pastes a valid URL from your clipboard when you open the app or return to it." : {
+
+    }
+  },
+  "version" : "1.0"
+}
