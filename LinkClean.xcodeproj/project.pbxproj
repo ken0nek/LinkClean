@@ -9,12 +9,12 @@
 /* Begin PBXBuildFile section */
 		E90AAB8C2F3058F40021A4A1 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AAB8B2F3058F40021A4A1 /* UniformTypeIdentifiers.framework */; };
 		E90AAB972F3058F40021A4A1 /* LinkCleanAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E90AAB892F3058F40021A4A1 /* LinkCleanAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E9D4BFFE2F36AD6B00B2D6EC /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AAB8B2F3058F40021A4A1 /* UniformTypeIdentifiers.framework */; };
+		E9D4C0092F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EA1000012F40000100A1A4A1 /* LinkCleanKit in Frameworks */ = {isa = PBXBuildFile; productRef = EA1000062F40000100A1A4A1 /* LinkCleanKit */; };
 		EA1000022F40000100A1A4A1 /* LinkCleanKit in Frameworks */ = {isa = PBXBuildFile; productRef = EA1000062F40000100A1A4A1 /* LinkCleanKit */; };
 		EA1000032F40000100A1A4A1 /* LinkCleanKit in Frameworks */ = {isa = PBXBuildFile; productRef = EA1000062F40000100A1A4A1 /* LinkCleanKit */; };
 		EA1000042F40000100A1A4A1 /* LinkCleanKit in Frameworks */ = {isa = PBXBuildFile; productRef = EA1000062F40000100A1A4A1 /* LinkCleanKit */; };
-		E9D4BFFE2F36AD6B00B2D6EC /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AAB8B2F3058F40021A4A1 /* UniformTypeIdentifiers.framework */; };
-		E9D4C0092F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -219,13 +219,13 @@
 				E90AAB962F3058F40021A4A1 /* PBXTargetDependency */,
 				E9D4C0082F36AD6B00B2D6EC /* PBXTargetDependency */,
 			);
-			packageProductDependencies = (
-				EA1000062F40000100A1A4A1 /* LinkCleanKit */,
-			);
 			fileSystemSynchronizedGroups = (
 				E90AAB5B2F2F4ED30021A4A1 /* LinkClean */,
 			);
 			name = LinkClean;
+			packageProductDependencies = (
+				EA1000062F40000100A1A4A1 /* LinkCleanKit */,
+			);
 			productName = LinkClean;
 			productReference = E90AAB592F2F4ED30021A4A1 /* LinkClean.app */;
 			productType = "com.apple.product-type.application";
@@ -243,13 +243,13 @@
 			dependencies = (
 				E90AAB6A2F2F4ED30021A4A1 /* PBXTargetDependency */,
 			);
-			packageProductDependencies = (
-				EA1000062F40000100A1A4A1 /* LinkCleanKit */,
-			);
 			fileSystemSynchronizedGroups = (
 				E90AAB6B2F2F4ED30021A4A1 /* LinkCleanTests */,
 			);
 			name = LinkCleanTests;
+			packageProductDependencies = (
+				EA1000062F40000100A1A4A1 /* LinkCleanKit */,
+			);
 			productName = LinkCleanTests;
 			productReference = E90AAB682F2F4ED30021A4A1 /* LinkCleanTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -287,13 +287,13 @@
 			);
 			dependencies = (
 			);
-			packageProductDependencies = (
-				EA1000062F40000100A1A4A1 /* LinkCleanKit */,
-			);
 			fileSystemSynchronizedGroups = (
 				E90AAB8D2F3058F40021A4A1 /* LinkCleanAction */,
 			);
 			name = LinkCleanAction;
+			packageProductDependencies = (
+				EA1000062F40000100A1A4A1 /* LinkCleanKit */,
+			);
 			productName = LinkCleanAction;
 			productReference = E90AAB892F3058F40021A4A1 /* LinkCleanAction.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -310,13 +310,13 @@
 			);
 			dependencies = (
 			);
-			packageProductDependencies = (
-				EA1000062F40000100A1A4A1 /* LinkCleanKit */,
-			);
 			fileSystemSynchronizedGroups = (
 				E9D4BFFF2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */,
 			);
 			name = LinkCleanMarkdownAction;
+			packageProductDependencies = (
+				EA1000062F40000100A1A4A1 /* LinkCleanKit */,
+			);
 			productName = LinkCleanMarkdownAction;
 			productReference = E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -474,21 +474,6 @@
 			targetProxy = E9D4C0072F36AD6B00B2D6EC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		EA1000052F40000100A1A4A1 /* XCLocalSwiftPackageReference "LinkCleanKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = LinkCleanKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		EA1000062F40000100A1A4A1 /* LinkCleanKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EA1000052F40000100A1A4A1 /* XCLocalSwiftPackageReference "LinkCleanKit" */;
-			productName = LinkCleanKit;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		E90AAB7A2F2F4ED30021A4A1 /* Debug */ = {
@@ -932,6 +917,21 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		EA1000052F40000100A1A4A1 /* XCLocalSwiftPackageReference "LinkCleanKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = LinkCleanKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EA1000062F40000100A1A4A1 /* LinkCleanKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EA1000052F40000100A1A4A1 /* XCLocalSwiftPackageReference "LinkCleanKit" */;
+			productName = LinkCleanKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E90AAB512F2F4ED20021A4A1 /* Project object */;
 }
