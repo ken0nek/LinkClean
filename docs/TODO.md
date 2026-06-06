@@ -20,5 +20,5 @@ Out of scope for this version:
 
 ## 1.1.0
 
-- [ ] IAP using RevenueCat
-- [ ] IAP strategy (pricing, premium features, free tier limitations)
+- [ ] IAP using RevenueCat — plan: [docs/plans/iap-implementation-plan.md](plans/iap-implementation-plan.md)
+- [x] IAP strategy (pricing, premium features, free tier limitations) — [docs/strategy/iap-strategy.md](strategy/iap-strategy.md)
