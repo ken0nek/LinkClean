@@ -1,173 +1,687 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "About" : {
-
+    "common.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
     },
-    "Add" : {
-
+    "common.copied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied"
+          }
+        }
+      }
     },
-    "Add Custom Parameter" : {
-
+    "common.copyCleanedUrl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy cleaned URL"
+          }
+        }
+      }
     },
-    "All cleaning history will be permanently deleted." : {
-
+    "common.delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
     },
-    "All existing history will be permanently deleted." : {
-
+    "common.ok" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
     },
-    "Auto Paste" : {
-
+    "customParameters.add.button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add"
+          }
+        }
+      }
     },
-    "Can't Add Parameter" : {
-
+    "customParameters.add.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Custom Parameter"
+          }
+        }
+      }
     },
-    "Cancel" : {
-
+    "customParameters.add.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parameter name"
+          }
+        }
+      }
     },
-    "Clean URL" : {
-
+    "customParameters.addError.alreadyCustom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already in custom parameters."
+          }
+        }
+      }
     },
-    "Cleaned URL will appear here" : {
-
+    "customParameters.addError.alreadyDefault" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already in default parameters."
+          }
+        }
+      }
     },
-    "Cleaned URLs you copy will appear here." : {
-
+    "customParameters.addError.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't Add Parameter"
+          }
+        }
+      }
     },
-    "Cleaning" : {
-
+    "customParameters.delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete %@"
+          }
+        }
+      }
     },
-    "Clear History" : {
-
+    "customParameters.deleteConfirm.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will remove \"%@\" from your custom parameters."
+          }
+        }
+      }
     },
-    "Clear History?" : {
-
+    "customParameters.deleteConfirm.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Custom Parameter?"
+          }
+        }
+      }
     },
-    "Clear input" : {
-
+    "customParameters.list.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No custom parameters yet."
+          }
+        }
+      }
     },
-    "Clipboard" : {
-
+    "customParameters.list.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom Parameters"
+          }
+        }
+      }
     },
-    "Clipboard doesn't contain a valid URL" : {
-
+    "customParameters.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom Parameters"
+          }
+        }
+      }
     },
-    "Copied" : {
-
+    "defaultParameters.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default Parameters"
+          }
+        }
+      }
     },
-    "Copy as Markdown" : {
-
+    "history.cell.share" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share cleaned URL"
+          }
+        }
+      }
     },
-    "Copy Clean URL" : {
-
+    "history.disabled.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History is currently disabled. Enable history in Settings to save your cleaned URLs."
+          }
+        }
+      }
     },
-    "Copy cleaned URL" : {
-
+    "history.disabled.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History Disabled"
+          }
+        }
+      }
     },
-    "Custom parameters" : {
-
+    "history.empty.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleaned URLs you copy will appear here."
+          }
+        }
+      }
     },
-    "Custom Parameters" : {
-
+    "history.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No History"
+          }
+        }
+      }
     },
-    "Data" : {
-
+    "history.menu.copyAsMarkdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy as Markdown"
+          }
+        }
+      }
     },
-    "Default parameters" : {
-
+    "history.menu.copyCleanUrl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Clean URL"
+          }
+        }
+      }
     },
-    "Default Parameters" : {
-
+    "history.menu.openInBrowser" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in Browser"
+          }
+        }
+      }
     },
-    "Delete" : {
-
+    "history.menu.retryMetadata" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry Metadata"
+          }
+        }
+      }
     },
-    "Delete %@" : {
-
+    "history.menu.share" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
+          }
+        }
+      }
     },
-    "Delete Custom Parameter?" : {
-
+    "history.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        }
+      }
     },
-    "Disable & Delete" : {
-
+    "home.cleaned.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean URL"
+          }
+        }
+      }
     },
-    "Disable History?" : {
-
+    "home.cleaned.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleaned URL will appear here"
+          }
+        }
+      }
     },
-    "Enter a valid URL" : {
-
+    "home.clipboardToast" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clipboard doesn't contain a valid URL"
+          }
+        }
+      }
     },
-    "History" : {
-
+    "home.input.clear" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear input"
+          }
+        }
+      }
     },
-    "History Disabled" : {
-
+    "home.input.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Input URL"
+          }
+        }
+      }
     },
-    "History is currently disabled. Enable history in Settings to save your cleaned URLs." : {
-
+    "home.input.invalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a valid URL"
+          }
+        }
+      }
     },
-    "Home" : {
-
+    "home.input.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste a URL to clean"
+          }
+        }
+      }
     },
-    "How to Use" : {
-
+    "home.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        }
+      }
     },
-    "Input URL" : {
-
+    "settings.about.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        }
+      }
     },
-    "No custom parameters yet." : {
-
+    "settings.about.version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        }
+      }
     },
-    "No History" : {
-
+    "settings.cleaning.customParameters" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom parameters"
+          }
+        }
+      }
     },
-    "OK" : {
-
+    "settings.cleaning.defaultParameters" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default parameters"
+          }
+        }
+      }
     },
-    "Open in Browser" : {
-
+    "settings.cleaning.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleaning"
+          }
+        }
+      }
     },
-    "Open Safari or any app with a link" : {
-
+    "settings.clearHistory.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All cleaning history will be permanently deleted."
+          }
+        }
+      }
     },
-    "Parameter name" : {
-
+    "settings.clearHistory.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear History?"
+          }
+        }
+      }
     },
-    "Paste a URL to clean" : {
-
+    "settings.clipboard.autoPaste" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto Paste"
+          }
+        }
+      }
     },
-    "Retry Metadata" : {
-
+    "settings.clipboard.footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When enabled, LinkClean automatically pastes a valid URL from your clipboard when you open the app or return to it."
+          }
+        }
+      }
     },
-    "Save History" : {
-
+    "settings.clipboard.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clipboard"
+          }
+        }
+      }
     },
-    "Select \"Clean URL\"" : {
-
+    "settings.data.clearHistory" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear History"
+          }
+        }
+      }
     },
-    "Settings" : {
-
+    "settings.data.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data"
+          }
+        }
+      }
     },
-    "Share" : {
-
+    "settings.data.saveHistory" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save History"
+          }
+        }
+      }
     },
-    "Share cleaned URL" : {
-
+    "settings.disableHistory.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable & Delete"
+          }
+        }
+      }
     },
-    "Tap the Share button" : {
-
+    "settings.disableHistory.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All existing history will be permanently deleted."
+          }
+        }
+      }
     },
-    "The cleaned URL is copied to your clipboard" : {
-
+    "settings.disableHistory.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable History?"
+          }
+        }
+      }
     },
-    "This will remove \"%@\" from your custom parameters." : {
-
+    "settings.howToUse.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to Use"
+          }
+        }
+      }
     },
-    "Version" : {
-
+    "settings.howToUse.step1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Safari or any app with a link"
+          }
+        }
+      }
     },
-    "When enabled, LinkClean automatically pastes a valid URL from your clipboard when you open the app or return to it." : {
-
+    "settings.howToUse.step2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the Share button"
+          }
+        }
+      }
+    },
+    "settings.howToUse.step3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select \"Clean URL\""
+          }
+        }
+      }
+    },
+    "settings.howToUse.step4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cleaned URL is copied to your clipboard"
+          }
+        }
+      }
+    },
+    "settings.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "tab.history" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        }
+      }
+    },
+    "tab.home" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        }
+      }
+    },
+    "tab.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

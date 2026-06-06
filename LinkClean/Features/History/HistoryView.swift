@@ -24,17 +24,17 @@ struct HistoryView: View {
         Group {
             switch viewModel.viewState(hasEntries: !entries.isEmpty) {
             case .disabled:
-                ContentUnavailableView(
-                    "History Disabled",
-                    systemImage: "clock.badge.xmark",
-                    description: Text("History is currently disabled. Enable history in Settings to save your cleaned URLs.")
-                )
+                ContentUnavailableView {
+                    Label { Text(.historyDisabledTitle) } icon: { Image(systemName: "clock.badge.xmark") }
+                } description: {
+                    Text(.historyDisabledMessage)
+                }
             case .empty:
-                ContentUnavailableView(
-                    "No History",
-                    systemImage: "clock",
-                    description: Text("Cleaned URLs you copy will appear here.")
-                )
+                ContentUnavailableView {
+                    Label { Text(.historyEmptyTitle) } icon: { Image(systemName: "clock") }
+                } description: {
+                    Text(.historyEmptyMessage)
+                }
             case .populated:
                 List(viewModel.filteredEntries(from: entries)) { entry in
                     HistoryCellView(entry: entry, viewModel: viewModel)
@@ -50,7 +50,7 @@ struct HistoryView: View {
             }
         }
         .screenBackground()
-        .navigationTitle("History")
+        .navigationTitle(Text(.historyTitle))
         .task {
             viewModel.setModelContext(modelContext)
         }

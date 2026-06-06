@@ -9,13 +9,27 @@ import Foundation
 
 public nonisolated struct TrackingParameterKind: Identifiable, Hashable, Sendable {
     public let id: String
-    public let title: String
     public let sortOrder: Int
 
-    public init(id: String, title: String, sortOrder: Int) {
+    public init(id: String, sortOrder: Int) {
         self.id = id
-        self.title = title
         self.sortOrder = sortOrder
+    }
+
+    /// Localized section title, resolved at display time. `Bundle.module` is
+    /// main-actor isolated under the package's MainActor default isolation, so
+    /// the lookup cannot happen in the nonisolated catalog initializer.
+    @MainActor public var title: String {
+        switch id {
+        case "utm": String(localized: "parameters.kind.utm", defaultValue: "UTM Parameters", bundle: .module)
+        case "common": String(localized: "parameters.kind.common", defaultValue: "Common Tracking", bundle: .module)
+        case "ads": String(localized: "parameters.kind.ads", defaultValue: "Ads & Attribution", bundle: .module)
+        case "analytics": String(localized: "parameters.kind.analytics", defaultValue: "Analytics", bundle: .module)
+        case "email": String(localized: "parameters.kind.email", defaultValue: "Email/CRM", bundle: .module)
+        case "social": String(localized: "parameters.kind.social", defaultValue: "Social & Share", bundle: .module)
+        case "affiliate": String(localized: "parameters.kind.affiliate", defaultValue: "Affiliate", bundle: .module)
+        default: id
+        }
     }
 }
 
@@ -46,13 +60,13 @@ public nonisolated struct TrackingParameterSection: Identifiable, Hashable, Send
 
 public nonisolated enum TrackingParameterCatalog {
     public static let sections: [TrackingParameterSection] = {
-        let utm = TrackingParameterKind(id: "utm", title: "UTM Parameters", sortOrder: 0)
-        let common = TrackingParameterKind(id: "common", title: "Common Tracking", sortOrder: 1)
-        let ads = TrackingParameterKind(id: "ads", title: "Ads & Attribution", sortOrder: 2)
-        let analytics = TrackingParameterKind(id: "analytics", title: "Analytics", sortOrder: 3)
-        let email = TrackingParameterKind(id: "email", title: "Email/CRM", sortOrder: 4)
-        let social = TrackingParameterKind(id: "social", title: "Social & Share", sortOrder: 5)
-        let affiliate = TrackingParameterKind(id: "affiliate", title: "Affiliate", sortOrder: 6)
+        let utm = TrackingParameterKind(id: "utm", sortOrder: 0)
+        let common = TrackingParameterKind(id: "common", sortOrder: 1)
+        let ads = TrackingParameterKind(id: "ads", sortOrder: 2)
+        let analytics = TrackingParameterKind(id: "analytics", sortOrder: 3)
+        let email = TrackingParameterKind(id: "email", sortOrder: 4)
+        let social = TrackingParameterKind(id: "social", sortOrder: 5)
+        let affiliate = TrackingParameterKind(id: "affiliate", sortOrder: 6)
 
         return [
             TrackingParameterSection(

@@ -14,21 +14,21 @@ struct ContentView: View {
                 HomeView()
             }
             .tabItem {
-                Label("Home", systemImage: "house")
+                Label { Text(.tabHome) } icon: { Image(systemName: "house") }
             }
 
             NavigationStack {
                 HistoryView()
             }
             .tabItem {
-                Label("History", systemImage: "clock")
+                Label { Text(.tabHistory) } icon: { Image(systemName: "clock") }
             }
 
             NavigationStack {
                 SettingsView()
             }
             .tabItem {
-                Label("Settings", systemImage: "gearshape")
+                Label { Text(.tabSettings) } icon: { Image(systemName: "gearshape") }
             }
         }
     }

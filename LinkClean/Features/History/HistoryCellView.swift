@@ -82,7 +82,7 @@ struct HistoryCellView: View {
                 }
                 .buttonStyle(.borderless)
                 .symbolEffect(.bounce, value: didCopy)
-                .accessibilityLabel(didCopy ? "Copied" : "Copy cleaned URL")
+                .accessibilityLabel(didCopy ? Text(.commonCopied) : Text(.commonCopyCleanedUrl))
 
                 ShareLink(item: entry.output) {
                     Image(systemName: "square.and.arrow.up")
@@ -92,7 +92,7 @@ struct HistoryCellView: View {
                         .background(.ultraThinMaterial, in: Circle())
                 }
                 .buttonStyle(.borderless)
-                .accessibilityLabel("Share cleaned URL")
+                .accessibilityLabel(Text(.historyCellShare))
             }
         }
         .padding(.vertical, 4)
@@ -103,17 +103,17 @@ struct HistoryCellView: View {
             Button {
                 viewModel.copyURL(for: entry)
             } label: {
-                Label("Copy Clean URL", systemImage: "doc.on.doc")
+                Label { Text(.historyMenuCopyCleanUrl) } icon: { Image(systemName: "doc.on.doc") }
             }
 
             Button {
                 viewModel.copyMarkdown(for: entry)
             } label: {
-                Label("Copy as Markdown", systemImage: "curlybraces")
+                Label { Text(.historyMenuCopyAsMarkdown) } icon: { Image(systemName: "curlybraces") }
             }
 
             ShareLink(item: entry.output) {
-                Label("Share", systemImage: "square.and.arrow.up")
+                Label { Text(.historyMenuShare) } icon: { Image(systemName: "square.and.arrow.up") }
             }
 
             Button {
@@ -121,14 +121,14 @@ struct HistoryCellView: View {
                     openURL(url)
                 }
             } label: {
-                Label("Open in Browser", systemImage: "safari")
+                Label { Text(.historyMenuOpenInBrowser) } icon: { Image(systemName: "safari") }
             }
 
             if entry.metadataFetchAttempted && entry.pageTitle == nil {
                 Button {
                     viewModel.retryMetadataFetch(for: entry)
                 } label: {
-                    Label("Retry Metadata", systemImage: "arrow.clockwise")
+                    Label { Text(.historyMenuRetryMetadata) } icon: { Image(systemName: "arrow.clockwise") }
                 }
             }
 
@@ -137,14 +137,14 @@ struct HistoryCellView: View {
             Button(role: .destructive) {
                 viewModel.deleteEntry(entry)
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label { Text(.commonDelete) } icon: { Image(systemName: "trash") }
             }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 viewModel.deleteEntry(entry)
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label { Text(.commonDelete) } icon: { Image(systemName: "trash") }
             }
         }
     }

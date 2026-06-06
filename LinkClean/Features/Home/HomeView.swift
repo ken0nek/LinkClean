@@ -36,7 +36,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Input URL")
+                        Text(.homeInputHeader)
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)
@@ -59,10 +59,10 @@ struct HomeView: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(viewModel.isInputEmpty)
-                        .accessibilityLabel("Clear input")
+                        .accessibilityLabel(Text(.homeInputClear))
                     }
 
-                    TextField("Paste a URL to clean", text: $viewModel.inputText, axis: .vertical)
+                    TextField(String(localized: .homeInputPlaceholder), text: $viewModel.inputText, axis: .vertical)
                         .lineLimit(1...8)
                         .font(.system(.title3, design: .rounded).weight(.semibold))
                         .keyboardType(.URL)
@@ -83,7 +83,7 @@ struct HomeView: View {
                         )
 
                     if viewModel.shouldShowInvalidInputMessage {
-                        Text("Enter a valid URL")
+                        Text(.homeInputInvalid)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -93,7 +93,7 @@ struct HomeView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Clean URL")
+                        Text(.homeCleanedHeader)
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)
@@ -117,12 +117,12 @@ struct HomeView: View {
                         .buttonStyle(.plain)
                         .disabled(viewModel.cleanedText.isEmpty)
                         .symbolEffect(.bounce, value: viewModel.didCopy)
-                        .accessibilityLabel(viewModel.didCopy ? "Copied" : "Copy cleaned URL")
+                        .accessibilityLabel(viewModel.didCopy ? Text(.commonCopied) : Text(.commonCopyCleanedUrl))
                     }
 
                     Group {
                         if viewModel.cleanedText.isEmpty {
-                            Text("Cleaned URL will appear here")
+                            Text(.homeCleanedPlaceholder)
                                 .foregroundStyle(.secondary)
                         } else {
                             Text(viewModel.cleanedText)
@@ -149,7 +149,7 @@ struct HomeView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.yellow)
-                    Text("Clipboard doesn’t contain a valid URL")
+                    Text(.homeClipboardToast)
                         .font(.subheadline.weight(.semibold))
                 }
                 .padding(.vertical, 10)
@@ -165,7 +165,7 @@ struct HomeView: View {
             }
         }
         .screenBackground()
-        .navigationTitle("Home")
+        .navigationTitle(Text(.homeTitle))
         .task {
             viewModel.setModelContext(modelContext)
         }

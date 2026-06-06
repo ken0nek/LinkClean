@@ -36,7 +36,7 @@ struct ManageParametersView: View {
         }
         .scrollContentBackground(.hidden)
         .screenBackground()
-        .navigationTitle("Default Parameters")
+        .navigationTitle(Text(.defaultParametersTitle))
         .onAppear {
             viewModel.onAppear()
         }

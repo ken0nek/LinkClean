@@ -25,6 +25,8 @@ If no precedent exists, state that explicitly before choosing an approach.
 
 **UI:** Standard components inherit Liquid Glass automatically. Native `WebView`—no UIKit bridging.
 
+**Localization (identifier keys + generated symbols):** `Localizable.xcstrings` keys are identifiers (`home.input.header`), not English text. In the app target every `extractionState:"manual"` entry compiles to a type-safe symbol (`STRING_CATALOG_GENERATE_SYMBOLS = YES`): dots stripped + camelCased (`home.input.header` → `.homeInputHeader`), `%@` keys become methods (`.customParametersDelete(parameter)`). Consume via `Text(.symbol)`; wrap in `Text(.symbol)` for `Button`/`Label`/`Toggle`/`Section`/`.navigationTitle`/`.alert`/`.accessibilityLabel`; use `String(localized: .symbol)` where a `String` is needed (`TextField` placeholder, ViewModel return values). **LinkCleanKit is the exception:** its catalog must have NO `manual` entries — Xcode's generated `#if SWIFT_PACKAGE` symbol code conflicts with the package's `defaultIsolation(MainActor.self)` (`Bundle.module` is MainActor-isolated). The kit uses explicit keys instead: `String(localized: "toast.copied", defaultValue: "Copied", bundle: .module)`, resolved on MainActor (see `TrackingParameterKind.title`).
+
 ## Testing
 Swift Testing framework: `@Test`, `#expect`, `#require`.
 

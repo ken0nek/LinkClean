@@ -33,10 +33,10 @@ final class CustomParametersViewModel {
         let normalized = normalizedInput
         guard !normalized.isEmpty else { return nil }
         if TrackingParameterCatalog.defaultEnabledSet.contains(normalized) {
-            return "Already in default parameters."
+            return String(localized: .customParametersAddErrorAlreadyDefault)
         }
         if customParameters.contains(normalized) {
-            return "Already in custom parameters."
+            return String(localized: .customParametersAddErrorAlreadyCustom)
         }
         store.addCustomParameter(normalized)
         newParameter = ""

@@ -19,9 +19,9 @@ struct CustomParametersView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         Form {
-            Section("Add Custom Parameter") {
+            Section {
                 HStack(spacing: 12) {
-                    TextField("Parameter name", text: $viewModel.newParameter)
+                    TextField(String(localized: .customParametersAddPlaceholder), text: $viewModel.newParameter)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .font(.system(.body, design: .monospaced))
@@ -34,14 +34,16 @@ struct CustomParametersView: View {
                             .imageScale(.large)
                     }
                     .disabled(!viewModel.canAdd)
-                    .accessibilityLabel("Add")
+                    .accessibilityLabel(Text(.customParametersAddButton))
                     .accessibilityIdentifier("custom-parameter-add")
                 }
+            } header: {
+                Text(.customParametersAddHeader)
             }
 
-            Section("Custom Parameters") {
+            Section {
                 if viewModel.customParameters.isEmpty {
-                    Text("No custom parameters yet.")
+                    Text(.customParametersListEmpty)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(viewModel.customParameters, id: \.self) { parameter in
@@ -58,22 +60,24 @@ struct CustomParametersView: View {
                                 Image(systemName: "trash")
                             }
                             .buttonStyle(.borderless)
-                            .accessibilityLabel("Delete \(parameter)")
+                            .accessibilityLabel(Text(.customParametersDelete(parameter)))
                             .accessibilityIdentifier("custom-parameter-delete-\(parameter)")
                         }
                     }
                     .onDelete(perform: viewModel.deleteParameters)
                 }
+            } header: {
+                Text(.customParametersListHeader)
             }
         }
         .scrollContentBackground(.hidden)
         .screenBackground()
-        .navigationTitle("Custom Parameters")
+        .navigationTitle(Text(.customParametersTitle))
         .onAppear {
             viewModel.onAppear()
         }
         .alert(
-            "Can't Add Parameter",
+            Text(.customParametersAddErrorTitle),
             isPresented: Binding(
                 get: { addErrorMessage != nil },
                 set: { isPresented in
@@ -83,8 +87,10 @@ struct CustomParametersView: View {
                 }
             )
         ) {
-            Button("OK", role: .cancel) {
+            Button(role: .cancel) {
                 addErrorMessage = nil
+            } label: {
+                Text(.commonOk)
             }
         } message: {
             if let addErrorMessage {
@@ -92,7 +98,7 @@ struct CustomParametersView: View {
             }
         }
         .alert(
-            "Delete Custom Parameter?",
+            Text(.customParametersDeleteConfirmTitle),
             isPresented: Binding(
                 get: { parameterPendingDelete != nil },
                 set: { isPresented in
@@ -102,18 +108,22 @@ struct CustomParametersView: View {
                 }
             )
         ) {
-            Button("Delete", role: .destructive) {
+            Button(role: .destructive) {
                 if let parameterPendingDelete {
                     viewModel.removeParameter(parameterPendingDelete)
                 }
                 parameterPendingDelete = nil
+            } label: {
+                Text(.commonDelete)
             }
-            Button("Cancel", role: .cancel) {
+            Button(role: .cancel) {
                 parameterPendingDelete = nil
+            } label: {
+                Text(.commonCancel)
             }
         } message: {
             if let parameterPendingDelete {
-                Text("This will remove \"\(parameterPendingDelete)\" from your custom parameters.")
+                Text(.customParametersDeleteConfirmMessage(parameterPendingDelete))
             }
         }
     }

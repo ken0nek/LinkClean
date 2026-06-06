@@ -27,26 +27,32 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Auto Paste", isOn: $autoPasteEnabled)
+                Toggle(isOn: $autoPasteEnabled) { Text(.settingsClipboardAutoPaste) }
                     .accessibilityIdentifier("settings-auto-paste-toggle")
             } header: {
-                Text("Clipboard")
+                Text(.settingsClipboardHeader)
             } footer: {
-                Text("When enabled, LinkClean automatically pastes a valid URL from your clipboard when you open the app or return to it.")
+                Text(.settingsClipboardFooter)
             }
 
-            Section("Cleaning") {
-                NavigationLink("Default parameters") {
+            Section {
+                NavigationLink {
                     ManageParametersView()
+                } label: {
+                    Text(.settingsCleaningDefaultParameters)
                 }
 
-                NavigationLink("Custom parameters") {
+                NavigationLink {
                     CustomParametersView()
+                } label: {
+                    Text(.settingsCleaningCustomParameters)
                 }
+            } header: {
+                Text(.settingsCleaningHeader)
             }
 
-            Section("Data") {
-                Toggle("Save History", isOn: Binding(
+            Section {
+                Toggle(isOn: Binding(
                     get: { saveHistoryEnabled },
                     set: { newValue in
                         if newValue {
@@ -55,45 +61,63 @@ struct SettingsView: View {
                             showDisableHistoryConfirmation = true
                         }
                     }
-                ))
+                )) {
+                    Text(.settingsDataSaveHistory)
+                }
 
                 if saveHistoryEnabled {
-                    Button("Clear History", role: .destructive) {
+                    Button(role: .destructive) {
                         showClearHistoryConfirmation = true
+                    } label: {
+                        Text(.settingsDataClearHistory)
                     }
                 }
+            } header: {
+                Text(.settingsDataHeader)
             }
 
-            Section("How to Use") {
-                Label("Open Safari or any app with a link", systemImage: "1.circle")
-                Label("Tap the Share button", systemImage: "2.circle")
-                Label("Select \"Clean URL\"", systemImage: "3.circle")
-                Label("The cleaned URL is copied to your clipboard", systemImage: "4.circle")
+            Section {
+                Label { Text(.settingsHowToUseStep1) } icon: { Image(systemName: "1.circle") }
+                Label { Text(.settingsHowToUseStep2) } icon: { Image(systemName: "2.circle") }
+                Label { Text(.settingsHowToUseStep3) } icon: { Image(systemName: "3.circle") }
+                Label { Text(.settingsHowToUseStep4) } icon: { Image(systemName: "4.circle") }
+            } header: {
+                Text(.settingsHowToUseHeader)
             }
 
-            Section("About") {
-                LabeledContent("Version", value: "\(version) (\(build))")
+            Section {
+                LabeledContent {
+                    Text(verbatim: "\(version) (\(build))")
+                } label: {
+                    Text(.settingsAboutVersion)
+                }
+            } header: {
+                Text(.settingsAboutHeader)
             }
         }
         .scrollContentBackground(.hidden)
         .screenBackground()
-        .navigationTitle("Settings")
-        .alert("Disable History?", isPresented: $showDisableHistoryConfirmation) {
-            Button("Disable & Delete", role: .destructive) {
+        .navigationTitle(Text(.settingsTitle))
+        .alert(Text(.settingsDisableHistoryTitle), isPresented: $showDisableHistoryConfirmation) {
+            Button(role: .destructive) {
                 saveHistoryEnabled = false
                 try? modelContext.delete(model: HistoryEntry.self)
+            } label: {
+                Text(.settingsDisableHistoryConfirm)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(role: .cancel) {} label: { Text(.commonCancel) }
         } message: {
-            Text("All existing history will be permanently deleted.")
+            Text(.settingsDisableHistoryMessage)
         }
-        .alert("Clear History?", isPresented: $showClearHistoryConfirmation) {
-            Button("Delete", role: .destructive) {
+        .alert(Text(.settingsClearHistoryTitle), isPresented: $showClearHistoryConfirmation) {
+            Button(role: .destructive) {
                 try? modelContext.delete(model: HistoryEntry.self)
+            } label: {
+                Text(.commonDelete)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(role: .cancel) {} label: { Text(.commonCancel) }
         } message: {
-            Text("All cleaning history will be permanently deleted.")
+            Text(.settingsClearHistoryMessage)
         }
     }
 }
