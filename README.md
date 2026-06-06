@@ -2,7 +2,7 @@
 
 **Privacy-focused URL cleaning for iOS**
 
-![Platform: iOS 18+](https://img.shields.io/badge/platform-iOS%2018%2B-blue)
+![Platform: iOS 26+](https://img.shields.io/badge/platform-iOS%2026%2B-blue)
 ![Swift 6.2](https://img.shields.io/badge/Swift-6.2-orange)
 ![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-purple)
 ![SwiftData](https://img.shields.io/badge/persistence-SwiftData-green)
@@ -40,4 +40,4 @@ When enabled, LinkClean automatically reads a valid URL from your clipboard when
 - **SwiftData** for history persistence
 - **LinkPresentation** for rich link previews
 - **App Group** for sharing data between the app and extension
-- **iOS 18.0+** deployment target
+- **iOS 26.0+** deployment target

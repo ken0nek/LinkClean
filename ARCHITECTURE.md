@@ -6,7 +6,7 @@ This repo uses a minimal, product-oriented MVVM architecture for small SwiftUI f
 - Safe concurrency (UI state on main; background work off-main where appropriate)
 
 ## Defaults in This Repo
-- iOS 18+ / iPadOS 18+
+- iOS 26+ / iPadOS 26+
 - Swift 6.2
 - Default actor isolation is `MainActor` (`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`)
 - Observation framework (`@Observable`) + SwiftUI ownership via `@State`
