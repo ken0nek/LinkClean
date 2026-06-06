@@ -177,6 +177,7 @@ public nonisolated enum TrackingParameterCatalog {
                         "_fbp",
                         "_fbc",
                         "share_source_type",
+                        "g_st",
                         "text",
                         "url",
                         "username",

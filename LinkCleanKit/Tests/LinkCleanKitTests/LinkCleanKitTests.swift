@@ -213,6 +213,11 @@ struct URLCleanerTests {
         #expect(result == "https://x.com/user/status/123456789")
     }
 
+    @Test func realWorldGoogleMapsURL() {
+        let result = URLCleaner.clean("https://maps.app.goo.gl/5FURCEXrGa9CEEMHA?g_st=ic")
+        #expect(result == "https://maps.app.goo.gl/5FURCEXrGa9CEEMHA")
+    }
+
     @Test func realWorldAmazonStyleURL() {
         let result = URLCleaner.clean("https://www.example.com/dp/B08N5WRWNW?tag=mystore&utm_source=google&gclid=abc&ref=sr_1_1")
         #expect(result == "https://www.example.com/dp/B08N5WRWNW?tag=mystore")

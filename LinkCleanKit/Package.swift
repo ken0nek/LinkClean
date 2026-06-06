@@ -24,7 +24,10 @@ let package = Package(
         ),
         .testTarget(
             name: "LinkCleanKitTests",
-            dependencies: ["LinkCleanKit"]
+            dependencies: ["LinkCleanKit"],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self)
+            ]
         ),
     ]
 )
