@@ -13,7 +13,8 @@ class ActionViewController: ActionExtensionViewController {
     override func processInputItems() {
         Task {
             guard let url = await extractURL() else {
-                dismissExtension()
+                playErrorHaptic()
+                showNoLinkFoundToastThenDismiss()
                 return
             }
 

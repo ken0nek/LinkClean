@@ -87,6 +87,23 @@
           }
         }
       }
+    },
+    "toast.noLinkFound" : {
+      "comment" : "Toast shown when the shared content contains no web link",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No link found"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リンクが見つかりませんでした"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

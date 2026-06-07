@@ -24,6 +24,12 @@ public nonisolated enum URLCleaner {
         return true
     }
 
+    /// URL-object counterpart of `isValidURL(_:)` so the app and the
+    /// action extension share a single web-link policy.
+    public static func isWebURL(_ url: URL) -> Bool {
+        isValidURL(url.absoluteString)
+    }
+
     public static func clean(_ urlString: String) -> String {
         clean(urlString, removing: TrackingParameterCatalog.defaultEnabledSet)
     }
