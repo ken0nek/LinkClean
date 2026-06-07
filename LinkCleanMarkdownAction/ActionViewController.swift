@@ -28,21 +28,24 @@ class ActionViewController: ActionExtensionViewController {
                 url = fallbackURL
             } else {
                 Log.action.debug("No URL extracted from JS or fallback, dismissing")
-                dismissExtension()
+                playErrorHaptic()
+                showNoLinkFoundToastThenDismiss()
                 return
             }
 
+            let cleaned = URLCleaner.clean(url, removing: parameterStore.enabledParameters())
+
             // 3. Determine title: prefer JS title, fall back to LPMetadataProvider
+            // (fetch the cleaned URL so tracking parameters never go over the wire)
             let title: String?
             if let jsTitle = jsResult?.title {
                 title = jsTitle
                 Log.action.debug("Using JS title: \(jsTitle, privacy: .public)")
             } else {
-                title = await fetchTitle(for: url)
+                title = await fetchTitle(for: cleaned)
                 Log.action.debug("Using LPMetadataProvider title: \(title ?? "nil", privacy: .public)")
             }
 
-            let cleaned = URLCleaner.clean(url, removing: parameterStore.enabledParameters())
             let markdown = MarkdownFormatter.markdownLink(title: title, url: cleaned.absoluteString)
             Log.action.debug("Markdown output: \(markdown, privacy: .public)")
             UIPasteboard.general.string = markdown
@@ -94,6 +97,7 @@ class ActionViewController: ActionExtensionViewController {
 
     private func fetchTitle(for url: URL) async -> String? {
         let provider = LPMetadataProvider()
+        provider.timeout = 5
         do {
             let metadata = try await provider.startFetchingMetadata(for: url)
             return metadata.title
