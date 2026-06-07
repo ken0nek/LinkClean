@@ -8,9 +8,9 @@ In priority order:
 2. [ ] Add analytics using TelemetryDeck — plan: [docs/plans/analytics.md](plans/analytics.md); land before onboarding so the activation funnel ships instrumented from day one
 3. [ ] Initial onboarding — build with funnel events inline
    - [ ] Instruction to add action extension (how to enable it in the share sheet) — part of onboarding, also reachable from Settings
-4. [ ] Action extension icon asset per extension — needed before share-sheet screenshots
-   - [ ] LinkCleanAction
-   - [ ] LinkCleanMarkdownAction
+4. [x] Action extension icon asset per extension — needed before share-sheet screenshots
+   - [x] LinkCleanAction
+   - [x] LinkCleanMarkdownAction
 5. [ ] Screenshots for App Store Connect — after UI freeze (3) and icons (4)
 6. [ ] Metadata (App Store Connect) — privacy nutrition label depends on TelemetryDeck (2)
 
