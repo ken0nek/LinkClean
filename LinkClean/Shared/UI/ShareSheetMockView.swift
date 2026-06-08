@@ -45,11 +45,7 @@ struct ShareSheetMockView: View {
                 }
             }
         }
-        .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(.white.opacity(0.08))
-        )
+        .glassCard(cornerRadius: 16)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text(.guideMockAccessibility))
     }

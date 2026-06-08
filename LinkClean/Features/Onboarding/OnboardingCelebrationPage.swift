@@ -38,12 +38,7 @@ struct OnboardingCelebrationPage: View {
             Spacer()
 
             Button(action: onGetStarted) {
-                Text(.onboardingCelebrationGetStarted)
-                    .font(.body.weight(.semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(.tint, in: .rect(cornerRadius: 16))
-                    .foregroundStyle(.white)
+                Text(.onboardingCelebrationGetStarted).primaryButtonLabel()
             }
             .accessibilityIdentifier("onboarding-get-started")
         }

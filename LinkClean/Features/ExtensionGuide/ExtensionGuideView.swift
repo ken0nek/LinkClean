@@ -66,11 +66,7 @@ struct ExtensionGuideView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
-        .background(.ultraThinMaterial, in: .rect(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(.white.opacity(0.08))
-        )
+        .glassCard()
     }
 
     private var tryItCard: some View {
@@ -80,11 +76,7 @@ struct ExtensionGuideView: View {
 
             ShareLink(item: viewModel.demoURL) {
                 Label { Text(.guideTryItButton) } icon: { Image(systemName: "square.and.arrow.up") }
-                    .font(.body.weight(.semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(.tint, in: .rect(cornerRadius: 14))
-                    .foregroundStyle(.white)
+                    .primaryButtonLabel()
             }
             .simultaneousGesture(TapGesture().onEnded { viewModel.tryItTapped() })
             .accessibilityIdentifier("guide-try-it")
@@ -93,11 +85,7 @@ struct ExtensionGuideView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
-        .background(.ultraThinMaterial, in: .rect(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(.white.opacity(0.08))
-        )
+        .glassCard()
     }
 
     @ViewBuilder

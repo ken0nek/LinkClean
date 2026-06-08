@@ -55,7 +55,6 @@ struct DeveloperMenuView: View {
         .navigationTitle(Text(verbatim: "Developer"))
         .navigationBarTitleDisplayMode(.inline)
         .task { viewModel.setModelContext(modelContext) }
-        .onAppear { viewModel.refresh() }
         .confirmationDialog(
             Text(verbatim: "Reset every stored value and clear History?"),
             isPresented: $showResetEverythingConfirmation,

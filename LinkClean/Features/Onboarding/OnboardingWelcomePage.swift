@@ -57,12 +57,7 @@ struct OnboardingWelcomePage: View {
             Spacer(minLength: 20)
 
             Button(action: onContinue) {
-                Text(.onboardingWelcomeContinue)
-                    .font(.body.weight(.semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(.tint, in: .rect(cornerRadius: 16))
-                    .foregroundStyle(.white)
+                Text(.onboardingWelcomeContinue).primaryButtonLabel()
             }
             .accessibilityIdentifier("onboarding-continue")
         }
@@ -84,11 +79,7 @@ struct OnboardingWelcomePage: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial, in: .rect(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(.white.opacity(0.08))
-        )
+        .glassCard()
     }
 
     private func labeledRow<Content: View>(label: Text, content: Content) -> some View {

@@ -16,7 +16,16 @@ struct ExtensionGuideViewModelTests {
         UserDefaults(suiteName: "test.\(UUID().uuidString)")!
     }
 
+    private func isWaiting(_ vm: ExtensionGuideViewModel) -> Bool {
+        if case .waitingForExtension = vm.state { return true }
+        return false
+    }
+
     private let start = Date(timeIntervalSinceReferenceDate: 1000)
+
+    private func runTimestamp(_ interval: Double, in suite: UserDefaults) {
+        suite.set(interval, forKey: SettingsKeys.lastActionExtensionRunAt)
+    }
 
     @Test func startsIdle() {
         let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start })
@@ -31,7 +40,7 @@ struct ExtensionGuideViewModelTests {
 
         vm.tryItTapped()
 
-        #expect(vm.isWaiting == true)
+        #expect(isWaiting(vm) == true)
         #expect(vm.isIdleOrWaiting == true)
         vm.reset()
     }
@@ -42,21 +51,20 @@ struct ExtensionGuideViewModelTests {
         vm.tryItTapped()
         vm.handleScenePhase(.active)
 
-        #expect(vm.isWaiting == true)
+        #expect(isWaiting(vm) == true)
         vm.reset()
     }
 
     @Test func staysWaitingForStaleTimestamp() {
         let suite = makeSuite()
         // A run that happened before "Try it" was tapped must not count.
-        suite.set(Date(timeIntervalSinceReferenceDate: 500).timeIntervalSinceReferenceDate,
-                  forKey: SettingsKeys.lastActionExtensionRunAt)
+        runTimestamp(Date(timeIntervalSinceReferenceDate: 500).timeIntervalSinceReferenceDate, in: suite)
         let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
 
         vm.tryItTapped()
         vm.handleScenePhase(.active)
 
-        #expect(vm.isWaiting == true)
+        #expect(isWaiting(vm) == true)
         vm.reset()
     }
 
@@ -65,8 +73,7 @@ struct ExtensionGuideViewModelTests {
         let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
 
         vm.tryItTapped()
-        suite.set(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate,
-                  forKey: SettingsKeys.lastActionExtensionRunAt)
+        runTimestamp(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate, in: suite)
         vm.handleScenePhase(.active)
 
         #expect(vm.state == .succeeded)
@@ -74,19 +81,32 @@ struct ExtensionGuideViewModelTests {
         #expect(vm.isIdleOrWaiting == false)
     }
 
+    @Test func succeedsWithoutTryItTapWhenArmedOnAppear() {
+        // Detection is armed on appear, so a run is caught even if the
+        // ShareLink tap gesture never fired.
+        let suite = makeSuite()
+        let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
+
+        vm.onAppear(source: .settings)
+        runTimestamp(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate, in: suite)
+        vm.handleScenePhase(.active)
+
+        #expect(vm.hasSucceeded == true)
+        vm.reset()
+    }
+
     @Test func nonActiveScenePhaseIsNoOp() {
         let suite = makeSuite()
         let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
 
         vm.tryItTapped()
-        suite.set(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate,
-                  forKey: SettingsKeys.lastActionExtensionRunAt)
+        runTimestamp(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate, in: suite)
 
         vm.handleScenePhase(.background)
-        #expect(vm.isWaiting == true)
+        #expect(isWaiting(vm) == true)
 
         vm.handleScenePhase(.inactive)
-        #expect(vm.isWaiting == true)
+        #expect(isWaiting(vm) == true)
 
         vm.handleScenePhase(.active)
         #expect(vm.hasSucceeded == true)
@@ -101,14 +121,12 @@ struct ExtensionGuideViewModelTests {
         #expect(vm.state == .idle)
     }
 
-    @Test func successDoesNotRequireScenePhaseWhenAlreadyChecked() {
-        // Once succeeded, a later active phase keeps it succeeded (idempotent).
+    @Test func successIsIdempotentAcrossScenePhases() {
         let suite = makeSuite()
         let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
 
         vm.tryItTapped()
-        suite.set(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate,
-                  forKey: SettingsKeys.lastActionExtensionRunAt)
+        runTimestamp(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate, in: suite)
         vm.handleScenePhase(.active)
         vm.handleScenePhase(.active)
 

@@ -57,16 +57,16 @@ The extension runs in a separate process; the app needs to know "the user just r
 - `ExtensionGuideViewModel` state machine:
 
 ```
-        tryItTapped()              lastRunAt > startedAt
-idle ───────────────▶ waitingForExtension ──────────────▶ succeeded
- ▲                       │  checked on scenePhase → .active
- └── reset() ◀───────────┘  + 500 ms poll (~20 s budget, iPad fallback)
+        onAppear (arms watchStartedAt)        lastRunAt > watchStartedAt
+idle ──────────────────────────────────▶ (watching) ──────────────────────▶ succeeded
+ │  tryItTapped() → waitingForExtension       ▲   checked on scenePhase → .active
+ └── reset() ◀────────────────────────────────┘   AND a 500 ms poll that runs while watching
 ```
 
-- `tryItTapped()` (via `.simultaneousGesture(TapGesture())` on the ShareLink — ShareLink has no completion handler) records the start time.
-- Success = `lastActionExtensionRunAt > startedAt` (strict — a run from last week never false-triggers).
-- Share-sheet cancel: scene returns `.active`, timestamp unchanged → stays waiting; user can re-tap. Poll stops after budget; re-tap restarts.
-- iPad presents the share sheet as a popover and may not drive scenePhase transitions — the poll is the fallback there.
+- **Detection is armed on appear, not on the tap.** `onAppear` records `watchStartedAt = now` and starts the poll, so success is found even if the `ShareLink` `.simultaneousGesture` is swallowed (ShareLink has no completion handler). `tryItTapped()` only flips the state to `.waitingForExtension` for the waiting hint.
+- Success = `lastActionExtensionRunAt > watchStartedAt` (strict — an earlier run never false-triggers).
+- **Two detectors:** `scenePhase → .active` (iPhone: the extension dismissal toggles the host scene) **and** a continuous 500 ms poll that runs the whole time the guide is visible (cancelled on success/`reset`, with a 5-min safety cap). The poll is the reliable path on iPad, where the share-sheet popover may not toggle `scenePhase`. Cross-process `UserDefaults` writes aren't delivered by notification, so re-reading is the mechanism.
+- Share-sheet cancel: timestamp unchanged → stays waiting; the poll keeps watching, so a later run still registers.
 - Either extension counts (both call `recordSuccessfulRun`) — tapping "Copy as Markdown" instead of "Clean URL" is still a success.
 
 ## 4. Implementation steps

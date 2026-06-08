@@ -23,9 +23,8 @@ enum ExtensionGuideSource {
 final class ExtensionGuideViewModel {
     enum State: Equatable {
         case idle
-        /// "Try it" was tapped at `startedAt` (reference-date interval); we're
-        /// waiting for the extension to write a newer success timestamp.
-        case waitingForExtension(startedAt: Double)
+        /// The user tapped "Share a sample link"; showing the waiting hint.
+        case waitingForExtension
         case succeeded
     }
 
@@ -37,6 +36,11 @@ final class ExtensionGuideViewModel {
 
     @ObservationIgnored private let defaults: UserDefaults?
     @ObservationIgnored private let now: () -> Date
+    /// Reference-date interval captured when the guide appears. Any extension
+    /// run with a newer timestamp counts as success. Armed on appear (not on
+    /// the ShareLink tap) so a swallowed tap gesture or an iPad popover that
+    /// never toggles scenePhase can't strand the user.
+    @ObservationIgnored private var watchStartedAt: Double?
     @ObservationIgnored private var pollTask: Task<Void, Never>?
 
     init(
@@ -53,29 +57,26 @@ final class ExtensionGuideViewModel {
         state != .succeeded
     }
 
-    var isWaiting: Bool {
-        if case .waitingForExtension = state { return true }
-        return false
-    }
-
     var hasSucceeded: Bool {
         state == .succeeded
     }
 
     func onAppear(source: ExtensionGuideSource) {
         // TODO(analytics): Onboarding.ExtensionGuide.shown — source: \(source == .onboarding ? "onboarding" : "settings") (see docs/plans/analytics.md §6)
+        startWatching()
     }
 
-    /// Records the moment the user opened the share sheet, so a subsequent
-    /// extension run can be recognized as "theirs".
+    /// Records the moment the user opened the share sheet, surfacing the waiting
+    /// hint. Detection itself is already armed by `startWatching`, so success is
+    /// found even if this gesture never fires.
     func tryItTapped() {
-        let startedAt = now().timeIntervalSinceReferenceDate
-        state = .waitingForExtension(startedAt: startedAt)
-        startPolling()
+        guard state != .succeeded else { return }
+        startWatching()
+        state = .waitingForExtension
     }
 
     /// Re-checks for a completed run when the app returns to the foreground
-    /// (the share sheet's dismissal drives the scene inactive → active).
+    /// (on iPhone the extension dismissal drives the scene inactive → active).
     func handleScenePhase(_ phase: ScenePhase) {
         guard phase == .active else { return }
         checkForSuccess()
@@ -83,30 +84,45 @@ final class ExtensionGuideViewModel {
 
     func reset() {
         state = .idle
+        watchStartedAt = nil
         pollTask?.cancel()
         pollTask = nil
     }
 
     // MARK: - Private
 
-    /// Belt-and-suspenders fallback for missed scene transitions — notably the
-    /// iPad share-sheet popover, which may not toggle `scenePhase`.
+    /// Arms detection: records the baseline timestamp and starts the poll.
+    /// Idempotent — safe to call from both onAppear and tryItTapped.
+    private func startWatching() {
+        guard state != .succeeded else { return }
+        if watchStartedAt == nil {
+            watchStartedAt = now().timeIntervalSinceReferenceDate
+        }
+        startPolling()
+    }
+
+    /// Polls the shared timestamp while waiting. Cross-process `UserDefaults`
+    /// writes aren't delivered by notification, so we re-read until we see the
+    /// run rather than relying solely on scenePhase (which the iPad share-sheet
+    /// popover may not toggle). Bounded generously as a safety net; cancelled on
+    /// success or reset (view disappear).
     private func startPolling() {
-        pollTask?.cancel()
+        guard pollTask == nil else { return }
         pollTask = Task { @MainActor in
-            for _ in 0 ..< 40 { // ~20s budget while waiting
+            for _ in 0 ..< 600 { // 600 × 500ms = 5 min cap
                 try? await Task.sleep(for: .milliseconds(500))
                 if Task.isCancelled { return }
                 checkForSuccess()
-                if case .succeeded = state { return }
+                if state == .succeeded { return }
             }
+            pollTask = nil
         }
     }
 
     private func checkForSuccess() {
-        guard case let .waitingForExtension(startedAt) = state else { return }
+        guard state != .succeeded, let watchStartedAt else { return }
         let lastRun = defaults?.double(forKey: SettingsKeys.lastActionExtensionRunAt) ?? 0
-        guard lastRun > startedAt else { return }
+        guard lastRun > watchStartedAt else { return }
         state = .succeeded
         pollTask?.cancel()
         pollTask = nil
