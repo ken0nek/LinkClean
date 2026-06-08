@@ -5,6 +5,7 @@
 
 import Testing
 import Foundation
+import SwiftData
 @testable import LinkClean
 import LinkCleanKit
 
@@ -118,6 +119,64 @@ struct HomeViewModelTests {
         vm.copyCleanedURL()
 
         #expect(spy.events.last == .homeURLCopied(changed: true))
+    }
+
+    @Test func copyIsDedupedForRepeatedTapsOnTheSameResult() async {
+        let spy = SpyAnalytics()
+        var mock = MockURLCleaningService()
+        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
+        // Isolated suites so save-history is deterministically on (default unset = on).
+        let settings = SettingsStore(
+            standardSuiteName: "test.std.\(UUID().uuidString)",
+            appGroupSuiteName: "test.grp.\(UUID().uuidString)"
+        )
+        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings)
+        let context = ModelContext(HistoryContainer.makeInMemory())
+        vm.setModelContext(context)
+
+        vm.inputText = "https://x.com?utm_source=a"
+        for _ in 0 ..< 200 where spy.events.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        vm.copyCleanedURL()
+        vm.copyCleanedURL()
+        vm.copyCleanedURL()
+
+        // Repeated taps on one cleaned output export once...
+        #expect(spy.events.filter { $0 == .homeURLCopied(changed: true) }.count == 1)
+        // ...and write exactly one history row, not one per tap.
+        let rows = try? context.fetch(FetchDescriptor<HistoryEntry>())
+        #expect(rows?.count == 1)
+    }
+
+    @Test func copyEmitsAgainAfterTheCleanedResultChanges() async {
+        let spy = SpyAnalytics()
+        var mock = MockURLCleaningService()
+        // Output varies with input length, so the two distinct inputs clean differently.
+        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example/\(input.count)", removedCount: 1) }
+        let vm = HomeViewModel(service: mock, analytics: spy)
+
+        vm.inputText = "https://x.com?utm_source=a"
+        for _ in 0 ..< 200 where spy.events.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        vm.copyCleanedURL()
+
+        let afterFirstCopy = spy.events.count
+        vm.inputText = "https://much-longer-host.example.com?utm_source=b"
+        for _ in 0 ..< 200 where spy.events.count == afterFirstCopy {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        vm.copyCleanedURL()
+
+        // A genuinely different cleaned output (e.g. after a leftover-pill refine)
+        // is a new export, not a duplicate tap.
+        let copies = spy.events.filter {
+            if case .homeURLCopied = $0 { return true }
+            return false
+        }
+        #expect(copies.count == 2)
     }
 
     @Test func cleanedSignalIsDedupedPerDistinctInput() async {

@@ -6,7 +6,7 @@ In priority order:
 
 1. [x] Fix Google Maps link sharing issue — only unknown-scope item; core share-sheet flow
 2. [x] Add analytics using TelemetryDeck — plan: [docs/plans/analytics.md](plans/analytics.md); §6/§7 taxonomy implemented across app + both action extensions (`AnalyticsService`/`AnalyticsEvent` in LinkCleanKit)
-3. [x] Initial onboarding — plan: [docs/plans/onboarding.md](plans/onboarding.md); funnel events now wired (`Onboarding.flow.completed`/`skipped`, `Onboarding.ExtensionGuide.shown`)
+3. [x] Initial onboarding — plan: [docs/plans/onboarding.md](plans/onboarding.md); funnel events now wired (`Onboarding.Flow.completed`/`skipped`, `Onboarding.ExtensionGuide.shown`)
    - [x] Instruction to add action extension (how to enable it in the share sheet) — interactive `ExtensionGuideView`, shown in onboarding and from Settings
 4. [x] Action extension icon asset per extension — needed before share-sheet screenshots
    - [x] LinkCleanAction

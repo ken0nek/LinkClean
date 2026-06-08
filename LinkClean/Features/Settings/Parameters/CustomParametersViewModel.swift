@@ -32,6 +32,7 @@ final class CustomParametersViewModel {
 
     func onAppear() {
         reload()
+        analytics.capture(.parametersCustomShown)
     }
 
     func addParameter() -> String? {

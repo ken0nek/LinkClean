@@ -49,6 +49,8 @@ public nonisolated enum AnalyticsEvent: Equatable {
 
     // MARK: Settings & parameters (§6)
 
+    /// The Settings screen appeared — top of the customization/discovery funnel.
+    case settingsScreenShown
     case settingsAutoPasteToggled(enabled: Bool)
     case settingsSaveHistoryToggled(enabled: Bool)
     /// A built-in default parameter was toggled. Its name comes from a finite,
@@ -58,6 +60,10 @@ public nonisolated enum AnalyticsEvent: Equatable {
     /// sent — never the parameter name (free-text user input, §3).
     case parametersCustomAdded(totalCount: Int)
     case parametersCustomDeleted(totalCount: Int)
+    /// The custom-parameters screen appeared. Paired with ``parametersCustomAdded``
+    /// it separates discovery from value for the top premium candidate (§6): a low
+    /// add-rate alongside a healthy view-rate is a value problem, not a discovery one.
+    case parametersCustomShown
     /// A known tracking parameter that is *not* in the default catalog survived
     /// a clean — a catalog-gap signal (`parameter-telemetry.md` Tier 1). The
     /// name comes from the bundled ``ReferenceParameterCatalog`` (finite, public
@@ -118,19 +124,21 @@ public nonisolated enum AnalyticsEvent: Equatable {
         case .homeURLCleaned: "Home.URL.cleaned"
         case .homeURLCopied: "Home.URL.copied"
         case .homeClipboardInvalidPasted: "Home.Clipboard.invalidPasted"
-        case .historyScreenShown: "History.screen.shown"
+        case .historyScreenShown: "History.Screen.shown"
         case .historyEntryActioned: "History.Entry.actioned"
         case .historyEntryDeleted: "History.Entry.deleted"
         case .historyAllCleared: "History.All.cleared"
         case .historySearchUsed: "History.Search.used"
+        case .settingsScreenShown: "Settings.Screen.shown"
         case .settingsAutoPasteToggled: "Settings.AutoPaste.toggled"
         case .settingsSaveHistoryToggled: "Settings.SaveHistory.toggled"
         case .parametersDefaultToggled: "Parameters.Default.toggled"
         case .parametersCustomAdded: "Parameters.Custom.added"
         case .parametersCustomDeleted: "Parameters.Custom.deleted"
+        case .parametersCustomShown: "Parameters.Custom.shown"
         case .parametersReferenceObserved: "Parameters.Reference.observed"
-        case .onboardingFlowCompleted: "Onboarding.flow.completed"
-        case .onboardingFlowSkipped: "Onboarding.flow.skipped"
+        case .onboardingFlowCompleted: "Onboarding.Flow.completed"
+        case .onboardingFlowSkipped: "Onboarding.Flow.skipped"
         case .onboardingExtensionGuideShown: "Onboarding.ExtensionGuide.shown"
         case .actionCleanSucceeded: "Action.Clean.succeeded"
         case .actionCleanFailed: "Action.Clean.failed"
@@ -191,7 +199,9 @@ public nonisolated enum AnalyticsEvent: Equatable {
             ]
         case let .actionMarkdownFailed(reason):
             return ["reason": reason.rawValue]
-        case .homeClipboardInvalidPasted,
+        case .settingsScreenShown,
+             .parametersCustomShown,
+             .homeClipboardInvalidPasted,
              .historyEntryDeleted,
              .historyAllCleared,
              .historySearchUsed,

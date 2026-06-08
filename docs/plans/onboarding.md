@@ -157,8 +157,8 @@ Names from [analytics.md](analytics.md) §6:
 | Stub location | Comment |
 |---|---|
 | `ExtensionGuideViewModel.onAppear(source:)` | `// TODO(analytics): Onboarding.ExtensionGuide.shown — source: onboarding\|settings` |
-| `OnboardingViewModel.skip()` | `// TODO(analytics): Onboarding.flow.skipped` |
-| `OnboardingViewModel.getStarted()` | `// TODO(analytics): Onboarding.flow.completed` |
+| `OnboardingViewModel.skip()` | `// TODO(analytics): Onboarding.Flow.skipped` |
+| `OnboardingViewModel.getStarted()` | `// TODO(analytics): Onboarding.Flow.completed` |
 | Both `recordSuccessfulRun()` call sites | `// TODO(analytics): Action.*.succeeded fires here (see analytics.md §7)` |
 
 ## 5. Testing

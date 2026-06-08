@@ -15,19 +15,21 @@ struct AnalyticsEventTests {
             (.homeURLCleaned(source: .typed, changed: true, removedCount: 0, leftoverCount: 0, referenceMatchCount: 0, removedKinds: []), "Home.URL.cleaned"),
             (.homeURLCopied(changed: true), "Home.URL.copied"),
             (.homeClipboardInvalidPasted, "Home.Clipboard.invalidPasted"),
-            (.historyScreenShown(entryCount: 0), "History.screen.shown"),
+            (.historyScreenShown(entryCount: 0), "History.Screen.shown"),
             (.historyEntryActioned(.copy), "History.Entry.actioned"),
             (.historyEntryDeleted, "History.Entry.deleted"),
             (.historyAllCleared, "History.All.cleared"),
             (.historySearchUsed, "History.Search.used"),
             (.settingsAutoPasteToggled(enabled: true), "Settings.AutoPaste.toggled"),
             (.settingsSaveHistoryToggled(enabled: true), "Settings.SaveHistory.toggled"),
+            (.settingsScreenShown, "Settings.Screen.shown"),
             (.parametersDefaultToggled(parameter: "utm_source", enabled: false), "Parameters.Default.toggled"),
             (.parametersCustomAdded(totalCount: 1), "Parameters.Custom.added"),
             (.parametersCustomDeleted(totalCount: 0), "Parameters.Custom.deleted"),
+            (.parametersCustomShown, "Parameters.Custom.shown"),
             (.parametersReferenceObserved(parameter: "yclid"), "Parameters.Reference.observed"),
-            (.onboardingFlowCompleted, "Onboarding.flow.completed"),
-            (.onboardingFlowSkipped, "Onboarding.flow.skipped"),
+            (.onboardingFlowCompleted, "Onboarding.Flow.completed"),
+            (.onboardingFlowSkipped, "Onboarding.Flow.skipped"),
             (.onboardingExtensionGuideShown(source: .onboarding), "Onboarding.ExtensionGuide.shown"),
             (.actionCleanSucceeded(changed: true, removedCount: 1, leftoverCount: 0, referenceMatchCount: 0, removedKinds: []), "Action.Clean.succeeded"),
             (.actionCleanFailed(reason: .noURL), "Action.Clean.failed"),
@@ -114,6 +116,7 @@ struct AnalyticsEventTests {
         let events: [AnalyticsEvent] = [
             .homeClipboardInvalidPasted, .historyEntryDeleted, .historyAllCleared,
             .historySearchUsed, .onboardingFlowCompleted, .onboardingFlowSkipped,
+            .settingsScreenShown, .parametersCustomShown,
         ]
         for event in events {
             #expect(event.parameters.isEmpty)

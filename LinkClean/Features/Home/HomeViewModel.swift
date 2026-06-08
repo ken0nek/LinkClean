@@ -42,6 +42,10 @@ final class HomeViewModel {
     @ObservationIgnored private var isApplyingAutoPaste = false
     @ObservationIgnored private var isSanitizing = false
     @ObservationIgnored private var lastSignaledCleanInput: String?
+    // Dedupes `Home.URL.copied` and the history-row insert per distinct cleaned
+    // *output*: repeated taps on one result count once, but re-copying after a
+    // leftover-pill refine (same input, cleaner output) correctly counts again.
+    @ObservationIgnored private var lastCopiedOutput: String?
 
     init(
         service: URLCleaningService = DefaultURLCleaningService(),
@@ -101,7 +105,8 @@ final class HomeViewModel {
         UIPasteboard.general.string = cleanedText
         didCopy = true
 
-        if let cleanedURL {
+        if let cleanedURL, cleanedURL.output != lastCopiedOutput {
+            lastCopiedOutput = cleanedURL.output
             analytics.capture(.homeURLCopied(changed: cleanedURL.changed))
             if isSaveHistoryEnabled {
                 let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
@@ -213,6 +218,7 @@ final class HomeViewModel {
 
         if isInputEmpty {
             lastSignaledCleanInput = nil
+            lastCopiedOutput = nil
         }
 
         refreshCleanedURL()

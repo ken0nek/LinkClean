@@ -51,7 +51,7 @@ final class HistoryViewModel {
     }
 
     /// Called when the History tab appears. Refreshes settings, resets the
-    /// per-visit search flag, and emits `History.screen.shown`. `entryCount`
+    /// per-visit search flag, and emits `History.Screen.shown`. `entryCount`
     /// comes from the View's `@Query`.
     func handleAppear(entryCount: Int) {
         didSignalSearch = false

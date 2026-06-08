@@ -146,6 +146,17 @@ struct CustomParametersViewModelTests {
         #expect(spy.events == [.parametersCustomDeleted(totalCount: 0)])
     }
 
+    @Test func onAppearSignalsScreenShown() {
+        let suiteName = "LinkCleanTests.custom.\(UUID().uuidString)"
+        let spy = SpyAnalytics()
+        let vm = CustomParametersViewModel(store: TrackingParameterStore(suiteName: suiteName), analytics: spy)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+
+        vm.onAppear()
+
+        #expect(spy.events == [.parametersCustomShown])
+    }
+
     @Test func rejectedAddEmitsNothing() {
         let suiteName = "LinkCleanTests.custom.\(UUID().uuidString)"
         let spy = SpyAnalytics()

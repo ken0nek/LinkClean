@@ -94,7 +94,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `History.screen.shown` | History tab opened | `entryCount: <bucket>` | Is history a real feature or a dumping ground? Size distribution → free-tier history cap |
+| `History.Screen.shown` | History tab opened | `entryCount: <bucket>` | Is history a real feature or a dumping ground? Size distribution → free-tier history cap |
 | `History.Entry.actioned` | Per-entry action used | `action: copy\|share\|markdown\|openInBrowser` | Which export paths matter; Markdown demand outside the extension |
 | `History.Entry.deleted` | Swipe/context-menu delete | — | Curation behavior |
 | `History.All.cleared` | Clear-all confirmed (Settings or History) | — | Privacy-wipe behavior |
@@ -104,18 +104,20 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
+| `Settings.Screen.shown` | Settings screen opened | — | Discovery: do users reach Settings at all — the entry to the customization/premium funnel |
 | `Settings.AutoPaste.toggled` | Toggle changed | `enabled` | Default acceptance |
 | `Settings.SaveHistory.toggled` | Toggle changed | `enabled` | Privacy-sensitivity of user base; viability of history-based premium features |
 | `Parameters.Default.toggled` | Built-in parameter toggled | `parameter: <name>`, `enabled` | Which built-ins users distrust/need; informs default set curation |
 | `Parameters.Custom.added` | Custom parameter added | `totalCount: <bucket>` — **never the name** | **Top premium candidate.** Adoption % + depth per user |
 | `Parameters.Custom.deleted` | Custom parameter removed | `totalCount: <bucket>` | Churn on the feature |
+| `Parameters.Custom.shown` | Custom-parameters screen opened | — | **Discovery vs. value for the top premium candidate.** With `Parameters.Custom.added`, view→add conversion separates "few discover it" from "discoverers don't convert" |
 | `Parameters.Reference.observed` | A known-but-not-default tracker survived a clean (one per match) | `parameter: <public reference name>` — from the bundled reference catalog, **never an arbitrary URL key** | **Catalog-gap engine.** Which trackers to promote into the default set (`parameter-telemetry.md` Tier 1) |
 
 ### Onboarding (ships in 1.0.0 per TODO)
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Onboarding.flow.completed` / `Onboarding.flow.skipped` | End of onboarding | — | Onboarding effectiveness |
+| `Onboarding.Flow.completed` / `Onboarding.Flow.skipped` | End of onboarding | — | Onboarding effectiveness |
 | `Onboarding.ExtensionGuide.shown` | "How to enable the action extension" instructions viewed (onboarding or Settings) | `source: onboarding\|settings` | Reach of the single most important activation step |
 
 ## 7. Event taxonomy — action extensions
@@ -185,7 +187,7 @@ Completion/failure/restore arrive server-side via RevenueCat; client events exis
 | Decision (1.1.0) | Metric | Source signals |
 |---|---|---|
 | Gate custom parameters? | Adoption % of WAU; depth (`totalCount` buckets); overlap with heavy cleaners | `Parameters.Custom.added` |
-| Gate / cap history? | History size distribution; entry-action rate; % with history disabled | `History.screen.shown`, `History.Entry.actioned`, `Settings.SaveHistory.toggled` |
+| Gate / cap history? | History size distribution; entry-action rate; % with history disabled | `History.Screen.shown`, `History.Entry.actioned`, `Settings.SaveHistory.toggled` |
 | Gate Markdown? | Markdown share of extension volume + in-app markdown copies | `Action.Markdown.succeeded`, `History.Entry.actioned(action=markdown)` |
 | Free-tier clean cap (and its value N)? | Cleans/user/week distribution — need a distinct power-user tail | `Home.URL.copied` + `Action.*.succeeded` |
 | Subscription vs one-time | D7/D30 retention curve shape | Automatic session signals |

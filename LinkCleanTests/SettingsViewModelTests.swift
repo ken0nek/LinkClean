@@ -97,6 +97,16 @@ struct SettingsViewModelTests {
         #expect(remaining?.isEmpty == true)
     }
 
+    @Test func onAppearSignalsScreenShown() {
+        let (store, _, _) = makeStore()
+        let spy = SpyAnalytics()
+        let vm = SettingsViewModel(analytics: spy, settings: store)
+
+        vm.onAppear()
+
+        #expect(spy.events == [.settingsScreenShown])
+    }
+
     @Test func clearHistoryWipesEntriesAndSignalsAllCleared() {
         let (store, _, _) = makeStore()
         let spy = SpyAnalytics()

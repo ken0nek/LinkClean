@@ -38,6 +38,7 @@ final class SettingsViewModel {
     func onAppear() {
         autoPasteEnabled = settings.autoPasteEnabled
         saveHistoryEnabled = settings.saveHistoryEnabled
+        analytics.capture(.settingsScreenShown)
     }
 
     func setAutoPaste(_ enabled: Bool) {
