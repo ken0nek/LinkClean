@@ -6,7 +6,7 @@ In priority order:
 
 1. [x] Fix Google Maps link sharing issue — only unknown-scope item; core share-sheet flow
 2. [ ] Add analytics using TelemetryDeck — plan: [docs/plans/analytics.md](plans/analytics.md); land before onboarding so the activation funnel ships instrumented from day one
-3. [ ] Initial onboarding — build with funnel events inline
+3. [ ] Initial onboarding — plan: [docs/plans/onboarding.md](plans/onboarding.md); build with funnel events inline
    - [ ] Instruction to add action extension (how to enable it in the share sheet) — part of onboarding, also reachable from Settings
 4. [x] Action extension icon asset per extension — needed before share-sheet screenshots
    - [x] LinkCleanAction

@@ -77,12 +77,12 @@ struct SettingsView: View {
             }
 
             Section {
-                Label { Text(.settingsHowToUseStep1) } icon: { Image(systemName: "1.circle") }
-                Label { Text(.settingsHowToUseStep2) } icon: { Image(systemName: "2.circle") }
-                Label { Text(.settingsHowToUseStep3) } icon: { Image(systemName: "3.circle") }
-                Label { Text(.settingsHowToUseStep4) } icon: { Image(systemName: "4.circle") }
-            } header: {
-                Text(.settingsHowToUseHeader)
+                NavigationLink {
+                    ExtensionGuideView(source: .settings)
+                        .navigationTitle(Text(.guideTitle))
+                } label: {
+                    Label { Text(.settingsHowToUseHeader) } icon: { Image(systemName: "wand.and.stars") }
+                }
             }
 
             Section {
@@ -94,6 +94,16 @@ struct SettingsView: View {
             } header: {
                 Text(.settingsAboutHeader)
             }
+
+            #if DEBUG
+            Section {
+                NavigationLink {
+                    DeveloperMenuView()
+                } label: {
+                    Label { Text(verbatim: "Developer") } icon: { Image(systemName: "hammer") }
+                }
+            }
+            #endif
         }
         .scrollContentBackground(.hidden)
         .screenBackground()

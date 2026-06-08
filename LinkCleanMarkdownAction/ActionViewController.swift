@@ -51,6 +51,8 @@ class ActionViewController: ActionExtensionViewController {
             UIPasteboard.general.string = markdown
 
             saveHistory(input: url.absoluteString, output: cleaned.absoluteString)
+            // TODO(analytics): Action.Markdown.succeeded fires here (see docs/plans/analytics.md §7)
+            recordSuccessfulRun()
             playSuccessHaptic()
             showToastThenDismiss()
         }

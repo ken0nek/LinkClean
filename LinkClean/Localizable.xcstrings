@@ -199,6 +199,127 @@
         }
       }
     },
+    "guide.intro" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LinkClean adds two actions to the share sheet of Safari and any app that can share a link."
+          }
+        }
+      }
+    },
+    "guide.mockAccessibility" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share sheet actions list with Clean URL and Copy as Markdown highlighted"
+          }
+        }
+      }
+    },
+    "guide.step1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the Share button on a link or page."
+          }
+        }
+      }
+    },
+    "guide.step2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scroll down to the list of actions below the app row."
+          }
+        }
+      }
+    },
+    "guide.step3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap Clean URL for a tracker-free link, or Copy as Markdown for a titled Markdown link."
+          }
+        }
+      }
+    },
+    "guide.step4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't find them? Tap Edit Actions… at the bottom, then the green + to pin both to Favorites."
+          }
+        }
+      }
+    },
+    "guide.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Using the Share Sheet"
+          }
+        }
+      }
+    },
+    "guide.tryItButton" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share a sample link"
+          }
+        }
+      }
+    },
+    "guide.tryItHeader" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try it now"
+          }
+        }
+      }
+    },
+    "guide.tryItSuccess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nice! The cleaned link is on your clipboard."
+          }
+        }
+      }
+    },
+    "guide.tryItWaiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for you to tap Clean URL…"
+          }
+        }
+      }
+    },
     "history.cell.share" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -408,6 +529,138 @@
         }
       }
     },
+    "onboarding.celebration.getStarted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get started"
+          }
+        }
+      }
+    },
+    "onboarding.celebration.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cleaned link is on your clipboard, ready to paste anywhere."
+          }
+        }
+      }
+    },
+    "onboarding.celebration.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done! Your link is clean"
+          }
+        }
+      }
+    },
+    "onboarding.skip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    },
+    "onboarding.tryIt.maybeLater" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maybe later"
+          }
+        }
+      }
+    },
+    "onboarding.tryIt.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Works in any app's share sheet"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.afterLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.beforeLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Before"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.continue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everything happens on your device. Your links are never uploaded."
+          }
+        }
+      }
+    },
+    "onboarding.welcome.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LinkClean strips tracking junk from any URL so you share the real link, not who sent it."
+          }
+        }
+      }
+    },
+    "onboarding.welcome.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean links, instantly"
+          }
+        }
+      }
+    },
     "settings.about.header" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -591,50 +844,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "How to Use"
-          }
-        }
-      }
-    },
-    "settings.howToUse.step1" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open Safari or any app with a link"
-          }
-        }
-      }
-    },
-    "settings.howToUse.step2" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap the Share button"
-          }
-        }
-      }
-    },
-    "settings.howToUse.step3" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select \"Clean URL\""
-          }
-        }
-      }
-    },
-    "settings.howToUse.step4" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The cleaned URL is copied to your clipboard"
           }
         }
       }

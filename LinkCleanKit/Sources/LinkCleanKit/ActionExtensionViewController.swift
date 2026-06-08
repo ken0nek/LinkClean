@@ -154,6 +154,14 @@ open class ActionExtensionViewController: UIViewController {
     // MARK: - History
 
     public func saveHistory(input: String, output: String) {
+        // The onboarding "Try it" run is a practice clean, not a real one —
+        // never persist it. `recordSuccessfulRun` still fires so the guide can
+        // detect success.
+        guard !OnboardingDemo.matches(urlString: input) else {
+            Log.action.debug("saveHistory: skipping onboarding demo link")
+            return
+        }
+
         let saveHistory = UserDefaults(suiteName: AppGroup.identifier)?
             .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
         if saveHistory, let container = HistoryContainer.makeShared() {
@@ -163,6 +171,20 @@ open class ActionExtensionViewController: UIViewController {
                 Log.action.debug("saveHistory failed: \(error.localizedDescription, privacy: .public)")
             }
         }
+    }
+
+    // MARK: - Onboarding success signal
+
+    /// Records that an action extension completed successfully, so the app's
+    /// onboarding/guide "Try it now" flow can auto-detect the run. Written to
+    /// the App Group suite because the app process reads it on scene activation.
+    /// Independent of `saveHistoryEnabled`. The `defaults` parameter is
+    /// injectable so tests can run without the App Group container.
+    public func recordSuccessfulRun(
+        at date: Date = .now,
+        in defaults: UserDefaults? = UserDefaults(suiteName: AppGroup.identifier)
+    ) {
+        defaults?.set(date.timeIntervalSinceReferenceDate, forKey: SettingsKeys.lastActionExtensionRunAt)
     }
 
     // MARK: - Haptic

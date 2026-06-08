@@ -23,6 +23,10 @@ struct LinkCleanApp: App {
            let bundleID = Bundle.main.bundleIdentifier {
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
 
+            // Bypass first-launch onboarding so existing UI tests land on the
+            // main tabs. Must run after the domain wipe above, which clears it.
+            UserDefaults.standard.set(true, forKey: SettingsKeys.hasCompletedOnboarding)
+
             // Avoid the system "paste from ..." permission alert during UI tests by
             // making the clipboard content originate from this app.
             UIPasteboard.general.string = ""

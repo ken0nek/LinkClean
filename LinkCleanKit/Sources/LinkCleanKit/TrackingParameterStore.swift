@@ -66,6 +66,21 @@ public nonisolated struct TrackingParameterStore: Sendable {
         TrackingParameterCatalog.sections
     }
 
+    /// Sorted names of default parameters the user has turned off.
+    public func disabledParameterNames() -> [String] {
+        Array(disabledParameters()).sorted()
+    }
+
+    /// Re-enables every default parameter by clearing the disabled set.
+    public func reenableAllDefaultParameters() {
+        defaults.removeObject(forKey: disabledKey)
+    }
+
+    /// Removes every user-added custom parameter.
+    public func removeAllCustomParameters() {
+        defaults.removeObject(forKey: customKey)
+    }
+
     private func disabledParameters() -> Set<String> {
         let stored = defaults.array(forKey: disabledKey) as? [String] ?? []
         return Set(stored.map { $0.lowercased() })

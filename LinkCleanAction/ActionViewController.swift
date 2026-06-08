@@ -24,6 +24,8 @@ class ActionViewController: ActionExtensionViewController {
             UIPasteboard.general.url = cleaned
 
             saveHistory(input: url.absoluteString, output: cleaned.absoluteString)
+            // TODO(analytics): Action.Clean.succeeded fires here (see docs/plans/analytics.md §7)
+            recordSuccessfulRun()
             playSuccessHaptic()
             showToastThenDismiss()
         }
