@@ -26,6 +26,7 @@ final class HomeViewModel {
     @ObservationIgnored private let service: URLCleaningService
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
+    @ObservationIgnored private let store: TrackingParameterStore
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
@@ -45,11 +46,13 @@ final class HomeViewModel {
     init(
         service: URLCleaningService = DefaultURLCleaningService(),
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
-        settings: SettingsStore = SettingsStore()
+        settings: SettingsStore = SettingsStore(),
+        store: TrackingParameterStore = TrackingParameterStore()
     ) {
         self.service = service
         self.analytics = analytics
         self.settings = settings
+        self.store = store
     }
 
     private var isAutoPasteEnabled: Bool { settings.autoPasteEnabled }
@@ -70,6 +73,19 @@ final class HomeViewModel {
 
     var cleanedText: String {
         cleanedURL?.output ?? ""
+    }
+
+    /// Exact names removed in producing `cleanedText` — the calm proof-of-work
+    /// list shown on Home. Display-only; never sent to analytics.
+    var removedParameters: [String] {
+        cleanedURL?.removedNames ?? []
+    }
+
+    /// Every parameter that survived cleaning — the actionable "remaining" pills.
+    /// Display-only raw query keys (never sent to analytics); tapping one adds it
+    /// to the always-remove custom set via ``addLeftoverParameter(_:)``.
+    var leftoverParameters: [String] {
+        cleanedURL?.leftoverNames ?? []
     }
 
     func clearInput() {
@@ -98,6 +114,17 @@ final class HomeViewModel {
             try? await Task.sleep(for: .seconds(1.4))
             didCopy = false
         }
+    }
+
+    /// Adds a surfaced leftover tracker to the user's custom parameters so it is
+    /// stripped from now on, then re-cleans the current input — moving the
+    /// tracker out of `leftoverTrackers` and into `removedParameters`. The
+    /// re-clean reuses the same input, so the once-per-input `Home.URL.cleaned`
+    /// signal is not re-emitted; only the custom-add is.
+    func addLeftoverParameter(_ name: String) {
+        store.addCustomParameter(name)
+        analytics.capture(.parametersCustomAdded(totalCount: store.customParameters().count))
+        refreshCleanedURL()
     }
 
     func onAppear() {

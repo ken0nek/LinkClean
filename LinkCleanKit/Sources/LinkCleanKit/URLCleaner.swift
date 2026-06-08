@@ -120,6 +120,67 @@ public nonisolated enum URLCleaner {
         )
     }
 
+    /// The exact parameter names removed from `urlString` by `parameters`, in
+    /// first-seen order, de-duplicated case-insensitively with the first
+    /// occurrence's original case preserved.
+    ///
+    /// Display-only — for *showing the user their own link* on Home. It lives
+    /// apart from ``cleanResult(_:removing:referenceNames:)`` on purpose: that
+    /// result is the analytics-bound, name-free catalog-gap summary
+    /// (`parameter-telemetry.md`), and raw query-key names must never reach it.
+    /// These names never leave the device.
+    public static func removedParameterNames(
+        _ urlString: String,
+        removing parameters: Set<String>
+    ) -> [String] {
+        guard let components = URLComponents(string: urlString),
+              let queryItems = components.queryItems
+        else {
+            return []
+        }
+
+        let normalized = Set(parameters.map { $0.lowercased() })
+        var seen = Set<String>()
+        var names: [String] = []
+        for item in queryItems where normalized.contains(item.name.lowercased()) {
+            if seen.insert(item.name.lowercased()).inserted {
+                names.append(item.name)
+            }
+        }
+        return names
+    }
+
+    /// The exact parameter names that survive cleaning `urlString` with
+    /// `parameters` — everything *not* removed — in first-seen order,
+    /// de-duplicated case-insensitively with the first occurrence's original
+    /// case preserved.
+    ///
+    /// Same contract as ``removedParameterNames(_:removing:)``: these are raw
+    /// query keys (potentially arbitrary or sensitive), so they exist only to
+    /// show the user their own link on-device and must never reach analytics.
+    /// The name-free ``CleanResult`` stays the telemetry path, and
+    /// `referenceMatches` remains the only leftover names that may be *sent*.
+    public static func leftoverParameterNames(
+        _ urlString: String,
+        removing parameters: Set<String>
+    ) -> [String] {
+        guard let components = URLComponents(string: urlString),
+              let queryItems = components.queryItems
+        else {
+            return []
+        }
+
+        let normalized = Set(parameters.map { $0.lowercased() })
+        var seen = Set<String>()
+        var names: [String] = []
+        for item in queryItems where !normalized.contains(item.name.lowercased()) {
+            if seen.insert(item.name.lowercased()).inserted {
+                names.append(item.name)
+            }
+        }
+        return names
+    }
+
     public static func clean(_ url: URL) -> URL {
         clean(url, removing: TrackingParameterCatalog.defaultEnabledSet)
     }

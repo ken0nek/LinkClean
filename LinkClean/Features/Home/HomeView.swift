@@ -12,6 +12,8 @@ import SwiftUI
 struct HomeView: View {
     @State private var viewModel: HomeViewModel
     @FocusState private var isInputFocused: Bool
+    @State private var isRemovedExpanded = false
+    @State private var parameterPendingAdd: String?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) private var modelContext
 
@@ -134,6 +136,18 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.top, 4)
                 }
+
+                if !viewModel.removedParameters.isEmpty || !viewModel.leftoverParameters.isEmpty {
+                    Divider()
+                }
+
+                if !viewModel.removedParameters.isEmpty {
+                    removedSummarySection
+                }
+
+                if !viewModel.leftoverParameters.isEmpty {
+                    leftoverSection
+                }
             }
             .padding(20)
             .background(cardBackground, in: .rect(cornerRadius: 24))
@@ -184,6 +198,130 @@ struct HomeView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.showClipboardToast)
         .animation(.easeInOut(duration: 0.2), value: viewModel.didCopy)
+        .alert(
+            Text(.homeLeftoverConfirmTitle),
+            isPresented: Binding(
+                get: { parameterPendingAdd != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        parameterPendingAdd = nil
+                    }
+                }
+            )
+        ) {
+            Button {
+                if let parameterPendingAdd {
+                    viewModel.addLeftoverParameter(parameterPendingAdd)
+                }
+                parameterPendingAdd = nil
+            } label: {
+                Text(.homeLeftoverConfirmAction)
+            }
+            Button(role: .cancel) {
+                parameterPendingAdd = nil
+            } label: {
+                Text(.commonCancel)
+            }
+        } message: {
+            if let parameterPendingAdd {
+                Text(.homeLeftoverConfirmMessage(parameterPendingAdd))
+            }
+        }
+    }
+
+    /// Calm proof-of-work: how many trackers were stripped, expandable to the
+    /// exact names. Informational only — no undo (see `docs/TODO.md`).
+    @ViewBuilder
+    private var removedSummarySection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isRemovedExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.shield.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.green)
+
+                    Text(.homeRemovedHeader)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .textCase(.uppercase)
+                        .tracking(1.1)
+
+                    Text(verbatim: "\(viewModel.removedParameters.count)")
+                        .font(.caption2.weight(.bold).monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(.ultraThinMaterial, in: Capsule())
+
+                    Spacer()
+
+                    Image(systemName: "chevron.down")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(isRemovedExpanded ? 180 : 0))
+                }
+            }
+            .buttonStyle(.plain)
+
+            if isRemovedExpanded {
+                Text(viewModel.removedParameters.joined(separator: "   ·   "))
+                    .font(.system(.footnote, design: .monospaced))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
+            }
+        }
+    }
+
+    /// Actionable: known trackers that survived because they aren't in the
+    /// active set. Tapping one opens a confirm dialog to always-remove it.
+    @ViewBuilder
+    private var leftoverSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(.homeLeftoverHeader)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                    .tracking(1.1)
+
+                Text(.homeLeftoverPrompt)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            ForEach(viewModel.leftoverParameters, id: \.self) { name in
+                Button {
+                    parameterPendingAdd = name
+                } label: {
+                    HStack {
+                        Text(name)
+                            .font(.system(.subheadline, design: .monospaced).weight(.semibold))
+                            .foregroundStyle(.primary)
+
+                        Spacer()
+
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.tint)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(.white.opacity(0.08))
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(.homeLeftoverRemove(name)))
+                .accessibilityIdentifier("leftover-tracker-\(name)")
+            }
+        }
     }
 }
 

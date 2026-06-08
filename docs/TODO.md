@@ -15,11 +15,14 @@ In priority order:
 6. [ ] Metadata (App Store Connect) — privacy nutrition label depends on TelemetryDeck (2)
 7. [ ] Privacy policy — required for App Store submission; draft ready at [ken0nek.com/apps/linkclean/privacy-policy](https://ken0nek.com/apps/linkclean/privacy-policy/), publish before metadata (6)
 
-Feature ideas (not committed — captured for consideration):
+Added during 1.0.0 (beyond the original priority list):
 
-- [ ] **Leftover-parameter pills on Home** — after a URL is entered or auto-pasted and cleaned, inspect what query parameters remain. Surface each remaining parameter as a tappable pill below the result, with a prompt inviting the user to strip it. Tapping a pill adds that parameter to custom tracking parameters, so it's removed automatically from then on.
-  - Prompt copy (brush-up of "Want to remove parameter?"): "Found leftover parameters — tap to always remove them." Alternatives: "Still in your link. Remove these?" / "These weren't cleaned — strip them too?"
-  - Turns a one-off observation into a persistent rule (feeds the existing custom-parameter store), so the catalog grows from real user links.
+- [x] **Cleaning transparency on Home** — after a URL is entered or auto-pasted and cleaned, show the user what happened. Asymmetric by design: the *leftover* side is actionable, the *removed* side is read-only.
+  - **Leftover (actionable):** surface *every* parameter that survived cleaning as tappable pills — not just reference-catalog trackers (chose max visibility/control on 2026-06-08; arbitrary keys like `test` surface too, via `URLCleaner.leftoverParameterNames`). Tapping one opens a confirm dialog, then adds it to custom tracking parameters (`addCustomParameter`) so it's stripped from then on. The confirm step is the guardrail against globally blocklisting a functional param (`id`, `q`). Raw leftover names are display-only/on-device — never sent; telemetry still uses only `referenceMatches`.
+    - Section header "Remaining" + prompt "Tap a parameter to always remove it from your links." Confirm: "Always remove this parameter?" / "“%@” will be removed from your links from now on."
+  - **Removed (informational only):** a calm proof-of-work summary — "3 trackers removed," expandable to names. No undo CTA. Rationale: the moment we invite scrutiny on what we removed, we owe the user an undo we're not offering — and transparency builds trust without it (cf. ad blockers' "X trackers blocked").
+  - **Restore / per-user allow-list: explicitly out of scope.** Over-cleaning is wrong *for everyone*, so the fix belongs in the default catalog (informed by the catalog-gap / novel-tail telemetry already collected), not a per-user keep-list that adds a confusing second mental model ("strip these… but keep these…"). Revisit only if telemetry shows over-cleaning is both real and uncatchable by catalog curation.
+  - **Most detection already exists:** `URLCleaner.cleanResult` returns `removedCount`, `removedKindIDs`, `leftoverCount`, `referenceMatches`. Gap: the result carries counts/kind-IDs (privacy-safe for telemetry), not raw param names — the Home VM can derive names locally from the URL it already holds. Keep raw names out of analytics events.
 
 Done:
 

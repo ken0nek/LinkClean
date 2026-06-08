@@ -192,4 +192,65 @@ struct HomeViewModelTests {
 
         #expect(spy.events.count == countAfterFirstClean)
     }
+
+    // MARK: - Leftover trackers (Home cleaning transparency)
+
+    @Test func addLeftoverParameterAddsToStoreAndEmitsSignal() {
+        let spy = SpyAnalytics()
+        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy, store: store)
+
+        vm.addLeftoverParameter("yclid")
+
+        #expect(store.customParameters().contains("yclid"))
+        #expect(spy.events == [.parametersCustomAdded(totalCount: 1)])
+    }
+
+    @Test func addingLeftoverTrackerStripsItOnReclean() async {
+        // Real service + a shared store, so adding a custom parameter actually
+        // changes what the re-clean removes — the full "still tracking → removed"
+        // loop the feature promises.
+        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let vm = HomeViewModel(
+            service: DefaultURLCleaningService(store: store),
+            analytics: SpyAnalytics(),
+            store: store
+        )
+
+        vm.inputText = "https://x.com/?yclid=abc&id=1"
+        for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        // yclid is a known tracker that is not in the defaults → surfaced as leftover.
+        #expect(vm.leftoverParameters.contains("yclid"))
+
+        vm.addLeftoverParameter("yclid")
+        for _ in 0 ..< 200 where vm.leftoverParameters.contains("yclid") {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        #expect(!vm.leftoverParameters.contains("yclid")) // no longer leftover
+        #expect(vm.removedParameters.contains("yclid")) // moved into removed
+        #expect(!vm.cleanedText.contains("yclid"))       // and gone from the URL
+    }
+
+    @Test func arbitraryLeftoverParameterSurfaces() async {
+        // The reference-only gate was lifted: any surviving key — even an
+        // arbitrary one that is not a known tracker — is offered as a pill.
+        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let vm = HomeViewModel(
+            service: DefaultURLCleaningService(store: store),
+            analytics: SpyAnalytics(),
+            store: store
+        )
+
+        vm.inputText = "https://x.com/?utm_source=a&test=xxx"
+        for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        #expect(vm.leftoverParameters.contains("test"))   // arbitrary key surfaces
+        #expect(!vm.removedParameters.contains("test"))   // it was not removed
+        #expect(vm.removedParameters.contains("utm_source"))
+    }
 }

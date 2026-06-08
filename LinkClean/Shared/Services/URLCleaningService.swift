@@ -34,14 +34,17 @@ struct DefaultURLCleaningService: URLCleaningService {
             return nil
         }
 
-        let result = URLCleaner.cleanResult(trimmed, removing: store.enabledParameters())
+        let enabled = store.enabledParameters()
+        let result = URLCleaner.cleanResult(trimmed, removing: enabled)
         return CleanedURL(
             input: trimmed,
             output: result.cleaned,
             removedCount: result.removedCount,
             leftoverCount: result.leftoverCount,
             removedKindIDs: result.removedKindIDs,
-            referenceMatches: result.referenceMatches
+            referenceMatches: result.referenceMatches,
+            removedNames: URLCleaner.removedParameterNames(trimmed, removing: enabled),
+            leftoverNames: URLCleaner.leftoverParameterNames(trimmed, removing: enabled)
         )
     }
 }

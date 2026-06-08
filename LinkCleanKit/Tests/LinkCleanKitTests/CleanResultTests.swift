@@ -106,6 +106,45 @@ struct CleanResultTests {
         #expect(result.leftoverCount == 2)
     }
 
+    // MARK: - Removed parameter names (Home transparency display)
+
+    @Test func removedParameterNamesListsRemovedKeysInURLOrder() {
+        let names = URLCleaner.removedParameterNames(
+            "https://x.com/?utm_source=a&id=1&fbclid=b",
+            removing: ["utm_source", "fbclid"]
+        )
+
+        #expect(names == ["utm_source", "fbclid"]) // only removed keys, in URL order
+    }
+
+    @Test func removedParameterNamesDedupesCaseInsensitivelyKeepingFirstCase() {
+        let names = URLCleaner.removedParameterNames(
+            "https://x.com/?Ref=a&ref=b&id=1",
+            removing: ["ref"]
+        )
+
+        #expect(names == ["Ref"]) // matched case-insensitively, first-seen case kept, deduped
+    }
+
+    @Test func removedParameterNamesEmptyWhenNothingRemoved() {
+        #expect(URLCleaner.removedParameterNames("https://x.com/?id=1", removing: ["utm_source"]).isEmpty)
+        #expect(URLCleaner.removedParameterNames("https://x.com/path", removing: ["utm_source"]).isEmpty)
+    }
+
+    @Test func leftoverParameterNamesListSurvivingKeysIncludingArbitraryOnes() {
+        let names = URLCleaner.leftoverParameterNames(
+            "https://x.com/?utm_source=a&test=xxx&id=1",
+            removing: ["utm_source"]
+        )
+
+        #expect(names == ["test", "id"]) // everything not removed, arbitrary keys included, URL order
+    }
+
+    @Test func leftoverParameterNamesEmptyWhenAllRemovedOrNoQuery() {
+        #expect(URLCleaner.leftoverParameterNames("https://x.com/?utm_source=a", removing: ["utm_source"]).isEmpty)
+        #expect(URLCleaner.leftoverParameterNames("https://x.com/path", removing: []).isEmpty)
+    }
+
     @Test func novelLeftoverNamesNeverBecomeReferenceMatches() {
         // Privacy guard at the source: referenceMatches is the ONLY place a
         // leftover key name is surfaced, and it can only ever contain names from
