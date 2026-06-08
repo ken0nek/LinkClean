@@ -34,7 +34,7 @@ struct DefaultURLCleaningService: URLCleaningService {
             return nil
         }
 
-        let output = URLCleaner.clean(trimmed, removing: store.enabledParameters())
-        return CleanedURL(input: trimmed, output: output)
+        let result = URLCleaner.cleanResult(trimmed, removing: store.enabledParameters())
+        return CleanedURL(input: trimmed, output: result.cleaned, removedCount: result.removedCount)
     }
 }

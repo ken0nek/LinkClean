@@ -12,6 +12,16 @@ import UniformTypeIdentifiers
 open class ActionExtensionViewController: UIViewController {
     public let parameterStore = TrackingParameterStore()
     public let analytics: AnalyticsService = TelemetryDeckAnalytics()
+    public let settings = SettingsStore()
+
+    /// Whether the host provided any attachments at all. Distinguishes "host
+    /// shared nothing usable" (`noURL`) from "host shared content we couldn't
+    /// turn into a web URL" (`invalidInput`) — e.g. a host-app compatibility gap
+    /// like the known Google Maps case.
+    public var hasInputAttachments: Bool {
+        guard let items = extensionContext?.inputItems as? [NSExtensionItem] else { return false }
+        return items.contains { !($0.attachments ?? []).isEmpty }
+    }
 
     override open func viewDidLoad() {
         super.viewDidLoad()
@@ -166,9 +176,7 @@ open class ActionExtensionViewController: UIViewController {
             return
         }
 
-        let saveHistory = UserDefaults(suiteName: AppGroup.identifier)?
-            .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
-        if saveHistory, let container = HistoryContainer.makeShared() {
+        if settings.saveHistoryEnabled, let container = HistoryContainer.makeShared() {
             do {
                 try HistoryRecorder.save(input: input, output: output, in: container)
             } catch {

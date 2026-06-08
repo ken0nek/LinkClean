@@ -23,6 +23,7 @@ final class HistoryViewModel {
     @ObservationIgnored private var modelContext: ModelContext?
     @ObservationIgnored private let metadataService: LinkMetadataService
     @ObservationIgnored private let analytics: AnalyticsService
+    @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private var didSignalSearch = false
     private let maxConcurrentFetches = 3
 
@@ -30,12 +31,13 @@ final class HistoryViewModel {
 
     init(
         metadataService: LinkMetadataService = DefaultLinkMetadataService(),
-        analytics: AnalyticsService = TelemetryDeckAnalytics()
+        analytics: AnalyticsService = TelemetryDeckAnalytics(),
+        settings: SettingsStore = SettingsStore()
     ) {
         self.metadataService = metadataService
         self.analytics = analytics
-        self.isSaveHistoryEnabled = UserDefaults(suiteName: AppGroup.identifier)?
-            .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
+        self.settings = settings
+        self.isSaveHistoryEnabled = settings.saveHistoryEnabled
     }
 
     enum ViewState {
@@ -45,8 +47,7 @@ final class HistoryViewModel {
     }
 
     func refreshSettings() {
-        isSaveHistoryEnabled = UserDefaults(suiteName: AppGroup.identifier)?
-            .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
+        isSaveHistoryEnabled = settings.saveHistoryEnabled
     }
 
     /// Called when the History tab appears. Refreshes settings, resets the
@@ -94,8 +95,11 @@ final class HistoryViewModel {
         showCopiedFeedback(for: entry)
     }
 
-    /// Records a share. `ShareLink` has no action hook, so the View fires this
-    /// from a simultaneous tap gesture.
+    /// Records a share *initiation*. `ShareLink` exposes no completion callback,
+    /// so the View fires this from a simultaneous tap gesture when the share
+    /// sheet is invoked — a tap-then-cancel still counts. `.share` is therefore
+    /// initiation, asymmetric with `.copy`/`.markdown`, which fire on a
+    /// completed action. Interpret share volume accordingly.
     func recordShared(for entry: HistoryEntry) {
         analytics.capture(.historyEntryActioned(.share))
     }

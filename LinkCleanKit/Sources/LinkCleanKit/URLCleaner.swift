@@ -7,6 +7,23 @@
 
 import Foundation
 
+/// The outcome of cleaning a URL: the cleaned string and how many tracking
+/// parameters were removed. Lets callers (analytics) read the removed count
+/// without re-parsing the URL — the count is derived from the same filter
+/// `clean` applies, so the two can never disagree.
+public nonisolated struct CleanResult: Sendable, Equatable {
+    public let cleaned: String
+    public let removedCount: Int
+
+    /// Whether cleaning removed at least one tracking parameter.
+    public var changed: Bool { removedCount > 0 }
+
+    public init(cleaned: String, removedCount: Int) {
+        self.cleaned = cleaned
+        self.removedCount = removedCount
+    }
+}
+
 public nonisolated enum URLCleaner {
 
     public static func isValidURL(_ urlString: String) -> Bool {
@@ -35,12 +52,17 @@ public nonisolated enum URLCleaner {
     }
 
     public static func clean(_ urlString: String, removing parameters: Set<String>) -> String {
-        guard var components = URLComponents(string: urlString) else {
-            return urlString
-        }
+        cleanResult(urlString, removing: parameters).cleaned
+    }
 
-        guard let queryItems = components.queryItems, !queryItems.isEmpty else {
-            return urlString
+    /// Cleans `urlString` and reports how many query parameters were removed, so
+    /// callers don't have to re-parse the URL to count. The count and the
+    /// cleaned string come from one pass over the same filter.
+    public static func cleanResult(_ urlString: String, removing parameters: Set<String>) -> CleanResult {
+        guard var components = URLComponents(string: urlString),
+              let queryItems = components.queryItems, !queryItems.isEmpty
+        else {
+            return CleanResult(cleaned: urlString, removedCount: 0)
         }
 
         let normalized = Set(parameters.map { $0.lowercased() })
@@ -50,7 +72,7 @@ public nonisolated enum URLCleaner {
 
         components.queryItems = filtered.isEmpty ? nil : filtered
 
-        return components.string ?? urlString
+        return CleanResult(cleaned: components.string ?? urlString, removedCount: queryItems.count - filtered.count)
     }
 
     public static func clean(_ url: URL) -> URL {
@@ -58,16 +80,13 @@ public nonisolated enum URLCleaner {
     }
 
     public static func clean(_ url: URL, removing parameters: Set<String>) -> URL {
-        let cleaned = clean(url.absoluteString, removing: parameters)
-        return URL(string: cleaned) ?? url
+        cleanResult(url, removing: parameters).cleaned
     }
 
-    /// Number of query parameters removed between an original and a cleaned URL
-    /// string — drives the `removedCount` analytics bucket. Compares item
-    /// counts only; never inspects parameter names or values.
-    public static func removedParameterCount(from original: String, to cleaned: String) -> Int {
-        let before = URLComponents(string: original)?.queryItems?.count ?? 0
-        let after = URLComponents(string: cleaned)?.queryItems?.count ?? 0
-        return max(0, before - after)
+    /// URL counterpart of `cleanResult(_:removing:)`: the cleaned URL plus the
+    /// number of query parameters removed.
+    public static func cleanResult(_ url: URL, removing parameters: Set<String>) -> (cleaned: URL, removedCount: Int) {
+        let result = cleanResult(url.absoluteString, removing: parameters)
+        return (URL(string: result.cleaned) ?? url, result.removedCount)
     }
 }

@@ -25,6 +25,7 @@ final class HomeViewModel {
     var focusResetToken = UUID()
     @ObservationIgnored private let service: URLCleaningService
     @ObservationIgnored private let analytics: AnalyticsService
+    @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
@@ -38,24 +39,22 @@ final class HomeViewModel {
     // across re-cleans (e.g. returning to the tab).
     @ObservationIgnored private var nextCleanSource: AnalyticsEvent.CleanSource = .typed
     @ObservationIgnored private var isApplyingAutoPaste = false
+    @ObservationIgnored private var isSanitizing = false
     @ObservationIgnored private var lastSignaledCleanInput: String?
 
     init(
         service: URLCleaningService = DefaultURLCleaningService(),
-        analytics: AnalyticsService = TelemetryDeckAnalytics()
+        analytics: AnalyticsService = TelemetryDeckAnalytics(),
+        settings: SettingsStore = SettingsStore()
     ) {
         self.service = service
         self.analytics = analytics
+        self.settings = settings
     }
 
-    private var isAutoPasteEnabled: Bool {
-        UserDefaults.standard.object(forKey: SettingsKeys.autoPasteEnabled) as? Bool ?? true
-    }
+    private var isAutoPasteEnabled: Bool { settings.autoPasteEnabled }
 
-    var isSaveHistoryEnabled: Bool {
-        UserDefaults(suiteName: AppGroup.identifier)?
-            .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
-    }
+    var isSaveHistoryEnabled: Bool { settings.saveHistoryEnabled }
 
     var isInputEmpty: Bool {
         trimmedInput.isEmpty
@@ -87,7 +86,7 @@ final class HomeViewModel {
         didCopy = true
 
         if let cleanedURL {
-            analytics.capture(.homeURLCopied(changed: cleanedURL.input != cleanedURL.output))
+            analytics.capture(.homeURLCopied(changed: cleanedURL.changed))
             if isSaveHistoryEnabled {
                 let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
                 modelContext?.insert(entry)
@@ -155,17 +154,33 @@ final class HomeViewModel {
     }
 
     private func handleInputTextChange(previous: String) {
+        // Re-entrant call triggered by the sanitizing reassignment below: the
+        // original edit was already classified and dispatched, so skip it.
+        guard !isSanitizing else { return }
+
         let sanitized = inputText.replacingOccurrences(of: "\n", with: "")
-        if sanitized != inputText {
+        // A newline can only arrive by pasting (the field submits on Return), so
+        // a strip is a reliable paste signal. Classify before reassigning, since
+        // the reassignment would otherwise re-enter didSet with a shrunken delta.
+        let strippedNewline = sanitized != inputText
+        if strippedNewline {
+            isSanitizing = true
             inputText = sanitized
+            isSanitizing = false
             focusResetToken = UUID()
-            return
         }
 
         if isApplyingAutoPaste {
             nextCleanSource = .autoPaste
             isApplyingAutoPaste = false
+        } else if strippedNewline {
+            nextCleanSource = .manualPaste
         } else {
+            // Best-effort: one new character reads as typing, a larger jump as a
+            // paste. SwiftUI can't observe paste-vs-type on a TextField binding,
+            // so multi-character inserts (IME/autocomplete) and select-all-paste
+            // can still be misattributed — autoPaste, the funnel-critical case,
+            // is the only fully reliable source.
             nextCleanSource = inputText.count > previous.count + 1 ? .manualPaste : .typed
         }
 
@@ -203,8 +218,8 @@ final class HomeViewModel {
         lastSignaledCleanInput = result.input
         analytics.capture(.homeURLCleaned(
             source: source,
-            changed: result.input != result.output,
-            removedCount: URLCleaner.removedParameterCount(from: result.input, to: result.output)
+            changed: result.changed,
+            removedCount: result.removedCount
         ))
     }
 }

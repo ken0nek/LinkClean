@@ -28,13 +28,14 @@ class ActionViewController: ActionExtensionViewController {
                 url = fallbackURL
             } else {
                 Log.action.debug("No URL extracted from JS or fallback, dismissing")
-                analytics.capture(.actionMarkdownFailed(reason: .noURL))
+                analytics.capture(.actionMarkdownFailed(reason: hasInputAttachments ? .invalidInput : .noURL))
                 playErrorHaptic()
                 showNoLinkFoundToastThenDismiss()
                 return
             }
 
-            let cleaned = URLCleaner.clean(url, removing: parameterStore.enabledParameters())
+            let cleanResult = URLCleaner.cleanResult(url, removing: parameterStore.enabledParameters())
+            let cleaned = cleanResult.cleaned
 
             // 3. Determine title: prefer JS title, fall back to LPMetadataProvider
             // (fetch the cleaned URL so tracking parameters never go over the wire)
@@ -62,7 +63,7 @@ class ActionViewController: ActionExtensionViewController {
             // network time in the short-lived extension (analytics §8).
             analytics.capture(.actionMarkdownSucceeded(
                 titleSource: titleSource,
-                changed: cleaned.absoluteString != url.absoluteString
+                changed: cleanResult.removedCount > 0
             ))
             saveHistory(input: url.absoluteString, output: cleaned.absoluteString)
             recordSuccessfulRun()

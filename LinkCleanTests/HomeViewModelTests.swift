@@ -100,7 +100,7 @@ struct HomeViewModelTests {
     @Test func cleanThenCopyEmitsBothSignals() async {
         let spy = SpyAnalytics()
         var mock = MockURLCleaningService()
-        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example") }
+        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         // A full string arriving in one binding update reads as a manual paste.
@@ -120,7 +120,7 @@ struct HomeViewModelTests {
     @Test func cleanedSignalIsDedupedPerDistinctInput() async {
         let spy = SpyAnalytics()
         var mock = MockURLCleaningService()
-        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example") }
+        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         vm.inputText = "https://x.com?utm_source=a"

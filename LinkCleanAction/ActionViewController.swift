@@ -13,13 +13,16 @@ class ActionViewController: ActionExtensionViewController {
     override func processInputItems() {
         Task {
             guard let url = await extractURL() else {
-                analytics.capture(.actionCleanFailed(reason: .noURL))
+                // Attachments present but unparseable = host-compat gap; nothing
+                // shared at all = noURL.
+                analytics.capture(.actionCleanFailed(reason: hasInputAttachments ? .invalidInput : .noURL))
                 playErrorHaptic()
                 showNoLinkFoundToastThenDismiss()
                 return
             }
 
-            let cleaned = URLCleaner.clean(url, removing: parameterStore.enabledParameters())
+            let result = URLCleaner.cleanResult(url, removing: parameterStore.enabledParameters())
+            let cleaned = result.cleaned
             Log.action.debug("Input URL: \(url.absoluteString, privacy: .public)")
             Log.action.debug("Cleaned URL: \(cleaned.absoluteString, privacy: .public)")
             UIPasteboard.general.url = cleaned
@@ -27,8 +30,8 @@ class ActionViewController: ActionExtensionViewController {
             // Signal at clean-success (not dismissal) to maximize in-process
             // network time in the short-lived extension (analytics §8).
             analytics.capture(.actionCleanSucceeded(
-                changed: cleaned.absoluteString != url.absoluteString,
-                removedCount: URLCleaner.removedParameterCount(from: url.absoluteString, to: cleaned.absoluteString)
+                changed: result.removedCount > 0,
+                removedCount: result.removedCount
             ))
             saveHistory(input: url.absoluteString, output: cleaned.absoluteString)
             recordSuccessfulRun()

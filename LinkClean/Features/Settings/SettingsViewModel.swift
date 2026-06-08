@@ -20,40 +20,37 @@ final class SettingsViewModel {
     private(set) var saveHistoryEnabled: Bool
 
     @ObservationIgnored private let analytics: AnalyticsService
-    @ObservationIgnored private let standardDefaults: UserDefaults
-    @ObservationIgnored private let appGroupDefaults: UserDefaults?
+    @ObservationIgnored private let settings: SettingsStore
 
     init(
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
-        standardDefaults: UserDefaults = .standard,
-        appGroupDefaults: UserDefaults? = UserDefaults(suiteName: AppGroup.identifier)
+        settings: SettingsStore = SettingsStore()
     ) {
         self.analytics = analytics
-        self.standardDefaults = standardDefaults
-        self.appGroupDefaults = appGroupDefaults
-        self.autoPasteEnabled = standardDefaults.object(forKey: SettingsKeys.autoPasteEnabled) as? Bool ?? true
-        self.saveHistoryEnabled = appGroupDefaults?.object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
+        self.settings = settings
+        self.autoPasteEnabled = settings.autoPasteEnabled
+        self.saveHistoryEnabled = settings.saveHistoryEnabled
     }
 
     /// `@Observable` doesn't track external `UserDefaults`, so re-read the stored
     /// values whenever the screen reappears — another surface (the Home
     /// auto-paste path, the extensions) may have changed them.
     func onAppear() {
-        autoPasteEnabled = standardDefaults.object(forKey: SettingsKeys.autoPasteEnabled) as? Bool ?? true
-        saveHistoryEnabled = appGroupDefaults?.object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
+        autoPasteEnabled = settings.autoPasteEnabled
+        saveHistoryEnabled = settings.saveHistoryEnabled
     }
 
     func setAutoPaste(_ enabled: Bool) {
         guard enabled != autoPasteEnabled else { return }
         autoPasteEnabled = enabled
-        standardDefaults.set(enabled, forKey: SettingsKeys.autoPasteEnabled)
+        settings.autoPasteEnabled = enabled
         analytics.capture(.settingsAutoPasteToggled(enabled: enabled))
     }
 
     func enableSaveHistory() {
         guard !saveHistoryEnabled else { return }
         saveHistoryEnabled = true
-        appGroupDefaults?.set(true, forKey: SettingsKeys.saveHistoryEnabled)
+        settings.saveHistoryEnabled = true
         analytics.capture(.settingsSaveHistoryToggled(enabled: true))
     }
 
@@ -62,7 +59,7 @@ final class SettingsViewModel {
     /// single user action maps to a single primary signal.
     func disableSaveHistory(in context: ModelContext) {
         saveHistoryEnabled = false
-        appGroupDefaults?.set(false, forKey: SettingsKeys.saveHistoryEnabled)
+        settings.saveHistoryEnabled = false
         try? context.delete(model: HistoryEntry.self)
         analytics.capture(.settingsSaveHistoryToggled(enabled: false))
     }
