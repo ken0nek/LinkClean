@@ -92,6 +92,7 @@ struct HistoryCellView: View {
                         .background(.ultraThinMaterial, in: Circle())
                 }
                 .buttonStyle(.borderless)
+                .simultaneousGesture(TapGesture().onEnded { viewModel.recordShared(for: entry) })
                 .accessibilityLabel(Text(.historyCellShare))
             }
         }
@@ -115,9 +116,10 @@ struct HistoryCellView: View {
             ShareLink(item: entry.output) {
                 Label { Text(.historyMenuShare) } icon: { Image(systemName: "square.and.arrow.up") }
             }
+            .simultaneousGesture(TapGesture().onEnded { viewModel.recordShared(for: entry) })
 
             Button {
-                if let url = URL(string: entry.output) {
+                if let url = viewModel.urlToOpen(for: entry) {
                     openURL(url)
                 }
             } label: {

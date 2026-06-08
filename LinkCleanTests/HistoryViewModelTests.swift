@@ -182,4 +182,79 @@ struct HistoryViewModelTests {
         #expect(UIPasteboard.general.string == "[Title \\[with\\] brackets](https://example.com)")
         #expect(vm.copiedEntryID == entry.id)
     }
+
+    // MARK: - Analytics
+
+    private func makeEntry() -> HistoryEntry {
+        HistoryEntry(input: "https://example.com?utm_source=tw", output: "https://example.com")
+    }
+
+    @Test func copyEmitsCopyAction() {
+        let spy = SpyAnalytics()
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+
+        vm.copyURL(for: makeEntry())
+
+        #expect(spy.events == [.historyEntryActioned(.copy)])
+    }
+
+    @Test func copyMarkdownEmitsMarkdownAction() {
+        let spy = SpyAnalytics()
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+
+        vm.copyMarkdown(for: makeEntry())
+
+        #expect(spy.events == [.historyEntryActioned(.markdown)])
+    }
+
+    @Test func recordSharedEmitsShareAction() {
+        let spy = SpyAnalytics()
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+
+        vm.recordShared(for: makeEntry())
+
+        #expect(spy.events == [.historyEntryActioned(.share)])
+    }
+
+    @Test func urlToOpenEmitsActionAndReturnsURL() {
+        let spy = SpyAnalytics()
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+
+        let url = vm.urlToOpen(for: makeEntry())
+
+        #expect(url == URL(string: "https://example.com"))
+        #expect(spy.events == [.historyEntryActioned(.openInBrowser)])
+    }
+
+    @Test func deleteEmitsDeleted() {
+        let spy = SpyAnalytics()
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+
+        vm.deleteEntry(makeEntry())
+
+        #expect(spy.events == [.historyEntryDeleted])
+    }
+
+    @Test func handleAppearEmitsScreenShownWithBucketedCount() {
+        let spy = SpyAnalytics()
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+
+        vm.handleAppear(entryCount: 12)
+
+        #expect(spy.events == [.historyScreenShown(entryCount: 12)])
+    }
+
+    @Test func searchSignalsOncePerVisit() {
+        let spy = SpyAnalytics()
+        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+
+        vm.handleAppear(entryCount: 3) // resets the per-visit search flag
+        spy.reset()
+
+        vm.searchText = "a"
+        vm.searchText = "ab"
+        vm.searchText = ""
+
+        #expect(spy.events == [.historySearchUsed])
+    }
 }

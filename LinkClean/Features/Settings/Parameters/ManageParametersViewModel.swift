@@ -15,9 +15,14 @@ final class ManageParametersViewModel {
     var sections: [TrackingParameterSection] = []
     private var enabledLookup: [String: Bool] = [:]
     @ObservationIgnored private let store: TrackingParameterStore
+    @ObservationIgnored private let analytics: AnalyticsService
 
-    init(store: TrackingParameterStore = TrackingParameterStore()) {
+    init(
+        store: TrackingParameterStore = TrackingParameterStore(),
+        analytics: AnalyticsService = TelemetryDeckAnalytics()
+    ) {
         self.store = store
+        self.analytics = analytics
         reload()
     }
 
@@ -33,6 +38,7 @@ final class ManageParametersViewModel {
         let normalized = name.lowercased()
         enabledLookup[normalized] = isEnabled
         store.setEnabled(normalized, isEnabled: isEnabled)
+        analytics.capture(.parametersDefaultToggled(parameter: normalized, enabled: isEnabled))
     }
 
     private func reload() {

@@ -13,19 +13,27 @@ import UIKit
 @MainActor
 @Observable
 final class HistoryViewModel {
-    var searchText = ""
+    var searchText = "" {
+        didSet { handleSearchTextChange() }
+    }
     var copiedEntryID: UUID?
     var fetchingEntryIDs: Set<UUID> = []
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var fetchTasks: [UUID: Task<Void, Never>] = [:]
     @ObservationIgnored private var modelContext: ModelContext?
     @ObservationIgnored private let metadataService: LinkMetadataService
+    @ObservationIgnored private let analytics: AnalyticsService
+    @ObservationIgnored private var didSignalSearch = false
     private let maxConcurrentFetches = 3
 
     private(set) var isSaveHistoryEnabled: Bool
 
-    init(metadataService: LinkMetadataService = DefaultLinkMetadataService()) {
+    init(
+        metadataService: LinkMetadataService = DefaultLinkMetadataService(),
+        analytics: AnalyticsService = TelemetryDeckAnalytics()
+    ) {
         self.metadataService = metadataService
+        self.analytics = analytics
         self.isSaveHistoryEnabled = UserDefaults(suiteName: AppGroup.identifier)?
             .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
     }
@@ -39,6 +47,21 @@ final class HistoryViewModel {
     func refreshSettings() {
         isSaveHistoryEnabled = UserDefaults(suiteName: AppGroup.identifier)?
             .object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true
+    }
+
+    /// Called when the History tab appears. Refreshes settings, resets the
+    /// per-visit search flag, and emits `History.screen.shown`. `entryCount`
+    /// comes from the View's `@Query`.
+    func handleAppear(entryCount: Int) {
+        didSignalSearch = false
+        refreshSettings()
+        analytics.capture(.historyScreenShown(entryCount: entryCount))
+    }
+
+    private func handleSearchTextChange() {
+        guard !didSignalSearch, !searchText.isEmpty else { return }
+        didSignalSearch = true
+        analytics.capture(.historySearchUsed)
     }
 
     func filteredEntries(from entries: [HistoryEntry]) -> [HistoryEntry] {
@@ -61,12 +84,27 @@ final class HistoryViewModel {
 
     func copyURL(for entry: HistoryEntry) {
         UIPasteboard.general.string = entry.output
+        analytics.capture(.historyEntryActioned(.copy))
         showCopiedFeedback(for: entry)
     }
 
     func copyMarkdown(for entry: HistoryEntry) {
         UIPasteboard.general.string = MarkdownFormatter.markdownLink(title: entry.pageTitle, url: entry.output)
+        analytics.capture(.historyEntryActioned(.markdown))
         showCopiedFeedback(for: entry)
+    }
+
+    /// Records a share. `ShareLink` has no action hook, so the View fires this
+    /// from a simultaneous tap gesture.
+    func recordShared(for entry: HistoryEntry) {
+        analytics.capture(.historyEntryActioned(.share))
+    }
+
+    /// Records an open-in-browser action and returns the URL to open. The View
+    /// owns the `openURL` environment action, so it performs the actual open.
+    func urlToOpen(for entry: HistoryEntry) -> URL? {
+        analytics.capture(.historyEntryActioned(.openInBrowser))
+        return URL(string: entry.output)
     }
 
     private func showCopiedFeedback(for entry: HistoryEntry) {
@@ -82,6 +120,7 @@ final class HistoryViewModel {
     }
 
     func deleteEntry(_ entry: HistoryEntry) {
+        analytics.capture(.historyEntryDeleted)
         modelContext?.delete(entry)
     }
 

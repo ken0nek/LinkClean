@@ -55,7 +55,7 @@ struct HistoryView: View {
             viewModel.setModelContext(modelContext)
         }
         .onAppear {
-            viewModel.refreshSettings()
+            viewModel.handleAppear(entryCount: entries.count)
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {

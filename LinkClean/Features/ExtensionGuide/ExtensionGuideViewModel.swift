@@ -36,6 +36,7 @@ final class ExtensionGuideViewModel {
 
     @ObservationIgnored private let defaults: UserDefaults?
     @ObservationIgnored private let now: () -> Date
+    @ObservationIgnored private let analytics: AnalyticsService
     /// Reference-date interval captured when the guide appears. Any extension
     /// run with a newer timestamp counts as success. Armed on appear (not on
     /// the ShareLink tap) so a swallowed tap gesture or an iPad popover that
@@ -45,10 +46,12 @@ final class ExtensionGuideViewModel {
 
     init(
         defaults: UserDefaults? = UserDefaults(suiteName: AppGroup.identifier),
-        now: @escaping () -> Date = { .now }
+        now: @escaping () -> Date = { .now },
+        analytics: AnalyticsService = TelemetryDeckAnalytics()
     ) {
         self.defaults = defaults
         self.now = now
+        self.analytics = analytics
     }
 
     /// True while idle or waiting — used to gate the share-sheet mock's pulse so
@@ -62,7 +65,8 @@ final class ExtensionGuideViewModel {
     }
 
     func onAppear(source: ExtensionGuideSource) {
-        // TODO(analytics): Onboarding.ExtensionGuide.shown — source: \(source == .onboarding ? "onboarding" : "settings") (see docs/plans/analytics.md §6)
+        let guideSource: AnalyticsEvent.GuideSource = source == .onboarding ? .onboarding : .settings
+        analytics.capture(.onboardingExtensionGuideShown(source: guideSource))
         startWatching()
     }
 

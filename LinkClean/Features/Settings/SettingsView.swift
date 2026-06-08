@@ -11,8 +11,7 @@ import LinkCleanKit
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
-    @AppStorage(SettingsKeys.autoPasteEnabled) private var autoPasteEnabled = true
-    @AppStorage(SettingsKeys.saveHistoryEnabled, store: UserDefaults(suiteName: AppGroup.identifier)) private var saveHistoryEnabled = true
+    @State private var viewModel = SettingsViewModel()
     @State private var showClearHistoryConfirmation = false
     @State private var showDisableHistoryConfirmation = false
 
@@ -27,7 +26,10 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle(isOn: $autoPasteEnabled) { Text(.settingsClipboardAutoPaste) }
+                Toggle(isOn: Binding(
+                    get: { viewModel.autoPasteEnabled },
+                    set: { viewModel.setAutoPaste($0) }
+                )) { Text(.settingsClipboardAutoPaste) }
                     .accessibilityIdentifier("settings-auto-paste-toggle")
             } header: {
                 Text(.settingsClipboardHeader)
@@ -53,10 +55,10 @@ struct SettingsView: View {
 
             Section {
                 Toggle(isOn: Binding(
-                    get: { saveHistoryEnabled },
+                    get: { viewModel.saveHistoryEnabled },
                     set: { newValue in
                         if newValue {
-                            saveHistoryEnabled = true
+                            viewModel.enableSaveHistory()
                         } else {
                             showDisableHistoryConfirmation = true
                         }
@@ -65,7 +67,7 @@ struct SettingsView: View {
                     Text(.settingsDataSaveHistory)
                 }
 
-                if saveHistoryEnabled {
+                if viewModel.saveHistoryEnabled {
                     Button(role: .destructive) {
                         showClearHistoryConfirmation = true
                     } label: {
@@ -108,10 +110,10 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .screenBackground()
         .navigationTitle(Text(.settingsTitle))
+        .onAppear { viewModel.onAppear() }
         .alert(Text(.settingsDisableHistoryTitle), isPresented: $showDisableHistoryConfirmation) {
             Button(role: .destructive) {
-                saveHistoryEnabled = false
-                try? modelContext.delete(model: HistoryEntry.self)
+                viewModel.disableSaveHistory(in: modelContext)
             } label: {
                 Text(.settingsDisableHistoryConfirm)
             }
@@ -121,7 +123,7 @@ struct SettingsView: View {
         }
         .alert(Text(.settingsClearHistoryTitle), isPresented: $showClearHistoryConfirmation) {
             Button(role: .destructive) {
-                try? modelContext.delete(model: HistoryEntry.self)
+                viewModel.clearHistory(in: modelContext)
             } label: {
                 Text(.commonDelete)
             }

@@ -11,10 +11,14 @@ import UniformTypeIdentifiers
 
 open class ActionExtensionViewController: UIViewController {
     public let parameterStore = TrackingParameterStore()
+    public let analytics: AnalyticsService = TelemetryDeckAnalytics()
 
     override open func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
+        // Initialize the SDK per extension process (each target has its own
+        // signal cache, same App ID + shared default user). See analytics §8.
+        TelemetryDeckAnalytics.start()
     }
 
     override open func viewDidAppear(_ animated: Bool) {

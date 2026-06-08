@@ -15,9 +15,14 @@ final class CustomParametersViewModel {
     var customParameters: [String] = []
     var newParameter: String = ""
     @ObservationIgnored private let store: TrackingParameterStore
+    @ObservationIgnored private let analytics: AnalyticsService
 
-    init(store: TrackingParameterStore = TrackingParameterStore()) {
+    init(
+        store: TrackingParameterStore = TrackingParameterStore(),
+        analytics: AnalyticsService = TelemetryDeckAnalytics()
+    ) {
         self.store = store
+        self.analytics = analytics
         reload()
     }
 
@@ -41,6 +46,7 @@ final class CustomParametersViewModel {
         store.addCustomParameter(normalized)
         newParameter = ""
         reload()
+        analytics.capture(.parametersCustomAdded(totalCount: customParameters.count))
         return nil
     }
 
@@ -50,11 +56,13 @@ final class CustomParametersViewModel {
             store.removeCustomParameter(names[index])
         }
         reload()
+        analytics.capture(.parametersCustomDeleted(totalCount: customParameters.count))
     }
 
     func removeParameter(_ name: String) {
         store.removeCustomParameter(name)
         reload()
+        analytics.capture(.parametersCustomDeleted(totalCount: customParameters.count))
     }
 
     private var normalizedInput: String {

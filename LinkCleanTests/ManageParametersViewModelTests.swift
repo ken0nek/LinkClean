@@ -60,4 +60,15 @@ struct ManageParametersViewModelTests {
 
         #expect(vm.isEnabled("utm_source") == false)
     }
+
+    @Test func setEnabledEmitsDefaultToggledWithBuiltInName() {
+        let suiteName = "LinkCleanTests.manage.\(UUID().uuidString)"
+        let spy = SpyAnalytics()
+        let vm = ManageParametersViewModel(store: TrackingParameterStore(suiteName: suiteName), analytics: spy)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+
+        vm.setEnabled("UTM_Source", isEnabled: false)
+
+        #expect(spy.events == [.parametersDefaultToggled(parameter: "utm_source", enabled: false)])
+    }
 }

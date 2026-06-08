@@ -132,4 +132,24 @@ struct ExtensionGuideViewModelTests {
 
         #expect(vm.hasSucceeded == true)
     }
+
+    @Test func onAppearFromSettingsEmitsGuideShownWithSource() {
+        let spy = SpyAnalytics()
+        let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start }, analytics: spy)
+
+        vm.onAppear(source: .settings)
+
+        #expect(spy.events == [.onboardingExtensionGuideShown(source: .settings)])
+        vm.reset()
+    }
+
+    @Test func onAppearFromOnboardingTagsSource() {
+        let spy = SpyAnalytics()
+        let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start }, analytics: spy)
+
+        vm.onAppear(source: .onboarding)
+
+        #expect(spy.events == [.onboardingExtensionGuideShown(source: .onboarding)])
+        vm.reset()
+    }
 }

@@ -16,7 +16,7 @@ import UIKit
 final class HomeViewModel {
     var inputText = "" {
         didSet {
-            handleInputTextChange()
+            handleInputTextChange(previous: oldValue)
         }
     }
     private(set) var cleanedURL: CleanedURL?
@@ -24,15 +24,28 @@ final class HomeViewModel {
     var showClipboardToast = false
     var focusResetToken = UUID()
     @ObservationIgnored private let service: URLCleaningService
+    @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
     @ObservationIgnored private var modelContext: ModelContext?
     @ObservationIgnored private var isHomeVisible = false
     @ObservationIgnored private var didRunInitialPaste = false
+    // Source attribution for `Home.URL.cleaned`. SwiftUI can't tell a paste from
+    // typing on a TextField binding, so we infer: a programmatic clipboard fill
+    // is `autoPaste`; a single new character is `typed`; a larger jump is
+    // `manualPaste`. `lastSignaledCleanInput` dedupes the once-per-input signal
+    // across re-cleans (e.g. returning to the tab).
+    @ObservationIgnored private var nextCleanSource: AnalyticsEvent.CleanSource = .typed
+    @ObservationIgnored private var isApplyingAutoPaste = false
+    @ObservationIgnored private var lastSignaledCleanInput: String?
 
-    init(service: URLCleaningService = DefaultURLCleaningService()) {
+    init(
+        service: URLCleaningService = DefaultURLCleaningService(),
+        analytics: AnalyticsService = TelemetryDeckAnalytics()
+    ) {
         self.service = service
+        self.analytics = analytics
     }
 
     private var isAutoPasteEnabled: Bool {
@@ -73,9 +86,12 @@ final class HomeViewModel {
         UIPasteboard.general.string = cleanedText
         didCopy = true
 
-        if isSaveHistoryEnabled, let cleanedURL {
-            let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
-            modelContext?.insert(entry)
+        if let cleanedURL {
+            analytics.capture(.homeURLCopied(changed: cleanedURL.input != cleanedURL.output))
+            if isSaveHistoryEnabled {
+                let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
+                modelContext?.insert(entry)
+            }
         }
 
         copyTask?.cancel()
@@ -118,11 +134,13 @@ final class HomeViewModel {
             return
         }
 
+        isApplyingAutoPaste = true
         inputText = trimmed
         focusResetToken = UUID()
     }
 
     func showInvalidClipboardToast() {
+        analytics.capture(.homeClipboardInvalidPasted)
         showClipboardToast = true
 
         toastTask?.cancel()
@@ -136,12 +154,23 @@ final class HomeViewModel {
         inputText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private func handleInputTextChange() {
+    private func handleInputTextChange(previous: String) {
         let sanitized = inputText.replacingOccurrences(of: "\n", with: "")
         if sanitized != inputText {
             inputText = sanitized
             focusResetToken = UUID()
             return
+        }
+
+        if isApplyingAutoPaste {
+            nextCleanSource = .autoPaste
+            isApplyingAutoPaste = false
+        } else {
+            nextCleanSource = inputText.count > previous.count + 1 ? .manualPaste : .typed
+        }
+
+        if isInputEmpty {
+            lastSignaledCleanInput = nil
         }
 
         refreshCleanedURL()
@@ -156,12 +185,26 @@ final class HomeViewModel {
         }
 
         let inputSnapshot = trimmedInput
+        let source = nextCleanSource
         cleanTask = Task { [service] in
             let result = try? await service.clean(inputSnapshot)
             await MainActor.run { [inputSnapshot] in
                 guard inputSnapshot == self.trimmedInput else { return }
                 self.cleanedURL = result
+                self.signalCleanedIfNeeded(result, source: source)
             }
         }
+    }
+
+    /// Emits `Home.URL.cleaned` once per distinct input. Re-cleans of the same
+    /// input (returning to the tab, re-focusing) are suppressed.
+    private func signalCleanedIfNeeded(_ result: CleanedURL?, source: AnalyticsEvent.CleanSource) {
+        guard let result, result.input != lastSignaledCleanInput else { return }
+        lastSignaledCleanInput = result.input
+        analytics.capture(.homeURLCleaned(
+            source: source,
+            changed: result.input != result.output,
+            removedCount: URLCleaner.removedParameterCount(from: result.input, to: result.output)
+        ))
     }
 }

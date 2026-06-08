@@ -25,9 +25,14 @@ final class OnboardingViewModel {
     var onFinished: (() -> Void)?
 
     @ObservationIgnored private let defaults: UserDefaults
+    @ObservationIgnored private let analytics: AnalyticsService
 
-    init(defaults: UserDefaults = .standard) {
+    init(
+        defaults: UserDefaults = .standard,
+        analytics: AnalyticsService = TelemetryDeckAnalytics()
+    ) {
         self.defaults = defaults
+        self.analytics = analytics
     }
 
     /// Manual forward navigation. Only the welcome → try-it step advances this
@@ -48,12 +53,12 @@ final class OnboardingViewModel {
     }
 
     func skip() {
-        // TODO(analytics): Onboarding.flow.skipped (see docs/plans/analytics.md §6)
+        analytics.capture(.onboardingFlowSkipped)
         complete()
     }
 
     func getStarted() {
-        // TODO(analytics): Onboarding.flow.completed (see docs/plans/analytics.md §6)
+        analytics.capture(.onboardingFlowCompleted)
         complete()
     }
 

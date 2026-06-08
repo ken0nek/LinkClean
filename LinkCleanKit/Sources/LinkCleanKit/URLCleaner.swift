@@ -61,4 +61,13 @@ public nonisolated enum URLCleaner {
         let cleaned = clean(url.absoluteString, removing: parameters)
         return URL(string: cleaned) ?? url
     }
+
+    /// Number of query parameters removed between an original and a cleaned URL
+    /// string — drives the `removedCount` analytics bucket. Compares item
+    /// counts only; never inspects parameter names or values.
+    public static func removedParameterCount(from original: String, to cleaned: String) -> Int {
+        let before = URLComponents(string: original)?.queryItems?.count ?? 0
+        let after = URLComponents(string: cleaned)?.queryItems?.count ?? 0
+        return max(0, before - after)
+    }
 }

@@ -113,4 +113,48 @@ struct CustomParametersViewModelTests {
 
         #expect(!vm.customParameters.contains("removeme"))
     }
+
+    @Test func addEmitsCustomAddedWithRunningTotal() {
+        let suiteName = "LinkCleanTests.custom.\(UUID().uuidString)"
+        let spy = SpyAnalytics()
+        let vm = CustomParametersViewModel(store: TrackingParameterStore(suiteName: suiteName), analytics: spy)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+
+        vm.newParameter = "alpha"
+        _ = vm.addParameter()
+        vm.newParameter = "beta"
+        _ = vm.addParameter()
+
+        #expect(spy.events == [
+            .parametersCustomAdded(totalCount: 1),
+            .parametersCustomAdded(totalCount: 2),
+        ])
+    }
+
+    @Test func deleteEmitsCustomDeletedWithRunningTotal() {
+        let suiteName = "LinkCleanTests.custom.\(UUID().uuidString)"
+        let spy = SpyAnalytics()
+        let vm = CustomParametersViewModel(store: TrackingParameterStore(suiteName: suiteName), analytics: spy)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+
+        vm.newParameter = "alpha"
+        _ = vm.addParameter()
+        spy.reset()
+
+        vm.removeParameter("alpha")
+
+        #expect(spy.events == [.parametersCustomDeleted(totalCount: 0)])
+    }
+
+    @Test func rejectedAddEmitsNothing() {
+        let suiteName = "LinkCleanTests.custom.\(UUID().uuidString)"
+        let spy = SpyAnalytics()
+        let vm = CustomParametersViewModel(store: TrackingParameterStore(suiteName: suiteName), analytics: spy)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+
+        vm.newParameter = "utm_source" // already a default
+        _ = vm.addParameter()
+
+        #expect(spy.events.isEmpty)
+    }
 }

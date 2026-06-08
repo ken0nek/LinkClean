@@ -80,4 +80,22 @@ struct OnboardingViewModelTests {
 
         #expect(suite.bool(forKey: SettingsKeys.hasCompletedOnboarding) == true)
     }
+
+    @Test func getStartedEmitsCompletedSignal() {
+        let spy = SpyAnalytics()
+        let vm = OnboardingViewModel(defaults: makeSuite(), analytics: spy)
+
+        vm.getStarted()
+
+        #expect(spy.events == [.onboardingFlowCompleted])
+    }
+
+    @Test func skipEmitsSkippedSignal() {
+        let spy = SpyAnalytics()
+        let vm = OnboardingViewModel(defaults: makeSuite(), analytics: spy)
+
+        vm.skip()
+
+        #expect(spy.events == [.onboardingFlowSkipped])
+    }
 }

@@ -85,4 +85,53 @@ struct HomeViewModelTests {
 
         #expect(!vm.inputText.contains("\n"))
     }
+
+    // MARK: - Analytics
+
+    @Test func invalidClipboardPasteEmitsSignal() {
+        let spy = SpyAnalytics()
+        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy)
+
+        vm.showInvalidClipboardToast()
+
+        #expect(spy.events == [.homeClipboardInvalidPasted])
+    }
+
+    @Test func cleanThenCopyEmitsBothSignals() async {
+        let spy = SpyAnalytics()
+        var mock = MockURLCleaningService()
+        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example") }
+        let vm = HomeViewModel(service: mock, analytics: spy)
+
+        // A full string arriving in one binding update reads as a manual paste.
+        vm.inputText = "https://x.com?utm_source=a"
+
+        for _ in 0 ..< 200 where spy.events.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        #expect(spy.events == [.homeURLCleaned(source: .manualPaste, changed: true, removedCount: 1)])
+
+        vm.copyCleanedURL()
+
+        #expect(spy.events.last == .homeURLCopied(changed: true))
+    }
+
+    @Test func cleanedSignalIsDedupedPerDistinctInput() async {
+        let spy = SpyAnalytics()
+        var mock = MockURLCleaningService()
+        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example") }
+        let vm = HomeViewModel(service: mock, analytics: spy)
+
+        vm.inputText = "https://x.com?utm_source=a"
+        for _ in 0 ..< 200 where spy.events.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        // Re-assigning the same input (e.g. re-focus / tab return) must not
+        // re-emit the once-per-input signal.
+        vm.inputText = "https://x.com?utm_source=a"
+        try? await Task.sleep(for: .milliseconds(80))
+
+        #expect(spy.events.filter { $0 == .homeURLCleaned(source: .manualPaste, changed: true, removedCount: 1) }.count == 1)
+    }
 }

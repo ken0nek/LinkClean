@@ -18,6 +18,10 @@ struct LinkCleanApp: App {
     init() {
         self.modelContainer = HistoryContainer.makeShared() ?? HistoryContainer.makeInMemory()
 
+        // Initialize analytics as early as possible (TelemetryDeck guidance: in
+        // App.init, not onAppear). DEBUG builds are automatically test mode.
+        TelemetryDeckAnalytics.start()
+
         let arguments = ProcessInfo.processInfo.arguments
         if arguments.contains("-uiTesting"),
            let bundleID = Bundle.main.bundleIdentifier {

@@ -1,0 +1,63 @@
+//
+//  TelemetryDeckAnalytics.swift
+//  LinkCleanKit
+//
+//  Created by Ken Tominaga on 6/8/26.
+//
+
+import Foundation
+import TelemetryDeck
+
+/// TelemetryDeck-backed ``AnalyticsService``. This is the only type in the
+/// codebase that touches the TelemetryDeck SDK; the app and both action
+/// extensions see only the typed ``AnalyticsEvent`` API. The SDK is a
+/// transitive dependency of LinkCleanKit, never linked directly by an app
+/// target — so no Xcode target configuration is required.
+///
+/// `TelemetryDeck.signal(_:parameters:)` is thread-safe, so this type is
+/// `nonisolated` and can capture events from any context.
+public nonisolated struct TelemetryDeckAnalytics: AnalyticsService {
+
+    /// Client-side ingest key. Not a secret — it ships in the binary and is
+    /// visible in network traffic. See `docs/plans/analytics.md` §11.
+    private static let appID = "8A2AC88D-2092-43DC-BC71-CF675C33D01C"
+
+    /// App-wide salt (not per-user) hashed into the default user identifier so
+    /// even TelemetryDeck cannot reverse it (`docs/plans/analytics.md` §3).
+    private static let salt = "6ebf7288576447f1994d4f1af12d7a88"
+
+    public init() {}
+
+    public func capture(_ event: AnalyticsEvent) {
+        TelemetryDeck.signal(event.signalName, parameters: event.parameters)
+    }
+
+    /// Initializes the TelemetryDeck SDK. Call once per process, as early as
+    /// possible — `LinkCleanApp.init()` for the app, `viewDidLoad` for each
+    /// action extension. `capture(_:)` is a no-op until this has run.
+    ///
+    /// Test mode is automatic: TelemetryDeck flags signals sent from a debug
+    /// session, so DEBUG builds never pollute production insights (§3).
+    public static func start() {
+        let config = TelemetryDeck.Config(appID: appID, salt: salt)
+        TelemetryDeck.initialize(config: config)
+        TelemetryDeck.updateDefaultUserID(to: sharedUserIdentifier())
+    }
+
+    /// Reads — or lazily creates — the cross-process anonymous user identifier
+    /// from the App Group suite. Without a shared identifier the app and each
+    /// extension would count as separate users and the activation funnel would
+    /// be unmeasurable (`docs/plans/analytics.md` §4). The SDK hashes it
+    /// client-side (with ``salt``) before transmission.
+    static func sharedUserIdentifier(
+        in defaults: UserDefaults? = UserDefaults(suiteName: AppGroup.identifier)
+    ) -> String {
+        guard let defaults else { return UUID().uuidString }
+        if let existing = defaults.string(forKey: SettingsKeys.analyticsUserIdentifier) {
+            return existing
+        }
+        let generated = UUID().uuidString
+        defaults.set(generated, forKey: SettingsKeys.analyticsUserIdentifier)
+        return generated
+    }
+}

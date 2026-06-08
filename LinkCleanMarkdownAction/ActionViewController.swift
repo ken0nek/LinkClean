@@ -28,6 +28,7 @@ class ActionViewController: ActionExtensionViewController {
                 url = fallbackURL
             } else {
                 Log.action.debug("No URL extracted from JS or fallback, dismissing")
+                analytics.capture(.actionMarkdownFailed(reason: .noURL))
                 playErrorHaptic()
                 showNoLinkFoundToastThenDismiss()
                 return
@@ -38,20 +39,32 @@ class ActionViewController: ActionExtensionViewController {
             // 3. Determine title: prefer JS title, fall back to LPMetadataProvider
             // (fetch the cleaned URL so tracking parameters never go over the wire)
             let title: String?
+            let titleSource: AnalyticsEvent.TitleSource
             if let jsTitle = jsResult?.title {
                 title = jsTitle
+                titleSource = .javascript
                 Log.action.debug("Using JS title: \(jsTitle, privacy: .public)")
+            } else if let fetched = await fetchTitle(for: cleaned) {
+                title = fetched
+                titleSource = .linkPresentation
+                Log.action.debug("Using LPMetadataProvider title: \(fetched, privacy: .public)")
             } else {
-                title = await fetchTitle(for: cleaned)
-                Log.action.debug("Using LPMetadataProvider title: \(title ?? "nil", privacy: .public)")
+                title = nil
+                titleSource = .urlOnly
+                Log.action.debug("No title resolved; emitting URL only")
             }
 
             let markdown = MarkdownFormatter.markdownLink(title: title, url: cleaned.absoluteString)
             Log.action.debug("Markdown output: \(markdown, privacy: .public)")
             UIPasteboard.general.string = markdown
 
+            // Signal at clean-success (not dismissal) to maximize in-process
+            // network time in the short-lived extension (analytics §8).
+            analytics.capture(.actionMarkdownSucceeded(
+                titleSource: titleSource,
+                changed: cleaned.absoluteString != url.absoluteString
+            ))
             saveHistory(input: url.absoluteString, output: cleaned.absoluteString)
-            // TODO(analytics): Action.Markdown.succeeded fires here (see docs/plans/analytics.md §7)
             recordSuccessfulRun()
             playSuccessHaptic()
             showToastThenDismiss()
