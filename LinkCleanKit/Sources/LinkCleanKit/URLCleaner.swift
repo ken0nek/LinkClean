@@ -7,20 +7,43 @@
 
 import Foundation
 
-/// The outcome of cleaning a URL: the cleaned string and how many tracking
-/// parameters were removed. Lets callers (analytics) read the removed count
-/// without re-parsing the URL — the count is derived from the same filter
-/// `clean` applies, so the two can never disagree.
+/// The outcome of cleaning a URL: the cleaned string, how many tracking
+/// parameters were removed, and a privacy-safe analysis of what was left behind
+/// (for catalog-gap telemetry — see `parameter-telemetry.md`). Everything is
+/// derived from the same single pass `clean` makes over the query items, so the
+/// fields can never disagree, and callers (analytics) never re-parse the URL.
 public nonisolated struct CleanResult: Sendable, Equatable {
     public let cleaned: String
     public let removedCount: Int
+    /// Number of query *items* remaining after cleaning (duplicates counted).
+    /// Sizes the gap between our catalog and the trackers in real URLs (Tier 0).
+    /// Note: this counts items, whereas `referenceMatches` is de-duplicated by
+    /// name — so the two are only directly comparable when a URL has no repeated
+    /// query keys (rare).
+    public let leftoverCount: Int
+    /// Catalog kind ids that fired in this clean (which categories earn their
+    /// keep). Finite, known set — safe to send (Tier 0).
+    public let removedKindIDs: Set<String>
+    /// Leftover names that match the bundled reference catalog — known trackers
+    /// missing from our defaults. Sorted, unique; all *public* names, never
+    /// user-authored or arbitrary URL keys (Tier 1).
+    public let referenceMatches: [String]
 
     /// Whether cleaning removed at least one tracking parameter.
     public var changed: Bool { removedCount > 0 }
 
-    public init(cleaned: String, removedCount: Int) {
+    public init(
+        cleaned: String,
+        removedCount: Int,
+        leftoverCount: Int = 0,
+        removedKindIDs: Set<String> = [],
+        referenceMatches: [String] = []
+    ) {
         self.cleaned = cleaned
         self.removedCount = removedCount
+        self.leftoverCount = leftoverCount
+        self.removedKindIDs = removedKindIDs
+        self.referenceMatches = referenceMatches
     }
 }
 
@@ -55,10 +78,15 @@ public nonisolated enum URLCleaner {
         cleanResult(urlString, removing: parameters).cleaned
     }
 
-    /// Cleans `urlString` and reports how many query parameters were removed, so
-    /// callers don't have to re-parse the URL to count. The count and the
-    /// cleaned string come from one pass over the same filter.
-    public static func cleanResult(_ urlString: String, removing parameters: Set<String>) -> CleanResult {
+    /// Cleans `urlString` and, in the same single pass over the query items,
+    /// reports the removed count plus the privacy-safe catalog-gap analysis
+    /// (`leftoverCount`, `removedKindIDs`, `referenceMatches`). Callers never
+    /// re-parse the URL, and the analysis can never disagree with the cleaning.
+    public static func cleanResult(
+        _ urlString: String,
+        removing parameters: Set<String>,
+        referenceNames: Set<String> = ReferenceParameterCatalog.names
+    ) -> CleanResult {
         guard var components = URLComponents(string: urlString),
               let queryItems = components.queryItems, !queryItems.isEmpty
         else {
@@ -66,13 +94,30 @@ public nonisolated enum URLCleaner {
         }
 
         let normalized = Set(parameters.map { $0.lowercased() })
-        let filtered = queryItems.filter { item in
-            !normalized.contains(item.name.lowercased())
+        var kept: [URLQueryItem] = []
+        var removedKindIDs = Set<String>()
+        var leftoverNames = Set<String>()
+        for item in queryItems {
+            let name = item.name.lowercased()
+            if normalized.contains(name) {
+                if let kindID = TrackingParameterCatalog.kindID(for: name) {
+                    removedKindIDs.insert(kindID)
+                }
+            } else {
+                kept.append(item)
+                leftoverNames.insert(name)
+            }
         }
 
-        components.queryItems = filtered.isEmpty ? nil : filtered
+        components.queryItems = kept.isEmpty ? nil : kept
 
-        return CleanResult(cleaned: components.string ?? urlString, removedCount: queryItems.count - filtered.count)
+        return CleanResult(
+            cleaned: components.string ?? urlString,
+            removedCount: queryItems.count - kept.count,
+            leftoverCount: kept.count,
+            removedKindIDs: removedKindIDs,
+            referenceMatches: leftoverNames.intersection(referenceNames).sorted()
+        )
     }
 
     public static func clean(_ url: URL) -> URL {
@@ -84,9 +129,9 @@ public nonisolated enum URLCleaner {
     }
 
     /// URL counterpart of `cleanResult(_:removing:)`: the cleaned URL plus the
-    /// number of query parameters removed.
-    public static func cleanResult(_ url: URL, removing parameters: Set<String>) -> (cleaned: URL, removedCount: Int) {
+    /// full ``CleanResult`` (removed count and catalog-gap analysis).
+    public static func cleanResult(_ url: URL, removing parameters: Set<String>) -> (cleaned: URL, result: CleanResult) {
         let result = cleanResult(url.absoluteString, removing: parameters)
-        return (URL(string: result.cleaned) ?? url, result.removedCount)
+        return (URL(string: result.cleaned) ?? url, result)
     }
 }

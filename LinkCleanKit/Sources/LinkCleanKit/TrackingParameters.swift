@@ -224,6 +224,24 @@ public nonisolated enum TrackingParameterCatalog {
         return result
     }()
 
+    /// The catalog kind id a built-in parameter belongs to, or `nil` for names
+    /// outside the catalog (e.g. user-authored custom parameters). Lets the
+    /// cleaner report which categories fired in a clean without the call site
+    /// re-deriving the mapping. Kind ids are a finite, known set — safe to send.
+    public static func kindID(for name: String) -> String? {
+        kindIDsByName[name.lowercased()]
+    }
+
+    private static let kindIDsByName: [String: String] = {
+        var map: [String: String] = [:]
+        for section in sections {
+            for parameter in section.parameters {
+                map[parameter.name] = section.kind.id
+            }
+        }
+        return map
+    }()
+
     private static func makeDefinitions(
         names: [String],
         kind: TrackingParameterKind

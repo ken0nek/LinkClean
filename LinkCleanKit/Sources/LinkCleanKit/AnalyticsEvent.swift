@@ -13,15 +13,26 @@ import Foundation
 /// (`Feature.Subject.verbPast`, ≤ 3 levels). See `docs/plans/analytics.md` §5–7.
 ///
 /// Privacy (`docs/plans/analytics.md` §3): cases carry only enums, bucketed
-/// counts, booleans, and built-in (never user-authored) parameter names. No
-/// URLs, hosts, query strings, search text, page titles, or custom-parameter
-/// names ever reach this type.
+/// counts, booleans, and built-in (never user-authored) parameter names —
+/// either default-catalog names or names from the bundled reference catalog,
+/// both finite and public (`docs/plans/parameter-telemetry.md`). No URLs, hosts,
+/// query strings, search text, page titles, or custom-parameter names ever reach
+/// this type.
 public nonisolated enum AnalyticsEvent: Equatable {
 
     // MARK: Home (§6)
 
     /// A valid URL produced a cleaned result. Fired once per distinct input.
-    case homeURLCleaned(source: CleanSource, changed: Bool, removedCount: Int)
+    /// `leftoverCount`/`referenceMatchCount`/`removedKinds` are the privacy-safe
+    /// catalog-gap signals (`parameter-telemetry.md` Tier 0).
+    case homeURLCleaned(
+        source: CleanSource,
+        changed: Bool,
+        removedCount: Int,
+        leftoverCount: Int,
+        referenceMatchCount: Int,
+        removedKinds: Set<String>
+    )
     /// The cleaned URL was copied from Home — the in-app north-star export.
     case homeURLCopied(changed: Bool)
     /// Auto-paste found a non-URL on the clipboard (annoyance-rate signal).
@@ -47,6 +58,11 @@ public nonisolated enum AnalyticsEvent: Equatable {
     /// sent — never the parameter name (free-text user input, §3).
     case parametersCustomAdded(totalCount: Int)
     case parametersCustomDeleted(totalCount: Int)
+    /// A known tracking parameter that is *not* in the default catalog survived
+    /// a clean — a catalog-gap signal (`parameter-telemetry.md` Tier 1). The
+    /// name comes from the bundled ``ReferenceParameterCatalog`` (finite, public
+    /// set), so it is safe to send — never a user-authored or arbitrary URL key.
+    case parametersReferenceObserved(parameter: String)
 
     // MARK: Onboarding (§6)
 
@@ -56,7 +72,13 @@ public nonisolated enum AnalyticsEvent: Equatable {
 
     // MARK: Action extensions (§7)
 
-    case actionCleanSucceeded(changed: Bool, removedCount: Int)
+    case actionCleanSucceeded(
+        changed: Bool,
+        removedCount: Int,
+        leftoverCount: Int,
+        referenceMatchCount: Int,
+        removedKinds: Set<String>
+    )
     case actionCleanFailed(reason: FailureReason)
     case actionMarkdownSucceeded(titleSource: TitleSource, changed: Bool)
     case actionMarkdownFailed(reason: FailureReason)
@@ -106,6 +128,7 @@ public nonisolated enum AnalyticsEvent: Equatable {
         case .parametersDefaultToggled: "Parameters.Default.toggled"
         case .parametersCustomAdded: "Parameters.Custom.added"
         case .parametersCustomDeleted: "Parameters.Custom.deleted"
+        case .parametersReferenceObserved: "Parameters.Reference.observed"
         case .onboardingFlowCompleted: "Onboarding.flow.completed"
         case .onboardingFlowSkipped: "Onboarding.flow.skipped"
         case .onboardingExtensionGuideShown: "Onboarding.ExtensionGuide.shown"
@@ -122,11 +145,14 @@ public nonisolated enum AnalyticsEvent: Equatable {
     /// so insights stay aggregatable and no exact per-user values leak (§5).
     public var parameters: [String: String] {
         switch self {
-        case let .homeURLCleaned(source, changed, removedCount):
+        case let .homeURLCleaned(source, changed, removedCount, leftoverCount, referenceMatchCount, removedKinds):
             return [
                 "source": source.rawValue,
                 "changed": Self.string(changed),
                 "removedCount": Bucket.removedCount(removedCount),
+                "leftoverCount": Bucket.leftoverCount(leftoverCount),
+                "referenceMatchCount": Bucket.leftoverCount(referenceMatchCount),
+                "removedKinds": Self.kinds(removedKinds),
             ]
         case let .homeURLCopied(changed):
             return ["changed": Self.string(changed)]
@@ -144,12 +170,17 @@ public nonisolated enum AnalyticsEvent: Equatable {
             return ["totalCount": Bucket.count(totalCount)]
         case let .parametersCustomDeleted(totalCount):
             return ["totalCount": Bucket.count(totalCount)]
+        case let .parametersReferenceObserved(parameter):
+            return ["parameter": parameter]
         case let .onboardingExtensionGuideShown(source):
             return ["source": source.rawValue]
-        case let .actionCleanSucceeded(changed, removedCount):
+        case let .actionCleanSucceeded(changed, removedCount, leftoverCount, referenceMatchCount, removedKinds):
             return [
                 "changed": Self.string(changed),
                 "removedCount": Bucket.removedCount(removedCount),
+                "leftoverCount": Bucket.leftoverCount(leftoverCount),
+                "referenceMatchCount": Bucket.leftoverCount(referenceMatchCount),
+                "removedKinds": Self.kinds(removedKinds),
             ]
         case let .actionCleanFailed(reason):
             return ["reason": reason.rawValue]
@@ -174,6 +205,14 @@ public nonisolated enum AnalyticsEvent: Equatable {
         value ? "true" : "false"
     }
 
+    /// Sorted, comma-joined catalog kind ids that fired in a clean (e.g.
+    /// `"ads,utm"`), or `"none"` when nothing matched the built-in catalog (a
+    /// clean that removed only custom parameters, or removed nothing). Each id
+    /// is from the finite ``TrackingParameterCatalog`` — safe to send.
+    private static func kinds(_ ids: Set<String>) -> String {
+        ids.isEmpty ? "none" : ids.sorted().joined(separator: ",")
+    }
+
     // MARK: - Bucketing
 
     /// Numeric parameters are sent as bucketed strings (§5).
@@ -181,6 +220,13 @@ public nonisolated enum AnalyticsEvent: Equatable {
         /// Removed tracking-parameter count: exact 0–4, then `"5+"`.
         static func removedCount(_ value: Int) -> String {
             value >= 5 ? "5+" : String(max(0, value))
+        }
+
+        /// Leftover / reference-match count after cleaning — same shape as
+        /// `removedCount` (exact 0–4, then `"5+"`). Small by nature; the gap
+        /// question is "any, and roughly how many", not the exact tail.
+        static func leftoverCount(_ value: Int) -> String {
+            removedCount(value)
         }
 
         /// History size: `"0" | "1-9" | "10-49" | "50+"`.

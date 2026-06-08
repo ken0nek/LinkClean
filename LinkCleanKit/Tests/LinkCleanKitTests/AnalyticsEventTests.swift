@@ -12,7 +12,7 @@ struct AnalyticsEventTests {
 
     @Test func signalNamesMatchTaxonomy() {
         let expected: [(AnalyticsEvent, String)] = [
-            (.homeURLCleaned(source: .typed, changed: true, removedCount: 0), "Home.URL.cleaned"),
+            (.homeURLCleaned(source: .typed, changed: true, removedCount: 0, leftoverCount: 0, referenceMatchCount: 0, removedKinds: []), "Home.URL.cleaned"),
             (.homeURLCopied(changed: true), "Home.URL.copied"),
             (.homeClipboardInvalidPasted, "Home.Clipboard.invalidPasted"),
             (.historyScreenShown(entryCount: 0), "History.screen.shown"),
@@ -25,10 +25,11 @@ struct AnalyticsEventTests {
             (.parametersDefaultToggled(parameter: "utm_source", enabled: false), "Parameters.Default.toggled"),
             (.parametersCustomAdded(totalCount: 1), "Parameters.Custom.added"),
             (.parametersCustomDeleted(totalCount: 0), "Parameters.Custom.deleted"),
+            (.parametersReferenceObserved(parameter: "yclid"), "Parameters.Reference.observed"),
             (.onboardingFlowCompleted, "Onboarding.flow.completed"),
             (.onboardingFlowSkipped, "Onboarding.flow.skipped"),
             (.onboardingExtensionGuideShown(source: .onboarding), "Onboarding.ExtensionGuide.shown"),
-            (.actionCleanSucceeded(changed: true, removedCount: 1), "Action.Clean.succeeded"),
+            (.actionCleanSucceeded(changed: true, removedCount: 1, leftoverCount: 0, referenceMatchCount: 0, removedKinds: []), "Action.Clean.succeeded"),
             (.actionCleanFailed(reason: .noURL), "Action.Clean.failed"),
             (.actionMarkdownSucceeded(titleSource: .javascript, changed: true), "Action.Markdown.succeeded"),
             (.actionMarkdownFailed(reason: .invalidInput), "Action.Markdown.failed"),
@@ -41,8 +42,54 @@ struct AnalyticsEventTests {
     // MARK: - Parameters
 
     @Test func cleanedCarriesSourceChangedAndBucketedRemovedCount() {
-        let params = AnalyticsEvent.homeURLCleaned(source: .autoPaste, changed: true, removedCount: 3).parameters
-        #expect(params == ["source": "autoPaste", "changed": "true", "removedCount": "3"])
+        let params = AnalyticsEvent.homeURLCleaned(
+            source: .autoPaste, changed: true, removedCount: 3,
+            leftoverCount: 2, referenceMatchCount: 1, removedKinds: ["utm", "ads"]
+        ).parameters
+        #expect(params == [
+            "source": "autoPaste",
+            "changed": "true",
+            "removedCount": "3",
+            "leftoverCount": "2",
+            "referenceMatchCount": "1",
+            "removedKinds": "ads,utm",
+        ])
+    }
+
+    @Test func cleanedCarriesCatalogGapSignals() {
+        let params = AnalyticsEvent.actionCleanSucceeded(
+            changed: true, removedCount: 1,
+            leftoverCount: 6, referenceMatchCount: 0, removedKinds: []
+        ).parameters
+        #expect(params["leftoverCount"] == "5+")
+        #expect(params["referenceMatchCount"] == "0")
+        #expect(params["removedKinds"] == "none")
+    }
+
+    @Test func removedKindsAreSortedAndJoined() {
+        let params = AnalyticsEvent.homeURLCleaned(
+            source: .typed, changed: true, removedCount: 4,
+            leftoverCount: 0, referenceMatchCount: 0, removedKinds: ["social", "ads", "utm"]
+        ).parameters
+        #expect(params["removedKinds"] == "ads,social,utm")
+    }
+
+    @Test func referenceObservedCarriesTheName() {
+        // Tier 1: the name is a public reference-catalog entry, so it is sent.
+        #expect(AnalyticsEvent.parametersReferenceObserved(parameter: "gbraid").parameters == ["parameter": "gbraid"])
+    }
+
+    @Test func cleanEventParameterSurfaceIsCountsAndEnumsOnly() {
+        // Pins the clean event's parameter surface so a future change can't
+        // silently add a name-bearing key: catalog-gap data rides as counts only,
+        // never as leftover key names. (That referenceMatches itself can only
+        // ever hold public reference names is guarded at the source in
+        // CleanResultTests.novelLeftoverNamesNeverBecomeReferenceMatches.)
+        let home = AnalyticsEvent.homeURLCleaned(
+            source: .typed, changed: false, removedCount: 0,
+            leftoverCount: 3, referenceMatchCount: 2, removedKinds: []
+        ).parameters
+        #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds"])
     }
 
     @Test func copiedCarriesOnlyChanged() {
@@ -88,7 +135,10 @@ struct AnalyticsEventTests {
 
     @Test func removedCountBuckets() {
         func bucket(_ n: Int) -> String? {
-            AnalyticsEvent.actionCleanSucceeded(changed: true, removedCount: n).parameters["removedCount"]
+            AnalyticsEvent.actionCleanSucceeded(
+                changed: true, removedCount: n,
+                leftoverCount: 0, referenceMatchCount: 0, removedKinds: []
+            ).parameters["removedCount"]
         }
         #expect(bucket(0) == "0")
         #expect(bucket(1) == "1")

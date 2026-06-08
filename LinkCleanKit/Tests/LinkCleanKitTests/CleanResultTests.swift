@@ -42,13 +42,81 @@ struct CleanResultTests {
         #expect(URLCleaner.clean(input, removing: ["fbclid"]) == URLCleaner.cleanResult(input, removing: ["fbclid"]).cleaned)
     }
 
-    @Test func urlOverloadReturnsCleanedURLAndCount() {
-        let result = URLCleaner.cleanResult(
+    @Test func urlOverloadReturnsCleanedURLAndResult() {
+        let (cleaned, result) = URLCleaner.cleanResult(
             URL(string: "https://x.com/?fbclid=z&id=1")!,
             removing: ["fbclid"]
         )
 
         #expect(result.removedCount == 1)
-        #expect(result.cleaned.absoluteString == "https://x.com/?id=1")
+        #expect(cleaned.absoluteString == "https://x.com/?id=1")
+    }
+
+    // MARK: - Catalog-gap analysis (parameter-telemetry.md Tier 0/1)
+
+    @Test func reportsLeftoverCountAndRemovedKinds() {
+        let result = URLCleaner.cleanResult(
+            "https://x.com/?utm_source=a&fbclid=b&id=1&page=2",
+            removing: ["utm_source", "fbclid"]
+        )
+
+        #expect(result.removedCount == 2)
+        #expect(result.leftoverCount == 2)              // id, page survive
+        #expect(result.removedKindIDs == ["utm", "ads"]) // utm_source→utm, fbclid→ads
+    }
+
+    @Test func removedKindsOmitsCustomParametersWithoutACatalogKind() {
+        // A removed parameter outside the built-in catalog contributes no kind.
+        let result = URLCleaner.cleanResult(
+            "https://x.com/?my_custom=a&id=1",
+            removing: ["my_custom"]
+        )
+
+        #expect(result.removedCount == 1)
+        #expect(result.removedKindIDs.isEmpty)
+    }
+
+    @Test func referenceMatchesFlagKnownButNotDefaultTrackers() {
+        // yclid is a known tracker that is NOT in our defaults — a catalog gap.
+        let result = URLCleaner.cleanResult(
+            "https://x.com/?utm_source=a&yclid=b&id=1",
+            removing: ["utm_source"]
+        )
+
+        #expect(result.referenceMatches == ["yclid"])
+        #expect(result.leftoverCount == 2) // yclid + id survive (only utm_source removed)
+    }
+
+    @Test func referenceMatchesAreSortedUniqueAndUseInjectedSet() {
+        let result = URLCleaner.cleanResult(
+            "https://x.com/?b=1&a=2&b=3&plain=4",
+            removing: [],
+            referenceNames: ["a", "b"]
+        )
+
+        #expect(result.referenceMatches == ["a", "b"]) // sorted, deduped despite repeated b
+        #expect(result.leftoverCount == 4)
+    }
+
+    @Test func noAnalysisNoiseForPlainParams() {
+        let result = URLCleaner.cleanResult("https://x.com/?id=1&page=2", removing: [])
+
+        #expect(result.referenceMatches.isEmpty)
+        #expect(result.removedKindIDs.isEmpty)
+        #expect(result.leftoverCount == 2)
+    }
+
+    @Test func novelLeftoverNamesNeverBecomeReferenceMatches() {
+        // Privacy guard at the source: referenceMatches is the ONLY place a
+        // leftover key name is surfaced, and it can only ever contain names from
+        // the public reference catalog. An arbitrary/novel key (which could hold
+        // anything sensitive) must never leak through it.
+        let result = URLCleaner.cleanResult(
+            "https://x.com/?my_private_token=secret&q=hello&id=1",
+            removing: []
+        )
+
+        #expect(result.referenceMatches.isEmpty)
+        #expect(result.leftoverCount == 3)
     }
 }

@@ -51,6 +51,8 @@ LinkClean's entire value proposition is stripping tracking from URLs. The analyt
 
 - Event names, counts, booleans, bucketed numbers
 - Names of *built-in* default parameters being toggled (finite, known set — `utm_source`, `fbclid`, …)
+- Catalog-gap counts (how many parameters a clean left behind; how many matched the bundled reference list) and which built-in *categories* fired (`utm`, `ads`, …) — see [parameter-telemetry.md](parameter-telemetry.md) Tier 0
+- Names from the bundled **reference catalog** of known trackers (`ReferenceParameterCatalog`) — finite and public, the same risk class as built-in default names (Tier 1)
 - TelemetryDeck's default parameters (app version, OS, device model, locale, `extensionIdentifier`)
 
 **Other commitments:**
@@ -84,7 +86,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Home.URL.cleaned` | Valid URL produced a cleaned result (once per distinct input) | `source: autoPaste\|manualPaste\|typed`, `changed: true\|false`, `removedCount: <bucket>` | Volume; how URLs arrive; how often cleaning actually changes anything (`changed=false` at high rates = parameter list gaps) |
+| `Home.URL.cleaned` | Valid URL produced a cleaned result (once per distinct input) | `source: autoPaste\|manualPaste\|typed`, `changed: true\|false`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none` | Volume; how URLs arrive; how often cleaning changes anything; catalog-gap size and which categories fire (`parameter-telemetry.md` Tier 0) |
 | `Home.URL.copied` | Copy button tapped | `changed` | Home-flow conversion (cleaned → exported) |
 | `Home.Clipboard.invalidPasted` | Auto-paste found non-URL (toast shown) | — | Auto-paste annoyance rate; whether it should stay default-on |
 
@@ -107,6 +109,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 | `Parameters.Default.toggled` | Built-in parameter toggled | `parameter: <name>`, `enabled` | Which built-ins users distrust/need; informs default set curation |
 | `Parameters.Custom.added` | Custom parameter added | `totalCount: <bucket>` — **never the name** | **Top premium candidate.** Adoption % + depth per user |
 | `Parameters.Custom.deleted` | Custom parameter removed | `totalCount: <bucket>` | Churn on the feature |
+| `Parameters.Reference.observed` | A known-but-not-default tracker survived a clean (one per match) | `parameter: <public reference name>` — from the bundled reference catalog, **never an arbitrary URL key** | **Catalog-gap engine.** Which trackers to promote into the default set (`parameter-telemetry.md` Tier 1) |
 
 ### Onboarding (ships in 1.0.0 per TODO)
 
@@ -119,7 +122,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>` | Extension volume — the habit metric |
+| `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none` | Extension volume — the habit metric; plus catalog-gap signals on the extension surface (`parameter-telemetry.md` Tier 0). Per-match `Parameters.Reference.observed` is emitted after this signal (§8 convergence) |
 | `Action.Clean.failed` | No URL extractable from host input | `reason: noURL\|invalidInput` | Host-app compatibility gaps (e.g. the known Google Maps issue) |
 | `Action.Markdown.succeeded` | Markdown action copied `[title](url)` | `titleSource: javascript\|linkPresentation\|urlOnly`, `changed` | Markdown adoption (premium candidate); title-extraction reliability by path |
 | `Action.Markdown.failed` | Extraction failed | `reason` | Reliability |

@@ -219,7 +219,16 @@ final class HomeViewModel {
         analytics.capture(.homeURLCleaned(
             source: source,
             changed: result.changed,
-            removedCount: result.removedCount
+            removedCount: result.removedCount,
+            leftoverCount: result.leftoverCount,
+            referenceMatchCount: result.referenceMatches.count,
+            removedKinds: result.removedKindIDs
         ))
+        // Tier 1: one signal per known-but-not-default tracker left behind, so
+        // the default catalog can grow from real links. Names are public
+        // reference-catalog entries (`parameter-telemetry.md`).
+        for parameter in result.referenceMatches {
+            analytics.capture(.parametersReferenceObserved(parameter: parameter))
+        }
     }
 }
