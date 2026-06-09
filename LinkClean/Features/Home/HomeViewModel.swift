@@ -42,10 +42,14 @@ final class HomeViewModel {
     @ObservationIgnored private var isApplyingAutoPaste = false
     @ObservationIgnored private var isSanitizing = false
     @ObservationIgnored private var lastSignaledCleanInput: String?
-    // Dedupes `Home.URL.copied` and the history-row insert per distinct cleaned
-    // *output*: repeated taps on one result count once, but re-copying after a
-    // leftover-pill refine (same input, cleaner output) correctly counts again.
+    // Dedupes the export signals per distinct cleaned *output*: repeated taps on
+    // one result count once, but exporting again after a leftover-pill refine
+    // (same input, cleaner output) correctly counts again. Copy and share track
+    // separately (a user can do both), while `lastRecordedHistoryOutput` is
+    // shared so copy-then-share writes one history row, not two.
     @ObservationIgnored private var lastCopiedOutput: String?
+    @ObservationIgnored private var lastSharedOutput: String?
+    @ObservationIgnored private var lastRecordedHistoryOutput: String?
 
     init(
         service: URLCleaningService = DefaultURLCleaningService(),
@@ -101,17 +105,14 @@ final class HomeViewModel {
     }
 
     func copyCleanedURL() {
-        guard !cleanedText.isEmpty else { return }
-        UIPasteboard.general.string = cleanedText
+        guard let cleanedURL, !cleanedURL.output.isEmpty else { return }
+        UIPasteboard.general.string = cleanedURL.output
         didCopy = true
 
-        if let cleanedURL, cleanedURL.output != lastCopiedOutput {
+        if cleanedURL.output != lastCopiedOutput {
             lastCopiedOutput = cleanedURL.output
             analytics.capture(.homeURLCopied(changed: cleanedURL.changed))
-            if isSaveHistoryEnabled {
-                let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
-                modelContext?.insert(entry)
-            }
+            recordHistoryIfNeeded(for: cleanedURL)
         }
 
         copyTask?.cancel()
@@ -119,6 +120,26 @@ final class HomeViewModel {
             try? await Task.sleep(for: .seconds(1.4))
             didCopy = false
         }
+    }
+
+    /// Records a Home share via the system share sheet. Hooked to the ShareLink
+    /// tap (best-effort, mirroring History) — deduped per distinct cleaned output,
+    /// and writes the same single history row a copy would.
+    func recordShare() {
+        guard let cleanedURL, !cleanedURL.output.isEmpty else { return }
+        guard cleanedURL.output != lastSharedOutput else { return }
+        lastSharedOutput = cleanedURL.output
+        analytics.capture(.homeURLShared(changed: cleanedURL.changed))
+        recordHistoryIfNeeded(for: cleanedURL)
+    }
+
+    /// Inserts a history row for `cleanedURL` once per distinct output — whether
+    /// reached by copy or share — when history saving is enabled.
+    private func recordHistoryIfNeeded(for cleanedURL: CleanedURL) {
+        guard isSaveHistoryEnabled, cleanedURL.output != lastRecordedHistoryOutput else { return }
+        lastRecordedHistoryOutput = cleanedURL.output
+        let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
+        modelContext?.insert(entry)
     }
 
     /// Adds a surfaced leftover tracker to the user's custom parameters so it is
@@ -190,6 +211,15 @@ final class HomeViewModel {
         // original edit was already classified and dispatched, so skip it.
         guard !isSanitizing else { return }
 
+        // A new edit supersedes the previous result's "Copied" confirmation, so
+        // the freshly-revealed action bar never shows a stale checkmark for a URL
+        // the user didn't copy. (Copy itself doesn't change inputText, so a real
+        // copy is never undone here.)
+        if didCopy {
+            didCopy = false
+            copyTask?.cancel()
+        }
+
         let sanitized = inputText.replacingOccurrences(of: "\n", with: "")
         // A newline can only arrive by pasting (the field submits on Return), so
         // a strip is a reliable paste signal. Classify before reassigning, since
@@ -219,6 +249,8 @@ final class HomeViewModel {
         if isInputEmpty {
             lastSignaledCleanInput = nil
             lastCopiedOutput = nil
+            lastSharedOutput = nil
+            lastRecordedHistoryOutput = nil
         }
 
         refreshCleanedURL()

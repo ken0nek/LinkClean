@@ -7,10 +7,13 @@
 
 import SwiftUI
 
+/// The shared screen backdrop: a soft vertical gradient with a faint brand-tinted
+/// glow at the top. The glow gives Liquid Glass surfaces some accent color to
+/// refract (so the teal identity reads) without tinting foreground content.
 private struct ScreenBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .background(
+            .background {
                 LinearGradient(
                     colors: [
                         Color(.systemBackground),
@@ -19,8 +22,16 @@ private struct ScreenBackground: ViewModifier {
                     startPoint: .top,
                     endPoint: .bottom
                 )
+                .overlay(alignment: .topTrailing) {
+                    RadialGradient(
+                        colors: [Color.accentColor.opacity(0.16), .clear],
+                        center: .topTrailing,
+                        startRadius: 0,
+                        endRadius: 380
+                    )
+                }
                 .ignoresSafeArea()
-            )
+            }
     }
 }
 

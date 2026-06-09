@@ -179,6 +179,61 @@ struct HomeViewModelTests {
         #expect(copies.count == 2)
     }
 
+    // MARK: - Share
+
+    @Test func shareEmitsSignalAndIsDedupedPerResult() async {
+        let spy = SpyAnalytics()
+        var mock = MockURLCleaningService()
+        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
+        let settings = SettingsStore(
+            standardSuiteName: "test.std.\(UUID().uuidString)",
+            appGroupSuiteName: "test.grp.\(UUID().uuidString)"
+        )
+        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings)
+        let context = ModelContext(HistoryContainer.makeInMemory())
+        vm.setModelContext(context)
+
+        vm.inputText = "https://x.com?utm_source=a"
+        for _ in 0 ..< 200 where spy.events.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        vm.recordShare()
+        vm.recordShare()
+
+        // Repeated shares of one result export once, and write one history row.
+        #expect(spy.events.filter { $0 == .homeURLShared(changed: true) }.count == 1)
+        let rows = try? context.fetch(FetchDescriptor<HistoryEntry>())
+        #expect(rows?.count == 1)
+    }
+
+    @Test func copyThenShareCountsBothButWritesOneHistoryRow() async {
+        let spy = SpyAnalytics()
+        var mock = MockURLCleaningService()
+        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
+        let settings = SettingsStore(
+            standardSuiteName: "test.std.\(UUID().uuidString)",
+            appGroupSuiteName: "test.grp.\(UUID().uuidString)"
+        )
+        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings)
+        let context = ModelContext(HistoryContainer.makeInMemory())
+        vm.setModelContext(context)
+
+        vm.inputText = "https://x.com?utm_source=a"
+        for _ in 0 ..< 200 where spy.events.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        vm.copyCleanedURL()
+        vm.recordShare()
+
+        // Copy and share are distinct exports, but the same output is one history row.
+        #expect(spy.events.contains(.homeURLCopied(changed: true)))
+        #expect(spy.events.contains(.homeURLShared(changed: true)))
+        let rows = try? context.fetch(FetchDescriptor<HistoryEntry>())
+        #expect(rows?.count == 1)
+    }
+
     @Test func cleanedSignalIsDedupedPerDistinctInput() async {
         let spy = SpyAnalytics()
         var mock = MockURLCleaningService()

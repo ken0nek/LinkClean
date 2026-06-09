@@ -40,6 +40,8 @@ struct OnboardingCelebrationPage: View {
             Button(action: onGetStarted) {
                 Text(.onboardingCelebrationGetStarted).primaryButtonLabel()
             }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
             .accessibilityIdentifier("onboarding-get-started")
         }
         .padding(24)

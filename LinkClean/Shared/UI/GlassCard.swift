@@ -7,19 +7,16 @@
 
 import SwiftUI
 
-/// The app's translucent card surface: an ultra-thin material fill with a
-/// subtle hairline stroke, clipped to a continuous rounded rectangle. Shared
-/// so the corner radius and stroke don't drift between cards.
+/// The app's floating card surface: native iOS 26 Liquid Glass clipped to a
+/// continuous rounded rectangle. Shared so the corner radius stays consistent
+/// between cards. Glass adapts to light/dark and draws its own edge, so no
+/// hand-rolled material fill or hairline stroke is needed (and the old
+/// dark-mode-only `white.opacity` stroke is gone).
 private struct GlassCard: ViewModifier {
     var cornerRadius: CGFloat
 
     func body(content: Content) -> some View {
-        content
-            .background(.ultraThinMaterial, in: .rect(cornerRadius: cornerRadius))
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(.white.opacity(0.08))
-            )
+        content.glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
     }
 }
 

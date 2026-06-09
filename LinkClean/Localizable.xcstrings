@@ -474,6 +474,17 @@
         }
       }
     },
+    "home.copy.action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy clean link"
+          }
+        }
+      }
+    },
     "home.input.clear" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -591,6 +602,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Removed"
+          }
+        }
+      }
+    },
+    "home.removed.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to show the removed parameters"
           }
         }
       }

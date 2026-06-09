@@ -34,7 +34,13 @@ public nonisolated enum AnalyticsEvent: Equatable {
         removedKinds: Set<String>
     )
     /// The cleaned URL was copied from Home — the in-app north-star export.
+    /// Deduped per distinct cleaned output, so this counts *distinct exports*,
+    /// not raw tap volume (contrast ``historyEntryActioned``, which fires per tap).
     case homeURLCopied(changed: Bool)
+    /// The cleaned URL was shared from Home via the system share sheet — the
+    /// other half of the in-app export north-star (paired with ``homeURLCopied``,
+    /// and deduped per distinct cleaned output the same way).
+    case homeURLShared(changed: Bool)
     /// Auto-paste found a non-URL on the clipboard (annoyance-rate signal).
     case homeClipboardInvalidPasted
 
@@ -123,6 +129,7 @@ public nonisolated enum AnalyticsEvent: Equatable {
         switch self {
         case .homeURLCleaned: "Home.URL.cleaned"
         case .homeURLCopied: "Home.URL.copied"
+        case .homeURLShared: "Home.URL.shared"
         case .homeClipboardInvalidPasted: "Home.Clipboard.invalidPasted"
         case .historyScreenShown: "History.Screen.shown"
         case .historyEntryActioned: "History.Entry.actioned"
@@ -162,7 +169,8 @@ public nonisolated enum AnalyticsEvent: Equatable {
                 "referenceMatchCount": Bucket.leftoverCount(referenceMatchCount),
                 "removedKinds": Self.kinds(removedKinds),
             ]
-        case let .homeURLCopied(changed):
+        case let .homeURLCopied(changed),
+             let .homeURLShared(changed):
             return ["changed": Self.string(changed)]
         case let .historyScreenShown(entryCount):
             return ["entryCount": Bucket.historySize(entryCount)]

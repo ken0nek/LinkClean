@@ -7,24 +7,27 @@
 
 import SwiftUI
 
-/// The app's filled primary call-to-action styling. Applied to a button's (or
-/// ShareLink's) label content so it works uniformly across both, and so the
-/// radius/padding stay consistent between CTAs instead of drifting per site.
+/// Sizing + weight for the app's primary call-to-action *label* content, so the
+/// CTA fills its container and reads consistently across Buttons and ShareLinks.
+/// The fill itself comes from the native glass button style — pair this with
+/// `.buttonStyle(.glassProminent)` (and usually `.controlSize(.large)`) on the
+/// owning Button/ShareLink:
+///
+/// ```swift
+/// Button(action: …) { Text(…).primaryButtonLabel() }
+///     .buttonStyle(.glassProminent)
+///     .controlSize(.large)
+/// ```
 private struct PrimaryButtonLabel: ViewModifier {
-    var cornerRadius: CGFloat
-
     func body(content: Content) -> some View {
         content
             .font(.body.weight(.semibold))
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(.tint, in: .rect(cornerRadius: cornerRadius))
-            .foregroundStyle(.white)
     }
 }
 
 extension View {
-    func primaryButtonLabel(cornerRadius: CGFloat = 16) -> some View {
-        modifier(PrimaryButtonLabel(cornerRadius: cornerRadius))
+    func primaryButtonLabel() -> some View {
+        modifier(PrimaryButtonLabel())
     }
 }

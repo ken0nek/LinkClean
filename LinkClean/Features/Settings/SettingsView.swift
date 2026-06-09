@@ -30,6 +30,7 @@ struct SettingsView: View {
                     get: { viewModel.autoPasteEnabled },
                     set: { viewModel.setAutoPaste($0) }
                 )) { Text(.settingsClipboardAutoPaste) }
+                    .tint(.accentColor)
                     .accessibilityIdentifier("settings-auto-paste-toggle")
             } header: {
                 Text(.settingsClipboardHeader)
@@ -66,6 +67,7 @@ struct SettingsView: View {
                 )) {
                     Text(.settingsDataSaveHistory)
                 }
+                .tint(.accentColor)
 
                 if viewModel.saveHistoryEnabled {
                     Button(role: .destructive) {

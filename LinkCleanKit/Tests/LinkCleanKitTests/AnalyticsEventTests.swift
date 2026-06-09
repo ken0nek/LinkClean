@@ -14,6 +14,7 @@ struct AnalyticsEventTests {
         let expected: [(AnalyticsEvent, String)] = [
             (.homeURLCleaned(source: .typed, changed: true, removedCount: 0, leftoverCount: 0, referenceMatchCount: 0, removedKinds: []), "Home.URL.cleaned"),
             (.homeURLCopied(changed: true), "Home.URL.copied"),
+            (.homeURLShared(changed: true), "Home.URL.shared"),
             (.homeClipboardInvalidPasted, "Home.Clipboard.invalidPasted"),
             (.historyScreenShown(entryCount: 0), "History.Screen.shown"),
             (.historyEntryActioned(.copy), "History.Entry.actioned"),
@@ -96,6 +97,10 @@ struct AnalyticsEventTests {
 
     @Test func copiedCarriesOnlyChanged() {
         #expect(AnalyticsEvent.homeURLCopied(changed: false).parameters == ["changed": "false"])
+    }
+
+    @Test func sharedCarriesOnlyChanged() {
+        #expect(AnalyticsEvent.homeURLShared(changed: true).parameters == ["changed": "true"])
     }
 
     @Test func markdownSucceededCarriesTitleSourceAndChanged() {

@@ -78,6 +78,8 @@ struct ExtensionGuideView: View {
                 Label { Text(.guideTryItButton) } icon: { Image(systemName: "square.and.arrow.up") }
                     .primaryButtonLabel()
             }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
             .simultaneousGesture(TapGesture().onEnded { viewModel.tryItTapped() })
             .accessibilityIdentifier("guide-try-it")
 

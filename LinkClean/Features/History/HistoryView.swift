@@ -38,6 +38,7 @@ struct HistoryView: View {
             case .populated:
                 List(viewModel.filteredEntries(from: entries)) { entry in
                     HistoryCellView(entry: entry, viewModel: viewModel)
+                        .listRowBackground(Color.clear)
                 }
                 .contentMargins(.top, 8)
                 .searchable(text: $viewModel.searchText)

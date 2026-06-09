@@ -10,6 +10,22 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage(SettingsKeys.hasCompletedOnboarding) private var hasCompletedOnboarding = false
+    @State private var selection: AppTab = .initial
+
+    enum AppTab: Hashable {
+        case home, history, settings
+
+        /// Production launches always start on Home; DEBUG screenshot/testing
+        /// builds can deep-link to a tab with `-tab-history` / `-tab-settings`.
+        static var initial: AppTab {
+            #if DEBUG
+            let arguments = ProcessInfo.processInfo.arguments
+            if arguments.contains("-tab-history") { return .history }
+            if arguments.contains("-tab-settings") { return .settings }
+            #endif
+            return .home
+        }
+    }
 
     var body: some View {
         Group {
@@ -26,28 +42,34 @@ struct ContentView: View {
     }
 
     private var mainTabs: some View {
-        TabView {
-            NavigationStack {
-                HomeView()
-            }
-            .tabItem {
+        TabView(selection: $selection) {
+            Tab(value: AppTab.home) {
+                NavigationStack {
+                    HomeView()
+                }
+            } label: {
                 Label { Text(.tabHome) } icon: { Image(systemName: "house") }
             }
 
-            NavigationStack {
-                HistoryView()
-            }
-            .tabItem {
+            Tab(value: AppTab.history) {
+                NavigationStack {
+                    HistoryView()
+                }
+            } label: {
                 Label { Text(.tabHistory) } icon: { Image(systemName: "clock") }
             }
 
-            NavigationStack {
-                SettingsView()
-            }
-            .tabItem {
+            Tab(value: AppTab.settings) {
+                NavigationStack {
+                    SettingsView()
+                }
+            } label: {
                 Label { Text(.tabSettings) } icon: { Image(systemName: "gearshape") }
             }
         }
+        // iOS 26: the tab bar recedes as the user scrolls into content (Home and
+        // History are scroll views), then returns on scroll-up.
+        .tabBarMinimizeBehavior(.onScrollDown)
     }
 }
 

@@ -70,33 +70,40 @@ struct HistoryCellView: View {
 
             Spacer(minLength: 0)
 
-            HStack(spacing: 8) {
-                Button {
-                    viewModel.copyURL(for: entry)
-                } label: {
-                    Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(didCopy ? .green : .secondary)
-                        .frame(width: 34, height: 34)
-                        .background(.ultraThinMaterial, in: Circle())
-                }
-                .buttonStyle(.borderless)
-                .symbolEffect(.bounce, value: didCopy)
-                .accessibilityLabel(didCopy ? Text(.commonCopied) : Text(.commonCopyCleanedUrl))
+            GlassEffectContainer(spacing: 6) {
+                HStack(spacing: 6) {
+                    Button {
+                        viewModel.copyURL(for: entry)
+                    } label: {
+                        Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(didCopy ? .green : .secondary)
+                            .frame(width: 38, height: 38)
+                            .glassEffect(.regular.interactive(), in: .circle)
+                            .frame(width: 44, height: 44)
+                            .contentShape(.circle)
+                    }
+                    .buttonStyle(.borderless)
+                    .symbolEffect(.bounce, value: didCopy)
+                    .accessibilityLabel(didCopy ? Text(.commonCopied) : Text(.commonCopyCleanedUrl))
 
-                ShareLink(item: entry.output) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .frame(width: 34, height: 34)
-                        .background(.ultraThinMaterial, in: Circle())
+                    ShareLink(item: entry.output) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 38, height: 38)
+                            .glassEffect(.regular.interactive(), in: .circle)
+                            .frame(width: 44, height: 44)
+                            .contentShape(.circle)
+                    }
+                    .buttonStyle(.borderless)
+                    .simultaneousGesture(TapGesture().onEnded { viewModel.recordShared(for: entry) })
+                    .accessibilityLabel(Text(.historyCellShare))
                 }
-                .buttonStyle(.borderless)
-                .simultaneousGesture(TapGesture().onEnded { viewModel.recordShared(for: entry) })
-                .accessibilityLabel(Text(.historyCellShare))
             }
         }
         .padding(.vertical, 4)
+        .sensoryFeedback(trigger: didCopy) { _, didCopy in didCopy ? .success : nil }
         .task(id: entry.id) {
             viewModel.fetchMetadataIfNeeded(for: entry)
         }

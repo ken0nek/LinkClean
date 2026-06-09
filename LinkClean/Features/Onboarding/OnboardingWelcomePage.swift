@@ -28,8 +28,7 @@ struct OnboardingWelcomePage: View {
                 .font(.system(size: 52, weight: .semibold))
                 .foregroundStyle(.tint)
                 .frame(width: 96, height: 96)
-                .background(.ultraThinMaterial, in: Circle())
-                .overlay(Circle().stroke(.white.opacity(0.12)))
+                .glassEffect(in: .circle)
 
             VStack(spacing: 10) {
                 Text(.onboardingWelcomeTitle)
@@ -59,6 +58,8 @@ struct OnboardingWelcomePage: View {
             Button(action: onContinue) {
                 Text(.onboardingWelcomeContinue).primaryButtonLabel()
             }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
             .accessibilityIdentifier("onboarding-continue")
         }
         .padding(24)
