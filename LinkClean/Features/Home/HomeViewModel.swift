@@ -375,7 +375,8 @@ final class HomeViewModel {
             removedCount: result.removedCount,
             leftoverCount: result.leftoverCount,
             referenceMatchCount: result.referenceMatches.count,
-            removedKinds: result.removedKindIDs
+            removedKinds: result.removedKindIDs,
+            domain: URLCleaner.analyticsDomain(from: result.input)
         ))
         // Tier 1: one signal per known-but-not-default tracker left behind, so
         // the default catalog can grow from real links. Names are public

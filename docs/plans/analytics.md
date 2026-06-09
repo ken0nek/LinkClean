@@ -42,7 +42,7 @@ LinkClean's entire value proposition is stripping tracking from URLs. The analyt
 
 **Never collect:**
 
-- URLs, hosts/domains, query strings, or any clipboard content — not even hashed
+- Full URLs, URL paths, query strings, query *values*, or any clipboard content — not even hashed
 - Page titles or thumbnails
 - Custom parameter *names* (free-text user input; could contain anything) — track counts only
 - Search query text — track that search was used, never what was searched
@@ -54,6 +54,11 @@ LinkClean's entire value proposition is stripping tracking from URLs. The analyt
 - Catalog-gap counts (how many parameters a clean left behind; how many matched the bundled reference list) and which built-in *categories* fired (`utm`, `ads`, …) — see [parameter-telemetry.md](parameter-telemetry.md) Tier 0
 - Names from the bundled **reference catalog** of known trackers (`ReferenceParameterCatalog`) — finite and public, the same risk class as built-in default names (Tier 1)
 - TelemetryDeck's default parameters (app version, OS, device model, locale, `extensionIdentifier`)
+
+**Collected, with disclosure (added 2026-06-09):**
+
+- The **site domain** (host) of a cleaned link — e.g. `youtube.com` — on `Home.URL.cleaned` and `Action.Clean.succeeded` only. Lowercased with a leading `www.` stripped (`URLCleaner.analyticsDomain`); other subdomains preserved. A deliberate, product-approved exception to the host rule above: it answers *which sites are cleaned most* (site-popularity → per-site-rule prioritization). Only the host — never the path, query keys, or values.
+- **Ship gate.** Because this is URL-derived, it is browsing-adjacent data. Before it reaches production it **requires** (a) the App Store privacy **nutrition label** updated to disclose browsing-history-type collection, and (b) a line in the public **privacy policy** stating site domains (never full URLs or values) are collected. "We never see your URLs" still holds; "we never see which sites" does not — keep public wording precise.
 
 **Other commitments:**
 
@@ -86,7 +91,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Home.URL.cleaned` | Valid URL produced a cleaned result (once per distinct input) | `source: autoPaste\|manualPaste\|typed`, `changed: true\|false`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none` | Volume; how URLs arrive; how often cleaning changes anything; catalog-gap size and which categories fire (`parameter-telemetry.md` Tier 0) |
+| `Home.URL.cleaned` | Valid URL produced a cleaned result (once per distinct input) | `source: autoPaste\|manualPaste\|typed`, `changed: true\|false`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>` | Volume; how URLs arrive; how often cleaning changes anything; catalog-gap size and which categories fire (`parameter-telemetry.md` Tier 0); which sites are cleaned most (§3) |
 | `Home.URL.copied` | Copy button tapped | `changed` | Home-flow conversion (cleaned → exported) |
 | `Home.Clipboard.invalidPasted` | Auto-paste found non-URL (toast shown) | — | Auto-paste annoyance rate; whether it should stay default-on |
 
@@ -124,7 +129,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none` | Extension volume — the habit metric; plus catalog-gap signals on the extension surface (`parameter-telemetry.md` Tier 0). Per-match `Parameters.Reference.observed` is emitted after this signal (§8 convergence) |
+| `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>` | Extension volume — the habit metric; plus catalog-gap signals and which sites are cleaned most (§3) on the extension surface (`parameter-telemetry.md` Tier 0). Per-match `Parameters.Reference.observed` is emitted after this signal (§8 convergence) |
 | `Action.Clean.failed` | No URL extractable from host input | `reason: noURL\|invalidInput` | Host-app compatibility gaps (e.g. the known Google Maps issue) |
 | `Action.Markdown.succeeded` | Markdown action copied `[title](url)` | `titleSource: javascript\|linkPresentation\|urlOnly`, `changed` | Markdown adoption (premium candidate); title-extraction reliability by path |
 | `Action.Markdown.failed` | Extraction failed | `reason` | Reliability |

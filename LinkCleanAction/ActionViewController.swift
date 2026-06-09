@@ -33,7 +33,8 @@ class ActionViewController: ActionExtensionViewController {
                 removedCount: result.removedCount,
                 leftoverCount: result.leftoverCount,
                 referenceMatchCount: result.referenceMatches.count,
-                removedKinds: result.removedKindIDs
+                removedKinds: result.removedKindIDs,
+                domain: URLCleaner.analyticsDomain(from: url)
             ))
             // Tier 1 catalog-gap names. Emitted after the success signal so the
             // priority event uses the scarce in-process network window first;

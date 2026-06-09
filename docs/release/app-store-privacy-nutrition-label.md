@@ -11,19 +11,23 @@ LinkClean's only data egress is TelemetryDeck analytics. The Markdown/History ti
 
 ## Step 2 — Data types
 
-Declare exactly two, both for **Analytics** purpose only:
+Declare exactly three, all for **Analytics** purpose only:
 
 | Apple data type | Category | Collected? | Linked to identity? | Used for tracking? | Purpose |
 |---|---|---|---|---|---|
 | **Device ID** | Identifiers | Yes | **No** | **No** | Analytics |
 | **Product Interaction** | Usage Data | Yes | **No** | **No** | Analytics |
+| **Browsing History** | Browsing History | Yes | **No** | **No** | Analytics |
 
-Everything else — Contact Info, Health, Financial, Location (precise *or* coarse), Contacts, User Content, Browsing History, Search History, Purchases, Diagnostics, etc. — **No, not collected.**
+**Browsing History** covers the **site domain of cleaned links** (host only, e.g. `youtube.com`) added to the clean events on 2026-06-09 (`docs/plans/analytics.md` §3 "Collected, with disclosure"). Only the host is sent — never the full URL, path, query string, or values — but because it is the domain of a site the user is acting on, Apple's **Browsing History** is the correct, conservative bucket (under-declaring risks an App Review rejection; over-declaring is safe). Still Not Linked, Not Tracking.
+
+Everything else — Contact Info, Health, Financial, Location (precise *or* coarse), Contacts, User Content, Search History, Purchases, Diagnostics, etc. — **No, not collected.**
 
 Notes on specific tempting-but-no entries:
 - **Location:** No. LinkClean sends *locale/region* (e.g. `en_US`) as standard metadata; that is not "Location" in Apple's sense, and TelemetryDeck stores no IP address.
 - **Diagnostics / Crash / Performance Data:** No. LinkClean sends no crash or performance telemetry.
-- **Search History / Browsing History:** No. "History.Search.used" records only *that* a search happened, never the query; cleaned links are never transmitted.
+- **Search History:** No. "History.Search.used" records only *that* a search happened, never the query.
+- **Browsing History:** **Yes** (added 2026-06-09) — the **site domain** of cleaned links (host only, e.g. `youtube.com`); never the full link, path, query, or values, which still never leave the device. Declared in the table above.
 - **Purchases:** No for 1.0.0 (no IAP). **When RevenueCat ships in 1.1.0, add `Purchase History` → Analytics.**
 
 ## Step 3 — Tracking
@@ -42,4 +46,4 @@ TelemetryDeck's SwiftSDK 1.5.0+ bundles a **Privacy Manifest** that auto-declare
 
 ## One-line summary for the submission
 
-> LinkClean collects anonymous Device ID and Product Interaction data for Analytics only — not linked to identity, not used for tracking. Nothing about the links you clean is ever collected.
+> LinkClean collects anonymous Device ID, Product Interaction, and the site domain of cleaned links (Browsing History) for Analytics only — not linked to identity, not used for tracking. Only a cleaned link's domain is ever sent; the full link, its path, query, and values never leave the device.

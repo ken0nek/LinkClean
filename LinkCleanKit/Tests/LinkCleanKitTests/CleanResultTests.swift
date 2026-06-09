@@ -158,4 +158,43 @@ struct CleanResultTests {
         #expect(result.referenceMatches.isEmpty)
         #expect(result.leftoverCount == 3)
     }
+
+    // MARK: - Analytics domain (site-popularity signal, analytics.md §3)
+
+    @Test func analyticsDomainLowercasesAndStripsLeadingWWW() {
+        #expect(URLCleaner.analyticsDomain(from: "https://www.YouTube.com/watch?v=abc&si=x") == "youtube.com")
+        #expect(URLCleaner.analyticsDomain(from: "https://X.com/foo?s=20") == "x.com")
+    }
+
+    @Test func analyticsDomainPreservesNonWWWSubdomains() {
+        // Only `www.` is stripped — `m.`/shorteners stay distinct for now.
+        #expect(URLCleaner.analyticsDomain(from: "https://m.youtube.com/watch?v=abc") == "m.youtube.com")
+    }
+
+    @Test func analyticsDomainReturnsUnknownWhenNoHost() {
+        #expect(URLCleaner.analyticsDomain(from: "mailto:hi@example.com") == "unknown")
+        #expect(URLCleaner.analyticsDomain(from: "not a url") == "unknown")
+    }
+
+    @Test func analyticsDomainURLOverloadMatchesStringOverload() {
+        let url = URL(string: "https://www.amazon.com/dp/B0?tag=aff")!
+        #expect(URLCleaner.analyticsDomain(from: url) == "amazon.com")
+    }
+
+    @Test func analyticsDomainStripsTrailingRootDot() {
+        // A fully-qualified host (`youtube.com.`) must aggregate with the common form.
+        #expect(URLCleaner.analyticsDomain(from: "https://youtube.com./watch?v=x") == "youtube.com")
+        #expect(URLCleaner.analyticsDomain(from: "https://www.youtube.com./x") == "youtube.com")
+    }
+
+    @Test func analyticsDomainDoesNotOverStripWWWLikeLabels() {
+        // `hasPrefix("www.")` (with the dot) must not strip `www2`.
+        #expect(URLCleaner.analyticsDomain(from: "https://www2.example.com/x") == "www2.example.com")
+    }
+
+    @Test func analyticsDomainKeepsOnlyHostNeverUserinfoPortOrPath() {
+        // Privacy lock (analytics.md §3): only the bare host ever leaves — never
+        // userinfo, port, path, query, or fragment.
+        #expect(URLCleaner.analyticsDomain(from: "https://user:pass@host.com:8443/p?token=SECRET#frag") == "host.com")
+    }
 }

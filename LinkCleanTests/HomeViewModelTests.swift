@@ -113,7 +113,7 @@ struct HomeViewModelTests {
 
         #expect(spy.events == [.homeURLCleaned(
             source: .manualPaste, changed: true, removedCount: 1,
-            leftoverCount: 0, referenceMatchCount: 0, removedKinds: []
+            leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "x.com"
         )])
 
         vm.copyCleanedURL()
@@ -251,7 +251,7 @@ struct HomeViewModelTests {
 
         let expected = AnalyticsEvent.homeURLCleaned(
             source: .manualPaste, changed: true, removedCount: 1,
-            leftoverCount: 0, referenceMatchCount: 0, removedKinds: []
+            leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "x.com"
         )
         #expect(spy.events.filter { $0 == expected }.count == 1)
     }

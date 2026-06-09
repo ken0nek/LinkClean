@@ -195,4 +195,39 @@ public nonisolated enum URLCleaner {
         let result = cleanResult(url.absoluteString, removing: parameters)
         return (URL(string: result.cleaned) ?? url, result)
     }
+
+    /// The lowercased host of `urlString` for site-popularity analytics, with a
+    /// leading `www.` and any trailing root dot stripped
+    /// (`https://www.YouTube.com./watch?v=x` → `"youtube.com"`); `"unknown"` when
+    /// no host can be parsed. Subdomains other
+    /// than `www.` are preserved, so `m.youtube.com` stays distinct from
+    /// `youtube.com` (cheap to map together later if desired).
+    ///
+    /// Unlike every other path in this type, this **intentionally** derives an
+    /// analytics value from URL content — the deliberate, disclosed exception to
+    /// the "nothing URL-derived leaves the device" rule (`analytics.md` §3),
+    /// answering *which sites are cleaned most*. It is the only host signal
+    /// `AnalyticsEvent` is permitted to carry; full URLs, paths, query strings,
+    /// and values still never leave the device.
+    public static func analyticsDomain(from urlString: String) -> String {
+        guard var host = URLComponents(string: urlString)?.host?.lowercased(), !host.isEmpty else {
+            return "unknown"
+        }
+        // A fully-qualified host may carry a trailing root dot (`youtube.com.`);
+        // drop it so it aggregates with the common form.
+        if host.hasSuffix(".") {
+            host.removeLast()
+        }
+        // Strip a leading `www.`, but only when a real label remains.
+        if host.hasPrefix("www."), host.count > 4 {
+            host.removeFirst(4)
+        }
+        return host.isEmpty ? "unknown" : host
+    }
+
+    /// `URL` overload of ``analyticsDomain(from:)-(String)`` for call sites that
+    /// already hold a parsed `URL` (the Clean action extension).
+    public static func analyticsDomain(from url: URL) -> String {
+        analyticsDomain(from: url.absoluteString)
+    }
 }

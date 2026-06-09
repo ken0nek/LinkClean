@@ -12,7 +12,7 @@ struct AnalyticsEventTests {
 
     @Test func signalNamesMatchTaxonomy() {
         let expected: [(AnalyticsEvent, String)] = [
-            (.homeURLCleaned(source: .typed, changed: true, removedCount: 0, leftoverCount: 0, referenceMatchCount: 0, removedKinds: []), "Home.URL.cleaned"),
+            (.homeURLCleaned(source: .typed, changed: true, removedCount: 0, leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "example.com"), "Home.URL.cleaned"),
             (.homeURLCopied(changed: true), "Home.URL.copied"),
             (.homeURLShared(changed: true), "Home.URL.shared"),
             (.homeClipboardInvalidPasted, "Home.Clipboard.invalidPasted"),
@@ -32,7 +32,7 @@ struct AnalyticsEventTests {
             (.onboardingFlowCompleted, "Onboarding.Flow.completed"),
             (.onboardingFlowSkipped, "Onboarding.Flow.skipped"),
             (.onboardingExtensionGuideShown(source: .onboarding), "Onboarding.ExtensionGuide.shown"),
-            (.actionCleanSucceeded(changed: true, removedCount: 1, leftoverCount: 0, referenceMatchCount: 0, removedKinds: []), "Action.Clean.succeeded"),
+            (.actionCleanSucceeded(changed: true, removedCount: 1, leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "example.com"), "Action.Clean.succeeded"),
             (.actionCleanFailed(reason: .noURL), "Action.Clean.failed"),
             (.actionMarkdownSucceeded(titleSource: .javascript, changed: true), "Action.Markdown.succeeded"),
             (.actionMarkdownFailed(reason: .invalidInput), "Action.Markdown.failed"),
@@ -51,7 +51,8 @@ struct AnalyticsEventTests {
     @Test func cleanedCarriesSourceChangedAndBucketedRemovedCount() {
         let params = AnalyticsEvent.homeURLCleaned(
             source: .autoPaste, changed: true, removedCount: 3,
-            leftoverCount: 2, referenceMatchCount: 1, removedKinds: ["utm", "ads"]
+            leftoverCount: 2, referenceMatchCount: 1, removedKinds: ["utm", "ads"],
+            domain: "youtube.com"
         ).parameters
         #expect(params == [
             "source": "autoPaste",
@@ -60,25 +61,45 @@ struct AnalyticsEventTests {
             "leftoverCount": "2",
             "referenceMatchCount": "1",
             "removedKinds": "ads,utm",
+            "domain": "youtube.com",
         ])
     }
 
     @Test func cleanedCarriesCatalogGapSignals() {
         let params = AnalyticsEvent.actionCleanSucceeded(
             changed: true, removedCount: 1,
-            leftoverCount: 6, referenceMatchCount: 0, removedKinds: []
+            leftoverCount: 6, referenceMatchCount: 0, removedKinds: [],
+            domain: "x.com"
         ).parameters
         #expect(params["leftoverCount"] == "5+")
         #expect(params["referenceMatchCount"] == "0")
         #expect(params["removedKinds"] == "none")
+        #expect(params["domain"] == "x.com")
     }
 
     @Test func removedKindsAreSortedAndJoined() {
         let params = AnalyticsEvent.homeURLCleaned(
             source: .typed, changed: true, removedCount: 4,
-            leftoverCount: 0, referenceMatchCount: 0, removedKinds: ["social", "ads", "utm"]
+            leftoverCount: 0, referenceMatchCount: 0, removedKinds: ["social", "ads", "utm"],
+            domain: "example.com"
         ).parameters
         #expect(params["removedKinds"] == "ads,social,utm")
+    }
+
+    @Test func cleanEventsCarryTheSiteDomainVerbatim() {
+        // The disclosed site-popularity signal (analytics.md §3): the host is
+        // already normalized by URLCleaner.analyticsDomain, so the event passes it
+        // through unchanged on both clean events.
+        let home = AnalyticsEvent.homeURLCleaned(
+            source: .typed, changed: true, removedCount: 1,
+            leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "youtube.com"
+        ).parameters
+        let action = AnalyticsEvent.actionCleanSucceeded(
+            changed: true, removedCount: 1,
+            leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "youtube.com"
+        ).parameters
+        #expect(home["domain"] == "youtube.com")
+        #expect(action["domain"] == "youtube.com")
     }
 
     @Test func referenceObservedCarriesTheName() {
@@ -89,14 +110,17 @@ struct AnalyticsEventTests {
     @Test func cleanEventParameterSurfaceIsCountsAndEnumsOnly() {
         // Pins the clean event's parameter surface so a future change can't
         // silently add a name-bearing key: catalog-gap data rides as counts only,
-        // never as leftover key names. (That referenceMatches itself can only
-        // ever hold public reference names is guarded at the source in
+        // never as leftover key names. `domain` is the one intentional URL-derived
+        // key (the disclosed site-popularity signal, analytics.md §3); this pins
+        // that *no other* name-bearing key joins it. (That referenceMatches itself
+        // can only ever hold public reference names is guarded at the source in
         // CleanResultTests.novelLeftoverNamesNeverBecomeReferenceMatches.)
         let home = AnalyticsEvent.homeURLCleaned(
             source: .typed, changed: false, removedCount: 0,
-            leftoverCount: 3, referenceMatchCount: 2, removedKinds: []
+            leftoverCount: 3, referenceMatchCount: 2, removedKinds: [],
+            domain: "example.com"
         ).parameters
-        #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds"])
+        #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain"])
     }
 
     @Test func copiedCarriesOnlyChanged() {
@@ -156,7 +180,8 @@ struct AnalyticsEventTests {
         func bucket(_ n: Int) -> String? {
             AnalyticsEvent.actionCleanSucceeded(
                 changed: true, removedCount: n,
-                leftoverCount: 0, referenceMatchCount: 0, removedKinds: []
+                leftoverCount: 0, referenceMatchCount: 0, removedKinds: [],
+                domain: "example.com"
             ).parameters["removedCount"]
         }
         #expect(bucket(0) == "0")

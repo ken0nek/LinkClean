@@ -16,7 +16,7 @@ MAKE IT YOURS
 • Keep a searchable History of everything you've cleaned — ready to copy, share, re-clean, or reopen
 
 PRIVATE BY DESIGN
-Cleaning happens entirely on your device. The links you clean are never sent to us or to anyone else. LinkClean uses only anonymous, aggregate analytics to learn which features matter — never the contents of your links. See the privacy policy for the full picture.
+Cleaning happens entirely on your device, and the full links you clean never leave it — not the path, the parameters, or any values. LinkClean uses only anonymous, aggregate analytics to learn which features matter; the one thing it notes about a cleaned link is its site domain (like youtube.com), never the full link. See the privacy policy for the full picture.
 
 Built for iOS 26 with a fast, native, Liquid Glass interface.
 

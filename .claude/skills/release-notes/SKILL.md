@@ -44,7 +44,7 @@ fi
 
 ## Step 3 — Draft (en-US)
 
-House style: a one-line lead, a blank line, then `•` bullets, concise — keep to ~3–5 bullets. Lean on the `copywriting` skill for warmth and concision. The shipped 1.0 "What's New" (from `docs/release/app-store-metadata.md`) is the style anchor:
+House style: a one-line lead, a blank line, then `•` bullets, concise — keep to ~3–5 bullets. Lean on the `copywriting` skill for warmth and concision. The shipped 1.0 "What's New" (from `fastlane/metadata/en-US/release_notes.txt`) is the style anchor:
 
 ```
 Welcome to LinkClean 1.0!

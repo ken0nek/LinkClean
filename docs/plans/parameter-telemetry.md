@@ -104,7 +104,9 @@ Pure structure and behavior; nothing derived from key/value content.
 
 ### Tier 3 — never
 
-Parameter **values**; host/domain; the **full key-set of one URL in one event** (reassembles the page fingerprint).
+Parameter **values**; the **full key-set of one URL in one event** (reassembles the page fingerprint).
+
+> **Host/domain — reversed 2026-06-09 by product decision.** This line previously also said "never host/domain." The cleaned link's *site domain* (host only — no path, keys, or values) is now sent on `Home.URL.cleaned` / `Action.Clean.succeeded` to answer "which sites are cleaned most." See `analytics.md` §3 ("Collected, with disclosure") for the rationale and the nutrition-label + privacy-policy ship gate. Parameter values and the full per-URL key-set remain never-collect.
 
 ## 7. Mitigations for the novel tail (Tier 2)
 

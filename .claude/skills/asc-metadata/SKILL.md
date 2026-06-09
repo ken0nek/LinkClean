@@ -5,7 +5,7 @@ description: Research and update the App Store Connect listing copy for LinkClea
 
 # App Store Connect metadata
 
-Update LinkClean's evergreen listing copy under `fastlane/metadata/`. Use `app-store-optimization` for keyword research / ASO strategy and `copywriting` for the actual prose — this skill's job is to apply them within LinkClean's hard constraints and stage them for upload. The drafted source of truth (rationale + current counts) is **`docs/release/app-store-metadata.md`** — read it first; it explains *why* each field reads the way it does.
+Update LinkClean's evergreen listing copy under `fastlane/metadata/`. Use `app-store-optimization` for keyword research / ASO strategy and `copywriting` for the actual prose — this skill's job is to apply them within LinkClean's hard constraints and stage them for upload. The rationale and constraints behind each field live in **`docs/release/app-store-metadata.md`** — read it first; it explains *why* each field reads the way it does. The actual copy is the canonical text under `fastlane/metadata/en-US/`.
 
 ## The fields (and their hard caps)
 
@@ -34,7 +34,7 @@ Caps are enforced by App Store Connect — over-limit copy is rejected at upload
 
 ## Current gaps to flag (verify, don't assume — state as of this writing)
 
-- **Privacy Policy URL must be live before you can submit.** `en-US/privacy_url.txt` → `https://ken0nek.com/apps/linkclean/privacy-policy/` (TODO #7) — confirm it resolves; the draft notes it currently 404s. The policy text is drafted at `docs/release/privacy-policy.md`.
+- **Privacy Policy URL must be live before you can submit.** `en-US/privacy_url.txt` → `https://ken0nek.com/apps/linkclean/privacy-policy/` — confirm it resolves. The policy is published from the `ken0nek.github.io` repo (`apps/linkclean/privacy-policy/index.html`); `docs/release/privacy-policy.md` is a pointer/stub with internal notes, not the policy text.
 - **Support URL** (`en-US/support_url.txt`) points at `https://github.com/ken0nek` — replace with a real support page when one exists.
 - **Review info** under `fastlane/metadata/review_information/` — `demo_user`/`demo_password` are intentionally blank (no login); confirm email/name/notes/phone are filled.
 - **Marketing URL** is intentionally omitted (optional in ASC).
