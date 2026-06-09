@@ -1,0 +1,1125 @@
+{
+  "title": "LinkClean — Core Usage",
+  "insights": [
+    {
+      "title": "New installs per day",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 0,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "TelemetryDeck.Acquisition.newInstallDetected"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "installs",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "DAU — unique users",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 1,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "TelemetryDeck.Session.started"
+        },
+        "aggregations": [
+          {
+            "type": "thetaSketch",
+            "name": "_dauSketch",
+            "fieldName": "clientUser"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "thetaSketchEstimate",
+            "name": "dau",
+            "field": {
+              "type": "fieldAccess",
+              "fieldName": "_dauSketch"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "WAU — unique users (weekly)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "week",
+      "filters": {},
+      "order": 2,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "week",
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "TelemetryDeck.Session.started"
+        },
+        "aggregations": [
+          {
+            "type": "thetaSketch",
+            "name": "_wauSketch",
+            "fieldName": "clientUser"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "thetaSketchEstimate",
+            "name": "wau",
+            "field": {
+              "type": "fieldAccess",
+              "fieldName": "_wauSketch"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Activation — installs that reached a first export (lifetime proxy)",
+      "type": "customQuery",
+      "displayMode": "bigNumber",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 3,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+            { "type": "selector", "dimension": "type", "value": "Home.URL.shared" },
+            { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "Action.Markdown.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "TelemetryDeck.Acquisition.newInstallDetected" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "or",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+                { "type": "selector", "dimension": "type", "value": "Home.URL.shared" },
+                { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+                { "type": "selector", "dimension": "type", "value": "Action.Markdown.succeeded" }
+              ]
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_exporters",
+              "fieldName": "clientUser"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "TelemetryDeck.Acquisition.newInstallDetected"
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_installs",
+              "fieldName": "clientUser"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "activationRate",
+            "fn": "/",
+            "fields": [
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_exporters" },
+                "name": "_exportersEstimate"
+              },
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_installs" },
+                "name": "_installsEstimate"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Onboarding completion rate",
+      "type": "customQuery",
+      "displayMode": "bigNumber",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 4,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Onboarding.Flow.completed" },
+            { "type": "selector", "dimension": "type", "value": "Onboarding.Flow.skipped" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Onboarding.Flow.completed"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_completed",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "or",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "Onboarding.Flow.completed" },
+                { "type": "selector", "dimension": "type", "value": "Onboarding.Flow.skipped" }
+              ]
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_total",
+              "fieldName": "count"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "completionRate",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_completed" },
+              { "type": "fieldAccess", "fieldName": "_total" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Extension-guide reach by source (unique users)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 5,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["source"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Onboarding.ExtensionGuide.shown"
+        },
+        "aggregations": [
+          {
+            "type": "thetaSketch",
+            "name": "_guideUsers",
+            "fieldName": "clientUser"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "thetaSketchEstimate",
+            "name": "guideUsers",
+            "field": {
+              "type": "fieldAccess",
+              "fieldName": "_guideUsers"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Home cleans per day",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 6,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Home.URL.cleaned"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "cleans",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "North-star — exports per day by surface (app copy/share, Clean ext, Markdown ext)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 7,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["type"],
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+            { "type": "selector", "dimension": "type", "value": "Home.URL.shared" },
+            { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "Action.Markdown.succeeded" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "exports",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Surface mix — app vs extension exports per day",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 8,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+            { "type": "selector", "dimension": "type", "value": "Home.URL.shared" },
+            { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "Action.Markdown.succeeded" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "or",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+                { "type": "selector", "dimension": "type", "value": "Home.URL.shared" }
+              ]
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "appExports",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "or",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+                { "type": "selector", "dimension": "type", "value": "Action.Markdown.succeeded" }
+              ]
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "extensionExports",
+              "fieldName": "count"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Home clean → export conversion",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 9,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Home.URL.cleaned" },
+            { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+            { "type": "selector", "dimension": "type", "value": "Home.URL.shared" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "or",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+                { "type": "selector", "dimension": "type", "value": "Home.URL.shared" }
+              ]
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_homeExports",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Home.URL.cleaned"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_homeCleans",
+              "fieldName": "count"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "homeExportRate",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_homeExports" },
+              { "type": "fieldAccess", "fieldName": "_homeCleans" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "URL-changed rate (Home cleans that altered the URL)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 10,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Home.URL.cleaned"
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "and",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "Home.URL.cleaned" },
+                { "type": "selector", "dimension": "changed", "value": "true" }
+              ]
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_changed",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "longSum",
+            "name": "_allCleans",
+            "fieldName": "count"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "changedRate",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_changed" },
+              { "type": "fieldAccess", "fieldName": "_allCleans" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Exports per active user per week (north-star, healthy ≥3)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "week",
+      "filters": {},
+      "order": 11,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "week",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+            { "type": "selector", "dimension": "type", "value": "Home.URL.shared" },
+            { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "Action.Markdown.succeeded" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "_exports",
+            "fieldName": "count"
+          },
+          {
+            "type": "thetaSketch",
+            "name": "_exportUsers",
+            "fieldName": "clientUser"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "exportsPerActiveUser",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_exports" },
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_exportUsers" },
+                "name": "_exportUsersEstimate"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Home cleans by input source",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 12,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["source"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Home.URL.cleaned"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "cleans",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Auto-paste invalid pastes per day (annoyance)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 13,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Home.Clipboard.invalidPasted"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "invalidPastes",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Custom parameters — view → add conversion (unique users)",
+      "type": "customQuery",
+      "displayMode": "bigNumber",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 14,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Parameters.Custom.shown" },
+            { "type": "selector", "dimension": "type", "value": "Parameters.Custom.added" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Parameters.Custom.added"
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_adders",
+              "fieldName": "clientUser"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Parameters.Custom.shown"
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_viewers",
+              "fieldName": "clientUser"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "viewToAddRate",
+            "fn": "/",
+            "fields": [
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_adders" },
+                "name": "_addersEstimate"
+              },
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_viewers" },
+                "name": "_viewersEstimate"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Custom parameter depth distribution (per user)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 15,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["totalCount"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Parameters.Custom.added"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "adds",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "History size distribution",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 16,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["entryCount"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "History.Screen.shown"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "views",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "History export-path mix",
+      "type": "customQuery",
+      "displayMode": "pieChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 17,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["action"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "History.Entry.actioned"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "actions",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Save-history opt-out (toggle state when changed)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 18,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["enabled"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Settings.SaveHistory.toggled"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "toggles",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Markdown actions per day by title source",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 19,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["titleSource"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Action.Markdown.succeeded"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "markdownActions",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Catalog gap — top reference trackers slipping through defaults",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 20,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["parameter"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Parameters.Reference.observed"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "occurrences",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Leftover-parameter count distribution (Home cleans)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 21,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["leftoverCount"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Home.URL.cleaned"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "cleans",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Removed tracker categories mix (Home cleans)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 22,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["removedKinds"],
+        "filter": {
+          "type": "and",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Home.URL.cleaned" },
+            { "type": "selector", "dimension": "changed", "value": "true" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "cleans",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Extension clean failures by reason",
+      "type": "customQuery",
+      "displayMode": "pieChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 23,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["reason"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Action.Clean.failed"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "failures",
+            "fieldName": "count"
+          }
+        ]
+      }
+    }
+  ],
+  "_exportMetadata": {
+    "version": 1,
+    "exportedAt": "2026-06-09T00:00:00.000Z",
+    "note": "Core product-usage metrics — acquisition, activation, the clean→export loop, surface mix (app vs Clean ext vs Markdown ext), feature adoption, and catalog-gap health. Relevant in any phase, before or after monetization. Hand-authored from docs/strategy/kpis.md (Phase 1); import-only via TelemetryDeck UI; treat as durable source of truth. Uses only events shipped in LinkClean 1.0. DAU/installs read TelemetryDeck's built-in signals: verify the exact type strings in your instance (renamed in SDK 2.0). Companion: Dashboard-LinkClean-Monetization.json (IAP funnel + paid-tier, lights up at 1.1).",
+    "dynamicFields": [
+      {
+        "type": "event",
+        "name": "TelemetryDeck.Session.started",
+        "hint": "SDK-automatic, once per app session/cold start. Unique clientUser per day = DAU. Renamed from `newSessionBegan` in SDK 2.0 — verify the live type string if this reads empty."
+      },
+      {
+        "type": "event",
+        "name": "TelemetryDeck.Acquisition.newInstallDetected",
+        "hint": "SDK-automatic, fired on the first-ever session of an install. The acquisition denominator."
+      },
+      {
+        "type": "event",
+        "name": "Home.URL.cleaned",
+        "hint": "A valid URL produced a cleaned result in the app (once per distinct input). Carries source, changed, removedCount, leftoverCount, referenceMatchCount, removedKinds."
+      },
+      {
+        "type": "event",
+        "name": "Home.URL.copied",
+        "hint": "Cleaned URL copied from Home — half the in-app export north-star. Carries changed."
+      },
+      {
+        "type": "event",
+        "name": "Home.URL.shared",
+        "hint": "Cleaned URL shared from Home via the share sheet — the other half of the in-app export north-star. Carries changed. (Shipped in code; not yet in analytics.md §6.)"
+      },
+      {
+        "type": "event",
+        "name": "Home.Clipboard.invalidPasted",
+        "hint": "Auto-paste found a non-URL on the clipboard — the annoyance-rate signal for the auto-paste default."
+      },
+      {
+        "type": "event",
+        "name": "Onboarding.Flow.completed",
+        "hint": "Onboarding finished. completed ÷ (completed + skipped) = completion rate."
+      },
+      {
+        "type": "event",
+        "name": "Onboarding.Flow.skipped",
+        "hint": "Onboarding skipped. The other arm of the completion ratio."
+      },
+      {
+        "type": "event",
+        "name": "Onboarding.ExtensionGuide.shown",
+        "hint": "The 'how to enable the action extension' guide was viewed — the single highest-leverage activation step. Carries source (onboarding / settings)."
+      },
+      {
+        "type": "event",
+        "name": "Parameters.Custom.shown",
+        "hint": "Custom-parameters screen opened. The discovery denominator for the top premium candidate."
+      },
+      {
+        "type": "event",
+        "name": "Parameters.Custom.added",
+        "hint": "A custom parameter was added. Carries totalCount (bucket) — never the name. The value numerator vs Parameters.Custom.shown."
+      },
+      {
+        "type": "event",
+        "name": "Parameters.Reference.observed",
+        "hint": "A known-but-not-default tracker (from the public ReferenceParameterCatalog) survived a clean. Carries parameter (public name). The catalog-gap workhorse: top entries = trackers to promote into defaults."
+      },
+      {
+        "type": "event",
+        "name": "History.Screen.shown",
+        "hint": "History tab opened. Carries entryCount (bucket: 0 / 1-9 / 10-49 / 50+) — sizes the 14-day window gate."
+      },
+      {
+        "type": "event",
+        "name": "History.Entry.actioned",
+        "hint": "A per-entry export from History (re-export of a past clean). Carries action (copy / share / markdown / openInBrowser)."
+      },
+      {
+        "type": "event",
+        "name": "Settings.SaveHistory.toggled",
+        "hint": "Save-history toggle changed. Carries enabled — the false share is the opt-out rate (history-feature viability)."
+      },
+      {
+        "type": "event",
+        "name": "Action.Clean.succeeded",
+        "hint": "The Clean share extension copied a cleaned URL — an extension export. Carries changed, removedCount, leftoverCount, referenceMatchCount, removedKinds."
+      },
+      {
+        "type": "event",
+        "name": "Action.Clean.failed",
+        "hint": "The Clean extension found no usable URL. Carries reason (noURL / invalidInput) — host-app compatibility gaps."
+      },
+      {
+        "type": "event",
+        "name": "Action.Markdown.succeeded",
+        "hint": "The Markdown share extension copied [title](url) — an extension export and the viral growth feature. Carries titleSource (javascript / linkPresentation / urlOnly), changed."
+      },
+      {
+        "type": "parameter",
+        "name": "source",
+        "hint": "How a URL reached Home: autoPaste / manualPaste / typed."
+      },
+      {
+        "type": "parameter",
+        "name": "changed",
+        "hint": "true = cleaning altered the URL; false = nothing to remove (a gap signal or an already-clean URL)."
+      },
+      {
+        "type": "parameter",
+        "name": "leftoverCount",
+        "hint": "Parameters remaining after a clean, bucketed (0-4 exact, then 5+). Sizes the catalog gap without naming anything."
+      },
+      {
+        "type": "parameter",
+        "name": "removedKinds",
+        "hint": "Sorted catalog category ids that fired (e.g. 'ads,utm'), or 'none'. From the finite 7-kind TrackingParameterCatalog — which categories earn their keep."
+      },
+      {
+        "type": "parameter",
+        "name": "totalCount",
+        "hint": "Per-user custom-parameter total, bucketed (0 / 1 / 2 / 3-4 / 5-9 / 10+). The depth-of-adoption / power-user tail."
+      },
+      {
+        "type": "parameter",
+        "name": "entryCount",
+        "hint": "History size at screen-open, bucketed (0 / 1-9 / 10-49 / 50+)."
+      },
+      {
+        "type": "parameter",
+        "name": "action",
+        "hint": "History export path: copy / share / markdown / openInBrowser."
+      },
+      {
+        "type": "parameter",
+        "name": "enabled",
+        "hint": "Toggle state after a change: true / false."
+      },
+      {
+        "type": "parameter",
+        "name": "titleSource",
+        "hint": "Which path produced the Markdown title: javascript / linkPresentation / urlOnly. urlOnly = title extraction failed (degraded output)."
+      },
+      {
+        "type": "parameter",
+        "name": "reason",
+        "hint": "Extension failure cause: noURL / invalidInput."
+      },
+      {
+        "type": "parameter",
+        "name": "parameter",
+        "hint": "A public reference-catalog tracker name (Parameters.Reference.observed) — finite, public, never an arbitrary URL key."
+      },
+      {
+        "type": "parameter",
+        "name": "clientUser",
+        "hint": "TelemetryDeck's double-hashed anonymous user id (the App Group-shared analytics UUID). Unique-user counts via thetaSketch."
+      }
+    ]
+  }
+}

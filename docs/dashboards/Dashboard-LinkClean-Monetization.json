@@ -1,0 +1,380 @@
+{
+  "title": "LinkClean — Monetization",
+  "insights": [
+    {
+      "title": "Paywall impressions per day by trigger",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 0,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["trigger"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Paywall.Screen.shown"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "impressions",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Paywall click-through rate (view → purchase start, unique users)",
+      "type": "customQuery",
+      "displayMode": "bigNumber",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 1,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Paywall.Screen.shown" },
+            { "type": "selector", "dimension": "type", "value": "Paywall.Purchase.started" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Paywall.Purchase.started"
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_clickers",
+              "fieldName": "clientUser"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Paywall.Screen.shown"
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_viewers",
+              "fieldName": "clientUser"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "clickThroughRate",
+            "fn": "/",
+            "fields": [
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_clickers" },
+                "name": "_clickersEstimate"
+              },
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_viewers" },
+                "name": "_viewersEstimate"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Click-through rate by trigger (unique users) — which gate drives the click",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 2,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["trigger"],
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Paywall.Screen.shown" },
+            { "type": "selector", "dimension": "type", "value": "Paywall.Purchase.started" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Paywall.Purchase.started"
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_clickers",
+              "fieldName": "clientUser"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Paywall.Screen.shown"
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_viewers",
+              "fieldName": "clientUser"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "clickThroughRate",
+            "fn": "/",
+            "fields": [
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_clickers" },
+                "name": "_clickersEstimate"
+              },
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_viewers" },
+                "name": "_viewersEstimate"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Purchase starts per day by trigger",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 3,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["trigger"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Paywall.Purchase.started"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "starts",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Paywall dismissals per day by trigger (abandonment)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 4,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["trigger"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Paywall.Screen.dismissed"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "dismissals",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Paid (Pro) active users per week",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "week",
+      "filters": {},
+      "order": 5,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "week",
+        "filter": {
+          "type": "and",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "TelemetryDeck.Session.started" },
+            { "type": "selector", "dimension": "tier", "value": "pro" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "thetaSketch",
+            "name": "_paidSketch",
+            "fieldName": "clientUser"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "thetaSketchEstimate",
+            "name": "paidUsers",
+            "field": {
+              "type": "fieldAccess",
+              "fieldName": "_paidSketch"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Paid (Pro) share of WAU",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "week",
+      "filters": {},
+      "order": 6,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "week",
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "TelemetryDeck.Session.started"
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "tier",
+              "value": "pro"
+            },
+            "aggregator": {
+              "type": "thetaSketch",
+              "name": "_paidUsers",
+              "fieldName": "clientUser"
+            }
+          },
+          {
+            "type": "thetaSketch",
+            "name": "_wau",
+            "fieldName": "clientUser"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "paidShare",
+            "fn": "/",
+            "fields": [
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_paidUsers" },
+                "name": "_paidUsersEstimate"
+              },
+              {
+                "type": "thetaSketchEstimate",
+                "field": { "type": "fieldAccess", "fieldName": "_wau" },
+                "name": "_wauEstimate"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "_exportMetadata": {
+    "version": 1,
+    "exportedAt": "2026-06-09T00:00:00.000Z",
+    "note": "1.1 IAP funnel + paid-tier template. DARK until monetization ships: the Paywall.* events and the live `tier` value (`pro`) do not fire in 1.0 — every insight here reads empty until 1.1, by design (reserved-but-unfired, iap-implementation-plan.md Phase 0). A flat zero pre-1.1 is expected, not a regression. SOURCE-OF-TRUTH SPLIT (iap-implementation-plan.md §Measurement architecture): RevenueCat — not TelemetryDeck — owns revenue, conversion *rates*, and refunds; these TelemetryDeck insights are the behavioral funnel (paywall click-through by trigger) and paid-tier penetration, joined to RevenueCat only at `tier` dimension grain, never user grain. Event names are PROVISIONAL (the two plan docs disagree — analytics.md §9 vs iap-implementation-plan.md Phase 0); finalize against the AnalyticsEvent facade when the IAP cases are added, then re-point the `type` selectors here. Companion: Dashboard-LinkClean-Core-Usage.json.",
+    "dynamicFields": [
+      {
+        "type": "event",
+        "name": "Paywall.Screen.shown",
+        "hint": "PROVISIONAL / 1.1. Paywall presented. Carries trigger. The click-through denominator (unique viewers)."
+      },
+      {
+        "type": "event",
+        "name": "Paywall.Screen.dismissed",
+        "hint": "PROVISIONAL / 1.1. Paywall closed without starting a purchase. Carries trigger. Abandonment."
+      },
+      {
+        "type": "event",
+        "name": "Paywall.Purchase.started",
+        "hint": "PROVISIONAL / 1.1. Buy button tapped (the click-through numerator). Carries trigger, product. Completion + true conversion RATE + refunds live in RevenueCat, not here."
+      },
+      {
+        "type": "event",
+        "name": "TelemetryDeck.Session.started",
+        "hint": "SDK-automatic session signal — carries the `tier` default parameter, so unique users where tier=pro = paid actives. Verify the live type string (renamed in SDK 2.0)."
+      },
+      {
+        "type": "parameter",
+        "name": "trigger",
+        "hint": "PROVISIONAL / 1.1. Which moment drove the paywall. Expected values (iap-strategy.md §9): historyWindow (the 14-day history loss banner), customParamAdd (locked custom-parameter add), settings (the Settings Pro row)."
+      },
+      {
+        "type": "parameter",
+        "name": "product",
+        "hint": "PROVISIONAL / 1.1. The product id on a purchase start — one SKU today (linkclean_pro_lifetime)."
+      },
+      {
+        "type": "parameter",
+        "name": "tier",
+        "hint": "Entitlement default parameter on every signal: free / pro. Ships as the literal \"free\" in 1.0 (schema-compatible) and switches to the live EntitlementStore read at 1.1 — so tier=pro is empty until then. Cannot be backfilled."
+      },
+      {
+        "type": "parameter",
+        "name": "clientUser",
+        "hint": "TelemetryDeck's double-hashed anonymous user id (the App Group-shared *analytics* UUID — never the RevenueCat billing id). Unique-user counts via thetaSketch."
+      }
+    ]
+  }
+}
