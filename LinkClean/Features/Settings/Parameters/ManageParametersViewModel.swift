@@ -50,9 +50,7 @@ final class ManageParametersViewModel {
 
     func isEnabled(_ name: String) -> Bool {
         let normalized = name.lowercased()
-        return enabledLookup[normalized]
-            ?? TrackingParameterCatalog.definition(for: normalized)?.enabledByDefault
-            ?? true
+        return enabledLookup[normalized] ?? store.isEnabled(normalized)
     }
 
     func setEnabled(_ name: String, isEnabled: Bool) {

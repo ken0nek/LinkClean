@@ -74,9 +74,12 @@ public nonisolated struct TrackingParameterDefinition: Identifiable, Hashable, S
     }
 
     /// Whether this rule applies on `host` (already lowercased, no trailing
-    /// root dot — see `TrackingParameterStore.normalize(host:)`).
-    public func appliesTo(host: String) -> Bool {
+    /// root dot — see `TrackingParameterStore.normalize(host:)`). A global
+    /// rule (`hosts == nil`) applies everywhere; a scoped rule needs a host
+    /// and matches by exact host or any subdomain.
+    public func appliesTo(host: String?) -> Bool {
         guard let hosts else { return true }
+        guard let host else { return false }
         return hosts.contains { host == $0 || host.hasSuffix("." + $0) }
     }
 }
@@ -288,15 +291,21 @@ public nonisolated enum TrackingParameterCatalog {
     /// enabled-by-default definitions whose host scope matches. `nil` host
     /// (unparseable URL) applies global rules only.
     public static func defaultRemovalSet(forHost host: String?) -> Set<String> {
+        names(forHost: host) { $0.enabledByDefault }
+    }
+
+    /// The single catalog walk every removal-set builder filters through —
+    /// this and `TrackingParameterStore.enabledParameters(forHost:)` differ
+    /// only in their `isOn` predicate, so host-scope semantics cannot drift
+    /// between them. Normalizes `host` itself; `nil` admits global rules only.
+    static func names(
+        forHost host: String?,
+        where isOn: (TrackingParameterDefinition) -> Bool
+    ) -> Set<String> {
         let host = TrackingParameterStore.normalize(host: host)
         var result = Set<String>()
         for section in sections {
-            for parameter in section.parameters where parameter.enabledByDefault {
-                if let host {
-                    guard parameter.appliesTo(host: host) else { continue }
-                } else {
-                    guard parameter.hosts == nil else { continue }
-                }
+            for parameter in section.parameters where isOn(parameter) && parameter.appliesTo(host: host) {
                 result.insert(parameter.name)
             }
         }

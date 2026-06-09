@@ -9,6 +9,16 @@ import SwiftData
 @testable import LinkClean
 import LinkCleanKit
 
+/// Polls until `condition` holds (10 ms × 200, ≈2 s cap) so the view model's
+/// async clean pipeline can settle without fixed sleeps. Times out silently —
+/// the assertion that follows reports the actual failure.
+@MainActor
+private func waitUntil(_ condition: () -> Bool) async {
+    for _ in 0 ..< 200 where !condition() {
+        try? await Task.sleep(for: .milliseconds(10))
+    }
+}
+
 @MainActor
 struct HomeViewModelTests {
 
@@ -107,9 +117,7 @@ struct HomeViewModelTests {
         // A full string arriving in one binding update reads as a manual paste.
         vm.inputText = "https://x.com?utm_source=a"
 
-        for _ in 0 ..< 200 where spy.events.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !spy.events.isEmpty }
 
         #expect(spy.events == [.homeURLCleaned(
             source: .manualPaste, changed: true, removedCount: 1,
@@ -135,9 +143,7 @@ struct HomeViewModelTests {
         vm.setModelContext(context)
 
         vm.inputText = "https://x.com?utm_source=a"
-        for _ in 0 ..< 200 where spy.events.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !spy.events.isEmpty }
 
         vm.copyCleanedURL()
         vm.copyCleanedURL()
@@ -158,16 +164,12 @@ struct HomeViewModelTests {
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         vm.inputText = "https://x.com?utm_source=a"
-        for _ in 0 ..< 200 where spy.events.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !spy.events.isEmpty }
         vm.copyCleanedURL()
 
         let afterFirstCopy = spy.events.count
         vm.inputText = "https://much-longer-host.example.com?utm_source=b"
-        for _ in 0 ..< 200 where spy.events.count == afterFirstCopy {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { spy.events.count != afterFirstCopy }
         vm.copyCleanedURL()
 
         // A genuinely different cleaned output (e.g. after a leftover-pill refine)
@@ -194,9 +196,7 @@ struct HomeViewModelTests {
         vm.setModelContext(context)
 
         vm.inputText = "https://x.com?utm_source=a"
-        for _ in 0 ..< 200 where spy.events.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !spy.events.isEmpty }
 
         vm.recordShare()
         vm.recordShare()
@@ -220,9 +220,7 @@ struct HomeViewModelTests {
         vm.setModelContext(context)
 
         vm.inputText = "https://x.com?utm_source=a"
-        for _ in 0 ..< 200 where spy.events.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !spy.events.isEmpty }
 
         vm.copyCleanedURL()
         vm.recordShare()
@@ -241,9 +239,7 @@ struct HomeViewModelTests {
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         vm.inputText = "https://x.com?utm_source=a"
-        for _ in 0 ..< 200 where spy.events.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !spy.events.isEmpty }
         // Re-assigning the same input (e.g. re-focus / tab return) must not
         // re-emit the once-per-input signal.
         vm.inputText = "https://x.com?utm_source=a"
@@ -268,9 +264,7 @@ struct HomeViewModelTests {
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         vm.inputText = "https://x.com?utm_source=a"
-        for _ in 0 ..< 200 where spy.events.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !spy.events.isEmpty }
 
         // The clean event plus exactly one Parameters.Reference.observed per match.
         let referenceEvents = spy.events.filter {
@@ -294,9 +288,7 @@ struct HomeViewModelTests {
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         vm.inputText = "https://x.com?utm_source=a"
-        for _ in 0 ..< 200 where spy.events.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !spy.events.isEmpty }
         let countAfterFirstClean = spy.events.count
 
         // Re-cleaning the same input must not re-emit the clean signal or any of
@@ -311,7 +303,9 @@ struct HomeViewModelTests {
 
     @Test func addLeftoverParameterAddsToStoreAndEmitsSignal() {
         let spy = SpyAnalytics()
-        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy, store: store)
 
         vm.addLeftoverParameter("yclid")
@@ -324,7 +318,9 @@ struct HomeViewModelTests {
         // Real service + a shared store, so adding a custom parameter actually
         // changes what the re-clean removes — the full "still tracking → removed"
         // loop the feature promises.
-        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let vm = HomeViewModel(
             service: DefaultURLCleaningService(store: store),
             analytics: SpyAnalytics(),
@@ -332,17 +328,13 @@ struct HomeViewModelTests {
         )
 
         vm.inputText = "https://x.com/?epik=abc&id=1"
-        for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !vm.leftoverParameters.isEmpty }
         // epik is a known tracker that is not in the defaults → surfaced as
         // leftover. (yclid, the previous example, graduated into the defaults.)
         #expect(vm.leftoverParameters.contains("epik"))
 
         vm.addLeftoverParameter("epik")
-        for _ in 0 ..< 200 where vm.leftoverParameters.contains("epik") {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !vm.leftoverParameters.contains("epik") }
 
         #expect(!vm.leftoverParameters.contains("epik")) // no longer leftover
         #expect(vm.removedParameters.contains("epik")) // moved into removed
@@ -353,7 +345,9 @@ struct HomeViewModelTests {
         // The "Remove Once" pill action: `t` is functional on YouTube (host-scoped
         // off), so it surfaces as a leftover; removing it once cleans this link
         // without a custom-parameter registration — the next link keeps its `t`.
-        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let vm = HomeViewModel(
             service: DefaultURLCleaningService(store: store),
             analytics: SpyAnalytics(),
@@ -361,15 +355,11 @@ struct HomeViewModelTests {
         )
 
         vm.inputText = "https://youtube.com/watch?v=abc&t=120"
-        for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !vm.leftoverParameters.isEmpty }
         #expect(vm.leftoverParameters.contains("t"))
 
         vm.removeLeftoverParameterOnce("t")
-        for _ in 0 ..< 200 where vm.leftoverParameters.contains("t") {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !vm.leftoverParameters.contains("t") }
 
         #expect(!vm.leftoverParameters.contains("t"))
         #expect(vm.removedParameters.contains("t"))
@@ -378,15 +368,15 @@ struct HomeViewModelTests {
 
         // A new link starts clean: the one-time removal must not carry over.
         vm.inputText = "https://youtube.com/watch?v=zzz&t=9"
-        for _ in 0 ..< 200 where !vm.leftoverParameters.contains("t") {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { vm.leftoverParameters.contains("t") }
         #expect(vm.leftoverParameters.contains("t"))
         #expect(vm.cleanedText.contains("t=9"))
     }
 
     @Test func removeOnceEmitsItsOwnSignalNotACustomAdd() async {
-        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let spy = SpyAnalytics()
         let vm = HomeViewModel(
             service: DefaultURLCleaningService(store: store),
@@ -395,14 +385,10 @@ struct HomeViewModelTests {
         )
 
         vm.inputText = "https://youtube.com/watch?v=abc&t=120"
-        for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !vm.leftoverParameters.isEmpty }
 
         vm.removeLeftoverParameterOnce("t")
-        for _ in 0 ..< 200 where vm.leftoverParameters.contains("t") {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !vm.leftoverParameters.contains("t") }
 
         #expect(spy.events.contains(.parametersLeftoverRemovedOnce))
         #expect(!spy.events.contains { event in
@@ -414,7 +400,9 @@ struct HomeViewModelTests {
     @Test func arbitraryLeftoverParameterSurfaces() async {
         // The reference-only gate was lifted: any surviving key — even an
         // arbitrary one that is not a known tracker — is offered as a pill.
-        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let vm = HomeViewModel(
             service: DefaultURLCleaningService(store: store),
             analytics: SpyAnalytics(),
@@ -422,9 +410,7 @@ struct HomeViewModelTests {
         )
 
         vm.inputText = "https://x.com/?utm_source=a&test=xxx"
-        for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
+        await waitUntil { !vm.leftoverParameters.isEmpty }
 
         #expect(vm.leftoverParameters.contains("test"))   // arbitrary key surfaces
         #expect(!vm.removedParameters.contains("test"))   // it was not removed

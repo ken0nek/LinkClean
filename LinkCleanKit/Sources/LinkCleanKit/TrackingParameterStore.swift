@@ -52,24 +52,25 @@ public nonisolated struct TrackingParameterStore: Sendable {
     /// this everywhere", and it wins over a disabled catalog toggle of the
     /// same name. A `nil` host (unparseable URL) applies global rules only.
     public func enabledParameters(forHost host: String?) -> Set<String> {
-        let normalizedHost = Self.normalize(host: host)
         let disabled = disabledParameters()
         let enabled = enabledOverrides()
-        var result = customParameterSet()
-        for section in TrackingParameterCatalog.sections {
-            for definition in section.parameters {
-                guard !disabled.contains(definition.name),
-                      enabled.contains(definition.name) || definition.enabledByDefault
-                else { continue }
-                if let normalizedHost {
-                    guard definition.appliesTo(host: normalizedHost) else { continue }
-                } else {
-                    guard definition.hosts == nil else { continue }
-                }
-                result.insert(definition.name)
-            }
+        let catalogNames = TrackingParameterCatalog.names(forHost: host) { definition in
+            !disabled.contains(definition.name)
+                && (enabled.contains(definition.name) || definition.enabledByDefault)
         }
-        return result
+        return catalogNames.union(customParameterSet())
+    }
+
+    /// Whether adding `name` as a custom parameter would change nothing: it
+    /// already names a catalog rule that strips on every site (global scope,
+    /// currently enabled). Scoped or off rules still gain something from a
+    /// global custom entry, so they don't count. Backs the custom-parameters
+    /// add flow's "already in default parameters" rejection.
+    public func isRedundantCustomParameter(_ name: String) -> Bool {
+        let normalized = name.lowercased()
+        guard let definition = TrackingParameterCatalog.definition(for: normalized),
+              definition.hosts == nil else { return false }
+        return isEnabled(normalized)
     }
 
     public func customParameters() -> [String] {

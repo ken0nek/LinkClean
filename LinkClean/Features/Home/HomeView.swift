@@ -85,20 +85,12 @@ struct HomeView: View {
             )
         ) {
             Button {
-                if let parameterPendingAdd {
-                    viewModel.removeLeftoverParameterOnce(parameterPendingAdd)
-                    leftoverAddedHaptic += 1
-                }
-                parameterPendingAdd = nil
+                confirmLeftover(viewModel.removeLeftoverParameterOnce)
             } label: {
                 Text(.homeLeftoverConfirmOnceAction)
             }
             Button {
-                if let parameterPendingAdd {
-                    viewModel.addLeftoverParameter(parameterPendingAdd)
-                    leftoverAddedHaptic += 1
-                }
-                parameterPendingAdd = nil
+                confirmLeftover(viewModel.addLeftoverParameter)
             } label: {
                 Text(.homeLeftoverConfirmAction)
             }
@@ -316,6 +308,17 @@ struct HomeView: View {
                 }
             }
         }
+    }
+
+    /// Shared tail of the leftover alert's two actions: apply the chosen
+    /// removal to the pending parameter, fire the success haptic, and clear
+    /// the pending state.
+    private func confirmLeftover(_ removal: @MainActor (String) -> Void) {
+        if let parameterPendingAdd {
+            removal(parameterPendingAdd)
+            leftoverAddedHaptic += 1
+        }
+        parameterPendingAdd = nil
     }
 
     private func leftoverRow(_ name: String) -> some View {

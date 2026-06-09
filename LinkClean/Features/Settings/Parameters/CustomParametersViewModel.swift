@@ -38,12 +38,11 @@ final class CustomParametersViewModel {
     func addParameter() -> String? {
         let normalized = normalizedInput
         guard !normalized.isEmpty else { return nil }
-        // Reject only when adding would change nothing: the name is a catalog
-        // rule that already strips everywhere. A scoped rule (`t` on x.com) or
-        // an off/disabled one still gains a global custom entry — that's the
+        // Reject only when adding would change nothing (the rule already
+        // strips on every site). A scoped rule (`t` on x.com) or an off/
+        // disabled one still gains a global custom entry — that's the
         // leftover-pill path opting into "strip this on every site".
-        if let definition = TrackingParameterCatalog.definition(for: normalized),
-           definition.hosts == nil, store.isEnabled(normalized) {
+        if store.isRedundantCustomParameter(normalized) {
             return String(localized: .customParametersAddErrorAlreadyDefault)
         }
         if customParameters.contains(normalized) {

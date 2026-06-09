@@ -91,24 +91,34 @@ struct HostScopedParameterTests {
         #expect(definition?.appliesTo(host: "x.com") == true)
         #expect(definition?.appliesTo(host: "mobile.x.com") == true)
         #expect(definition?.appliesTo(host: "example.com") == false)
+        // No host: scoped rules never apply, global rules always do.
+        #expect(definition?.appliesTo(host: nil) == false)
+        #expect(TrackingParameterCatalog.definition(for: "utm_source")?.appliesTo(host: nil) == true)
         #expect(URLCleaner.clean("https://X.com/u/status/1?t=x") == "https://X.com/u/status/1")
     }
 
     // MARK: - Store overrides
 
-    private func makeStore() -> TrackingParameterStore {
-        TrackingParameterStore(suiteName: "test.scoping.\(UUID().uuidString)")
+    private func makeStore() -> (store: TrackingParameterStore, suiteName: String) {
+        let suiteName = "test.scoping.\(UUID().uuidString)"
+        return (TrackingParameterStore(suiteName: suiteName), suiteName)
+    }
+
+    private func removeSuite(_ suiteName: String) {
+        UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName)
     }
 
     @Test func isEnabledReflectsCatalogDefault() {
-        let store = makeStore()
+        let (store, suiteName) = makeStore()
+        defer { removeSuite(suiteName) }
         #expect(store.isEnabled("utm_source") == true)
         #expect(store.isEnabled("t") == true)       // scoped but on
         #expect(store.isEnabled("title") == false)  // ships disabled
     }
 
     @Test func optInEnablesAnOffByDefaultParameter() {
-        let store = makeStore()
+        let (store, suiteName) = makeStore()
+        defer { removeSuite(suiteName) }
         store.setEnabled("title", isEnabled: true)
 
         #expect(store.isEnabled("title") == true)
@@ -116,7 +126,8 @@ struct HostScopedParameterTests {
     }
 
     @Test func optInRoundTripsBackToDefault() {
-        let store = makeStore()
+        let (store, suiteName) = makeStore()
+        defer { removeSuite(suiteName) }
         store.setEnabled("title", isEnabled: true)
         store.setEnabled("title", isEnabled: false)
 
@@ -125,14 +136,16 @@ struct HostScopedParameterTests {
     }
 
     @Test func disablingAScopedRuleStopsStrippingOnItsHosts() {
-        let store = makeStore()
+        let (store, suiteName) = makeStore()
+        defer { removeSuite(suiteName) }
         store.setEnabled("t", isEnabled: false)
 
         #expect(!store.enabledParameters(forHost: "x.com").contains("t"))
     }
 
     @Test func enabledParametersResolveHostScope() {
-        let store = makeStore()
+        let (store, suiteName) = makeStore()
+        defer { removeSuite(suiteName) }
 
         let onX = store.enabledParameters(forHost: "x.com")
         let onYouTube = store.enabledParameters(forHost: "www.youtube.com")
@@ -151,7 +164,8 @@ struct HostScopedParameterTests {
     @Test func customParameterAppliesOnEveryHost() {
         // The leftover-pill path: adding `t` as a custom parameter is the
         // explicit "strip this everywhere", YouTube included.
-        let store = makeStore()
+        let (store, suiteName) = makeStore()
+        defer { removeSuite(suiteName) }
         store.addCustomParameter("t")
 
         #expect(store.enabledParameters(forHost: "youtube.com").contains("t"))
@@ -162,13 +176,34 @@ struct HostScopedParameterTests {
         // The toggle and the custom entry are independent choices: disabling
         // the scoped `t` rule, adding custom `t`, then deleting the custom
         // entry must leave the rule disabled — not silently restore it.
-        let store = makeStore()
+        let (store, suiteName) = makeStore()
+        defer { removeSuite(suiteName) }
         store.setEnabled("t", isEnabled: false)
         store.addCustomParameter("t")
         store.removeCustomParameter("t")
 
         #expect(store.isEnabled("t") == false)
         #expect(!store.enabledParameters(forHost: "x.com").contains("t"))
+    }
+
+    @Test func redundantCustomParameterMeansGlobalAndCurrentlyOn() {
+        // The add-flow rejection: redundant only when the catalog already
+        // strips the name on every site. Scoped and off rules still gain
+        // global reach from a custom entry, so they are never redundant.
+        let (store, suiteName) = makeStore()
+        defer { removeSuite(suiteName) }
+
+        #expect(store.isRedundantCustomParameter("utm_source"))
+        #expect(store.isRedundantCustomParameter("UTM_SOURCE"))
+        #expect(!store.isRedundantCustomParameter("t"))             // scoped
+        #expect(!store.isRedundantCustomParameter("title"))         // ships off
+        #expect(!store.isRedundantCustomParameter("not_in_catalog"))
+
+        store.setEnabled("title", isEnabled: true)
+        #expect(store.isRedundantCustomParameter("title"))          // global + now on
+
+        store.setEnabled("utm_source", isEnabled: false)
+        #expect(!store.isRedundantCustomParameter("utm_source"))    // disabled → add does something
     }
 
     @Test func normalizeHostStripsCaseAndTrailingDot() {
