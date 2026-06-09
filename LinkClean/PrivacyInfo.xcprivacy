@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+   PrivacyInfo.xcprivacy
+   LinkClean
+
+   Created by Ken Tominaga on 6/8/26.
+   Copyright (c) 2026 ___ORGANIZATIONNAME___. All rights reserved.
+
+   Privacy manifest for the LinkClean app target.
+
+   - Tracking: LinkClean does not track users — no ATT prompt, no ad networks,
+     no cross-app/website tracking. (docs/release/privacy-policy.md)
+   - Collected data types: none declared here. LinkClean's own code collects no
+     data; its only egress is TelemetryDeck, whose bundled SDK privacy manifest
+     declares its own collection (Device ID + Product Interaction — Analytics,
+     not linked, not used for tracking). The App Store Connect "App Privacy"
+     form mirrors that — docs/release/app-store-privacy-nutrition-label.md.
+   - Required-reason API — UserDefaults: app-local defaults via
+     UserDefaults.standard (autoPaste, onboarding flag, UI-test reset) → CA92.1;
+     App Group defaults shared with the action extensions
+     (group.com.ken0nek.LinkClean — saveHistory, tracking parameters, the shared
+     analytics identifier, the extension-run timestamp) → 1C8F.1.
+
+   NOTE: each action extension (LinkCleanAction, LinkCleanMarkdownAction) is a
+   separate binary and needs its own manifest declaring at least UserDefaults
+   1C8F.1 — both reach the App Group through the LinkCleanKit base class. This
+   file can be added to those targets' membership (the CA92.1 superset is
+   harmless) instead of authoring two more.
+-->
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+				<string>1C8F.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
