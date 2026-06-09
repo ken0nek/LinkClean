@@ -1,19 +1,35 @@
 default_platform(:ios)
 
+XCODEPROJ = "LinkClean.xcodeproj".freeze
+SCHEME = "LinkClean".freeze
 APP_TARGETS = ["LinkClean", "LinkCleanAction", "LinkCleanMarkdownAction"].freeze
+EXTENSION_TARGETS = (APP_TARGETS - [SCHEME]).freeze
 
 platform :ios do
   desc "Bump version number (type: major|minor|patch, or version: X.Y.Z)"
   lane :bump_version do |options|
-    APP_TARGETS.each do |target|
-      if options[:version]
+    if options[:version]
+      APP_TARGETS.each do |target|
         increment_version_number_in_xcodeproj(
+          xcodeproj: XCODEPROJ,
           version_number: options[:version],
           target: target
         )
-      else
+      end
+    else
+      increment_version_number_in_xcodeproj(
+        xcodeproj: XCODEPROJ,
+        bump_type: options[:type] || "patch",
+        target: SCHEME
+      )
+      app_version = get_version_number_from_xcodeproj(
+        xcodeproj: XCODEPROJ,
+        target: SCHEME
+      )
+      EXTENSION_TARGETS.each do |target|
         increment_version_number_in_xcodeproj(
-          bump_type: options[:type] || "patch",
+          xcodeproj: XCODEPROJ,
+          version_number: app_version,
           target: target
         )
       end
@@ -22,14 +38,27 @@ platform :ios do
 
   desc "Bump build number (number: N, or auto-increments by 1)"
   lane :bump_build do |options|
-    APP_TARGETS.each do |target|
-      if options[:number]
+    if options[:number]
+      APP_TARGETS.each do |target|
         increment_build_number_in_xcodeproj(
+          xcodeproj: XCODEPROJ,
           build_number: options[:number].to_s,
           target: target
         )
-      else
+      end
+    else
+      increment_build_number_in_xcodeproj(
+        xcodeproj: XCODEPROJ,
+        target: SCHEME
+      )
+      build_number = get_build_number_from_xcodeproj(
+        xcodeproj: XCODEPROJ,
+        target: SCHEME
+      )
+      EXTENSION_TARGETS.each do |target|
         increment_build_number_in_xcodeproj(
+          xcodeproj: XCODEPROJ,
+          build_number: build_number,
           target: target
         )
       end
@@ -42,20 +71,66 @@ platform :ios do
     bump_build(number: options[:number])
   end
 
-  desc "Bump build, build IPA, and upload to TestFlight (changelog: 'What to test')"
-  lane :beta do |options|
-    bump_build
+  desc "Build IPA for App Store distribution"
+  lane :build do
     build_app(
-      project: "LinkClean.xcodeproj",
-      scheme: "LinkClean",
+      project: XCODEPROJ,
+      scheme: SCHEME,
       clean: true,
       export_method: "app-store"
     )
+  end
+
+  desc "Bump build, build IPA, and upload to TestFlight (changelog: 'What to test')"
+  lane :beta do |options|
+    bump_build(number: options[:number])
+    build
     upload_to_testflight(
       changelog: options[:changelog],
       skip_waiting_for_build_processing: true,
       distribute_external: true,
       groups: ["dogfooding"]
+    )
+  end
+
+  desc "Bump, build, and submit to App Store"
+  lane :release do |options|
+    bump(type: options[:type], version: options[:version], number: options[:number])
+    build
+    upload_to_app_store(
+      skip_screenshots: true,
+      skip_metadata: options[:skip_metadata] || false,
+      submit_for_review: options[:submit] || false,
+      automatic_release: options[:auto_release].nil? ? true : options[:auto_release],
+      force: true
+    )
+  end
+
+  desc "Build and submit to App Store WITHOUT bumping (reuses the current version + build)"
+  lane :submit do |options|
+    build
+    upload_to_app_store(
+      skip_screenshots: true,
+      skip_metadata: options[:skip_metadata] || false,
+      submit_for_review: options[:submit] || false,
+      automatic_release: options[:auto_release].nil? ? true : options[:auto_release],
+      force: true
+    )
+  end
+
+  desc "Upload metadata only (no binary, no screenshots)"
+  lane :metadata do
+    app_version = get_version_number_from_xcodeproj(
+      xcodeproj: XCODEPROJ,
+      target: SCHEME
+    )
+    upload_to_app_store(
+      app_version: app_version,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      submit_for_review: false,
+      force: true
     )
   end
 end
