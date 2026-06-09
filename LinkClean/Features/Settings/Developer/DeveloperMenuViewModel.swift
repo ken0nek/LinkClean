@@ -69,7 +69,7 @@ final class DeveloperMenuViewModel {
     }
 
     func resetDefaultParameters() {
-        parameterStore.reenableAllDefaultParameters()
+        parameterStore.resetDefaultParameterOverrides()
         refresh()
     }
 

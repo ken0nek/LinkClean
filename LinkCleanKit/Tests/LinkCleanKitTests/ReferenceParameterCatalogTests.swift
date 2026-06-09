@@ -8,18 +8,32 @@ import Testing
 
 struct ReferenceParameterCatalogTests {
 
-    @Test func isDisjointFromTheDefaultCatalog() {
+    @Test func isDisjointFromTheMainCatalog() {
         // The invariant that makes a reference match mean "known tracker missing
-        // from defaults": a name that is already a default could only survive
-        // because the user disabled it — a different, already-tracked signal.
-        #expect(ReferenceParameterCatalog.names.isDisjoint(with: TrackingParameterCatalog.defaultEnabledSet))
+        // from the catalog": a name we already know about — enabled, shipped
+        // off as too generic, or host-scoped — is a deliberate decision, not a
+        // gap; toggles are already covered by `Parameters.Default.toggled`.
+        #expect(ReferenceParameterCatalog.names.isDisjoint(with: TrackingParameterCatalog.allNames))
     }
 
     @Test func containsKnownTrackersNotInDefaults() {
-        #expect(ReferenceParameterCatalog.names.contains("yclid"))
-        #expect(ReferenceParameterCatalog.names.contains("gbraid"))
+        #expect(ReferenceParameterCatalog.names.contains("epik"))
+        #expect(ReferenceParameterCatalog.names.contains("li_fat_id"))
         #expect(ReferenceParameterCatalog.names.contains("mtm_source"))
-        #expect(ReferenceParameterCatalog.names.contains("mkt_tok"))
+        #expect(ReferenceParameterCatalog.names.contains("hsa_acc"))
+    }
+
+    @Test func promotedTrackersGraduatedIntoTheMainCatalog() {
+        // June 2026 promotion: unambiguous vendor click IDs moved from the
+        // telemetry reference set into the removal defaults.
+        let promoted = [
+            "gbraid", "wbraid", "gad_source", "gad_campaignid", "srsltid",
+            "yclid", "twclid", "ttclid", "_hsenc", "_hsmi", "mkt_tok",
+        ]
+        for name in promoted {
+            #expect(!ReferenceParameterCatalog.names.contains(name), "\(name) should have left the reference set")
+            #expect(TrackingParameterCatalog.allNames.contains(name), "\(name) should be a catalog default")
+        }
     }
 
     @Test func allNamesAreLowercased() {

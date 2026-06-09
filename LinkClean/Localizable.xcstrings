@@ -188,6 +188,17 @@
         }
       }
     },
+    "defaultParameters.hostScope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only on %@"
+          }
+        }
+      }
+    },
     "defaultParameters.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -546,7 +557,18 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@” will be removed from your links from now on."
+            "value" : "Remove “%@” from this link only, or from all your links from now on."
+          }
+        }
+      }
+    },
+    "home.leftover.confirmOnceAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Once"
           }
         }
       }
@@ -557,7 +579,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Always remove this parameter?"
+            "value" : "Remove this parameter?"
           }
         }
       }
@@ -579,7 +601,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap a parameter to always remove it from your links."
+            "value" : "Tap a parameter to remove it from this link or all your links."
           }
         }
       }
@@ -590,7 +612,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Always remove %@"
+            "value" : "Remove %@"
           }
         }
       }

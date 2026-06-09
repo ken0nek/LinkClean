@@ -18,17 +18,26 @@ struct ManageParametersView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         Form {
-            ForEach(viewModel.sections) { section in
+            ForEach(viewModel.filteredSections) { section in
                 Section(section.kind.title) {
                     ForEach(section.parameters) { parameter in
                         Toggle(
-                            parameter.displayName,
                             isOn: Binding(
                                 get: { viewModel.isEnabled(parameter.name) },
                                 set: { viewModel.setEnabled(parameter.name, isEnabled: $0) }
                             )
-                        )
-                        .font(.system(.body, design: .monospaced))
+                        ) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(parameter.displayName)
+                                    .font(.system(.body, design: .monospaced))
+                                if let hosts = parameter.hosts {
+                                    Text(.defaultParametersHostScope(hosts.sorted().joined(separator: ", ")))
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        .tint(.accentColor)
                         .accessibilityIdentifier("parameter-toggle-\(parameter.name)")
                     }
                 }
@@ -37,6 +46,13 @@ struct ManageParametersView: View {
         .scrollContentBackground(.hidden)
         .screenBackground()
         .navigationTitle(Text(.defaultParametersTitle))
+        .searchable(text: $viewModel.searchText)
+        .scrollDismissesKeyboard(.immediately)
+        .overlay {
+            if viewModel.filteredSections.isEmpty && !viewModel.searchText.isEmpty {
+                ContentUnavailableView.search
+            }
+        }
         .onAppear {
             viewModel.onAppear()
         }

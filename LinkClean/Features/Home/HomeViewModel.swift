@@ -46,6 +46,10 @@ final class HomeViewModel {
     @ObservationIgnored private var isApplyingAutoPaste = false
     @ObservationIgnored private var isSanitizing = false
     @ObservationIgnored private var lastSignaledCleanInput: String?
+    // One-time removals from the leftover pills' "Remove Once" action: extra
+    // parameters stripped from the *current* link only, never persisted. Any
+    // input edit clears the set — it described the previous link.
+    @ObservationIgnored private var oneTimeRemovals: Set<String> = []
     // Dedupes the export signals per distinct cleaned *output*: repeated taps on
     // one result count once, but exporting again after a leftover-pill refine
     // (same input, cleaner output) correctly counts again. Copy and share track
@@ -107,8 +111,9 @@ final class HomeViewModel {
     }
 
     /// Every parameter that survived cleaning — the actionable "remaining" pills.
-    /// Display-only raw query keys (never sent to analytics); tapping one adds it
-    /// to the always-remove custom set via ``addLeftoverParameter(_:)``.
+    /// Display-only raw query keys (never sent to analytics); tapping one offers
+    /// "Remove Once" (``removeLeftoverParameterOnce(_:)``, this link only) or
+    /// "Always Remove" (``addLeftoverParameter(_:)``, the custom set).
     var leftoverParameters: [String] {
         cleanedURL?.leftoverNames ?? []
     }
@@ -235,6 +240,17 @@ final class HomeViewModel {
         refreshCleanedURL()
     }
 
+    /// Strips a surfaced leftover from the *current* link only — the pill's
+    /// "Remove Once" action. Nothing is persisted, so the parameter survives the
+    /// next link as usual (the YouTube-timestamp case: trim this `t` without
+    /// breaking `t` everywhere). Same re-clean mechanics as
+    /// ``addLeftoverParameter(_:)``, including the suppressed per-input signal.
+    func removeLeftoverParameterOnce(_ name: String) {
+        oneTimeRemovals.insert(name.lowercased())
+        analytics.capture(.parametersLeftoverRemovedOnce)
+        refreshCleanedURL()
+    }
+
     func onAppear() {
         isHomeVisible = true
 
@@ -331,6 +347,10 @@ final class HomeViewModel {
             nextCleanSource = inputText.count > previous.count + 1 ? .manualPaste : .typed
         }
 
+        // Any real edit means a new link state; one-time removals described the
+        // previous link and must not silently carry into this one.
+        oneTimeRemovals.removeAll()
+
         if isInputEmpty {
             lastSignaledCleanInput = nil
             lastCopiedOutput = nil
@@ -353,11 +373,13 @@ final class HomeViewModel {
         }
 
         let inputSnapshot = trimmedInput
+        let removalsSnapshot = oneTimeRemovals
         let source = nextCleanSource
         cleanTask = Task { [service] in
-            let result = try? await service.clean(inputSnapshot)
+            let result = try? await service.clean(inputSnapshot, removingAlso: removalsSnapshot)
             await MainActor.run { [inputSnapshot] in
-                guard inputSnapshot == self.trimmedInput else { return }
+                guard inputSnapshot == self.trimmedInput,
+                      removalsSnapshot == self.oneTimeRemovals else { return }
                 self.cleanedURL = result
                 self.signalCleanedIfNeeded(result, source: source)
             }

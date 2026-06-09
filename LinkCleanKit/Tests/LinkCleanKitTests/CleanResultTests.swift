@@ -77,14 +77,15 @@ struct CleanResultTests {
     }
 
     @Test func referenceMatchesFlagKnownButNotDefaultTrackers() {
-        // yclid is a known tracker that is NOT in our defaults — a catalog gap.
+        // epik is a known tracker that is NOT in our catalog — a catalog gap.
+        // (yclid, the previous example, graduated into the defaults.)
         let result = URLCleaner.cleanResult(
-            "https://x.com/?utm_source=a&yclid=b&id=1",
+            "https://x.com/?utm_source=a&epik=b&id=1",
             removing: ["utm_source"]
         )
 
-        #expect(result.referenceMatches == ["yclid"])
-        #expect(result.leftoverCount == 2) // yclid + id survive (only utm_source removed)
+        #expect(result.referenceMatches == ["epik"])
+        #expect(result.leftoverCount == 2) // epik + id survive (only utm_source removed)
     }
 
     @Test func referenceMatchesAreSortedUniqueAndUseInjectedSet() {

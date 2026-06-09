@@ -79,6 +79,11 @@ public nonisolated enum AnalyticsEvent: Equatable {
     /// name comes from the bundled ``ReferenceParameterCatalog`` (finite, public
     /// set), so it is safe to send — never a user-authored or arbitrary URL key.
     case parametersReferenceObserved(parameter: String)
+    /// A leftover pill was stripped from the current link only (one-time;
+    /// nothing persisted). Parameterless: the leftover name is a raw URL key
+    /// (§3). Pairs with ``parametersCustomAdded`` — the "always" path — to show
+    /// which removal the pill flow actually satisfies.
+    case parametersLeftoverRemovedOnce
 
     // MARK: Onboarding (§6)
 
@@ -171,6 +176,7 @@ public nonisolated enum AnalyticsEvent: Equatable {
         case .parametersCustomDeleted: "Parameters.Custom.deleted"
         case .parametersCustomShown: "Parameters.Custom.shown"
         case .parametersReferenceObserved: "Parameters.Reference.observed"
+        case .parametersLeftoverRemovedOnce: "Parameters.Leftover.removedOnce"
         case .onboardingFlowCompleted: "Onboarding.Flow.completed"
         case .onboardingFlowSkipped: "Onboarding.Flow.skipped"
         case .onboardingExtensionGuideShown: "Onboarding.ExtensionGuide.shown"
@@ -244,6 +250,7 @@ public nonisolated enum AnalyticsEvent: Equatable {
             return ["bucket": bucket.rawValue]
         case .settingsScreenShown,
              .parametersCustomShown,
+             .parametersLeftoverRemovedOnce,
              .homeClipboardInvalidPasted,
              .historyEntryDeleted,
              .historyAllCleared,

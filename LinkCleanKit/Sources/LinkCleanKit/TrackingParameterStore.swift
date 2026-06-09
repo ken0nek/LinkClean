@@ -10,6 +10,10 @@ import Foundation
 public nonisolated struct TrackingParameterStore: Sendable {
     private let suiteName: String?
     private let disabledKey = "trackingParametersDisabled"
+    /// User opt-ins for catalog names that ship `enabledByDefault: false`.
+    /// Kept disjoint from the disabled set by `setEnabled`; only deviations
+    /// from the catalog default are persisted.
+    private let enabledKey = "trackingParametersEnabled"
     private let customKey = "trackingParametersCustom"
 
     public init(suiteName: String? = AppGroup.identifier) {
@@ -18,24 +22,54 @@ public nonisolated struct TrackingParameterStore: Sendable {
 
     public func isEnabled(_ name: String) -> Bool {
         let normalized = name.lowercased()
-        return !disabledParameters().contains(normalized)
+        if disabledParameters().contains(normalized) { return false }
+        if enabledOverrides().contains(normalized) { return true }
+        return TrackingParameterCatalog.definition(for: normalized)?.enabledByDefault ?? true
     }
 
     public func setEnabled(_ name: String, isEnabled: Bool) {
         let normalized = name.lowercased()
         var disabled = disabledParameters()
-        if isEnabled {
-            disabled.remove(normalized)
-        } else {
-            disabled.insert(normalized)
+        var enabled = enabledOverrides()
+        disabled.remove(normalized)
+        enabled.remove(normalized)
+        let enabledByDefault = TrackingParameterCatalog.definition(for: normalized)?.enabledByDefault ?? true
+        if isEnabled != enabledByDefault {
+            if isEnabled {
+                enabled.insert(normalized)
+            } else {
+                disabled.insert(normalized)
+            }
         }
         defaults.set(Array(disabled).sorted(), forKey: disabledKey)
+        defaults.set(Array(enabled).sorted(), forKey: enabledKey)
     }
 
-    public func enabledParameters() -> Set<String> {
-        TrackingParameterCatalog.defaultEnabledSet
-            .union(customParameterSet())
-            .subtracting(disabledParameters())
+    /// The parameter names to strip from a URL whose host is `host`: catalog
+    /// rules that are on (default state plus user overrides) and whose host
+    /// scope matches, plus every custom parameter. Custom parameters are
+    /// global and unconditional — adding one is the user's explicit "strip
+    /// this everywhere", and it wins over a disabled catalog toggle of the
+    /// same name. A `nil` host (unparseable URL) applies global rules only.
+    public func enabledParameters(forHost host: String?) -> Set<String> {
+        let normalizedHost = Self.normalize(host: host)
+        let disabled = disabledParameters()
+        let enabled = enabledOverrides()
+        var result = customParameterSet()
+        for section in TrackingParameterCatalog.sections {
+            for definition in section.parameters {
+                guard !disabled.contains(definition.name),
+                      enabled.contains(definition.name) || definition.enabledByDefault
+                else { continue }
+                if let normalizedHost {
+                    guard definition.appliesTo(host: normalizedHost) else { continue }
+                } else {
+                    guard definition.hosts == nil else { continue }
+                }
+                result.insert(definition.name)
+            }
+        }
+        return result
     }
 
     public func customParameters() -> [String] {
@@ -50,16 +84,15 @@ public nonisolated struct TrackingParameterStore: Sendable {
         defaults.set(Array(stored).sorted(), forKey: customKey)
     }
 
+    /// Deliberately leaves the disabled/enabled override sets alone: a custom
+    /// parameter may share a name with a catalog rule (`t` added globally while
+    /// the scoped rule is toggled off), and deleting the custom entry must not
+    /// silently revert the user's separate toggle choice.
     public func removeCustomParameter(_ name: String) {
         let normalized = name.lowercased()
         var stored = customParameterSet()
         guard stored.remove(normalized) != nil else { return }
         defaults.set(Array(stored).sorted(), forKey: customKey)
-
-        var disabled = disabledParameters()
-        if disabled.remove(normalized) != nil {
-            defaults.set(Array(disabled).sorted(), forKey: disabledKey)
-        }
     }
 
     public func sections() -> [TrackingParameterSection] {
@@ -71,9 +104,11 @@ public nonisolated struct TrackingParameterStore: Sendable {
         Array(disabledParameters()).sorted()
     }
 
-    /// Re-enables every default parameter by clearing the disabled set.
-    public func reenableAllDefaultParameters() {
+    /// Restores every catalog parameter to its shipped default state by
+    /// clearing both the disabled set and the off-by-default opt-ins.
+    public func resetDefaultParameterOverrides() {
         defaults.removeObject(forKey: disabledKey)
+        defaults.removeObject(forKey: enabledKey)
     }
 
     /// Removes every user-added custom parameter.
@@ -81,8 +116,23 @@ public nonisolated struct TrackingParameterStore: Sendable {
         defaults.removeObject(forKey: customKey)
     }
 
+    /// Lowercases `host` and strips a trailing root dot (`youtube.com.`), the
+    /// form `TrackingParameterDefinition.appliesTo(host:)` expects.
+    static func normalize(host: String?) -> String? {
+        guard var host = host?.lowercased(), !host.isEmpty else { return nil }
+        if host.hasSuffix(".") {
+            host.removeLast()
+        }
+        return host.isEmpty ? nil : host
+    }
+
     private func disabledParameters() -> Set<String> {
         let stored = defaults.array(forKey: disabledKey) as? [String] ?? []
+        return Set(stored.map { $0.lowercased() })
+    }
+
+    private func enabledOverrides() -> Set<String> {
+        let stored = defaults.array(forKey: enabledKey) as? [String] ?? []
         return Set(stored.map { $0.lowercased() })
     }
 

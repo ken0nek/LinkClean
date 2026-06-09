@@ -21,7 +21,10 @@ class ActionViewController: ActionExtensionViewController {
                 return
             }
 
-            let (cleaned, result) = URLCleaner.cleanResult(url, removing: parameterStore.enabledParameters())
+            let (cleaned, result) = URLCleaner.cleanResult(
+                url,
+                removing: parameterStore.enabledParameters(forHost: URLCleaner.ruleHost(of: url))
+            )
             Log.action.debug("Input URL: \(url.absoluteString, privacy: .public)")
             Log.action.debug("Cleaned URL: \(cleaned.absoluteString, privacy: .public)")
             UIPasteboard.general.url = cleaned

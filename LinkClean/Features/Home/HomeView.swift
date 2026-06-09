@@ -86,6 +86,15 @@ struct HomeView: View {
         ) {
             Button {
                 if let parameterPendingAdd {
+                    viewModel.removeLeftoverParameterOnce(parameterPendingAdd)
+                    leftoverAddedHaptic += 1
+                }
+                parameterPendingAdd = nil
+            } label: {
+                Text(.homeLeftoverConfirmOnceAction)
+            }
+            Button {
+                if let parameterPendingAdd {
                     viewModel.addLeftoverParameter(parameterPendingAdd)
                     leftoverAddedHaptic += 1
                 }

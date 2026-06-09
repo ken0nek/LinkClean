@@ -331,21 +331,84 @@ struct HomeViewModelTests {
             store: store
         )
 
-        vm.inputText = "https://x.com/?yclid=abc&id=1"
+        vm.inputText = "https://x.com/?epik=abc&id=1"
         for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
             try? await Task.sleep(for: .milliseconds(10))
         }
-        // yclid is a known tracker that is not in the defaults → surfaced as leftover.
-        #expect(vm.leftoverParameters.contains("yclid"))
+        // epik is a known tracker that is not in the defaults → surfaced as
+        // leftover. (yclid, the previous example, graduated into the defaults.)
+        #expect(vm.leftoverParameters.contains("epik"))
 
-        vm.addLeftoverParameter("yclid")
-        for _ in 0 ..< 200 where vm.leftoverParameters.contains("yclid") {
+        vm.addLeftoverParameter("epik")
+        for _ in 0 ..< 200 where vm.leftoverParameters.contains("epik") {
             try? await Task.sleep(for: .milliseconds(10))
         }
 
-        #expect(!vm.leftoverParameters.contains("yclid")) // no longer leftover
-        #expect(vm.removedParameters.contains("yclid")) // moved into removed
-        #expect(!vm.cleanedText.contains("yclid"))       // and gone from the URL
+        #expect(!vm.leftoverParameters.contains("epik")) // no longer leftover
+        #expect(vm.removedParameters.contains("epik")) // moved into removed
+        #expect(!vm.cleanedText.contains("epik"))       // and gone from the URL
+    }
+
+    @Test func removeOnceStripsThisLinkOnlyAndPersistsNothing() async {
+        // The "Remove Once" pill action: `t` is functional on YouTube (host-scoped
+        // off), so it surfaces as a leftover; removing it once cleans this link
+        // without a custom-parameter registration — the next link keeps its `t`.
+        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let vm = HomeViewModel(
+            service: DefaultURLCleaningService(store: store),
+            analytics: SpyAnalytics(),
+            store: store
+        )
+
+        vm.inputText = "https://youtube.com/watch?v=abc&t=120"
+        for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(vm.leftoverParameters.contains("t"))
+
+        vm.removeLeftoverParameterOnce("t")
+        for _ in 0 ..< 200 where vm.leftoverParameters.contains("t") {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        #expect(!vm.leftoverParameters.contains("t"))
+        #expect(vm.removedParameters.contains("t"))
+        #expect(vm.cleanedText == "https://youtube.com/watch?v=abc")
+        #expect(store.customParameters().isEmpty) // nothing persisted
+
+        // A new link starts clean: the one-time removal must not carry over.
+        vm.inputText = "https://youtube.com/watch?v=zzz&t=9"
+        for _ in 0 ..< 200 where !vm.leftoverParameters.contains("t") {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(vm.leftoverParameters.contains("t"))
+        #expect(vm.cleanedText.contains("t=9"))
+    }
+
+    @Test func removeOnceEmitsItsOwnSignalNotACustomAdd() async {
+        let store = TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
+        let spy = SpyAnalytics()
+        let vm = HomeViewModel(
+            service: DefaultURLCleaningService(store: store),
+            analytics: spy,
+            store: store
+        )
+
+        vm.inputText = "https://youtube.com/watch?v=abc&t=120"
+        for _ in 0 ..< 200 where vm.leftoverParameters.isEmpty {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        vm.removeLeftoverParameterOnce("t")
+        for _ in 0 ..< 200 where vm.leftoverParameters.contains("t") {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        #expect(spy.events.contains(.parametersLeftoverRemovedOnce))
+        #expect(!spy.events.contains { event in
+            if case .parametersCustomAdded = event { return true }
+            return false
+        })
     }
 
     @Test func arbitraryLeftoverParameterSurfaces() async {

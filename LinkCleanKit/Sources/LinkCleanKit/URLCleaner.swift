@@ -71,7 +71,7 @@ public nonisolated enum URLCleaner {
     }
 
     public static func clean(_ urlString: String) -> String {
-        clean(urlString, removing: TrackingParameterCatalog.defaultEnabledSet)
+        clean(urlString, removing: TrackingParameterCatalog.defaultRemovalSet(forHost: ruleHost(of: urlString)))
     }
 
     public static func clean(_ urlString: String, removing parameters: Set<String>) -> String {
@@ -87,8 +87,16 @@ public nonisolated enum URLCleaner {
         removing parameters: Set<String>,
         referenceNames: Set<String> = ReferenceParameterCatalog.names
     ) -> CleanResult {
+        // Iterate the *percent-encoded* items, not `queryItems`. Reading
+        // `queryItems` decodes values and assigning it back re-encodes with a
+        // charset that leaves `+`, `/`, etc. bare — so a kept `%2B` round-trips
+        // to a literal `+`, which form-decoding servers read as a space. That
+        // would silently change a kept param's value, even on a URL where we
+        // remove nothing (we still reassign the items). Keeping each encoded
+        // item verbatim preserves kept params byte-for-byte; we decode only the
+        // *name* for catalog matching (a key may itself be percent-encoded).
         guard var components = URLComponents(string: urlString),
-              let queryItems = components.queryItems, !queryItems.isEmpty
+              let queryItems = components.percentEncodedQueryItems, !queryItems.isEmpty
         else {
             return CleanResult(cleaned: urlString, removedCount: 0)
         }
@@ -98,7 +106,7 @@ public nonisolated enum URLCleaner {
         var removedKindIDs = Set<String>()
         var leftoverNames = Set<String>()
         for item in queryItems {
-            let name = item.name.lowercased()
+            let name = (item.name.removingPercentEncoding ?? item.name).lowercased()
             if normalized.contains(name) {
                 if let kindID = TrackingParameterCatalog.kindID(for: name) {
                     removedKindIDs.insert(kindID)
@@ -109,7 +117,7 @@ public nonisolated enum URLCleaner {
             }
         }
 
-        components.queryItems = kept.isEmpty ? nil : kept
+        components.percentEncodedQueryItems = kept.isEmpty ? nil : kept
 
         return CleanResult(
             cleaned: components.string ?? urlString,
@@ -182,7 +190,7 @@ public nonisolated enum URLCleaner {
     }
 
     public static func clean(_ url: URL) -> URL {
-        clean(url, removing: TrackingParameterCatalog.defaultEnabledSet)
+        clean(url, removing: TrackingParameterCatalog.defaultRemovalSet(forHost: ruleHost(of: url)))
     }
 
     public static func clean(_ url: URL, removing parameters: Set<String>) -> URL {
@@ -194,6 +202,23 @@ public nonisolated enum URLCleaner {
     public static func cleanResult(_ url: URL, removing parameters: Set<String>) -> (cleaned: URL, result: CleanResult) {
         let result = cleanResult(url.absoluteString, removing: parameters)
         return (URL(string: result.cleaned) ?? url, result)
+    }
+
+    /// The lowercased host of `urlString` for host-scoped rule matching, with
+    /// any trailing root dot stripped; `nil` when no host can be parsed.
+    /// Unlike ``analyticsDomain(from:)-(String)`` the `www.` prefix is kept —
+    /// `TrackingParameterDefinition.appliesTo(host:)` suffix-matches, so
+    /// `www.x.com` already matches an `x.com` rule. Never sent anywhere; this
+    /// exists so every call site resolves `enabledParameters(forHost:)` from
+    /// the same host string.
+    public static func ruleHost(of urlString: String) -> String? {
+        TrackingParameterStore.normalize(host: URLComponents(string: urlString)?.host)
+    }
+
+    /// `URL` overload of ``ruleHost(of:)-(String)`` for call sites that already
+    /// hold a parsed `URL` (the action extensions).
+    public static func ruleHost(of url: URL) -> String? {
+        ruleHost(of: url.absoluteString)
     }
 
     /// The lowercased host of `urlString` for site-popularity analytics, with a

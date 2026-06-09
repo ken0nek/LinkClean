@@ -10,7 +10,16 @@ import LinkCleanKit
 
 protocol URLCleaningService: Sendable {
     func isValidURL(_ input: String) -> Bool
-    func clean(_ input: String) async throws -> CleanedURL?
+    /// Cleans `input` with the user's enabled parameters plus `extraParameters`
+    /// — transient, caller-owned removals (the "remove once" pill path) that are
+    /// never persisted to the store.
+    func clean(_ input: String, removingAlso extraParameters: Set<String>) async throws -> CleanedURL?
+}
+
+extension URLCleaningService {
+    func clean(_ input: String) async throws -> CleanedURL? {
+        try await clean(input, removingAlso: [])
+    }
 }
 
 struct DefaultURLCleaningService: URLCleaningService {
@@ -24,7 +33,7 @@ struct DefaultURLCleaningService: URLCleaningService {
         URLCleaner.isValidURL(input)
     }
 
-    func clean(_ input: String) async throws -> CleanedURL? {
+    func clean(_ input: String, removingAlso extraParameters: Set<String>) async throws -> CleanedURL? {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return nil
@@ -34,7 +43,8 @@ struct DefaultURLCleaningService: URLCleaningService {
             return nil
         }
 
-        let enabled = store.enabledParameters()
+        let enabled = store.enabledParameters(forHost: URLCleaner.ruleHost(of: trimmed))
+            .union(extraParameters.map { $0.lowercased() })
         let result = URLCleaner.cleanResult(trimmed, removing: enabled)
         return CleanedURL(
             input: trimmed,

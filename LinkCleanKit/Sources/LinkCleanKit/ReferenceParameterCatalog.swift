@@ -23,12 +23,14 @@ import Foundation
 /// review — see `parameter-telemetry.md` §11.
 public nonisolated enum ReferenceParameterCatalog {
 
-    /// Lowercased known-tracker names, guaranteed disjoint from the default
-    /// catalog (a leftover that *is* a default survived only because the user
-    /// disabled it — a different signal, already covered by
-    /// `Parameters.Default.toggled`).
+    /// Lowercased known-tracker names, guaranteed disjoint from the main
+    /// catalog — *every* catalog name, not just the enabled-by-default ones. A
+    /// leftover that is a catalog name survived deliberately (user-disabled,
+    /// shipped off as too generic, or host-scoped to another site), so it is
+    /// not a catalog *gap*; toggles are already covered by
+    /// `Parameters.Default.toggled`.
     public static let names: Set<String> = {
-        curated.subtracting(TrackingParameterCatalog.defaultEnabledSet)
+        curated.subtracting(TrackingParameterCatalog.allNames)
     }()
 
     /// Hand-curated tracker names, grouped by vendor for maintenance. All
@@ -39,24 +41,15 @@ public nonisolated enum ReferenceParameterCatalog {
     /// since a match here drives "promote into defaults" curation, a benign
     /// collision would pollute that signal.
     private static let curated: Set<String> = [
-        // Google
-        "gbraid", "wbraid", "gad_source", "gad_campaignid", "srsltid",
         // Yandex
-        "yclid", "ymclid", "_openstat", "frommarket",
-        // Twitter / X
-        "twclid",
-        // TikTok
-        "ttclid",
+        "ymclid", "_openstat", "frommarket",
         // Pinterest
         "epik",
         // LinkedIn
         "li_fat_id", "trkcampaign",
         // HubSpot
-        "_hsenc", "_hsmi",
         "hsa_acc", "hsa_ad", "hsa_cam", "hsa_grp", "hsa_kw", "hsa_la",
         "hsa_mt", "hsa_net", "hsa_ol", "hsa_src", "hsa_tgt", "hsa_ver",
-        // Marketo
-        "mkt_tok",
         // Matomo / Piwik
         "mtm_source", "mtm_medium", "mtm_campaign", "mtm_keyword",
         "mtm_content", "mtm_cid", "mtm_group", "mtm_placement",

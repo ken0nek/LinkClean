@@ -18,7 +18,7 @@ struct MockURLCleaningService: URLCleaningService {
         isValidURLHandler(input)
     }
 
-    func clean(_ input: String) async throws -> CleanedURL? {
+    func clean(_ input: String, removingAlso extraParameters: Set<String>) async throws -> CleanedURL? {
         try await cleanHandler(input)
     }
 }

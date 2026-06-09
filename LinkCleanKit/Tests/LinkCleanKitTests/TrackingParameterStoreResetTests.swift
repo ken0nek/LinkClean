@@ -13,15 +13,26 @@ struct TrackingParameterStoreResetTests {
         TrackingParameterStore(suiteName: "test.\(UUID().uuidString)")
     }
 
-    @Test func reenableAllClearsDisabledSet() {
+    @Test func resetClearsDisabledSet() {
         let store = makeStore()
         store.setEnabled("utm_source", isEnabled: false)
         #expect(store.isEnabled("utm_source") == false)
 
-        store.reenableAllDefaultParameters()
+        store.resetDefaultParameterOverrides()
 
         #expect(store.isEnabled("utm_source") == true)
         #expect(store.disabledParameterNames().isEmpty)
+    }
+
+    @Test func resetClearsOffByDefaultOptIns() {
+        // `title` ships disabled; an opt-in is an override that reset undoes.
+        let store = makeStore()
+        store.setEnabled("title", isEnabled: true)
+        #expect(store.isEnabled("title") == true)
+
+        store.resetDefaultParameterOverrides()
+
+        #expect(store.isEnabled("title") == false)
     }
 
     @Test func removeAllCustomClearsCustomParameters() {

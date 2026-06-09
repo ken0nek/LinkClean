@@ -34,7 +34,10 @@ class ActionViewController: ActionExtensionViewController {
                 return
             }
 
-            let (cleaned, cleanResult) = URLCleaner.cleanResult(url, removing: parameterStore.enabledParameters())
+            let (cleaned, cleanResult) = URLCleaner.cleanResult(
+                url,
+                removing: parameterStore.enabledParameters(forHost: URLCleaner.ruleHost(of: url))
+            )
 
             // 3. Determine title: prefer JS title, fall back to LPMetadataProvider
             // (fetch the cleaned URL so tracking parameters never go over the wire)

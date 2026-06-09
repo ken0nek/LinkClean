@@ -51,8 +51,10 @@ struct URLCleanerTests {
     }
 
     @Test func lowercasesAndRemovesSharedID() {
+        // `aid` ships disabled — a generic "article/account id" on unrelated
+        // sites — so only the affiliate sharedid matches, case-insensitively.
         let result = URLCleaner.clean("https://example.com?SharedID=abc&aid=123")
-        #expect(result == "https://example.com")
+        #expect(result == "https://example.com?aid=123")
     }
 
     // MARK: - Ad Platform Parameters
@@ -102,8 +104,10 @@ struct URLCleanerTests {
     }
 
     @Test func removesRefParams() {
+        // Bare `ref` ships disabled (functional on GitHub API links and invite
+        // codes); the vendor-pattern ref_src/ref_url stay default-on.
         let result = URLCleaner.clean("https://example.com?ref=x&ref_src=twsrc&ref_url=https://t.co")
-        #expect(result == "https://example.com")
+        #expect(result == "https://example.com?ref=x")
     }
 
     // MARK: - Social Parameters
@@ -114,8 +118,10 @@ struct URLCleanerTests {
     }
 
     @Test func removesSocialParams() {
+        // Only the vendor-specific share_source_type strips globally; si and
+        // feature are host-scoped (YouTube/Spotify) and `app` ships disabled.
         let result = URLCleaner.clean("https://example.com?share_source_type=copy&si=abc&feature=share&app=desktop")
-        #expect(result == "https://example.com")
+        #expect(result == "https://example.com?si=abc&feature=share&app=desktop")
     }
 
     // MARK: - Mixed Parameters (keep functional, strip tracking)
@@ -155,6 +161,39 @@ struct URLCleanerTests {
     @Test func preservesFragmentWithFunctionalParams() {
         let result = URLCleaner.clean("https://example.com/page?q=test&utm_source=twitter#section")
         #expect(result == "https://example.com/page?q=test#section")
+    }
+
+    // MARK: - Kept-Parameter Encoding Fidelity
+
+    @Test func preservesPercentEncodedPlusInKeptParameter() {
+        // `%2B` (a literal `+`) must survive verbatim. If it round-tripped to a
+        // bare `+`, a form-decoding server would read it as a space, silently
+        // changing the kept value. See URLCleaner's percent-encoded write path.
+        let result = URLCleaner.clean("https://example.com/p?utm_source=x&a=1%2B2")
+        #expect(result == "https://example.com/p?a=1%2B2")
+    }
+
+    @Test func preservesPercentEncodedValueEvenWhenNothingRemoved() {
+        // The kept value must not change on a URL we don't actually clean — we
+        // still rewrite the query items, so re-encoding would corrupt a value we
+        // had no reason to touch.
+        let result = URLCleaner.clean("https://example.com/p?a=1%2B2")
+        #expect(result == "https://example.com/p?a=1%2B2")
+    }
+
+    @Test func preservesPercentEncodedBase64TokenInKeptParameter() {
+        // base64 values carry `+` and `/` (as `%2B`/`%2F`); both must survive so
+        // the token isn't mangled.
+        let result = URLCleaner.clean("https://example.com/p?utm_source=x&token=ab%2Bcd%2F")
+        #expect(result == "https://example.com/p?token=ab%2Bcd%2F")
+    }
+
+    @Test func doesNotCleanTrackingParametersInsideFragment() {
+        // Tracking params embedded in the fragment (`#utm_source=…`) are
+        // intentionally left untouched: cleaning operates on the query only, so
+        // the fragment passes through byte-for-byte.
+        let result = URLCleaner.clean("https://example.com/p?a=1#utm_source=x&utm_medium=y")
+        #expect(result == "https://example.com/p?a=1#utm_source=x&utm_medium=y")
     }
 
     @Test func caseInsensitiveMatching() {
@@ -225,8 +264,10 @@ struct URLCleanerTests {
     }
 
     @Test func realWorldAmazonStyleURL() {
+        // Bare `ref` survives by default — generic enough to be functional on
+        // other sites; opting in remains one toggle (or pill tap) away.
         let result = URLCleaner.clean("https://www.example.com/dp/B08N5WRWNW?tag=mystore&utm_source=google&gclid=abc&ref=sr_1_1")
-        #expect(result == "https://www.example.com/dp/B08N5WRWNW?tag=mystore")
+        #expect(result == "https://www.example.com/dp/B08N5WRWNW?tag=mystore&ref=sr_1_1")
     }
 }
 
@@ -241,7 +282,7 @@ struct TrackingParameterStoreTests {
         store.addCustomParameter("  UTM_Source  ")
 
         #expect(store.customParameters() == ["utm_source"])
-        #expect(store.enabledParameters().contains("utm_source"))
+        #expect(store.enabledParameters(forHost: nil).contains("utm_source"))
     }
 
     @Test func removesCustomParameters() {
@@ -254,7 +295,7 @@ struct TrackingParameterStoreTests {
         store.removeCustomParameter("custom_param")
 
         #expect(store.customParameters().isEmpty)
-        #expect(!store.enabledParameters().contains("custom_param"))
+        #expect(!store.enabledParameters(forHost: nil).contains("custom_param"))
     }
 }
 

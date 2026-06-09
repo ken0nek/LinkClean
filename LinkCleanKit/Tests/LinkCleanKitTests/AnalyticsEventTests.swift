@@ -28,7 +28,8 @@ struct AnalyticsEventTests {
             (.parametersCustomAdded(totalCount: 1), "Parameters.Custom.added"),
             (.parametersCustomDeleted(totalCount: 0), "Parameters.Custom.deleted"),
             (.parametersCustomShown, "Parameters.Custom.shown"),
-            (.parametersReferenceObserved(parameter: "yclid"), "Parameters.Reference.observed"),
+            (.parametersReferenceObserved(parameter: "epik"), "Parameters.Reference.observed"),
+            (.parametersLeftoverRemovedOnce, "Parameters.Leftover.removedOnce"),
             (.onboardingFlowCompleted, "Onboarding.Flow.completed"),
             (.onboardingFlowSkipped, "Onboarding.Flow.skipped"),
             (.onboardingExtensionGuideShown(source: .onboarding), "Onboarding.ExtensionGuide.shown"),
@@ -149,7 +150,7 @@ struct AnalyticsEventTests {
         let events: [AnalyticsEvent] = [
             .homeClipboardInvalidPasted, .historyEntryDeleted, .historyAllCleared,
             .historySearchUsed, .onboardingFlowCompleted, .onboardingFlowSkipped,
-            .settingsScreenShown, .parametersCustomShown,
+            .settingsScreenShown, .parametersCustomShown, .parametersLeftoverRemovedOnce,
             .reviewPromptShown, .reviewSystemPromptRequested, .reviewPromptDismissed,
         ]
         for event in events {
