@@ -1,0 +1,9 @@
+Welcome to LinkClean 1.0!
+
+• Clean tracking parameters from any link
+• Clean Link and Copy-as-Markdown actions, right in the Share Sheet
+• See exactly what was removed — and tap a leftover parameter to remove it for good
+• A searchable History of everything you've cleaned
+• 100% on-device cleaning — your links never leave your device
+
+Thanks for trying LinkClean. Feedback is always welcome.

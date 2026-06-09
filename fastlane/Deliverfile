@@ -1,0 +1,7 @@
+# The Deliverfile allows you to store various App Store Connect metadata
+# For more information, check out the docs
+# https://docs.fastlane.tools/actions/deliver/
+
+# LinkClean ships unlocalized for 1.0.0 — English (en-US) only.
+# Screenshots upload separately from fastlane/screenshots/en-US/.
+languages(["en-US"])

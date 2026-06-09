@@ -15,6 +15,10 @@ In priority order:
 6. [ ] Metadata (App Store Connect) — privacy nutrition label depends on TelemetryDeck (2)
 7. [ ] Privacy policy — required for App Store submission; draft ready at [ken0nek.com/apps/linkclean/privacy-policy](https://ken0nek.com/apps/linkclean/privacy-policy/), publish before metadata (6)
 
+Open decisions:
+
+- [ ] **Buy the `linkclean.app` domain?** Not a launch blocker — the App Store URLs work today (support → `github.com/ken0nek`, privacy → `ken0nek.com/apps/linkclean`). A dedicated `.app` domain (cf. `whyzard.app`) would give a marketing/landing front door and cleaner support + universal-link URLs, at the cost of registration + mandatory HTTPS. Metadata URLs are editable post-launch, so this can wait. If bought, revisit the support/marketing/privacy URLs.
+
 Added during 1.0.0 (beyond the original priority list):
 
 - [x] **Cleaning transparency on Home** — after a URL is entered or auto-pasted and cleaned, show the user what happened. Asymmetric by design: the *leftover* side is actionable, the *removed* side is read-only.

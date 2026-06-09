@@ -1,0 +1,1 @@
+Strip utm_source, fbclid, and dozens more tracking tags from any link — right in your Share Sheet. See what's removed, copy a clean link, share it privately.

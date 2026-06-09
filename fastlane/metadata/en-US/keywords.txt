@@ -1,0 +1,1 @@
+utm,fbclid,gclid,url,privacy,tracking,share,markdown,copy,paste,parameter,query,redirect,utm_source

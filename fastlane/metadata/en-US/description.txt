@@ -1,0 +1,25 @@
+LinkClean strips tracking junk from any link, so what you share is the clean destination — not a trail of who shared it, from where, and when.
+
+Paste a link and LinkClean instantly removes tracking parameters like utm_source, fbclid, and dozens more. You see exactly what was taken out and what's left, then copy a clean link with a single tap.
+
+CLEAN AS YOU SHARE
+Add LinkClean to your Share Sheet and clean a link without leaving the app you're in:
+• Clean Link — copies the tidied URL, ready to paste
+• Copy as Markdown — copies the link as a Markdown [title](url), with the page title filled in for you
+
+SEE WHAT YOU'RE REMOVING
+Every clean shows a calm summary of how many trackers were removed — tap to see exactly which ones. Anything left behind is shown too, and you can tap a leftover parameter to strip it from now on.
+
+MAKE IT YOURS
+• Turn the built-in tracker list on or off
+• Add your own parameters to always remove
+• Keep a searchable History of everything you've cleaned — ready to copy, share, re-clean, or reopen
+
+PRIVATE BY DESIGN
+Cleaning happens entirely on your device. The links you clean are never sent to us or to anyone else. LinkClean uses only anonymous, aggregate analytics to learn which features matter — never the contents of your links. See the privacy policy for the full picture.
+
+Built for iOS 26 with a fast, native, Liquid Glass interface.
+
+—
+
+Privacy Policy: https://ken0nek.com/apps/linkclean/privacy-policy/
