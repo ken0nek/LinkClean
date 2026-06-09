@@ -36,6 +36,10 @@ struct AnalyticsEventTests {
             (.actionCleanFailed(reason: .noURL), "Action.Clean.failed"),
             (.actionMarkdownSucceeded(titleSource: .javascript, changed: true), "Action.Markdown.succeeded"),
             (.actionMarkdownFailed(reason: .invalidInput), "Action.Markdown.failed"),
+            (.reviewPromptShown, "Review.Prompt.shown"),
+            (.reviewStarsSelected(bucket: .high), "Review.Stars.selected"),
+            (.reviewSystemPromptRequested, "Review.SystemPrompt.requested"),
+            (.reviewPromptDismissed, "Review.Prompt.dismissed"),
         ]
         for (event, name) in expected {
             #expect(event.signalName == name)
@@ -122,6 +126,7 @@ struct AnalyticsEventTests {
             .homeClipboardInvalidPasted, .historyEntryDeleted, .historyAllCleared,
             .historySearchUsed, .onboardingFlowCompleted, .onboardingFlowSkipped,
             .settingsScreenShown, .parametersCustomShown,
+            .reviewPromptShown, .reviewSystemPromptRequested, .reviewPromptDismissed,
         ]
         for event in events {
             #expect(event.parameters.isEmpty)
@@ -137,6 +142,12 @@ struct AnalyticsEventTests {
         let deleted = AnalyticsEvent.parametersCustomDeleted(totalCount: 2).parameters
         #expect(Array(added.keys) == ["totalCount"])
         #expect(Array(deleted.keys) == ["totalCount"])
+    }
+
+    @Test func reviewStarsSelectedCarriesOnlyTheBucket() {
+        // Privacy: only the coarse high/low bucket ships, never the exact stars.
+        #expect(AnalyticsEvent.reviewStarsSelected(bucket: .high).parameters == ["bucket": "high"])
+        #expect(AnalyticsEvent.reviewStarsSelected(bucket: .low).parameters == ["bucket": "low"])
     }
 
     // MARK: - Bucketing

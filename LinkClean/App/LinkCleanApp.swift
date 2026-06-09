@@ -52,6 +52,16 @@ struct LinkCleanApp: App {
             UserDefaults.standard.set(true, forKey: SettingsKeys.hasCompletedOnboarding)
             Self.seedSampleHistory(into: modelContainer)
         }
+
+        // Review-prompt QA: while -forceReviewGate is present, bypass the
+        // success/span/cooldown gating so the star sheet shows after the next copy
+        // or share. Set unconditionally so a normal launch clears the persisted
+        // flag rather than leaking it across runs.
+        let forceReviewGate = arguments.contains("-forceReviewGate")
+        ReviewGate.setDebugForceShow(forceReviewGate)
+        if forceReviewGate {
+            UserDefaults.standard.set(true, forKey: SettingsKeys.hasCompletedOnboarding)
+        }
         #endif
     }
 

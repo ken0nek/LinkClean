@@ -760,6 +760,61 @@
         }
       }
     },
+    "review.gate.dismiss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        }
+      }
+    },
+    "review.gate.starAccessibility" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate %lld of 5"
+          }
+        }
+      }
+    },
+    "review.gate.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A quick rating helps more people find it."
+          }
+        }
+      }
+    },
+    "review.gate.thanks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thanks for the feedback!"
+          }
+        }
+      }
+    },
+    "review.gate.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enjoying LinkClean?"
+          }
+        }
+      }
+    },
     "settings.about.header" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -95,6 +95,20 @@ public nonisolated enum AnalyticsEvent: Equatable {
     case actionMarkdownSucceeded(titleSource: TitleSource, changed: Bool)
     case actionMarkdownFailed(reason: FailureReason)
 
+    // MARK: Review (§6)
+
+    /// The in-app star prompt (`ReviewGateSheet`) appeared.
+    case reviewPromptShown
+    /// The user picked a rating. Only the coarse high/low **bucket** is sent,
+    /// never the exact star count (§3): ≥ 4 → ``ReviewBucket/high`` (routed to
+    /// Apple's system prompt), ≤ 3 → ``ReviewBucket/low`` (thanked, no public
+    /// rating).
+    case reviewStarsSelected(bucket: ReviewBucket)
+    /// A high rating invoked Apple's `requestReview()` system prompt.
+    case reviewSystemPromptRequested
+    /// The user dismissed the star prompt with "Not now".
+    case reviewPromptDismissed
+
     // MARK: - Parameter value types
 
     /// How the URL reached the Home input.
@@ -120,6 +134,12 @@ public nonisolated enum AnalyticsEvent: Equatable {
     /// Which path produced the Markdown title.
     public enum TitleSource: String {
         case javascript, linkPresentation, urlOnly
+    }
+
+    /// Coarse rating outcome — the only rating detail ever sent (§3), never the
+    /// exact star count. ≥ 4 stars is ``high``, ≤ 3 is ``low``.
+    public enum ReviewBucket: String {
+        case high, low
     }
 
     // MARK: - Signal name
@@ -151,6 +171,10 @@ public nonisolated enum AnalyticsEvent: Equatable {
         case .actionCleanFailed: "Action.Clean.failed"
         case .actionMarkdownSucceeded: "Action.Markdown.succeeded"
         case .actionMarkdownFailed: "Action.Markdown.failed"
+        case .reviewPromptShown: "Review.Prompt.shown"
+        case .reviewStarsSelected: "Review.Stars.selected"
+        case .reviewSystemPromptRequested: "Review.SystemPrompt.requested"
+        case .reviewPromptDismissed: "Review.Prompt.dismissed"
         }
     }
 
@@ -207,6 +231,8 @@ public nonisolated enum AnalyticsEvent: Equatable {
             ]
         case let .actionMarkdownFailed(reason):
             return ["reason": reason.rawValue]
+        case let .reviewStarsSelected(bucket):
+            return ["bucket": bucket.rawValue]
         case .settingsScreenShown,
              .parametersCustomShown,
              .homeClipboardInvalidPasted,
@@ -214,7 +240,10 @@ public nonisolated enum AnalyticsEvent: Equatable {
              .historyAllCleared,
              .historySearchUsed,
              .onboardingFlowCompleted,
-             .onboardingFlowSkipped:
+             .onboardingFlowSkipped,
+             .reviewPromptShown,
+             .reviewSystemPromptRequested,
+             .reviewPromptDismissed:
             return [:]
         }
     }

@@ -6,6 +6,7 @@
 //
 
 import LinkCleanKit
+import StoreKit
 import SwiftData
 import SwiftUI
 
@@ -18,6 +19,7 @@ struct HomeView: View {
     @State private var leftoverAddedHaptic = 0
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.requestReview) private var requestReview
 
     init(viewModel: HomeViewModel = HomeViewModel()) {
         _viewModel = State(initialValue: viewModel)
@@ -99,6 +101,23 @@ struct HomeView: View {
         } message: {
             if let parameterPendingAdd {
                 Text(.homeLeftoverConfirmMessage(parameterPendingAdd))
+            }
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { viewModel.showReviewGate },
+                set: { viewModel.showReviewGate = $0 }
+            ),
+            onDismiss: {
+                // Fire Apple's prompt only after our sheet is fully gone — calling
+                // requestReview() mid-dismiss makes iOS silently drop it.
+                if viewModel.reviewGateDidDismiss() {
+                    requestReview()
+                }
+            }
+        ) {
+            ReviewGateSheet { outcome in
+                viewModel.handleReviewRating(outcome)
             }
         }
     }

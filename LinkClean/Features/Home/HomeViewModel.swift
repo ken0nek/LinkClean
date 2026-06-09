@@ -22,11 +22,15 @@ final class HomeViewModel {
     private(set) var cleanedURL: CleanedURL?
     var didCopy = false
     var showClipboardToast = false
+    /// Drives the in-app review star sheet (``ReviewGateSheet``). Set by the view
+    /// model at a value moment; the system clears it on dismiss.
+    var showReviewGate = false
     var focusResetToken = UUID()
     @ObservationIgnored private let service: URLCleaningService
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private let store: TrackingParameterStore
+    @ObservationIgnored private let review: ReviewService
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
@@ -50,17 +54,30 @@ final class HomeViewModel {
     @ObservationIgnored private var lastCopiedOutput: String?
     @ObservationIgnored private var lastSharedOutput: String?
     @ObservationIgnored private var lastRecordedHistoryOutput: String?
+    // Review-prompt state. `lastReviewCountedOutput` dedupes the success counter
+    // per distinct exported output (copy-then-share of one URL counts once);
+    // `didOfferReviewThisSession` caps the prompt at once per app run.
+    @ObservationIgnored private var lastReviewCountedOutput: String?
+    @ObservationIgnored private var didOfferReviewThisSession = false
+    @ObservationIgnored private var reviewTask: Task<Void, Never>?
+    // Per-presentation review-sheet state: whether the user rated at all (a
+    // dismissal without a rating is a decline) and whether it was a high rating
+    // (defers Apple's `requestReview()` until after the sheet dismisses).
+    @ObservationIgnored private var reviewDidRate = false
+    @ObservationIgnored private var reviewRatedHigh = false
 
     init(
         service: URLCleaningService = DefaultURLCleaningService(),
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
         settings: SettingsStore = SettingsStore(),
-        store: TrackingParameterStore = TrackingParameterStore()
+        store: TrackingParameterStore = TrackingParameterStore(),
+        review: ReviewService = DefaultReviewService()
     ) {
         self.service = service
         self.analytics = analytics
         self.settings = settings
         self.store = store
+        self.review = review
     }
 
     private var isAutoPasteEnabled: Bool { settings.autoPasteEnabled }
@@ -113,6 +130,7 @@ final class HomeViewModel {
             lastCopiedOutput = cleanedURL.output
             analytics.capture(.homeURLCopied(changed: cleanedURL.changed))
             recordHistoryIfNeeded(for: cleanedURL)
+            noteExportForReview(cleanedURL.output)
         }
 
         copyTask?.cancel()
@@ -131,6 +149,7 @@ final class HomeViewModel {
         lastSharedOutput = cleanedURL.output
         analytics.capture(.homeURLShared(changed: cleanedURL.changed))
         recordHistoryIfNeeded(for: cleanedURL)
+        noteExportForReview(cleanedURL.output)
     }
 
     /// Inserts a history row for `cleanedURL` once per distinct output — whether
@@ -140,6 +159,69 @@ final class HomeViewModel {
         lastRecordedHistoryOutput = cleanedURL.output
         let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
         modelContext?.insert(entry)
+    }
+
+    /// Counts a distinct exported output toward review eligibility (once per
+    /// output, whether reached by copy or share), then offers the prompt — the
+    /// copy/share is the realized-value moment, the natural place to ask.
+    private func noteExportForReview(_ output: String) {
+        if output != lastReviewCountedOutput {
+            lastReviewCountedOutput = output
+            review.recordSuccess()
+        }
+        maybeOfferReview()
+    }
+
+    /// Schedules ``ReviewGateSheet`` if the gate is eligible and we haven't asked
+    /// this session. A short delay lets the copy's checkmark and success haptic
+    /// land before the sheet rises, so the two moments don't collide. `reviewTask`
+    /// is cancelled in ``onDisappear()`` so it can't fire off-screen.
+    private func maybeOfferReview() {
+        guard !didOfferReviewThisSession, review.shouldRequestReview() else { return }
+        didOfferReviewThisSession = true
+        reviewTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(0.6))
+            guard !Task.isCancelled, isHomeVisible else { return }
+            presentReviewGate()
+        }
+    }
+
+    /// Commits to showing the prompt: stamps the persistent cooldown and emits the
+    /// shown signal at the same instant `showReviewGate` flips, so backgrounding
+    /// or a crash can't leave the gate re-armed with no cooldown recorded.
+    private func presentReviewGate() {
+        review.markPrompted()
+        analytics.capture(.reviewPromptShown)
+        reviewDidRate = false
+        reviewRatedHigh = false
+        showReviewGate = true
+    }
+
+    /// Records the star rating (bucket-only) the user gave the sheet. The hop to
+    /// Apple's `requestReview()` is deferred to ``reviewGateDidDismiss()`` so it
+    /// fires after our sheet is gone, not over it.
+    func handleReviewRating(_ outcome: ReviewGateOutcome) {
+        reviewDidRate = true
+        switch outcome {
+        case .ratedHigh:
+            reviewRatedHigh = true
+            analytics.capture(.reviewStarsSelected(bucket: .high))
+            analytics.capture(.reviewSystemPromptRequested)
+        case .ratedLow:
+            analytics.capture(.reviewStarsSelected(bucket: .low))
+        }
+    }
+
+    /// Called when the sheet finishes dismissing. Counts a dismissal when the user
+    /// left without rating (covers both "Not now" and an interactive swipe), and
+    /// returns whether the host should now present Apple's system prompt.
+    func reviewGateDidDismiss() -> Bool {
+        if !reviewDidRate {
+            analytics.capture(.reviewPromptDismissed)
+        }
+        let shouldRequestSystemPrompt = reviewRatedHigh
+        reviewRatedHigh = false
+        return shouldRequestSystemPrompt
     }
 
     /// Adds a surfaced leftover tracker to the user's custom parameters so it is
@@ -166,6 +248,9 @@ final class HomeViewModel {
 
     func onDisappear() {
         isHomeVisible = false
+        // Cancel a pending review offer so it can't surface over a backgrounded
+        // or torn-down Home (the sheet content is unrelated to the current URL).
+        reviewTask?.cancel()
     }
 
     func handleSceneBecameActive() {
@@ -251,6 +336,9 @@ final class HomeViewModel {
             lastCopiedOutput = nil
             lastSharedOutput = nil
             lastRecordedHistoryOutput = nil
+            // `lastReviewCountedOutput` is deliberately NOT reset here: clearing
+            // and re-pasting the same URL is the same realized value, so it must
+            // not count toward review eligibility a second time.
         }
 
         refreshCleanedURL()
