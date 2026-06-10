@@ -14,17 +14,24 @@ import UIKit
 @main
 struct LinkCleanApp: App {
     private let modelContainer: ModelContainer
+    @State private var entitlements: EntitlementsModel
 
     init() {
         self.modelContainer = HistoryContainer.makeShared() ?? HistoryContainer.makeInMemory()
 
+        let arguments = ProcessInfo.processInfo.arguments
+
         // Initialize analytics as early as possible (TelemetryDeck guidance: in
         // App.init, not onAppear). DEBUG builds are automatically test mode.
         if !DebugMode.isScreenshotMode {
-            TelemetryDeckAnalytics.start()
+            TelemetryDeckAnalytics.start(surface: "app")
         }
 
-        let arguments = ProcessInfo.processInfo.arguments
+        // StoreKit 2 needs no configuration step or appUserID — the device is the
+        // entitlement store of record for the lifetime non-consumable.
+        let entitlementsService = StoreKitEntitlementsService()
+        self._entitlements = State(initialValue: EntitlementsModel(service: entitlementsService))
+
         if arguments.contains("-uiTesting"),
            let bundleID = Bundle.main.bundleIdentifier {
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
@@ -167,6 +174,7 @@ struct LinkCleanApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(entitlements)
         }
         .modelContainer(modelContainer)
     }

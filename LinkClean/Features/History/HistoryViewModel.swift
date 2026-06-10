@@ -73,6 +73,39 @@ final class HistoryViewModel {
         }
     }
 
+    /// The History 7-day window gate (T1 / §9-A). Pro sees everything in
+    /// `visible`; a free user sees only the last ``ProGate/freeHistoryWindowDays``
+    /// days, with aged-out entries surfaced as counts (and a few blurred teasers)
+    /// — never as interactive rows, and never deleted.
+    struct Archive {
+        /// Entries to render fully, already search-filtered.
+        var visible: [HistoryEntry]
+        /// Up to three most-recent aged-out entries, for the blurred teaser rows.
+        var teaser: [HistoryEntry]
+        /// Total aged-out entries (count only — the rows themselves stay hidden).
+        var olderCount: Int
+        /// Aged-out entries matching the active search (count only).
+        var olderMatchCount: Int
+    }
+
+    func archive(from entries: [HistoryEntry], isPro: Bool, now: Date = .now) -> Archive {
+        if isPro {
+            return Archive(visible: filteredEntries(from: entries), teaser: [], olderCount: 0, olderMatchCount: 0)
+        }
+        let cutoff = now.addingTimeInterval(-Double(ProGate.freeHistoryWindowDays) * 86_400)
+        var within: [HistoryEntry] = []
+        var older: [HistoryEntry] = []
+        for entry in entries {
+            if entry.createdAt >= cutoff { within.append(entry) } else { older.append(entry) }
+        }
+        return Archive(
+            visible: filteredEntries(from: within),
+            teaser: Array(older.prefix(3)),
+            olderCount: older.count,
+            olderMatchCount: filteredEntries(from: older).count
+        )
+    }
+
     func viewState(hasEntries: Bool) -> ViewState {
         if !isSaveHistoryEnabled { return .disabled }
         if !hasEntries { return .empty }

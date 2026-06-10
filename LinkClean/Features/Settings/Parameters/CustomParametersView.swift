@@ -6,14 +6,27 @@
 //
 
 import SwiftUI
+import LinkCleanKit
 
 struct CustomParametersView: View {
+    @Environment(EntitlementsModel.self) private var entitlements
     @State private var viewModel: CustomParametersViewModel
     @State private var parameterPendingDelete: String?
     @State private var addErrorMessage: String?
+    @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
 
     init(viewModel: CustomParametersViewModel = CustomParametersViewModel()) {
         _viewModel = State(initialValue: viewModel)
+    }
+
+    /// A free user who has used their one free rule — the Add affordance shows a
+    /// lock and routes to the paywall instead of adding (§9-C). On a deliberate
+    /// management screen a persistent lock is honest, unlike the Home pill (§9-B).
+    private var isAtFreeLimit: Bool {
+        !ProGate.canAddCustomRule(
+            entitlement: entitlements.entitlement,
+            currentCount: viewModel.customParameters.count
+        )
     }
 
     var body: some View {
@@ -28,17 +41,25 @@ struct CustomParametersView: View {
                         .accessibilityIdentifier("custom-parameter-input")
 
                     Button {
-                        addErrorMessage = viewModel.addParameter()
+                        if isAtFreeLimit {
+                            paywallTrigger = .customParamSettings
+                        } else {
+                            addErrorMessage = viewModel.addParameter()
+                        }
                     } label: {
-                        Image(systemName: "plus.circle.fill")
+                        Image(systemName: isAtFreeLimit ? "lock.fill" : "plus.circle.fill")
                             .imageScale(.large)
                     }
-                    .disabled(!viewModel.canAdd)
+                    .disabled(!isAtFreeLimit && !viewModel.canAdd)
                     .accessibilityLabel(Text(.customParametersAddButton))
                     .accessibilityIdentifier("custom-parameter-add")
                 }
             } header: {
                 Text(.customParametersAddHeader)
+            } footer: {
+                if entitlements.entitlement != .pro {
+                    Text(.customParametersFreeCounter(viewModel.customParameters.count, ProGate.freeCustomRuleAllowance))
+                }
             }
 
             Section {
@@ -76,6 +97,7 @@ struct CustomParametersView: View {
         .onAppear {
             viewModel.onAppear()
         }
+        .paywallSheet(trigger: $paywallTrigger, entitlements: entitlements)
         .alert(
             Text(.customParametersAddErrorTitle),
             isPresented: Binding(
@@ -132,5 +154,6 @@ struct CustomParametersView: View {
 #Preview {
     NavigationStack {
         CustomParametersView()
+            .environment(EntitlementsModel.preview)
     }
 }

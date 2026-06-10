@@ -88,6 +88,11 @@ final class HomeViewModel {
 
     var isSaveHistoryEnabled: Bool { settings.saveHistoryEnabled }
 
+    /// Current custom-rule count, read live for the leftover-pill gate (T2). Not
+    /// an observed property — checked at tap time, and the pill shows no lock at
+    /// rest, so it needs no reactive refresh.
+    var customParameterCount: Int { store.customParameters().count }
+
     var isInputEmpty: Bool {
         trimmedInput.isEmpty
     }

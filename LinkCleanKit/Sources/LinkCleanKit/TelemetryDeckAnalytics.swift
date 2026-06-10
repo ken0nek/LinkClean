@@ -7,6 +7,7 @@
 
 import Foundation
 import TelemetryDeck
+import StoreKit
 
 /// TelemetryDeck-backed ``AnalyticsService``. This is the only type in the
 /// codebase that touches the TelemetryDeck SDK; the app and both action
@@ -36,14 +37,29 @@ public nonisolated struct TelemetryDeckAnalytics: AnalyticsService {
         TelemetryDeck.signal(event.signalName, parameters: event.parameters)
     }
 
+    public func recordPurchase(transaction: Transaction) {
+        guard TelemetryManager.isInitialized else { return }
+        TelemetryDeck.purchaseCompleted(transaction: transaction)
+    }
+
     /// Initializes the TelemetryDeck SDK. Call once per process, as early as
     /// possible — `LinkCleanApp.init()` for the app, `viewDidLoad` for each
     /// action extension. `capture(_:)` is a no-op until this has run.
     ///
+    /// - Parameter surface: The target identifier (`app` / `action` / `markdownAction`).
+    ///
     /// Test mode is automatic: TelemetryDeck flags signals sent from a debug
     /// session, so DEBUG builds never pollute production insights (§3).
-    public static func start() {
+    public static func start(surface: String) {
         let config = TelemetryDeck.Config(appID: appID, salt: salt)
+        // `defaultParameters` is evaluated per signal, so `tier` reflects the
+        // entitlement live (it flips to `pro` the moment a purchase resolves).
+        config.defaultParameters = {
+            [
+                "tier": EntitlementStore().current().rawValue,
+                "surface": surface
+            ]
+        }
         TelemetryDeck.initialize(config: config)
         TelemetryDeck.updateDefaultUserID(to: sharedUserIdentifier())
     }

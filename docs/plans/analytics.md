@@ -158,7 +158,9 @@ Initialize TelemetryDeck in the shared `ActionExtensionViewController` base clas
 
 Extensions append minimal event records (name + params + timestamp) to a file/`UserDefaults` queue in the App Group container; the main app drains the queue on launch/foreground and replays through TelemetryDeck. Guaranteed eventual delivery and a single network owner, at the cost of plumbing and a delay until the next app open. **Not planned for 1.0.0** — measure first.
 
-## 9. IAP analytics (1.1.0): RevenueCat × TelemetryDeck
+## 9. IAP analytics (1.1.0): StoreKit 2 × TelemetryDeck
+
+> **⚠️ Superseded 2026-06-10.** 1.1 shipped on **StoreKit 2, not RevenueCat** (`../plans/iap-implementation-plan.md`). Consequences for this section: there is **no server-side forwarding** (no server, no RevenueCat) — the purchase funnel is **client-side only**, fired from the custom paywall through the typed `AnalyticsEvent` facade as `Paywall.Screen.shown(trigger)` / `Pro.Purchase.started|completed|failed|restored`, plus `TelemetryDeck.purchaseCompleted(transaction:)` with the verified StoreKit `Transaction` (directional revenue). **Revenue / refund / conversion-rate truth lives in App Store Connect (Sales & Trends + App Analytics)**, not RevenueCat. The RevenueCat-integration setup below is retained only as historical context for the original plan.
 
 Server-side purchase truth comes from RevenueCat's integration, which forwards subscription events into TelemetryDeck so revenue appears alongside usage signals — including events that happen while the app isn't running (renewals, cancellations, billing issues).
 

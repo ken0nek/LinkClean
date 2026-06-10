@@ -3,7 +3,7 @@
 > **Status: draft — 2026-06-09.** The measurement layer that sits on top of the strategy and plan docs: *what to watch, where it lives, and what number triggers what action*, across the two phases of the product's life.
 > **Scope:** product + revenue + cost KPIs, split **Before monetization (1.0, live now)** vs **After monetization (1.1 IAP)**.
 > **Builds on:** [`docs/plans/analytics.md`](../plans/analytics.md) (taxonomy), [`docs/plans/parameter-telemetry.md`](../plans/parameter-telemetry.md) (catalog-gap), [`docs/strategy/iap-strategy.md`](iap-strategy.md) (what to sell), [`docs/plans/iap-implementation-plan.md`](../plans/iap-implementation-plan.md) (how IAP is built).
-> **Companion dashboards** (both import-only via the TelemetryDeck UI): [`Dashboard-LinkClean-Core-Usage.json`](../dashboards/Dashboard-LinkClean-Core-Usage.json) covers every Phase-1 usage KPI below; [`Dashboard-LinkClean-Monetization.json`](../dashboards/Dashboard-LinkClean-Monetization.json) is the Phase-2 IAP click-through funnel + paid-tier template (dark until 1.1). Revenue / conversion-*rate* / refund truth stays in RevenueCat, not these dashboards — see §"The measurement model".
+> **Companion dashboards** (both import-only via the TelemetryDeck UI): [`Dashboard-LinkClean-Core-Usage.json`](../dashboards/Dashboard-LinkClean-Core-Usage.json) covers every Phase-1 usage KPI below; [`Dashboard-LinkClean-Monetization.json`](../dashboards/Dashboard-LinkClean-Monetization.json) is the Phase-2 IAP click-through funnel + paid-tier template (dark until 1.1). Revenue / conversion-*rate* / refund truth stays in **App Store Connect** (Sales & Trends + App Analytics), not these dashboards — see §"The measurement model".
 
 ---
 
@@ -14,7 +14,7 @@
 **LinkClean's economics are unusual and that shapes everything below:**
 
 - **Zero marginal cost.** Cleaning is 100% on-device; there is no backend. RevenueCat, TelemetryDeck, and the $99/yr Apple Developer fee are *fixed/sunk*. Every Pro sale is ~pure margin. There is no per-clean, per-user, or per-action cost to model — unlike a server/LLM app, the entire "cost" half of unit economics is a flat line.
-- **One-time purchase, not a subscription.** Pro is a non-consumable (`linkclean_pro_lifetime`, $3.99 launch → $4.99). So **churn, MRR/ARR, renewal rate, trial-conversion, and LTV = margin ÷ churn do not exist here** — do not import them from a SaaS playbook (see §"What does NOT apply"). "After-monetization" economics reduce to **conversion × price × downloads**, minus Apple's cut.
+- **One-time purchase, not a subscription.** Pro is a non-consumable (`linkclean_pro_lifetime`, **$4.99** base + 3-tier regional pricing, Family Sharing OFF). So **churn, MRR/ARR, renewal rate, trial-conversion, and LTV = margin ÷ churn do not exist here** — do not import them from a SaaS playbook (see §"What does NOT apply"). "After-monetization" economics reduce to **conversion × price × downloads**, minus Apple's cut.
 
 **What's real today vs at 1.1:** Phase 1 (everything in the Core Usage dashboard) is live on shipped 1.0 events. Phase 2 (`Paywall.*` / `Purchase.*` / `Restore.*`, the live `tier` param, RevenueCat revenue) lights up when 1.1 ships — the event names are reserved but unfired today (`iap-implementation-plan.md` Phase 0).
 
@@ -34,6 +34,9 @@
 ---
 
 ## The measurement model (read this first)
+
+> **⚠️ Engine update 2026-06-10.** 1.1 shipped on **StoreKit 2, not RevenueCat**. Everywhere below that names **RevenueCat** as the source of truth for revenue, conversion *rate*, refunds, or cohort splitting, read **App Store Connect** (Sales & Trends for money; App Analytics for cohorts/conversion). There is no RevenueCat account, dashboard, or cost line (the "RevenueCat free < $2.5K MTR" ceiling notes are moot). The TelemetryDeck purchase funnel is unchanged (`Pro.Purchase.*`, client-side, blind to refunds — directional). Grandfathering (#19) was dropped, so there is no 1.0-cohort split to manage in 1.1.
+
 
 Five framing facts; the KPIs only make sense against them.
 
@@ -244,7 +247,7 @@ Reserved-but-unfired today. The event names exist in the analytics facade shippe
   | 5% (base) | 500 | **$2,120** |
   | 7% (upside) | 700 | **$2,968** |
 
-- **Price realization** (RevenueCat, by product/territory): launch-price sales net **$3.39** ($3.99, first 30 days of 1.1); regional tiers net ~$1.7–2.5; **blended realistic ~$3.90–4.10** after Apple's 15% Small Business Program cut. Track the blended net, not the sticker price.
+- **Price realization** (App Store Connect, by product/territory): no launch promo; **$4.99 base nets $4.24**, regional tiers net ~$1.69 (Tier 3) – $2.54 (Tier 2); **blended net depends on where installs land** (weight by storefront mix). Track the blended net, not the sticker price.
 - **`TelemetryDeck.purchaseCompleted(transaction:)`** also auto-sends USD-normalized revenue into TelemetryDeck for cohorting against behavior — but it's **directional only** (client-side, blind to refunds). RevenueCat remains authoritative for money.
 
 ## 18. Refund rate
@@ -255,7 +258,7 @@ Reserved-but-unfired today. The event names exist in the analytics facade shippe
 ## 19. Grandfathering & cohort hygiene
 
 - **Definition:** the 1.0 cohort entitled to Pro via `originalApplicationVersion < first-1.1-build` (`iap-strategy.md` §7). These are `pro`-without-a-sale.
-- **Why it's a KPI, not a footnote:** every Phase-2 rate (#15, #17) is wrong if this cohort is mixed in. Segment **all** revenue/conversion reads to the **post-1.1 install cohort**. RevenueCat's `originalApplicationVersion` is the splitter. Also: **Family Sharing is ON** — one purchase can entitle several users, so *revenue per entitled user* < *revenue per purchase*; read revenue against purchases, not against entitled-user counts.
+- **Why it's a KPI, not a footnote:** every Phase-2 rate (#15, #17) is wrong if this cohort is mixed in. Segment **all** revenue/conversion reads to the **post-1.1 install cohort**. RevenueCat's `originalApplicationVersion` is the splitter. Also: **Family Sharing is OFF** (2026-06-10) — one purchase entitles one Apple Account, so revenue-per-purchase = revenue-per-entitled-user; no family-share dilution to model.
 
 ## 20. `tier`-sliced behavior — do Pro users differ?
 

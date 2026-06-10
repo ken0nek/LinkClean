@@ -8,14 +8,17 @@
 #if DEBUG
 import SwiftData
 import SwiftUI
+import LinkCleanKit
 
 /// DEBUG-only menu for inspecting and clearing the app's persisted state.
 /// Strings are intentionally `verbatim` — this screen never ships to users, so
 /// it stays out of the string catalog.
 struct DeveloperMenuView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(EntitlementsModel.self) private var entitlements
     @State private var viewModel = DeveloperMenuViewModel()
     @State private var showResetEverythingConfirmation = false
+    @State private var previewTrigger: AnalyticsEvent.PaywallTrigger?
 
     var body: some View {
         Form {
@@ -42,6 +45,36 @@ struct DeveloperMenuView: View {
             }
 
             Section {
+                ForEach([AnalyticsEvent.PaywallTrigger.settingsRow, .historyArchive, .customParamHome], id: \.rawValue) { trigger in
+                    Button {
+                        previewTrigger = trigger
+                    } label: {
+                        Text(verbatim: "Preview Paywall · \(trigger.rawValue)")
+                    }
+                }
+
+                Picker(selection: Binding(
+                    get: { entitlements.debugOverrideValue },
+                    set: { entitlements.debugSetOverride($0) }
+                )) {
+                    Text(verbatim: "Off (StoreKit)").tag(Entitlement?.none)
+                    Text(verbatim: "Free").tag(Optional(Entitlement.free))
+                    Text(verbatim: "Pro").tag(Optional(Entitlement.pro))
+                } label: {
+                    Text(verbatim: "Entitlement Override")
+                }
+
+                LabeledContent {
+                    Text(verbatim: entitlements.entitlement.rawValue)
+                        .foregroundStyle(.secondary)
+                } label: {
+                    Text(verbatim: "Resolved entitlement")
+                }
+            } header: {
+                Text(verbatim: "Pro / Entitlements")
+            }
+
+            Section {
                 Button(role: .destructive) {
                     showResetEverythingConfirmation = true
                 } label: {
@@ -54,6 +87,7 @@ struct DeveloperMenuView: View {
         .screenBackground()
         .navigationTitle(Text(verbatim: "Developer"))
         .navigationBarTitleDisplayMode(.inline)
+        .paywallSheet(trigger: $previewTrigger, entitlements: entitlements)
         .task { viewModel.setModelContext(modelContext) }
         .confirmationDialog(
             Text(verbatim: "Reset every stored value and clear History?"),
@@ -94,6 +128,7 @@ struct DeveloperMenuView: View {
 #Preview {
     NavigationStack {
         DeveloperMenuView()
+            .environment(EntitlementsModel.preview)
     }
 }
 #endif

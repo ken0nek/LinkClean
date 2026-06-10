@@ -2,7 +2,7 @@
 
 > **Status: proposed** — 2026-06-05. Sequencing (free 1.0 → IAP-only 1.1, timeboxed) **decided** 2026-06-05 — see §8.
 > **Revised 2026-06-09** — revalidated the model (one-time confirmed; structural case added, §3), expanded the paywall into concrete per-surface experiences (§9), added a free basic Shortcut (§6), softened the no-subscription precommitment (§12), and named the roadmap ceiling (§11).
-> **Calibrated 2026-06-09** — set the 1.1 free tier to a **validate-WTP + ASO** brief (§1): history window **10 days**, **3** free custom rules, archive **stored-and-hidden with disclosure** (not silent), default-parameter toggles kept free. Supersedes an interim 14→7 / 5→1 tightening pass (lineage in §10).
+> **Calibrated 2026-06-09; tightened 2026-06-10** — 1.1 free tier: history window **7 days**, **1** free custom rule, archive **stored-and-hidden with disclosure** (not silent), default-parameter toggles kept free. The 7-day/1-rule values are the operative product decision (2026-06-10), superseding the 10-day/3-rule calibration (lineage in §10). Engine is **StoreKit 2**, not RevenueCat (`../plans/iap-implementation-plan.md`).
 > Scope: **what** to sell — product lineup, pricing, free-tier limits, gated features, grandfathering, paywall triggers and experiences. This is the "IAP strategy" item in `docs/TODO.md` (1.1.0) and answers everything `docs/plans/iap-implementation-plan.md` defers ("Out of scope / deferred").
 > Sources: consolidated from `docs/raw/LinkKit_Monetization_Strategy.md` (v1) and `docs/raw/LinkKit_Monetization_Strategy_v3.md` (v3), both Feb 2026 exports written under the old working name "LinkKit" against a pre-1.0 feature plan. Where they conflict, v3 (the later iteration) generally wins; where both conflict with the shipped app, reality wins. Deviations are logged in §10.
 
@@ -10,7 +10,7 @@
 
 ## 1. Context (June 2026)
 
-- **1.0 has not shipped.** It ships fully free, no IAP (`docs/TODO.md`). IAP lands in **1.1** via RevenueCat.
+- **1.0 has not shipped.** It ships fully free, no IAP (`docs/TODO.md`). IAP lands in **1.1** via **StoreKit 2** (a single non-consumable; no RevenueCat).
 - **Already built and free in 1.0:** URL cleaning (Home + `LinkCleanAction`), Markdown copy (`LinkCleanMarkdownAction` + `MarkdownFormatter` + title fetch), history **with search** (`HistoryView` is `.searchable`), custom parameters, default-parameter toggles.
 - **Not built yet:** HTML / Title+URL formats, history export, domain rules, iCloud sync, widgets, Shortcuts.
 - The raw docs' launch choreography (soft-launch weeks, 60-day download targets) is superseded: **1.0-free → 1.1-IAP *is* the soft launch**, with real review-building and zero monetization friction at first contact.
@@ -26,7 +26,7 @@ The market leader (Clean Links by Numen) is completely free with a 5.0 rating. L
 - **Goal = validate WTP.** Gates must yield an *interpretable* signal: a non-purchase should mean "didn't value Pro," not "got annoyed." That rules out aggressive scarcity — an over-tight free tier confounds the very thing 1.1 exists to measure.
 - **Growth = ASO / App Store search.** Ranking — and the rating that drives it — is the binding constraint, not conversion rate. A gate that earns a 1★ costs more in suppressed discovery than it makes in Pro sales; protecting the rating outranks squeezing conversion.
 
-Both point the same way: **fair gates for 1.1; revisit tightening in 1.2+**, once there's paying-user data *and* real Pro features (formats / sync / AI) that make a gate feel like added value rather than removed function. The §6 free-tier settings (10-day window, 3 free custom rules) are calibrated to this brief — an interim 14→7 / 5→1 tightening was reverted to it on 2026-06-09 (§10).
+Both point the same way: **fair gates for 1.1; revisit tightening in 1.2+**, once there's paying-user data *and* real Pro features (formats / sync / AI) that make a gate feel like added value rather than removed function. The §6 free-tier settings (7-day window, 1 free custom rule — set 2026-06-10) are the operative calibration (§10).
 
 ---
 
@@ -69,16 +69,16 @@ The "utility mismatch" row above is the soft version of the argument. The hard v
 
 ## 4. Product lineup (answers implementation-plan "product mix")
 
-- **One non-consumable**: "LinkClean Pro". Suggested product ID `linkclean_pro_lifetime`, mapped to RevenueCat entitlement **`pro`** (matches the implementation plan's placeholder).
+- **One non-consumable**: "LinkClean Pro". Product ID `linkclean_pro_lifetime`, mapped to `Entitlement.pro` — resolved **on-device via StoreKit 2** (no RevenueCat; see `../plans/iap-implementation-plan.md`).
 - **No subscription** — not now, not alongside. Dual models confuse users and erode trust (v1 §6).
 - **No free trial / intro offer mechanics** — non-consumables don't support them; **the free tier is the trial**. Urgency comes from launch pricing (§5) and the rolling history window (§6).
-- **Family Sharing: ON** for the non-consumable from day one. Goodwill aligned with the "respect users" positioning; revenue risk negligible at this price. Treat as irreversible once enabled.
+- **Family Sharing: OFF** (decision 2026-06-10). A one-time unlock shared across a family dilutes per-seat revenue with no offsetting retention benefit (it isn't a recurring product). OFF is the reversible-safe default — enableable later if goodwill ever outweighs the dilution.
 
 ---
 
 ## 5. Pricing
 
-### Regular price: $4.99 · Launch price: $3.99 (first 30 days of 1.1)
+### Base price: $4.99 · 3-tier regional pricing · no launch promo (set 2026-06-10)
 
 v1 argued $2.99, v3 argued $4.99; v3's value-based case wins (see §10 for the dissent):
 
@@ -86,7 +86,7 @@ v1 argued $2.99, v3 argued $4.99; v3's value-based case wins (see §10 for the d
 - Under $5 is still impulse territory; $5.99+ crosses into "let me think about it."
 - Positioning: undercuts Trackless Links ($5.99), is one-seventh of CleanSend's first year, and the conversion drop from $3.99→$4.99 is typically <10% — net revenue favors $4.99.
 
-The **$3.99 launch price** rewards the first wave, creates a real (non-dark-pattern) deadline, and gives a cheap A/B read on price sensitivity.
+**No launch promo (2026-06-10):** price sensitivity is handled *geographically* by the 3-tier regional pricing below (Tier 3 storefronts at $1.99), so the global $3.99 launch window is dropped in favor of a clean, stable **$4.99 base**. *(Re-addable as a 30-day intro price later if wanted.)*
 
 ### Decision rules (evaluate ~60 days after 1.1)
 
@@ -96,7 +96,7 @@ The **$3.99 launch price** rewards the first wave, creates a real (non-dark-patt
 
 ### Regional pricing
 
-Apple's storefront model (since late 2022: ~900 price points with automatic per-storefront FX) lets you set the US base at $4.99 and manually lower individual storefronts. Don't sell at US-equivalent prices in price-sensitive markets — v3's example: India at an effective $1.99 can out-earn $4.99 by ~3× on volume. The tiers below are **purchasing-power groupings, indicative only — set actual price points at 1.1 ASC setup:**
+Apple's storefront model (since late 2022: ~900 price points with automatic per-storefront FX) lets you set the US base at $4.99 and manually lower individual storefronts. Don't sell at US-equivalent prices in price-sensitive markets — v3's example: India at an effective $1.99 can out-earn $4.99 by ~3× on volume. The 3-tier ladder below ($4.99 / $2.99 / $1.99, one-time) is the **operative pricing — execute it with the runbook in `../iap/regional-pricing-setup.md`** (a single non-consumable price point per storefront; no annual column, since this is not a subscription):
 
 **Tier 1 — full price** ($4.99 / £4.99 / €4.99 / A$7.99 / JP ≈ ¥700–800). High-income storefronts where $4.99 is impulse-level.
 
@@ -129,7 +129,7 @@ Apple's storefront model (since late 2022: ~900 price points with automatic per-
 - **Russia:** App Store purchases suspended since 2022 — can't realistically sell Pro; exclude from planning.
 - Borderline / later A/B targets: China (2↔1), Colombia (3↔2), Portugal & Greece (Tier 1, discountable).
 
-Net revenue assumption throughout: Apple Small Business Program (15%) → **$4.24 net** at $4.99, **$3.39** at $3.99. Requires SBP enrollment.
+Net revenue assumption throughout: Apple Small Business Program (15%) → **$4.24 net** at $4.99 (Tier 1), ~**$2.54** at $2.99 (Tier 2), ~**$1.69** at $1.99 (Tier 3). Requires SBP enrollment. *(No annual / no subscription — a non-consumable is a single charge per buyer.)*
 
 ---
 
@@ -148,40 +148,26 @@ Three rules generate the matrix:
 | Default parameter toggles | shipped | ✅ (correctness escape hatch — a user must be able to un-break a site) | — |
 | Copy as Clean URL | shipped | ✅ | — |
 | Copy as Markdown (incl. extension, title fetch) | shipped | ✅ (the viral feature — PKM word-of-mouth is the growth engine) | — |
-| History — last **10 days**, searchable | shipped (window is new in 1.1) | ✅ | — |
-| History — older than 10 days | 1.1 | ❌ hidden (disclosed, **never deleted**) | ✅ unlimited, searchable |
+| History — last **7 days**, searchable | shipped (window is new in 1.1) | ✅ | — |
+| History — older than 7 days | 1.1 | ❌ hidden (disclosed, **never deleted**) | ✅ unlimited, searchable |
 | Custom parameters — existing ones keep applying | shipped | ✅ (keep-what-you-have) | — |
-| Custom parameters — add new | shipped | ✅ first **3** free; ❌ beyond | ✅ unlimited |
+| Custom parameters — add new | shipped | ✅ first **1** free; ❌ beyond | ✅ unlimited |
 | Shortcuts — basic "Clean Clipboard" App Intent | not built | ✅ (distribution lever — Siri / Spotlight / Apple Intelligence reach) | — |
 | Copy as HTML / Title+URL | not built | ❌ | ✅ when built |
 | History export (CSV/JSON) | not built | ❌ | ✅ when built |
 | Domain rules, iCloud sync, widgets, advanced/parameterized Shortcuts | not built | ❌ | ✅ — "all future Pro features" is part of the pitch |
 
-### Why a 10-day window, not an item count
+### Why a time window, not an item count
 
-v1 said 25 items, an earlier draft said 50; the time-based reframe is strictly better. v3 set it at 14 days; an interim pass cut it to 7; **1.1 settles at 10** (2026-06-09) — tuned to the validate-WTP + ASO brief (§1), not to maximum squeeze:
-
-- **A window is intuitive and usage-agnostic** — "the last week and a half," not "50 items" with mental math; the 3-links/day and 20-links/day users get the same deal, so heavy use isn't punished.
-- **10 clears the habit-formation band.** Habits form in ~7–14 days; at 10 the limit bites *after* most users are hooked, not during (the flaw of the 7-day cut). For an ASO app where early reviews set the trajectory, that gap is rating insurance.
-- **A rolling window still produces recurring loss** (something ages out every day) — the one-time-purchase substitute for subscription urgency, just gentler than 7.
-- **Levers (§11):** if reviews still show "vanished too fast," **10→14**. Only tighten **10→7** once 1.2 pairs a revenue goal with real Pro features that make the gate feel fair.
-
-**Implementation:** entries older than 10 days are hidden for free users, **not purged** (deviation from v3's 30-day purge — §10), **and the retention is disclosed, never silent** (§9-A). The buried archive is the strongest upgrade pitch we have (*"You've cleaned 312 links. Pro keeps every one of them searchable"*) — but a privacy app must not quietly accumulate a link trail the user can't see, so the app states plainly that hidden entries are kept on-device. The window keys off `HistoryEntry.createdAt`; the surface treatment is §9-A.
+A rolling **time window** (not "N items") is intuitive and usage-agnostic — the 3-links/day and 20-links/day user get the same deal — and it produces recurring loss (something ages out daily), the one-time-purchase substitute for subscription urgency. **1.1 ships a 7-day window** (product decision, 2026-06-10), tightening the earlier 10-day calibration. Entries older than 7 days are **hidden for free users, never purged**, and the retention is **disclosed, never silent** (§9-A); the window keys off `HistoryEntry.createdAt` (`ProGate.freeHistoryWindowDays`). Lever (§11): widen to 10–14 if reviews show "vanished too fast."
 
 ### History search stays free
 
-v3 gated search; this doc doesn't. It already shipped free (`HistoryView.searchable`), and a visible-but-disabled search field over 10 days of data is hostile UX for near-zero conversion gain. The Pro value is *unlimited searchable depth* — search within the window is a teaser, search over two years is the product.
+v3 gated search; this doc doesn't. It already shipped free (`HistoryView.searchable`), and a visible-but-disabled search field over 7 days of data is hostile UX for near-zero conversion gain. The Pro value is *unlimited searchable depth* — search within the window is a teaser, search over two years is the product.
 
-### Why 3 free custom rules, not zero (and not one)
+### Why a small free custom-rule allowance
 
-v3 gated *all* custom-parameter creation; 1.0 shipped it unlimited-free; an interim pass cut it to one; **1.1 settles at three** (2026-06-09):
-
-- **1.0 users are all grandfathered to Pro (§7), so this never claws anything back** — the allowance only affects users whose *first* install is 1.1+.
-- **Not zero, because the privacy mission can't be the wall.** Someone who spots a tracker the catalog misses must never have to *pay to block it* — that gates the one thing rule 1 protects, and on an ASO channel it's a prime 1★ vector ("charging me to protect myself").
-- **Three, not one, because the gate has to stay interpretable.** Under a validate-WTP goal (§1), a non-conversion must mean "didn't value unlimited rules," not "got blocked on my second tracker." One bites so early the signal is noise; three lets the casual user — covered by the 85-parameter catalog (7 categories) + 33-entry reference set — effectively never hit it, so the person reaching for a *fourth* rule is genuinely curating (Pro territory) and converts on real value.
-- **Levers (§11):** if it still draws resentment, **3→5**; only tighten **3→1** alongside a 1.2 revenue goal.
-
-The first three adds also let the AI advisor (`docs/product/ai-features.md` §5-A) demonstrate value across a couple of suggestions before any wall. Watch `parametersCustomShown` vs `parametersCustomAdded` and review sentiment.
+Custom-rule *creation* is the #1 thing 1.1 gates — the person curating their own tracker list is in Pro territory. **1.1 allows 1 free custom rule** (`ProGate.freeCustomRuleAllowance`, product decision 2026-06-10), tightening the earlier 3-rule calibration. The guardrail against a "pay to protect yourself" reading (§6 rule 1) is the **85-parameter catalog (7 categories) + 33-entry reference set**, which already strip the common trackers automatically — most users never reach for a custom rule at all, so the person adding a *second* one is genuinely curating. Watch `parametersCustomShown` vs `parametersCustomAdded` and review sentiment; lever (§11): loosen to 3 if it draws resentment.
 
 ### Why default-parameter toggles stay free (the one thing this pass does *not* gate)
 
@@ -191,12 +177,12 @@ Gating default toggles was considered and **rejected.** A default toggle is the 
 
 ## 7. Grandfathering the 1.0 cohort
 
-**Decision: the entire 1.0 cohort gets Pro, free, permanently.**
+**Decision: the entire 1.0 cohort gets Pro, free, permanently.** ⚠️ **DROPPED 2026-06-10** — grandfathering is not implemented in 1.1 (no 1.0 cohort in the wild yet). The mechanism below is re-addable later via StoreKit 2's `AppTransaction.shared.originalAppVersion` if 1.0 ships before 1.1; the rest of this section is retained for that contingency.
 
 - It's the raw docs' own recommendation (v3 §6), it's what Carrot Weather / Halide / Bear did, and the cohort is small (pre-marketing, and §8's timebox keeps it that way) — the revenue forgone is rounding error against the early reviews and evangelism it buys.
 - 1.0 ships custom parameters and unlimited history free; *not* grandfathering would mean 1.1 takes shipped features away from the most loyal users.
 
-**Mechanism — nothing needs to ship in 1.0 for this.** The App Store already records it: `originalApplicationVersion` (the build number of the user's *first* download, surfaced both by StoreKit's `AppTransaction` and by RevenueCat's `CustomerInfo.originalApplicationVersion`). Inside `RevenueCatEntitlementsService`, at the same boundary that maps `CustomerInfo` → `Entitlement`:
+**Mechanism (contingency — not built).** The App Store records `originalApplicationVersion` (the build number of the user's *first* download), readable via StoreKit 2's `AppTransaction.shared.originalAppVersion`. If grandfathering is ever needed, resolve it inside `StoreKitEntitlementsService`, at the same boundary that maps `Transaction` → `Entitlement`:
 
 > `originalApplicationVersion` < first 1.1 build number → `.pro`
 
@@ -211,7 +197,7 @@ It survives reinstall and works across devices (unlike a Keychain/App Group flag
 | Phase | Version | What happens |
 |-------|---------|--------------|
 | **Soft launch** | 1.0 | Everything free, no IAP code paths. Goals: reviews ≥ 4.5★, bug reports before anyone has paid, App Store ranking, learn which features users love. Marketing: *"Free. No ads. No subscription. No tracking."* — claim it loudly while it's literally true, and keep it true for the free tier forever. **In parallel: start the ASC Paid Apps agreement + banking/tax now** (longest lead item; must not gate 1.1). |
-| **Monetize** | 1.1 | **The WTP-validation beat (§1).** Timeboxed ~4–6 weeks after 1.0, scoped to IAP only. Pro ships at **$3.99 launch price, clearly marked** ("Launch price — regular $4.99"). 10-day window activates for non-grandfathered users; custom-param creation gates past the 3-rule allowance; 1.0 cohort silently gets Pro. After 30 days: $4.99. |
+| **Monetize** | 1.1 | **The WTP-validation beat (§1).** Timeboxed ~4–6 weeks after 1.0, scoped to IAP only. Pro ships at **$4.99** with 3-tier regional pricing (§5). 7-day history window activates; custom-rule creation gates past the 1-rule allowance. (Grandfathering dropped — §7; Family Sharing OFF — §4.) |
 | **Evaluate** | 1.1 + 60d | Apply §5 decision rules using the funnel data; read it as a WTP signal (§11), rating first. |
 | **Expand** | 1.2+ | Each new Pro feature (HTML/Title+URL, export, sync, widgets, Shortcuts) lands behind the existing entitlement — existing Pro owners get everything, the "all future Pro features" promise kept. Only here, with real added-value features and WTP data in hand, does re-tightening the free tier (§6 levers) become well-motivated. Price rises, if ever, apply to new buyers only. |
 | **Tip jar** | deferred | v1 wanted it at Month 3. Deferred indefinitely: it complicates the lineup for ~1–3% conversion. Revisit only if users actively ask how to support beyond Pro. |
@@ -233,11 +219,11 @@ Shipping with IAP at initial release was evaluated against free-first.
 
 ## 9. Paywall: triggers and experiences
 
-(Answers the implementation plan's "paywall triggers and design" and `docs/TODO.md`'s monetization topic 3. The paywall *sheet* is RevenueCat-hosted so copy/layout stay server-editable; the *triggers and per-surface treatments* below are native SwiftUI and live in the app.)
+(Answers the implementation plan's "paywall triggers and design" and `docs/TODO.md`'s monetization topic 3. The paywall *sheet* is **native SwiftUI** (`Features/Paywall/`, fed by a StoreKit product through `EntitlementsModel`); the *triggers and per-surface treatments* below live in the app alongside it.)
 
 **The pitch (one sentence):**
 
-> **"LinkClean cleans unlimited URLs, copies as Markdown, and keeps the last ten days of searchable history — free. Pro keeps your history forever, adds more formats and custom rules — $4.99, once."**
+> **"LinkClean cleans unlimited URLs, copies as Markdown, and keeps the last seven days of searchable history — free. Pro keeps your history forever, adds more formats and custom rules — $4.99, once."**
 
 ### Hard rules (behavioral design, from v3)
 
@@ -252,9 +238,9 @@ Shipping with IAP at initial release was evaluated against free-first.
 
 | # | Trigger (user action) | Surface | Ships | Check |
 |---|---|---|---|---|
-| T1 | Tap into the History archive (entries > 10 days) | `HistoryView` ambient "Earlier" section | 1.1 | `pro` |
-| T2 | Tap a leftover pill on Home, after the 3 free rules are used | `HomeView.leftoverSection` → confirm step | 1.1 | `pro` |
-| T3 | Tap "Add" in Custom Parameters, after the 3 free rules are used | `CustomParametersView` | 1.1 | `pro` |
+| T1 | Tap into the History archive (entries > 7 days) | `HistoryView` ambient "Earlier" section | 1.1 | `pro` |
+| T2 | Tap a leftover pill on Home, after the 1 free rule is used | `HomeView.leftoverSection` → confirm step | 1.1 | `pro` |
+| T3 | Tap "Add" in Custom Parameters, after the 1 free rule is used | `CustomParametersView` | 1.1 | `pro` |
 | T4 | Tap the "LinkClean Pro" row (always available; hosts Restore) | `SettingsView` | 1.1 | `pro` |
 | T5 | Accept an AI parameter suggestion past the free allowance | `HomeView` advisor (ai-features §5-A) | 1.2 | `pro` |
 | T6 | Tap a locked format (HTML / Title+URL) | format picker | when built | `pro` |
@@ -262,7 +248,7 @@ Shipping with IAP at initial release was evaluated against free-first.
 
 All triggers open the same paywall sheet (E), contextualized by the trigger that raised it.
 
-### A. History archive — "blur after 10 days," done right (T1)
+### A. History archive — "blur after 7 days," done right (T1)
 
 The matrix (§6) leaves one question open: how do aged-out entries *look*? Three options:
 
@@ -272,7 +258,7 @@ The matrix (§6) leaves one question open: how do aged-out entries *look*? Three
 
 Concretely, in `HistoryView` (`@Query(sort: \HistoryEntry.createdAt, order: .reverse)`):
 
-- Entries within 10 days render exactly as today — full `HistoryCellView`, fully interactive, searchable. Pristine.
+- Entries within 7 days render exactly as today — full `HistoryCellView`, fully interactive, searchable. Pristine.
 - For a free user with older entries, a single **"Earlier" section** follows the active list:
   - Header is count-based and live: **"Earlier · 287 links"** (rule 5).
   - 2–3 **blurred teaser rows** — the most recent aged-out entries, blurred hard enough that no URL is legible in a screenshot or screen-share (even the user's own data must not leak through thin frost), non-interactive.
@@ -287,8 +273,8 @@ This **replaces** §9's earlier "inline banner atop History" (a dismissible inte
 
 Today, tapping a "Remaining" pill (`HomeView.leftoverSection` → `leftoverRow`) opens a confirm alert → `HomeViewModel.addLeftoverParameter` → `store.addCustomParameter`. The gate slots in at the confirm step:
 
-- **Within the free allowance** (fewer than 3 custom rules): unchanged — confirm alert → add. Users get to *feel* custom rules persist and work before any wall.
-- **After the 3 free rules are used:** the tap opens the **paywall** instead of the confirm alert, contextualized to the param — header **"Remove this tracker — and any you find"**, body **"You've used your 3 free custom rules. Pro removes any tracker, on every link, forever."**
+- **The pill tap always opens the confirm dialog** (`Remove Once` / `Always Remove`). **"Remove Once" is always free** — it strips the tracker from the *current link only*, a one-time non-persisted operation (§6 rule 3 never gates operation, and the privacy escape hatch must never be walled, §6 rule 1).
+- **"Always Remove" gates on the free allowance** (it persists a custom rule). Within allowance (the 1 free rule unused, or Pro): add. Past it (free, the 1 rule already used): the **"Always Remove" tap opens the paywall**, contextualized — header **"Remove this tracker — and any you find"**, body **"You've used your free custom rule. Pro removes any tracker, on every link, forever."** (decision 2026-06-10 — Remove Once stays free so a free user can always strip a tracker from the current link).
 - **Pro/grandfathered:** unchanged — unlimited.
 - **The pill never shows a lock at rest.** Home is a privacy surface; a leftover pill that looks paywalled *before* you tap it pre-loss-signals (rule 2) and reads as "pay to protect yourself." The gate reveals itself only on the tap, framed as *free rules used* (a gift spent), not *feature locked* (denial). The param name is never sent to analytics (existing privacy rule).
 
@@ -299,24 +285,24 @@ The natural framing is "paywall on tapping Custom Parameters in Settings." Recom
 - Tapping the **Custom Parameters** row opens `CustomParametersView` — **free**. Fires `parametersCustomShown`.
 - Existing rules list and apply normally (keep-what-you-have).
 - The **Add** affordance is state-aware:
-  - Within allowance: normal add field, with a quiet counter — **"2 of 3 free rules."**
-  - Allowance used (3 rules exist): the Add row carries a **lock glyph + "Pro · unlimited custom rules,"** reading **"3 of 3 free rules used."** Tap → paywall (T3). Here a persistent lock *is* right (unlike Home): this is a deliberate management screen, so signaling the boundary is honest, not interruptive.
+  - Within allowance: normal add field, with a quiet counter — **"Free custom rules: 0 of 1."**
+  - Allowance used (1 rule exists): the Add row shows a **lock glyph** and reads **"Free custom rules: 1 of 1."** Tap → paywall (T3). Here a persistent lock *is* right (unlike Home): this is a deliberate management screen, so signaling the boundary is honest, not interruptive.
 
 ### D. Settings "LinkClean Pro" row — the always-open door (T4)
 
 A persistent `SettingsView` row, state-aware:
 
-- Free: **"Unlock Pro — $3.99 · launch price"** (→ "$4.99" after the launch window) → paywall.
+- Free: **"Unlock Pro"** → paywall (the live price + honest one-time framing render on the sheet; launch-vs-regular copy is a one-string toggle, not hardcoded).
 - Pro/grandfathered: **"LinkClean Pro ✓"** with a quiet thank-you; no purchase CTA.
 - **Restore Purchases** is always present here regardless of state — App Review requires it reachable without buying. No urgency, no nag; this is the browse-anytime entrance.
 
-### E. The paywall sheet (shared surface, RevenueCat-hosted)
+### E. The paywall sheet (shared surface, native SwiftUI)
 
-- **One sheet, contextual header.** The body is constant; the top line adapts to the trigger (T1 → *"Keep all 287 links searchable"*; T2/T3 → *"Remove any tracker you find"*). Pass the trigger as the RevenueCat offering/placement context.
+- **One sheet, contextual header.** The body is constant; the top line adapts to the trigger (T1 → history framing; T2/T3 → tracker framing). The trigger is passed into `PaywallViewModel` (also tagging the `Paywall.Screen.shown` signal).
 - **Value order leads universal, AI last.** Headline = the one-sentence pitch (top of §9). Bullets: unlimited searchable history → custom rules → formats / export / sync → *"Plus, on supported devices: on-device suggestions and tagging"* (ai-features §7 — AI never headlines; device-gated capability up top invites "doesn't work on my phone" 1★).
-- **Price is launch-aware and honest:** *"$3.99 · launch price — regular $4.99,"* no fake countdown.
-- **One primary CTA; "Not now" prominent; Restore inline.** Links to **Terms of Use** + **Privacy Policy** (Apple requires an EULA/terms once IAP ships — the open `docs/TODO.md` 1.1 item).
-- **Family Sharing** badge shown (the non-consumable is Family-shared, §4).
+- **Price is the live storefront price, honest:** the paywall reads it straight from the StoreKit product (e.g. $4.99, or the buyer's local regional price), framed as a one-time purchase — no fake countdown, no launch-vs-regular claim.
+- **One primary CTA; dismiss prominent; Restore inline.** Links to **Terms of Use** + **Privacy Policy** (Apple requires an EULA/terms once IAP ships — the open `docs/TODO.md` 1.1 item; the link must resolve at submission).
+- **No Family Sharing** (§4) — the price line reads "one-time purchase, not a subscription"; no family-share badge.
 
 ### Funnel analytics
 
@@ -331,15 +317,15 @@ The reserved funnel events, to be added to `AnalyticsEvent` under the `Feature.S
 
 ## 10. Deviations from the raw docs
 
-Traceability for every place this doc overrides v1/v3 (and, in the lower rows, the 2026-06-09 revalidation + free-tier calibration). The 14→7 / 5→1 tightening these supersede was an interim step on the same day — only the final 10-day / 3-rule calibration is operative.
+Traceability for every place this doc overrides v1/v3. **Operative as of 2026-06-10: 7-day window, 1 free custom rule, StoreKit 2 engine, no grandfathering.** The 10-day/3-rule calibration (2026-06-09) and the interim 14→7/5→1 pass are historical lineage only.
 
 | Topic | v1 said | v3 said | This doc | Why |
 |-------|---------|---------|----------|-----|
 | Price | $2.99 ($4.99 "creates deliberation") | $4.99, launch $3.99 | **v3** | Later iteration; value-based math; built-in fallback to $3.99 if conversion <4% addresses v1's risk |
-| History limit | 25 items | 14 days | **10 days** (calibrated 2026-06-09) | Time-based + usage-agnostic; tuned to validate-WTP + ASO (§1) — 10 clears the habit-formation band (fair gate, protected rating) where 7 bit too early; levers 10↔14 / 10→7-only-with-1.2-revenue-goal |
+| History limit | 25 items | 14 days | **7 days** (2026-06-10; was 10 on 06-09) | Time-based + usage-agnostic; 1.1 product decision; lever 7↔14 from review signal |
 | Hidden-history purge | preserve ("Your history is there. Unlock it.") | purge after 30 days | **v1 — keep, and disclose** | The archive *is* the upgrade incentive; storage is trivial; retention is disclosed in-app, never silent (§6/§9-A) |
 | Formats | all free (marketing engine) | Markdown free; HTML, Title+URL Pro | **v3** | Hybrid keeps the viral PKM loop and still differentiates Pro; also forced — Markdown already shipped as a free extension |
-| History search | Pro | Pro | **Free** (within window) | Already shipped free in 1.0; disabled search over 10 days is hostile for no gain; Pro = unlimited *depth* |
+| History search | Pro | Pro | **Free** (within window) | Already shipped free in 1.0; disabled search over 7 days is hostile for no gain; Pro = unlimited *depth* |
 | Default parameter toggles | (free) | Pro | **Free** | Correctness escape hatch, not a power feature — the *only* way to stop over-stripping (§6); on the "operation" side of rule 3; gating it risks "app broke a site and won't let me fix it" reviews for near-zero gain |
 | Launch phasing | 4 weeks free → Pro | 2-week soft launch → Pro | **1.0 free → 1.1 Pro** | Version-based reality replaces calendar choreography; same intent (reviews before monetization) |
 | Grandfathering mechanism | n/a | `firstLaunchDate` + remote flag | **`originalApplicationVersion`** | Survives reinstall, cross-device, zero 1.0 work, lives at the existing RC service boundary |
@@ -366,7 +352,7 @@ Downloads are the input we can't predict (the Feb 2026 forecasts assumed a marke
 | 5% (base — industry norm for well-executed freemium utilities) | 500 | $2,120 |
 | 7% (upside) | 700 | $2,968 |
 
-The free tier (§6: 10-day window, 3 free custom rules) is **calibrated for the validate-WTP beat on an ASO channel (§1), not for revenue maximization** — fair gates so a non-conversion is interpretable ("didn't value Pro," not "got annoyed"), and so early reviews stay clean. The point of 1.1 is to learn *whether* people pay and *which gate* converts; squeezing conversion comes in 1.2+ with real Pro features. The §6 levers (10↔14 days, 3↔5 rules) keep the calibration adjustable from review signal.
+The free tier (§6: 7-day window, 1 free custom rule) is **calibrated for the validate-WTP beat on an ASO channel (§1), not for revenue maximization** — fair gates so a non-conversion is interpretable ("didn't value Pro," not "got annoyed"), and so early reviews stay clean. The point of 1.1 is to learn *whether* people pay and *which gate* converts; squeezing conversion comes in 1.2+ with real Pro features. The §6 levers (7↔14 days, 1↔3 rules) keep the calibration adjustable from review signal.
 
 Adjustments: launch-price sales net $3.39; regional-tier sales net ~$1.7–2.5; blended net realistically **~$3.90–4.10**. At v3's (optimistic) 360K year-one downloads and 5%, that's ~$70K; at a more sober 50–100K, **$10–20K** — validates a solo product, funds the developer account and infrastructure, and prices in zero growth from Pro features still unbuilt.
 
@@ -376,8 +362,8 @@ Adjustments: launch-price sales net $3.39; regional-tier sales net ~$1.7–2.5; 
 
 - **Rating (the binding ASO constraint).** Target ≥ 4.7; any rise in "why is my history gone" / "charging to block a tracker" reviews means a gate is misjudged — loosen via the §6 levers *before* optimizing conversion.
 - **Pro conversion rate** (target ≥ 5%; floor 4%) — read as a *WTP signal* at 1.1, not a revenue KPI.
-- `Paywall.Screen.shown → Pro.Purchase.completed` **by trigger** — which gate actually converts (the 10-day archive and the 3-rule gate are the two to watch).
-- **Install → purchase latency** (validates the 10-day window; if the median sits well inside 10 days the window is fine; if short latency pairs with "vanished too fast" reviews, loosen 10→14 before touching price).
+- `Paywall.Screen.shown → Pro.Purchase.completed` **by trigger** — which gate actually converts (the 7-day archive and the 1-rule gate are the two to watch).
+- **Install → purchase latency** (validates the 7-day window; if short latency pairs with "vanished too fast" reviews, loosen 7→14 before touching price).
 
 ---
 
@@ -399,5 +385,5 @@ Adjustments: launch-price sales net $3.39; regional-tier sales net ~$1.7–2.5; 
 ## 13. Unblocked next steps
 
 1. **ASC (Ken, start now — parallel with remaining 1.0 work):** Paid Apps agreement + banking/tax (longest lead) → create one non-consumable (`linkclean_pro_lifetime`) at the §5 price points → RC dashboard entitlement `pro` + default offering + paywall — per implementation plan Phase A.
-2. **Code (Claude):** implementation plan Phases B–C, plus the §7 grandfather mapping, the §9 triggers/surfaces (history archive partition at 10 days, the 3-rule custom-param allowance, the four 1.1 trigger sites, the retention-disclosure copy), and the reserved funnel events.
+2. **Code (Claude):** ✅ shipped 2026-06-10 — the §9 triggers/surfaces (history archive partition at 7 days, the 1-rule custom-param allowance, the four 1.1 trigger sites, the retention-disclosure copy), the custom paywall, and the funnel events. (Grandfathering dropped.)
 3. **Before 1.1 ships:** re-verify the §2 competitive snapshot (it's from Feb 2026) — pricing moves; the $4.99 case assumes Trackless Links still anchors $5.99.

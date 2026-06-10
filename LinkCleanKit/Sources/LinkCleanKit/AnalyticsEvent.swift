@@ -121,6 +121,19 @@ public nonisolated enum AnalyticsEvent: Equatable {
     /// The user dismissed the star prompt with "Not now".
     case reviewPromptDismissed
 
+    // MARK: Monetization (§9)
+
+    /// The paywall sheet appeared, tagged with the gate that raised it.
+    case paywallShown(trigger: PaywallTrigger)
+    /// A purchase was initiated from the paywall.
+    case purchaseStarted
+    /// A purchase completed successfully.
+    case purchaseCompleted
+    /// A purchase attempt produced no entitlement (cancelled / pending / error).
+    case purchaseFailed(reason: PurchaseFailureReason)
+    /// A Restore Purchases attempt finished; `restored` is whether it yielded Pro.
+    case purchaseRestored(restored: Bool)
+
     // MARK: - Parameter value types
 
     /// How the URL reached the Home input.
@@ -152,6 +165,26 @@ public nonisolated enum AnalyticsEvent: Equatable {
     /// exact star count. ≥ 4 stars is ``high``, ≤ 3 is ``low``.
     public enum ReviewBucket: String {
         case high, low
+    }
+
+    /// Why a purchase attempt produced no entitlement.
+    public enum PurchaseFailureReason: String {
+        case cancelled, pending, storeError
+    }
+
+    /// Which gate raised the paywall. A fixed, low-cardinality enum — never a URL
+    /// or parameter name (privacy rule, §9). Mirrors the §9 trigger inventory;
+    /// `advisorAccept`/`formatPicker`/`export`/`sync` are reserved for 1.2+
+    /// surfaces and ship unfired.
+    public enum PaywallTrigger: String {
+        case historyArchive
+        case customParamHome
+        case customParamSettings
+        case settingsRow
+        case advisorAccept
+        case formatPicker
+        case export
+        case sync
     }
 
     // MARK: - Signal name
@@ -188,6 +221,11 @@ public nonisolated enum AnalyticsEvent: Equatable {
         case .reviewStarsSelected: "Review.Stars.selected"
         case .reviewSystemPromptRequested: "Review.SystemPrompt.requested"
         case .reviewPromptDismissed: "Review.Prompt.dismissed"
+        case .paywallShown: "Paywall.Screen.shown"
+        case .purchaseStarted: "Pro.Purchase.started"
+        case .purchaseCompleted: "Pro.Purchase.completed"
+        case .purchaseFailed: "Pro.Purchase.failed"
+        case .purchaseRestored: "Pro.Purchase.restored"
         }
     }
 
@@ -248,7 +286,15 @@ public nonisolated enum AnalyticsEvent: Equatable {
             return ["reason": reason.rawValue]
         case let .reviewStarsSelected(bucket):
             return ["bucket": bucket.rawValue]
-        case .settingsScreenShown,
+        case let .paywallShown(trigger):
+            return ["trigger": trigger.rawValue]
+        case let .purchaseFailed(reason):
+            return ["reason": reason.rawValue]
+        case let .purchaseRestored(restored):
+            return ["restored": Self.string(restored)]
+        case .purchaseStarted,
+             .purchaseCompleted,
+             .settingsScreenShown,
              .parametersCustomShown,
              .parametersLeftoverRemovedOnce,
              .homeClipboardInvalidPasted,

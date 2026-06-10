@@ -11,10 +11,12 @@ import SwiftData
 import SwiftUI
 
 struct HomeView: View {
+    @Environment(EntitlementsModel.self) private var entitlements
     @State private var viewModel: HomeViewModel
     @FocusState private var isInputFocused: Bool
     @State private var isRemovedExpanded = false
     @State private var parameterPendingAdd: String?
+    @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
     /// Bumped on a confirmed leftover-add so `.sensoryFeedback` fires a success tap.
     @State private var leftoverAddedHaptic = 0
     @Environment(\.scenePhase) private var scenePhase
@@ -73,6 +75,7 @@ struct HomeView: View {
         .sensoryFeedback(trigger: viewModel.didCopy) { _, didCopy in didCopy ? .success : nil }
         .sensoryFeedback(.success, trigger: leftoverAddedHaptic)
         .sensoryFeedback(trigger: viewModel.showClipboardToast) { _, shown in shown ? .warning : nil }
+        .paywallSheet(trigger: $paywallTrigger, entitlements: entitlements)
         .alert(
             Text(.homeLeftoverConfirmTitle),
             isPresented: Binding(
@@ -90,7 +93,7 @@ struct HomeView: View {
                 Text(.homeLeftoverConfirmOnceAction)
             }
             Button {
-                confirmLeftover(viewModel.addLeftoverParameter)
+                confirmAlwaysRemove()
             } label: {
                 Text(.homeLeftoverConfirmAction)
             }
@@ -321,8 +324,30 @@ struct HomeView: View {
         parameterPendingAdd = nil
     }
 
+    /// "Always Remove" persists a custom rule, so it gates on the free allowance:
+    /// within it, add; past it (free, the 1 rule already used), open the paywall.
+    /// "Remove Once" never routes here — it stays free.
+    private func confirmAlwaysRemove() {
+        guard let name = parameterPendingAdd else { return }
+        parameterPendingAdd = nil
+        if ProGate.canAddCustomRule(entitlement: entitlements.entitlement, currentCount: viewModel.customParameterCount) {
+            viewModel.addLeftoverParameter(name)
+            leftoverAddedHaptic += 1
+        } else {
+            // Let the confirm dialog finish dismissing before the sheet rises.
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(400))
+                paywallTrigger = .customParamHome
+            }
+        }
+    }
+
     private func leftoverRow(_ name: String) -> some View {
         Button {
+            // Always open the confirm dialog — "Remove Once" is a one-time,
+            // non-persisted strip (operation, never gated; §6 rule 3). The
+            // 1-free-rule gate lives on "Always Remove" inside the dialog, so a
+            // free user can always strip a tracker from the current link.
             parameterPendingAdd = name
         } label: {
             HStack(spacing: 12) {
@@ -382,5 +407,6 @@ struct HomeView: View {
 #Preview {
     NavigationStack {
         HomeView()
+            .environment(EntitlementsModel.preview)
     }
 }

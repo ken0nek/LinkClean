@@ -14,6 +14,9 @@ open class ActionExtensionViewController: UIViewController {
     public let analytics: AnalyticsService = TelemetryDeckAnalytics()
     public let settings = SettingsStore()
 
+    /// The target identifier (`action` / `markdownAction`).
+    open var surface: String { "action" }
+
     /// Whether the host provided any attachments at all. Distinguishes "host
     /// shared nothing usable" (`noURL`) from "host shared content we couldn't
     /// turn into a web URL" (`invalidInput`) — e.g. a host-app compatibility gap
@@ -28,7 +31,7 @@ open class ActionExtensionViewController: UIViewController {
         view.backgroundColor = .clear
         // Initialize the SDK per extension process (each target has its own
         // signal cache, same App ID + shared default user). See analytics §8.
-        TelemetryDeckAnalytics.start()
+        TelemetryDeckAnalytics.start(surface: surface)
     }
 
     override open func viewDidAppear(_ animated: Bool) {

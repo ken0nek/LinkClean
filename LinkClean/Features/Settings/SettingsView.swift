@@ -11,9 +11,12 @@ import LinkCleanKit
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(EntitlementsModel.self) private var entitlements
     @State private var viewModel = SettingsViewModel()
     @State private var showClearHistoryConfirmation = false
     @State private var showDisableHistoryConfirmation = false
+    @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
+    @State private var restoreResult: SettingsViewModel.RestoreResult?
 
     #if DEBUG
     /// Production never auto-pushes; DEBUG screenshot/testing builds can land
@@ -61,6 +64,8 @@ struct SettingsView: View {
             } header: {
                 Text(.settingsCleaningHeader)
             }
+
+            proSection
 
             Section {
                 Toggle(isOn: Binding(
@@ -128,6 +133,7 @@ struct SettingsView: View {
         }
         #endif
         .onAppear { viewModel.onAppear() }
+        .paywallSheet(trigger: $paywallTrigger, entitlements: entitlements)
         .alert(Text(.settingsDisableHistoryTitle), isPresented: $showDisableHistoryConfirmation) {
             Button(role: .destructive) {
                 viewModel.disableSaveHistory(in: modelContext)
@@ -148,11 +154,82 @@ struct SettingsView: View {
         } message: {
             Text(.settingsClearHistoryMessage)
         }
+        .alert(
+            Text(.settingsProRestore),
+            isPresented: Binding(
+                get: { restoreResult != nil },
+                set: { if !$0 { restoreResult = nil } }
+            )
+        ) {
+            Button { restoreResult = nil } label: { Text(.commonOk) }
+        } message: {
+            restoreAlertMessage
+        }
+    }
+
+    // MARK: - Pro (T4)
+
+    /// The always-open door (§9-D): a state-aware "LinkClean Pro" row plus a
+    /// Restore Purchases row that is present regardless of entitlement.
+    @ViewBuilder
+    private var proSection: some View {
+        Section {
+            if entitlements.entitlement == .pro {
+                Label {
+                    Text(.settingsProActive)
+                } icon: {
+                    Image(systemName: "checkmark.seal.fill").foregroundStyle(.tint)
+                }
+                .accessibilityIdentifier("settings-pro-active")
+            } else {
+                Button {
+                    paywallTrigger = .settingsRow
+                } label: {
+                    HStack {
+                        Text(.settingsProUnlock)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .accessibilityIdentifier("settings-unlock-pro")
+            }
+
+            Button {
+                Task { restoreResult = await viewModel.restorePurchases(using: entitlements) }
+            } label: {
+                HStack {
+                    Text(.settingsProRestore)
+                    Spacer()
+                    if viewModel.isRestoring {
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(viewModel.isRestoring)
+            .accessibilityIdentifier("settings-restore")
+        } header: {
+            Text(.settingsProHeader)
+        } footer: {
+            if entitlements.entitlement == .pro {
+                Text(.settingsProThanks)
+            }
+        }
+    }
+
+    private var restoreAlertMessage: Text {
+        switch restoreResult {
+        case .restored: Text(.settingsRestoreSuccessMessage)
+        case .nothingToRestore: Text(.settingsRestoreNoneMessage)
+        case .failed, .none: Text(.settingsRestoreFailedMessage)
+        }
     }
 }
 
 #Preview {
     NavigationStack {
         SettingsView()
+            .environment(EntitlementsModel.preview)
     }
 }

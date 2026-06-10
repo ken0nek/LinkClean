@@ -41,6 +41,11 @@ struct AnalyticsEventTests {
             (.reviewStarsSelected(bucket: .high), "Review.Stars.selected"),
             (.reviewSystemPromptRequested, "Review.SystemPrompt.requested"),
             (.reviewPromptDismissed, "Review.Prompt.dismissed"),
+            (.paywallShown(trigger: .settingsRow), "Paywall.Screen.shown"),
+            (.purchaseStarted, "Pro.Purchase.started"),
+            (.purchaseCompleted, "Pro.Purchase.completed"),
+            (.purchaseFailed(reason: .cancelled), "Pro.Purchase.failed"),
+            (.purchaseRestored(restored: true), "Pro.Purchase.restored"),
         ]
         for (event, name) in expected {
             #expect(event.signalName == name)
@@ -152,10 +157,22 @@ struct AnalyticsEventTests {
             .historySearchUsed, .onboardingFlowCompleted, .onboardingFlowSkipped,
             .settingsScreenShown, .parametersCustomShown, .parametersLeftoverRemovedOnce,
             .reviewPromptShown, .reviewSystemPromptRequested, .reviewPromptDismissed,
+            .purchaseStarted, .purchaseCompleted,
         ]
         for event in events {
             #expect(event.parameters.isEmpty)
         }
+    }
+
+    @Test func monetizationEventsCarryFixedEnumsOnly() {
+        // Privacy (§9): the paywall trigger is a fixed low-cardinality enum, never
+        // a URL or parameter name; purchase events carry no product or price.
+        #expect(AnalyticsEvent.paywallShown(trigger: .customParamHome).parameters == ["trigger": "customParamHome"])
+        #expect(AnalyticsEvent.paywallShown(trigger: .historyArchive).parameters == ["trigger": "historyArchive"])
+        #expect(AnalyticsEvent.purchaseFailed(reason: .pending).parameters == ["reason": "pending"])
+        #expect(AnalyticsEvent.purchaseFailed(reason: .storeError).parameters == ["reason": "storeError"])
+        #expect(AnalyticsEvent.purchaseRestored(restored: true).parameters == ["restored": "true"])
+        #expect(AnalyticsEvent.purchaseRestored(restored: false).parameters == ["restored": "false"])
     }
 
     // MARK: - Privacy

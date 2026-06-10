@@ -12,6 +12,8 @@ import OSLog
 import LinkCleanKit
 
 class ActionViewController: ActionExtensionViewController {
+    override var surface: String { "markdownAction" }
+
     override func processInputItems() {
         Task {
             Log.action.debug("processInputItems started")

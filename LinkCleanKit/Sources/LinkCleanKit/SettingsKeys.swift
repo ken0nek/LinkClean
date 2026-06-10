@@ -23,4 +23,8 @@ public nonisolated enum SettingsKeys {
     /// funnel spans app + extension). Generated once, stored in the App Group
     /// suite. See `docs/plans/analytics.md` §4.
     public static let analyticsUserIdentifier = "analyticsUserIdentifier"
+
+    /// The current cached entitlement (free/pro). Stored in the App Group suite
+    /// so action extensions can read it.
+    public static let currentEntitlement = "currentEntitlement"
 }

@@ -1,188 +1,115 @@
-# IAP Implementation Plan — RevenueCat
+# IAP Implementation — StoreKit 2
 
-> **Status: planned** — as of 2026-06-05.
-> Scope: **how** IAP is built — identity, architecture, RevenueCat integration, testing, ship sequence.
-> **Out of scope:** pricing, product lineup, free-tier limits, which features gate, paywall design — that is the separate "IAP strategy" item in `docs/TODO.md` (1.1.0). This plan deliberately works without those answers; nothing here changes when they land.
-> Informed by the Whyzard retrospective (`../whyzard/docs/decisions/Whyzard_Engineering_Retrospective.md`), §4 (identity migration) and checklist #6 (two identities from day one).
+> **Status: implemented in 1.1** (2026-06-10). Built on **StoreKit 2**, not RevenueCat — a deliberate reversal of this plan's original choice; see "Why StoreKit 2, not RevenueCat" below.
+> Scope: **how** IAP is built — engine, architecture, identity, measurement, testing.
+> **Out of scope:** pricing, product lineup, free-tier limits, which features gate, paywall copy — that is `../strategy/iap-strategy.md`.
+> Informed by the Whyzard retrospective (`../../../whyzard/...`) on identity hygiene, and modelled on Whyzard's own StoreKit 2 `EntitlementStore`.
 
-## Why RevenueCat
+## Why StoreKit 2, not RevenueCat
 
-- LinkClean has **no backend**. RevenueCat is the entitlement store of record, receipt validator, and revenue dashboard — the entire server side Whyzard had to hand-roll (ASSN webhooks, KV namespaces, jsrsasign workarounds).
-- Deliberate experiment: Whyzard built; LinkClean buys. The retro's condition applies in reverse: **buying first is fine only while building later remains a swap, not a rewrite.** All RevenueCat types stay behind one service protocol (`EntitlementsService`); views and ViewModels never import RevenueCat. Dropping to raw StoreKit 2 later = one new service implementation.
-- SDK: `purchases-ios` 5.x (`RevenueCat` + `RevenueCatUI` products), StoreKit 2 mode.
+The first draft of this plan chose RevenueCat to be "the server we don't have." But the shipped scope is a **single non-consumable** with a **hand-rolled paywall**, **no subscriptions**, and **no grandfathering** — and at that scope RevenueCat's remaining value (its dashboard + the RevenueCatUI prebuilt paywall) doesn't apply:
 
-## Decision 1 — Two identities, locked before 1.0 ships
+- **A non-consumable needs no server.** The device is the entitlement store of record — `Transaction.currentEntitlements` syncs across the user's devices via their Apple Account, restore is `AppStore.sync()`, and the only out-of-band event (a refund) arrives on-device as a revocation through `Transaction.updates`. No App Store Server Notifications, no receipt-validation backend.
+- **The paywall is custom SwiftUI**, so RevenueCatUI is unused (that was the "how easy is RevenueCat" experiment — discarded).
+- **Revenue truth lives in App Store Connect** (Sales & Trends) plus the TelemetryDeck funnel (see Measurement). RevenueCat's dashboard isn't rebuilt — it's simply not needed.
+- **On Apple's rails:** no third-party SDK, no external purchase-data processor (one fewer privacy disclosure — on-brand), smaller binary, no launch-time SDK init.
 
-This is the only part of this plan that is **blocking for 1.0** (the TelemetryDeck TODO item). The retro's window: *"migrate at zero state — the window closes at the first durable record."* For LinkClean the first durable record is the 1.0 launch cohort's first analytics event.
+The `EntitlementsService` boundary keeps the engine swappable: if subscriptions / trials / remote A/B paywalls ever justify RevenueCat, it is one new service implementation, not a rewrite.
 
-| Identity | Value | Owner | Consumers |
-|---|---|---|---|
-| **Analytics ID** | Keychain UUID, named `analyticsInstallID` | Analytics facade (1.0 work) | TelemetryDeck `defaultUser` — nothing else |
-| **Billing ID** | RevenueCat **anonymous app user ID** (`$RCAnonymousID:...`) | RevenueCat SDK | RevenueCat only |
+## Identity
 
-Hard rules (the Whyzard trap was one id doing 3–5 jobs):
+StoreKit 2 + no server means **there is no billing identity to manage** — Apple owns it. The only app-managed identity is the **analytics ID** (Keychain UUID `analyticsInstallID`, TelemetryDeck `defaultUser`). The Whyzard-retro rule holds: never derive or cross-wire purchase data into the analytics ID, and never put any Apple/transaction identifier into TelemetryDeck. Purchase data and behavior data join at **dimension grain** (`tier` / `surface` default params), never at user grain. (`product.purchase(options: [.appAccountToken(…)])` is available for server correlation but unused — no server.)
 
-1. **Never** call `Purchases.configure(withAPIKey:appUserID:)` or `Purchases.logIn()` with the analytics ID — or anything derived from it.
-2. **Never** feed RevenueCat's app user ID into TelemetryDeck (`defaultUser`, signal payloads, anywhere).
-3. The Keychain UUID lives **inside the analytics facade**, private, billing-blind by name. If the action extensions ever send analytics, share the *analytics* ID via App Group — never the billing ID.
-4. Consequence, accepted consciously (retro §3 "four data islands"): RevenueCat revenue data and TelemetryDeck behavior data **never join at user grain**. They join at *dimension* grain instead — see "Measurement architecture" below, which is where the two tools earn their keep together. If a concrete KPI question ever requires a user-grain join, the only allowed bridge is one-directional — analytics ID pushed into a RevenueCat subscriber attribute — never the reverse, and only after a privacy-policy review. Default: no bridge.
+## Architecture — where the code lives
 
-## Decision 2 — Anonymous billing ID, not UUIDv5(appTransactionID)
-
-The retro recommends shaping the billing id as UUIDv5 over `appTransactionID`. That mechanism served Whyzard's **own** KV entitlement store, which needed a deterministic cross-device key. We keep the retro's *principle* (analytics ≠ billing) but not its *mechanism*:
-
-| | UUIDv5(appTransactionID) | RC anonymous ID (chosen) |
-|---|---|---|
-| Cross-device / reinstall | Deterministic key | Restore Purchases → RC merges anonymous IDs (default transfer behavior) |
-| Launch cost | `AppTransaction.shared` is `async throws`, can hit network → bootstrap + cache + fallback machinery (retro §4's pain) | Zero — synchronous configure |
-| OS floor | `appTransactionID` is iOS 18.4+; was a gap at the original 18.0 deployment target (moot now that the floor is 26.0) | None |
-| What it buys without our own server | Nothing — RC is the entitlement store either way | The RC-recommended mode for account-less apps |
-
-Escape hatches if circumstances change (recorded so this isn't re-litigated):
-
-- **Accounts later:** `Purchases.logIn(customID)` aliases the anonymous history into the identified user. Decision deferred, not foreclosed.
-- **Server later:** RC webhooks key on the RC app user ID; no client migration needed.
-
-## Decision 3 — Where the code lives
-
-RevenueCat SDK links to the **app target only**. Not LinkCleanKit, not the action extensions — extensions must never initialize a purchases SDK (memory limits, no purchase UI there anyway), and the kit stays dependency-free.
+StoreKit links to the **app target only**. Not LinkCleanKit, not the action extensions.
 
 ```
-StoreKit / RC backend
-        │
-        ▼
-Purchases.shared.customerInfoStream            (app target)
-        │
-        ▼
-RevenueCatEntitlementsService                  (app: Shared/Services/)
-        │  maps CustomerInfo → Entitlement, logs transitions
-        ├──▶ EntitlementsModel (@Observable)   (app: UI state, stored property)
-        └──▶ EntitlementStore.save(_:)         (kit: App Group snapshot)
-                    │
-                    ▼
-        LinkCleanAction / LinkCleanMarkdownAction read-only, fail-closed
+StoreKit
+   │  Product.products · product.purchase · Transaction.updates / currentEntitlements · AppStore.sync
+   ▼
+StoreKitEntitlementsService            (app: Shared/Services/)  — maps Transaction → Entitlement, fail-closed
+   ├──▶ EntitlementsModel (@Observable)   (app: UI gating state, stored property)
+   └──▶ EntitlementStore.save(_:)         (kit: App Group snapshot)
+              │
+              ▼
+   LinkCleanAction / LinkCleanMarkdownAction  — read-only, fail-closed (no SDK, no purchase UI)
 ```
 
-**LinkCleanKit** (domain, shared with extensions — modeled on `TrackingParameterStore`):
+**LinkCleanKit** (shared with extensions):
 
 ```swift
-public nonisolated enum Entitlement: String, Sendable {
-    case free
-    case pro            // placeholder id until the strategy doc lands
-}
+public nonisolated enum Entitlement: String, Sendable { case free, pro }
 
-public nonisolated struct EntitlementStore: Sendable {
-    public init(suiteName: String? = AppGroup.identifier)
-    public func current() -> Entitlement     // missing/unknown rawValue → .free (fail-closed)
+public nonisolated struct EntitlementStore: Sendable {     // App Group snapshot
+    public func current() -> Entitlement                    // missing/unknown rawValue → .free (fail-closed)
     public func save(_ entitlement: Entitlement)
 }
 ```
 
-Key string goes in `SettingsKeys`. Fail direction is **closed** (`.free`), same reasoning as Whyzard's `resolveTier`: a corrupt record must never read as "unlimited". Decoding via `Entitlement(rawValue:) ?? .free` keeps future tier additions decode-safe for stale extension binaries.
-
-**App target** (`Shared/Services/`, matching `URLCleaningService` shape):
+**App target** (`Shared/Services/`):
 
 ```swift
 protocol EntitlementsService: Sendable {
     func currentEntitlement() -> Entitlement
-    func entitlementStream() -> AsyncStream<Entitlement>   // wraps customerInfoStream
+    func entitlementStream() -> AsyncStream<Entitlement>     // wraps Transaction.updates
+    func refreshEntitlement() async -> Entitlement           // re-resolve live + re-cache
+    func proProduct() async throws -> ProProduct?            // maps StoreKit Product → DTO; no StoreKit type escapes
+    func purchase() async throws -> PurchaseOutcome          // .completed / .cancelled / .pending
     func restorePurchases() async throws -> Entitlement
 }
 ```
 
-No `purchase()` method initially — RevenueCatUI's paywall drives the purchase itself (that's the experiment). If we ever hand-roll a paywall, `purchase(package:)` gets added then.
+`StoreKitEntitlementsService` resolves `.pro` iff a **verified, non-revoked** `linkclean_pro_lifetime` transaction is in `Transaction.currentEntitlements`; unverified or revoked → `.free` (fail-closed). It persists every resolution to `EntitlementStore`, logs transitions, and finishes verified transactions. `ProProduct` / `PurchaseOutcome` are small `Sendable` DTOs so views and ViewModels never import StoreKit purchasing APIs.
 
-`EntitlementsModel` is `@MainActor @Observable final class` with a **stored** `private(set) var entitlement: Entitlement = .free` updated from the stream — never a computed property over external state (see `ARCHITECTURE.md` / the `@Observable` + UserDefaults rule). Constructed once at the composition root, injected where gating needs it.
+`EntitlementsModel` — `@MainActor @Observable`, stored `private(set) var entitlement` updated from the stream (never a computed property over external state). Constructed once at the composition root, injected via `.environment`.
 
-**Extensions:** read `EntitlementStore.current()` at launch. No purchase UI, no SDK. Staleness is bounded by the next app launch (snapshot rewrites on every `CustomerInfo` update); a lapsed subscription lingering as pro in the extension until then is accepted.
+**Extensions:** read `EntitlementStore.current()` at launch — no SDK, no purchase UI. Staleness bounded by the next app launch (the snapshot rewrites on every resolution). With the current gating matrix the extensions need no checks; the snapshot stays dormant until some future extension-side Pro feature exists.
 
 ## Measurement architecture — one stack, two tools
 
-The identity split (Decision 1) is not a wall between the tools — it forces the join to happen at **dimension grain** instead of ID grain. Division of labor, so neither tool's job gets rebuilt in the other:
+The identity split forces the join to **dimension grain**, so neither tool's job is rebuilt in the other:
 
 | Question | Source of truth |
 |---|---|
-| Activation, retention, core loop (links cleaned), app-vs-extension usage | TelemetryDeck |
-| Behavior → paywall → purchase **funnel** | TelemetryDeck (funnel events, analytics-ID grain) |
-| Do pro users behave differently? Which surface converts? | TelemetryDeck, sliced by `tier` / `surface` |
-| Revenue, MRR, conversion *rates*, churn, refunds | RevenueCat charts — never rebuilt in TelemetryDeck |
-| Paywall impressions + A/B experiments (later) | RevenueCat |
-| Individual customer lookup (support, entitlement debugging) | RevenueCat customer dashboard |
+| Activation, retention, core loop, app-vs-extension usage | TelemetryDeck |
+| Behavior → paywall → purchase **funnel** | TelemetryDeck (analytics-ID grain) |
+| Do Pro users behave differently? Which surface converts? | TelemetryDeck, sliced by `tier` / `surface` |
+| Revenue, refunds, units, proceeds | **App Store Connect** (Sales & Trends) — never rebuilt in TelemetryDeck |
 
-Three connective mechanisms, none requiring an ID join:
+Three connective mechanisms, no ID join:
 
-1. **`tier` as a default parameter on every signal** — the retro's "one deliberate low-cardinality join dimension" (Whyzard used `model`; LinkClean uses `tier`). Wired via `TelemetryDeck.Config.defaultParameters`, reading `EntitlementStore` — the same kit snapshot that gates the extensions also enriches analytics in **every** target. Ships in 1.0 as the literal `"free"` so the launch cohort's metrics stay schema-compatible once tiers exist; 1.1 swaps the literal for the snapshot read. A per-target `surface` parameter (`app` / `action` / `markdownAction`) answers the share-sheet question the same way.
-2. **The purchase funnel lives wholly in TelemetryDeck**, fired client-side from RevenueCatUI's paywall callbacks (`onPurchaseStarted` / `onPurchaseCompleted` / `onPurchaseCancelled` / `onPurchaseFailure` / `onRestoreCompleted`). Keyed on the analytics ID like every other signal, so *"cleaned 3 links via the extension → saw paywall → bought"* is one TelemetryDeck funnel. RevenueCat independently tracks paywall impressions — it stays the source of truth for conversion *rates*; the TelemetryDeck events exist for *behavioral context*, and the two are expected not to reconcile exactly.
-3. **TelemetryDeck's Purchases preset, fed at RevenueCat's completion callback:** `TelemetryDeck.purchaseCompleted(transaction:)` with the underlying SK2 transaction (`storeTransaction.sk2Transaction`) auto-sends USD-normalized revenue — revenue cohorted against behavior inside TelemetryDeck. Directional only (client-side, blind to refunds and off-device renewals); RevenueCat remains authoritative for money.
+1. **`tier` as a default parameter on every signal** (the one low-cardinality join dimension), wired via `TelemetryDeck.Config.defaultParameters` — a **closure** (`@Sendable () -> [String:String]`) reading `EntitlementStore`, so `tier` is evaluated live per signal (flips to `pro` the instant a purchase resolves). A per-target `surface` parameter (`app` / `action` / `markdownAction`) answers the share-sheet question the same way.
+2. **The purchase funnel lives wholly in TelemetryDeck**, fired from the **custom paywall's view model**: `Paywall.Screen.shown(trigger)` → `Pro.Purchase.started` / `.completed` / `.failed(reason)` / `.restored(restored)`. Trigger is a fixed `PaywallTrigger` enum (never a URL or parameter name).
+3. **TelemetryDeck's Purchases preset** (`TelemetryDeck.purchaseCompleted(transaction:)`) fired from the service at the completion boundary with the verified `Transaction` — directional USD revenue cohorted against behavior. ASC remains authoritative for money (this is blind to refunds and off-device events, by design).
 
-Deliberately not done: RC→TelemetryDeck server-side forwarding (RC has no TelemetryDeck integration; webhooks need a server we don't have), and any user-grain bridge (Decision 1, rule 4).
+Deliberately not done: any server-side forwarding (no server) and any user-grain bridge.
 
-## Implementation phases
+## Implementation (shipped 1.1)
 
-### Phase 0 — in 1.0, now (cheap today, a migration later)
+- **Kit:** `Entitlement`, `EntitlementStore`, `SettingsKeys.currentEntitlement`, Swift Testing (round-trip, fail-closed on garbage).
+- **App:** `StoreKitEntitlementsService`; `EntitlementsService` + `ProProduct` + `PurchaseOutcome`; `EntitlementsModel`; `ProGate` (free allowances — see strategy §6).
+- **Custom paywall** (`Features/Paywall/PaywallView` + `PaywallViewModel`) + a reusable `.paywallSheet(trigger:entitlements:)` modifier. Gates T1–T4 attach where the strategy §9 trigger inventory says; each opens the sheet **on the gated tap**, never on screen entry.
+- **DEBUG developer rows:** entitlement override (`Off` / `Free` / `Pro`) **persisted** and honored *first* by the service resolver (survives relaunch; the stream can't clobber it — Whyzard's pattern); paywall preview by trigger. No RC app-user-ID row (no RC).
+- **StoreKit config** `LinkClean.storekit` (+ a `LinkClean (StoreKit)` scheme that references it) so purchase / cancel / restore / refund flow in the simulator without App Store Connect.
 
-- [ ] **[blocking]** Bake Decision 1 into the 1.0 TelemetryDeck work: facade-private Keychain UUID named `analyticsInstallID`, with a comment stating the never-cross-with-billing rule.
-- [ ] **[cheap, recommended]** Reserve the purchase-funnel event names in the analytics facade's closed enum, shipped unfired (retro §3: the funnel was instrumented *ahead of* the IAP feature): `paywallShown(trigger)`, `purchaseStarted(productID)`, `purchaseCompleted(productID)`, `purchaseFailed(reason)` (closed enum: `cancelled`/`pending`/`storeError`), `restoreCompleted(restored)`. No PII, no IDs of either kind in payloads.
-- [ ] **[cheap, recommended]** Default parameters from signal #1: `tier` (literal `"free"` until 1.1) and per-target `surface` — see "Measurement architecture". Neither can be backfilled; the pre-IAP cohort is measured exactly once. If the action extensions send signals, they share the *analytics* ID via App Group (Decision 1, rule 3) so an app+extension user counts as one user.
-- Nothing else moves to 1.0. `EntitlementStore` ships with 1.1 — extensions fail closed to `.free` regardless.
+## Testing
 
-### Phase A — accounts & dashboards (handoff: Ken)
-
-1. **App Store Connect:** Paid Apps agreement + banking/tax. *Longest lead time — start first; everything else can proceed in parallel.*
-2. **App Store Connect:** create IAP products — **blocked by the strategy doc** (lineup/pricing). Only the product IDs matter to this plan.
-3. **RevenueCat dashboard:** create project + iOS app (bundle ID of the LinkClean app target); upload the In-App Purchase Key (.p8) and App Store Connect API key; create entitlement `pro` (placeholder), a `default` offering, attach products; build the paywall in the dashboard editor (copy/layout stay server-editable — no client release for paywall tweaks). Copy the **public** Apple SDK key.
-4. **Xcode GUI** (per CLAUDE.md handoff rule): add SPM dependency `https://github.com/RevenueCat/purchases-ios-spm.git` (Up to Next Major from 5.x), products **RevenueCat** and **RevenueCatUI**, **LinkClean app target only**. No entitlement/capability change needed for StoreKit on iOS.
-5. **Xcode GUI:** once products exist in ASC, create a StoreKit Configuration file (synced from App Store Connect) and set it on the LinkClean scheme's Run options.
-
-### Phase B — code (Claude)
-
-1. Kit: `Entitlement`, `EntitlementStore`, `SettingsKeys` entry, Swift Testing tests (round-trip, fail-closed on garbage).
-2. Configure at the composition root (`LinkCleanApp.init()`):
-
-```swift
-#if DEBUG
-Purchases.logLevel = .debug
-#endif
-if !arguments.contains("-uiTesting") {        // keep UI tests deterministic & offline
-    Purchases.configure(
-        with: Configuration.Builder(withAPIKey: RevenueCatConfig.apiKey)  // public/publishable key — safe in source
-            .with(storeKitVersion: .storeKit2)
-            .build()
-    )
-    // No appUserID — anonymous by design (Decision 1). Never pass one.
-}
-```
-
-3. `RevenueCatEntitlementsService`: `for await` over `customerInfoStream`, map `customerInfo.entitlements["pro"]?.isActive` → `Entitlement` **at the service boundary** (RC types never escape), persist via `EntitlementStore`, log transitions with `Log.logger`.
-4. Paywall surface: `.presentPaywallIfNeeded(requiredEntitlementIdentifier: "pro")` / `PaywallView` from RevenueCatUI — this is the "how easy is RevenueCat" experiment. Trigger points are a strategy decision; the modifier attaches wherever that lands.
-5. Restore path in Settings (App Review requirement): try RevenueCatUI's `CustomerCenterView` first (manage + restore + refund requests in one drop-in); fall back to a plain "Restore Purchases" row calling the service if it doesn't fit.
-6. Localization: paywall copy lives in the RC dashboard (not `Localizable.xcstrings`). App-side strings (Settings rows, pending-purchase toast) follow the identifier-key + generated-symbol pattern; any kit strings use the explicit-key pattern (kit catalog must stay free of `manual` entries).
-7. DEBUG-only developer rows in Settings (retro #17, scoped down — the trigger ships with the mechanism): paywall preview, entitlement override (`off`/`free`/`pro`, read by `EntitlementsModel` in DEBUG only), current RC app user ID display+copy (for sandbox dashboard lookups). All compiled out of Release.
-8. Measurement wiring (see "Measurement architecture"): attach the Phase-0 funnel events to RevenueCatUI's paywall callbacks; call `TelemetryDeck.purchaseCompleted(transaction:)` from `onPurchaseCompleted` (use the callback variant that provides the `StoreTransaction`; pass its `sk2Transaction`); switch the `tier` default parameter from the 1.0 literal to the `EntitlementStore` read.
-
-### Phase C — testing
-
-1. **Unit (Swift Testing, `LinkCleanTests` / kit tests):** `EntitlementStore` round-trip + fail-closed; gating reads through a mock `EntitlementsService` (domain mapping at the service boundary means tests never touch RC types).
-2. **StoreKit Configuration file (simulator):** purchase, cancel, restore, refund, ask-to-buy → `ErrorCode.paymentPendingError` surfaced as a "pending approval" toast, not an error. Caveats: products must *also* exist in the RC dashboard or backend validation fails; known iOS 18.4-sim product-loading quirk — RC's docs recommend config-file testing as the workaround.
-3. **Device + sandbox Apple Account:** full round trip against the real RC backend — entitlement appears in the RC customer dashboard, snapshot reaches **both** action extensions, relaunch-offline still resolves pro from cache.
-
-### Phase D — release checklist (1.1)
-
-- [ ] Restore Purchases reachable without purchasing (App Review)
-- [ ] Paywall shows price, term, Terms of Use (EULA) + Privacy Policy links (RC templates have slots; links must resolve)
-- [ ] App Privacy questionnaire updated: add "Purchases" data type (RC SDK ships its own privacy manifest, but the ASC answers are ours)
-- [ ] Funnel events + Purchases preset verified in TelemetryDeck against a sandbox purchase (DEBUG builds send test-mode signals — flip the Test Mode toggle in the TelemetryDeck dashboard)
-- [ ] RC dashboard: offering marked current, paywall published
-- [ ] Sequencing of any feature walls relative to the purchase path = strategy doc; the mechanism supports shipping purchases before any wall exists (retro: observe-first, enforce-later)
+1. **Unit (Swift Testing):** `EntitlementStore` round-trip + fail-closed; `ProGate` allowance; paywall funnel + outcomes through a mock `EntitlementsService`; History window split (`archive(from:isPro:now:)`). Domain mapping at the service boundary means tests never touch StoreKit types.
+2. **StoreKit configuration file (simulator):** purchase, cancel, restore, **refund → revoked → drops out of `currentEntitlements`**, ask-to-buy → `.pending` surfaced as a calm "pending approval" alert. Test gating via the DEBUG override, not real purchases.
+3. **Device + sandbox Apple Account:** full round trip; entitlement persists across relaunch-offline (resolved from the `EntitlementStore` cache); snapshot reaches both action extensions.
 
 ## Failure & edge behavior
 
-- **Launch never blocks on RevenueCat.** Configure is fire-and-forget; gates read in-memory state or the App Group snapshot. The core clean-a-link flow never awaits a network call.
-- **No cache / unknown state → `.free`** (fail-closed), everywhere — app and extensions.
-- **RC outage:** SDK serves cached `CustomerInfo`; StoreKit 2 purchases still complete and sync later.
-- **Refund/expiry:** reflected on next `CustomerInfo` refresh; extension staleness bounded by next app launch (accepted above).
-- **Reinstall / new device:** fresh anonymous ID sees `.free` until the user taps Restore — RC then merges the anonymous IDs (default transfer behavior). This is why Restore must be prominent, not buried.
+- **Launch never blocks on StoreKit.** Gates read in-memory state or the App Group snapshot; the core clean-a-link flow never awaits the store.
+- **No cache / unknown state → `.free`** (fail-closed), everywhere.
+- **Refund / revocation:** Apple revokes the transaction; it drops from `currentEntitlements` (and replays via `Transaction.updates` with `revocationDate != nil`), so the next resolution returns `.free`. No webhook.
+- **Reinstall / new device:** a fresh install resolves `.pro` automatically from `currentEntitlements` once the Apple Account syncs; **Restore** (`AppStore.sync()`) forces it. This is why Restore is prominent in Settings and on the paywall.
 
-## Out of scope / deferred (decide in the strategy doc)
+## App Store Connect setup
 
-Product mix (subscription vs lifetime), pricing, trials/intro offers, gated-feature list and free-tier limits, grandfathering the 1.0 cohort, paywall triggers and design, Family Sharing, RC webhooks (needs a server), win-back offers.
+The one thing that requires the ASC UI (no RevenueCat dashboard, no fastlane IAP management): create the non-consumable, pricing, Family Sharing, the IAP review screenshot, and agreements. See **`../iap/app-store-connect-setup.md`** for the hand-off checklist.
+
+## Deferred / not done
+
+Grandfathering the 1.0 cohort (dropped 2026-06-10 — was the only feature that made `originalApplicationVersion`/RevenueCat convenient; re-addable later via `AppTransaction.shared.originalAppVersion` if 1.0 ships before 1.1). Subscriptions, trials, server-side verification, RevenueCat — out of scope by design.

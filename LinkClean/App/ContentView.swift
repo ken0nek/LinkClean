@@ -75,4 +75,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environment(EntitlementsModel.preview)
 }

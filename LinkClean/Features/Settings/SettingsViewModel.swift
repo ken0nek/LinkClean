@@ -18,9 +18,17 @@ final class SettingsViewModel {
     /// Mirrors `SettingsKeys.saveHistoryEnabled` (App Group suite; shared with
     /// the action extensions and the Home/History screens).
     private(set) var saveHistoryEnabled: Bool
+    private(set) var isRestoring = false
 
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
+
+    /// Outcome of a Restore Purchases tap, for the result alert.
+    enum RestoreResult: Equatable {
+        case restored
+        case nothingToRestore
+        case failed
+    }
 
     init(
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
@@ -68,5 +76,21 @@ final class SettingsViewModel {
     func clearHistory(in context: ModelContext) {
         try? context.delete(model: HistoryEntry.self)
         analytics.capture(.historyAllCleared)
+    }
+
+    /// Restores previous purchases (App Review requires this reachable without
+    /// buying — §9-D). Fires `Pro.Purchase.restored`; the entitlement flip itself
+    /// is published by ``EntitlementsModel``.
+    func restorePurchases(using entitlements: EntitlementsModel) async -> RestoreResult {
+        isRestoring = true
+        defer { isRestoring = false }
+        do {
+            let restored = try await entitlements.restorePurchases() == .pro
+            analytics.capture(.purchaseRestored(restored: restored))
+            return restored ? .restored : .nothingToRestore
+        } catch {
+            analytics.capture(.purchaseRestored(restored: false))
+            return .failed
+        }
     }
 }
