@@ -4,7 +4,7 @@ Paste a link and LinkClean instantly removes tracking parameters like utm_source
 
 CLEAN AS YOU SHARE
 Add LinkClean to your Share Sheet and clean a link without leaving the app you're in:
-• Clean Link — copies the tidied URL, ready to paste
+• Clean URL — copies the tidied link, ready to paste
 • Copy as Markdown — copies the link as a Markdown [title](url), with the page title filled in for you
 
 SEE WHAT YOU'RE REMOVING

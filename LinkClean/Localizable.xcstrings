@@ -29,7 +29,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copy cleaned URL"
+            "value" : "Copy cleaned link"
           }
         }
       }
@@ -337,7 +337,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share cleaned URL"
+            "value" : "Share cleaned link"
           }
         }
       }
@@ -348,7 +348,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "History is currently disabled. Enable history in Settings to save your cleaned URLs."
+            "value" : "History is currently disabled. Enable history in Settings to save your cleaned links."
           }
         }
       }
@@ -370,7 +370,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cleaned URLs you copy will appear here."
+            "value" : "Cleaned links you copy will appear here."
           }
         }
       }
@@ -403,7 +403,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copy Clean URL"
+            "value" : "Copy Cleaned Link"
           }
         }
       }
@@ -458,7 +458,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clean URL"
+            "value" : "Cleaned Link"
           }
         }
       }
@@ -469,7 +469,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cleaned URL will appear here"
+            "value" : "Cleaned link will appear here"
           }
         }
       }
@@ -480,7 +480,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clipboard doesn't contain a valid URL"
+            "value" : "Clipboard doesn't contain a valid link"
           }
         }
       }
@@ -513,7 +513,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Input URL"
+            "value" : "Link"
           }
         }
       }
@@ -524,7 +524,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enter a valid URL"
+            "value" : "Enter a valid link"
           }
         }
       }
@@ -535,7 +535,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paste a URL to clean"
+            "value" : "Paste a link to clean"
           }
         }
       }
@@ -766,7 +766,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean strips tracking junk from any URL so you share the real link, not who sent it."
+            "value" : "LinkClean strips tracking junk from any link, so you share the real destination, not who sent it."
           }
         }
       }
@@ -865,7 +865,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Custom parameters"
+            "value" : "Custom Parameters"
           }
         }
       }
@@ -876,7 +876,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Default parameters"
+            "value" : "Default Parameters"
           }
         }
       }
@@ -898,7 +898,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All cleaning history will be permanently deleted."
+            "value" : "This will permanently delete your history."
           }
         }
       }
@@ -920,7 +920,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Auto Paste"
+            "value" : "Auto-Paste"
           }
         }
       }
@@ -931,7 +931,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "When enabled, LinkClean automatically pastes a valid URL from your clipboard when you open the app or return to it."
+            "value" : "Pastes a link from your clipboard whenever you open or return to LinkClean."
           }
         }
       }
@@ -964,7 +964,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Data"
+            "value" : "History"
           }
         }
       }
@@ -997,7 +997,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All existing history will be permanently deleted."
+            "value" : "Turning this off will permanently delete your history."
           }
         }
       }
@@ -1030,7 +1030,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Contact"
+            "value" : "Email Us"
           }
         }
       }
@@ -1472,7 +1472,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pro unlocked"
+            "value" : "Pro Unlocked"
           }
         }
       }
