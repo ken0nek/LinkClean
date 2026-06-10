@@ -20,7 +20,9 @@ struct LinkCleanApp: App {
 
         // Initialize analytics as early as possible (TelemetryDeck guidance: in
         // App.init, not onAppear). DEBUG builds are automatically test mode.
-        TelemetryDeckAnalytics.start()
+        if !DebugMode.isScreenshotMode {
+            TelemetryDeckAnalytics.start()
+        }
 
         let arguments = ProcessInfo.processInfo.arguments
         if arguments.contains("-uiTesting"),
@@ -37,6 +39,10 @@ struct LinkCleanApp: App {
         }
 
         #if DEBUG
+        if DebugMode.isScreenshotMode {
+            Self.prepareScreenshotState()
+        }
+
         // Screenshot/manual-testing helper: lands on the main tabs with a sample
         // dirty URL already on the clipboard. Writing it here (in-app) keeps the
         // subsequent auto-paste read same-origin, so iOS shows no paste banner.
@@ -50,7 +56,10 @@ struct LinkCleanApp: App {
         // rows (once, only when empty) so the History screen can be previewed.
         if arguments.contains("-seedHistory") {
             UserDefaults.standard.set(true, forKey: SettingsKeys.hasCompletedOnboarding)
-            Self.seedSampleHistory(into: modelContainer)
+            Self.seedSampleHistory(
+                into: modelContainer,
+                replacingExisting: DebugMode.isScreenshotMode
+            )
         }
 
         // Review-prompt QA: while -forceReviewGate is present, bypass the
@@ -66,29 +75,86 @@ struct LinkCleanApp: App {
     }
 
     #if DEBUG
+    private static func prepareScreenshotState() {
+        UserDefaults.standard.set(true, forKey: SettingsKeys.hasCompletedOnboarding)
+        UserDefaults.standard.set(true, forKey: SettingsKeys.autoPasteEnabled)
+
+        let settings = SettingsStore()
+        settings.saveHistoryEnabled = true
+
+        let parameters = TrackingParameterStore()
+        parameters.resetDefaultParameterOverrides()
+        parameters.removeAllCustomParameters()
+    }
+
     @MainActor
-    private static func seedSampleHistory(into container: ModelContainer) {
+    private static func seedSampleHistory(
+        into container: ModelContainer,
+        replacingExisting: Bool = false
+    ) {
         let context = container.mainContext
+        if replacingExisting,
+           let entries = try? context.fetch(FetchDescriptor<HistoryEntry>()) {
+            for entry in entries {
+                context.delete(entry)
+            }
+        }
+
         let existing = (try? context.fetchCount(FetchDescriptor<HistoryEntry>())) ?? 0
         guard existing == 0 else { return }
 
-        let samples: [(input: String, output: String, title: String?, ageHours: Double)] = [
+        // Every input→output pair mirrors what the default catalog actually
+        // removes (host-scoped `si`/`s`/`t`/`feature` included), so a tapped
+        // row stands up to scrutiny during review or QA. `thumbnail` names a
+        // fixture PNG (pre-fetched real LinkPresentation metadata; regenerate
+        // with scripts/fetch-history-thumbnails.swift) resolved against the
+        // `-screenshotFixtures <dir>` launch arg the capture script passes —
+        // without it rows fall back to monograms, as plain `-seedHistory`
+        // launches always have.
+        let samples: [(input: String, output: String, title: String?, thumbnail: String?, ageHours: Double)] = [
+            ("https://www.youtube.com/watch?v=aqz-KE-bpKQ&si=kT4mXcVbN2aQ8sWd&feature=share",
+             "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+             "Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film", "youtube", 0.6),
+            ("https://x.com/user/status/1799123456789?s=20&t=kQ9rXcVb2aQ",
+             "https://x.com/user/status/1799123456789", nil, nil, 2),
+            ("https://medium.com/design-notes/calm-by-default-designing-quieter-apps-9f3c21ab47de?utm_source=newsletter&utm_medium=email",
+             "https://medium.com/design-notes/calm-by-default-designing-quieter-apps-9f3c21ab47de",
+             "Calm by Default: Designing Quieter Apps", "medium", 5),
+            ("https://www.reddit.com/r/privacy/comments/1d4k9xz/whats_actually_inside_a_share_link/?utm_source=share&utm_medium=ios_app&utm_name=iossmf",
+             "https://www.reddit.com/r/privacy/comments/1d4k9xz/whats_actually_inside_a_share_link/",
+             "What's actually inside a share link? : r/privacy", "reddit", 9),
             ("https://www.nytimes.com/2026/06/08/technology/ai-privacy.html?utm_source=newsletter&utm_campaign=daily",
-             "https://www.nytimes.com/2026/06/08/technology/ai-privacy.html", "What AI Means for Your Privacy", 1),
-            ("https://x.com/user/status/1799123456789?s=20&t=AbCdEf",
-             "https://x.com/user/status/1799123456789", nil, 5),
-            ("https://www.youtube.com/watch?v=dQw4w9WgXcQ&feature=share&utm_source=copy",
-             "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Designing for Trust — a Talk", 28),
-            ("https://store.example.com/products/wireless-headphones?ref=promo&fbclid=xyz789",
-             "https://store.example.com/products/wireless-headphones", nil, 75),
+             "https://www.nytimes.com/2026/06/08/technology/ai-privacy.html",
+             "What AI Means for Your Privacy", "nytimes", 26),
+            ("https://open.spotify.com/episode/3nT8qLmV0yXcW9rB1kZdQe?si=XcVbN2aQ8sWd",
+             "https://open.spotify.com/episode/3nT8qLmV0yXcW9rB1kZdQe",
+             "Where Shared Links End Up — Privacy, Explained", nil, 31),
+            ("https://www.theverge.com/2026/6/7/24293180/link-tracking-parameters-explainer?utm_campaign=social&utm_source=threads",
+             "https://www.theverge.com/2026/6/7/24293180/link-tracking-parameters-explainer",
+             "The invisible passengers in your links", "theverge", 52),
+            ("https://en.wikipedia.org/wiki/UTM_parameters?utm_source=chatgpt.com",
+             "https://en.wikipedia.org/wiki/UTM_parameters", "UTM parameters", "wikipedia", 76),
+            ("https://store.example.com/products/wireless-headphones?fbclid=PAxy7zKw9q&gclid=EAIaIQ8b",
+             "https://store.example.com/products/wireless-headphones", nil, nil, 101),
         ]
+
+        let fixturesDirectory = UserDefaults.standard.string(forKey: "screenshotFixtures")
+            .map { URL(fileURLWithPath: $0, isDirectory: true) }
+
         let now = Date()
         for sample in samples {
+            var thumbnailData: Data?
+            if let fixturesDirectory, let thumbnail = sample.thumbnail {
+                thumbnailData = try? Data(
+                    contentsOf: fixturesDirectory.appendingPathComponent("\(thumbnail).png")
+                )
+            }
             context.insert(HistoryEntry(
                 input: sample.input,
                 output: sample.output,
                 createdAt: now.addingTimeInterval(-sample.ageHours * 3600),
                 pageTitle: sample.title,
+                thumbnailData: thumbnailData,
                 metadataFetchAttempted: true
             ))
         }

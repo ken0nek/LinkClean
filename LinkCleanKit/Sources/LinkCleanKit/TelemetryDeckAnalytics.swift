@@ -29,6 +29,10 @@ public nonisolated struct TelemetryDeckAnalytics: AnalyticsService {
     public init() {}
 
     public func capture(_ event: AnalyticsEvent) {
+        // The SDK's `TelemetryManager.shared` assertion-fails in DEBUG when
+        // `start()` hasn't run — and `-screenshotMode` skips `start()` on
+        // purpose, so the guard is what makes the no-op contract real.
+        guard TelemetryManager.isInitialized else { return }
         TelemetryDeck.signal(event.signalName, parameters: event.parameters)
     }
 

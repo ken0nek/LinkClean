@@ -19,7 +19,27 @@ The **canonical copy** lives in `fastlane/metadata/en-US/` — that's what `fast
 ## Age rating
 **4+.** Questionnaire: "Unrestricted Web Access" = **No** (opens links in the system browser and reads page titles, but embeds no in-app browser). No other descriptors apply.
 
+## Screenshots
+
+The English-only pipeline has three states across the two required device sizes. Raw simulator captures are committed under `screenshots/raw/en-US/`; the `LinkCleanScreenshots` macOS target composites the teal caption frame and writes App Store-ready PNGs to `fastlane/screenshots/en-US/` (gitignored).
+
+| # | Shot (story) | Raw capture | iPhone 17 Pro Max → 1320×2868 | iPad Pro 13" (M5) → 2064×2752 |
+|---|---|---|---|---|
+| 1 | Home hero — auto-pasted dirty URL, "4 REMOVED", clean link, leftover pills | `01_home.png` | `iPhone69-1-home.png` | `iPad13-1-home.png` |
+| 2 | History — 4 seeded rows with fetched titles + search | `02_history.png` | `iPhone69-2-history.png` | `iPad13-2-history.png` |
+| 3 | Default Parameters catalog — sectioned toggles, host-scoped rules | `03_parameters.png` | `iPhone69-3-parameters.png` | `iPad13-3-parameters.png` |
+
+Build and install the DEBUG app on each booted simulator, then capture:
+
+```bash
+DEVICE_PROFILE=iphone69 bash scripts/capture-raw-screenshots.sh
+DEVICE_PROFILE=ipad13 bash scripts/capture-raw-screenshots.sh
+```
+
+The script launches with `-screenshotMode`, which bypasses onboarding, restores default cleaning rules, suppresses analytics startup and DEBUG-only UI, and makes seeded History replacement deterministic. Run the `LinkCleanScreenshots` scheme afterward to generate the final PNGs.
+
+History rows render real thumbnails from committed fixtures in `Screenshots/fixtures/history/` — actual LinkPresentation fetches (image-then-icon, square-cropped 256px), generated once per item with `scripts/fetch-history-thumbnails.swift` (usage in its header; fixture names must match the `thumbnail:` field in `LinkCleanApp.seedSampleHistory`). The capture script passes `-screenshotFixtures <dir>`; without that arg (e.g. a plain `-seedHistory` dev launch) rows fall back to domain monograms. X and the example-shop row have no fixture on purpose — LinkPresentation gets nothing useful from x.com's login wall, so monograms there are honest; the Spotify row awaits a real episode URL (an episode page's og-image is its cover art; the homepage's is an illegible player collage).
+
 ## Still needed (your tasks, not copy)
-- **Screenshots** — iPhone 6.9" and iPad 13" required sizes (`docs/TODO.md` #5). I can generate raw simulator captures of the key flows on request.
 - **App icon** — done (1024² from the asset catalog).
 - **Build** — archive & upload via Xcode, then attach in ASC.

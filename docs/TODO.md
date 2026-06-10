@@ -11,7 +11,7 @@ In priority order:
 4. [x] Action extension icon asset per extension — needed before share-sheet screenshots
    - [x] LinkCleanAction
    - [x] LinkCleanMarkdownAction
-5. [ ] Screenshots for App Store Connect — after UI freeze (3) and icons (4)
+5. [x] Screenshots for App Store Connect — captioned 1.0.0 set (Home / History / Parameters × iPhone 6.9″ / iPad 13″): committed raws in `screenshots/raw/en-US/` + the `LinkCleanScreenshots` composer target → App Store-ready PNGs in `fastlane/screenshots/en-US/` (gitignored); pipeline in `docs/release/app-store-metadata.md`. Post-1.0 enrichment: a share-sheet "Clean Link" shot
 6. [ ] Metadata (App Store Connect) — privacy nutrition label depends on TelemetryDeck (2)
 7. [ ] Privacy policy — required for App Store submission; draft ready at [ken0nek.com/apps/linkclean/privacy-policy](https://ken0nek.com/apps/linkclean/privacy-policy/), publish before metadata (6)
 

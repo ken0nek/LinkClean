@@ -15,6 +15,14 @@ struct SettingsView: View {
     @State private var showClearHistoryConfirmation = false
     @State private var showDisableHistoryConfirmation = false
 
+    #if DEBUG
+    /// Production never auto-pushes; DEBUG screenshot/testing builds can land
+    /// directly on Manage Parameters with `-push-parameters` (pairs with
+    /// `-tab-settings`, mirroring ContentView's tab deep-links).
+    @State private var isShowingParametersForScreenshot =
+        ProcessInfo.processInfo.arguments.contains("-push-parameters")
+    #endif
+
     private var version: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
     }
@@ -100,11 +108,13 @@ struct SettingsView: View {
             }
 
             #if DEBUG
-            Section {
-                NavigationLink {
-                    DeveloperMenuView()
-                } label: {
-                    Label { Text(verbatim: "Developer") } icon: { Image(systemName: "hammer") }
+            if !DebugMode.isScreenshotMode {
+                Section {
+                    NavigationLink {
+                        DeveloperMenuView()
+                    } label: {
+                        Label { Text(verbatim: "Developer") } icon: { Image(systemName: "hammer") }
+                    }
                 }
             }
             #endif
@@ -112,6 +122,11 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .screenBackground()
         .navigationTitle(Text(.settingsTitle))
+        #if DEBUG
+        .navigationDestination(isPresented: $isShowingParametersForScreenshot) {
+            ManageParametersView()
+        }
+        #endif
         .onAppear { viewModel.onAppear() }
         .alert(Text(.settingsDisableHistoryTitle), isPresented: $showDisableHistoryConfirmation) {
             Button(role: .destructive) {
