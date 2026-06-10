@@ -1085,7 +1085,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free custom rules: %lld of %lld"
+            "value" : "Free custom rules: %lld of %lld · Pro unlocks unlimited"
           }
         }
       }
@@ -1119,7 +1119,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saved on this device — nothing is deleted. Pro unlocks the full archive."
+            "value" : "Saved on this device — nothing is ever deleted. Pro unlocks your full archive."
           }
         }
       }
@@ -1164,7 +1164,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keep every link, searchable"
+            "value" : "Keep every link, always searchable"
           }
         }
       }
@@ -1186,7 +1186,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean Pro"
+            "value" : "Unlock everything"
           }
         }
       }
@@ -1197,7 +1197,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keep your history forever, add unlimited custom rules, and unlock every future Pro feature."
+            "value" : "Your full history, unlimited custom rules, and every Pro feature still to come — yours for one purchase, forever."
           }
         }
       }
@@ -1263,7 +1263,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "New formats, export, and more — included as they arrive."
+            "value" : "New formats, export, and more — yours as they arrive, at no extra cost."
           }
         }
       }
@@ -1285,7 +1285,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One-time purchase · not a subscription"
+            "value" : "Pay once, own it forever · not a subscription"
           }
         }
       }
@@ -1450,7 +1450,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thanks for supporting LinkClean."
+            "value" : "Thanks for going Pro — every feature is yours to keep."
           }
         }
       }

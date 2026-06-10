@@ -96,8 +96,13 @@ struct HistoryView: View {
     private func earlierSection(_ archive: HistoryViewModel.Archive) -> some View {
         Section {
             ForEach(archive.teaser) { entry in
-                archiveTeaserRow(entry)
-                    .listRowBackground(Color.clear)
+                Button {
+                    paywallTrigger = .historyArchive
+                } label: {
+                    archiveTeaserRow(entry)
+                }
+                .buttonStyle(.plain)
+                .listRowBackground(Color.clear)
             }
 
             Button {
@@ -145,9 +150,10 @@ struct HistoryView: View {
         }
     }
 
-    /// A blurred, non-interactive silhouette of an aged-out entry. Blurred hard
-    /// enough that no URL is legible in a screenshot, and hidden from VoiceOver so
-    /// the link never leaks through assistive tech.
+    /// A blurred silhouette of an aged-out entry; tapping anywhere on it opens the
+    /// paywall, the same as the unlock button. Blurred hard enough that no URL is
+    /// legible in a screenshot, and hidden from VoiceOver so the link never leaks
+    /// through assistive tech (the labeled unlock button is the VoiceOver path).
     private func archiveTeaserRow(_ entry: HistoryEntry) -> some View {
         HStack(spacing: 14) {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -167,7 +173,7 @@ struct HistoryView: View {
         }
         .padding(.vertical, 4)
         .blur(radius: 10)
-        .allowsHitTesting(false)
+        .contentShape(Rectangle())
         .accessibilityHidden(true)
     }
 }
