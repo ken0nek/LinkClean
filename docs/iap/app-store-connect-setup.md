@@ -11,9 +11,9 @@
 
 ## 0. Prerequisites (longest lead time — start first)
 
-- [ ] **Paid Applications Agreement** active (App Store Connect → Business → Agreements). Without it you cannot create or sell IAPs, and **sandbox purchases won't work**.
-- [ ] **Banking + Tax** forms complete (same Agreements area).
-- [ ] **Small Business Program** enrolled (15% commission instead of 30%). The strategy's net-revenue math assumes this. Apply at developer.apple.com → Account → Small Business Program. *(Enrollment can lag; not a blocker for testing, but enroll before you have meaningful sales.)*
+- [x] **Paid Applications Agreement** active (App Store Connect → Business → Agreements). Without it you cannot create or sell IAPs, and **sandbox purchases won't work**.
+- [x] **Banking + Tax** forms complete (same Agreements area).
+- [x] **Small Business Program** enrolled (15% commission instead of 30%). The strategy's net-revenue math assumes this. Apply at developer.apple.com → Account → Small Business Program. *(Enrollment can lag; not a blocker for testing, but enroll before you have meaningful sales.)*
 
 ---
 
@@ -32,7 +32,7 @@ App Store Connect → **My Apps → LinkClean → Monetization → In-App Purcha
 
 **Localization (en-US)** — App Store Localization → add English (U.S.):
 - **Display Name:** `LinkClean Pro`
-- **Description:** `Unlock unlimited custom rules, your full searchable history, and every future Pro feature. One-time purchase.`
+- **Description:** `Everything unlocked, forever — one purchase.` *(44 chars — the field caps around 45; the full detail lives in the review notes below)*
 
 **Review information:**
 - **Screenshot (required):** a screenshot of the **paywall**. Capture it with the **`LinkClean (StoreKit)`** scheme (Xcode → scheme picker → `LinkClean (StoreKit)` → Run; the local `.storekit` makes the product load), open the paywall (Settings → "Unlock Pro", or the DEBUG Developer menu → "Preview Paywall · settingsRow"), and screenshot the simulator. Any valid screenshot size is accepted for IAP review.
@@ -52,7 +52,7 @@ The 1.0 label declared **Purchases: No** (no IAP). For 1.1 you must reconcile it
 
 **Decision (Ken, 2026-06-10): keep it + declare.** The app keeps calling `TelemetryDeck.purchaseCompleted(transaction:)` (directional revenue alongside behavior). So:
 
-- [ ] In **App Privacy → App Privacy questionnaire**, add data type **Purchases → used for Analytics**, **not linked to the user's identity**, **not used for tracking**. (This is the only nutrition-label change vs the 1.0 "Purchases: No".)
+- [x] In **App Privacy → App Privacy questionnaire**, add data type **Purchases → used for Analytics**, **not linked to the user's identity**, **not used for tracking**. (This is the only nutrition-label change vs the 1.0 "Purchases: No".)
 
 ---
 
@@ -62,7 +62,7 @@ App Review requires the paywall's **Terms of Use** + **Privacy Policy** links to
 - Terms: `https://ken0nek.com/apps/linkclean/terms-of-use/`
 - Privacy: `https://ken0nek.com/apps/linkclean/privacy-policy/`
 
-- [ ] **Publish the Terms of Use page** (it's an open `docs/TODO.md` 1.1 item — draft exists). The Privacy Policy is already live. If the canonical URLs differ from the two above, tell me and I'll update `ProLegal` in `Features/Paywall/PaywallView.swift`.
+- [x] **Terms of Use page published** and live — the paywall's Terms + Privacy links both resolve.
 - [ ] In ASC → App Information → **License Agreement**, the standard Apple EULA is fine unless you have a custom one; the in-app Terms link is what reviewers check.
 
 ---
@@ -74,6 +74,18 @@ For the **first** review, the IAP and the app version are reviewed together:
 - [ ] Attach **`linkclean_pro_lifetime`** to the **1.1 build** in the version's "In-App Purchases" section before submitting.
 - [ ] The IAP status should move to **"Ready to Submit"** (green) — needs the localization + screenshot + review notes above.
 - [ ] Submit the 1.1 version for review with the IAP attached.
+
+**App Review Information → Notes (Optional) — suggested text** (paste into the version's *Review Notes* field; it points the reviewer straight at the IAP + Restore):
+
+> LinkClean 1.1 adds one in-app purchase: **LinkClean Pro** (`linkclean_pro_lifetime`), a non-consumable **one-time purchase** — no subscription, no account, no login, no server. The core link-cleaning is free and fully functional without it.
+>
+> **Pro unlocks:** unlimited custom tracking-parameter rules, full cleaning history (the free tier keeps the last 7 days), and future Pro features.
+>
+> **Reach the paywall:** Settings → "LinkClean Pro" → "Unlock Pro". It also appears on gated taps — the History "Earlier" archive, Custom Parameters → Add (after the 1 free rule), and the Home "Remaining" pill (after the 1 free rule).
+>
+> **Restore Purchases** is in Settings and on the paywall, reachable without buying.
+>
+> **Privacy:** all cleaning happens on-device; no link or browsing data leaves the device. Analytics is anonymous and aggregate (TelemetryDeck), including one directional purchase event (product, price, currency) used for revenue analytics — declared under App Privacy → Purchases → Analytics.
 
 ---
 
@@ -87,14 +99,14 @@ For the **first** review, the IAP and the app version are reviewed together:
 ## Quick checklist
 
 ```
-[ ] Paid Apps Agreement + Banking/Tax active
-[ ] Small Business Program enrolled (15%)
-[ ] IAP created: Non-Consumable, linkclean_pro_lifetime, $4.99 base, Family Sharing OFF
+[x] Paid Apps Agreement + Banking/Tax active
+[x] Small Business Program enrolled (15%)
+[x] IAP created: Non-Consumable, linkclean_pro_lifetime, $4.99 base, Family Sharing OFF
 [ ] Regional 3-tier pricing applied — regional-pricing-setup.md (40 storefronts: 22×$2.99, 18×$1.99)
-[ ] en-US localization (display name + description)
+[x] en-US localization (display name + description)
 [ ] Paywall review screenshot + review notes
-[ ] App Privacy: declare Purchases → Analytics (decided: keep TelemetryDeck revenue)
-[ ] Terms of Use page published (links resolve)
+[x] App Privacy: declare Purchases → Analytics (decided: keep TelemetryDeck revenue)
+[x] Terms of Use page published (links resolve)
 [ ] IAP attached to the 1.1 build, status Ready to Submit
 [ ] Sandbox purchase + restore verified on device
 ```

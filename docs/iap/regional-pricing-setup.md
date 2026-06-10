@@ -103,9 +103,10 @@ Set each storefront below to the listed **USD price point** for the LinkClean Pr
 1. **Chrome** → **appstoreconnect.apple.com** → sign in (Apple ID + 2FA). (An agent acts inside
    *your* logged-in session; it cannot do the 2FA for you.)
 2. Go to **My Apps → LinkClean → Monetization → In-App Purchases → LinkClean Pro**.
-3. (Optional) open the **Claude for Chrome** side panel, point it at this file, and say:
-   *"Follow this exactly. Pause for my confirmation before Save."* Stay at the keyboard — this
-   touches billing.
+3. (Optional) automate it with **Claude for Chrome** — open the side panel and paste the
+   ready-made prompt under **"Claude for Chrome — paste-ready prompt"** below. It self-checks and
+   only applies the overrides if none are set yet, and pauses before Save. Stay at the keyboard —
+   this touches billing.
 
 ### Steps (do once — single product)
 
@@ -125,6 +126,61 @@ Set each storefront below to the listed **USD price point** for the LinkClean Pr
 
 **Never:** change a storefront outside the Override Table (Tier 1 stays at base); change any other
 product; touch availability / Family Sharing (it's intentionally **OFF**) / offers; Save without a go.
+
+### Claude for Chrome — paste-ready prompt (applies overrides only if none exist yet)
+
+Sign in to App Store Connect in Chrome first (the agent can't do your 2FA), open **My Apps →
+LinkClean → Monetization → In-App Purchases → LinkClean Pro**, then open the **Claude for Chrome**
+side panel and paste everything in the box below. It runs a **Step 0 idempotency check** — if the
+overrides are already set, it stops without touching anything.
+
+```text
+You are applying regional price overrides to ONE App Store Connect in-app purchase, acting only
+inside my already-logged-in ASC session in this browser tab. This touches billing — follow this
+exactly and PAUSE before any Save.
+
+PRODUCT
+- "LinkClean Pro" — a non-consumable in-app purchase (product ID: linkclean_pro_lifetime).
+- Base price (Tier 1) = US$4.99 and MUST stay unchanged. Every storefront not listed below rides
+  the base automatically — do not touch it.
+
+STEP 0 — IDEMPOTENCY CHECK (before changing anything):
+- Open the LinkClean Pro IAP → its Pricing / price schedule and read the current per-storefront
+  prices.
+- If overrides already exist (e.g. United States $4.99 while Japan ≈ ¥500, India ≈ $1.99, Poland
+  ≈ $2.99), STOP and report "overrides already applied — nothing to do." Do NOT re-apply.
+- Only continue if every storefront currently derives from the $4.99 base (no manual overrides).
+
+STEP 1 — Confirm the base price point is US$4.99. Do not change it.
+
+STEP 2 — Set these 22 storefronts to the US$2.99 price point (Tier 2):
+Japan, Mexico, Chile, Uruguay, Costa Rica, Panama, Poland, Czechia (may show "Czech Republic"),
+Hungary, Romania, Croatia, Slovakia, Slovenia, Bulgaria, Estonia, Latvia, Lithuania, Greece,
+Malaysia, Thailand, China mainland, South Africa.
+
+STEP 3 — Set these 18 storefronts to the US$1.99 price point (Tier 3):
+India, Pakistan, Bangladesh, Sri Lanka, Indonesia, Philippines, Vietnam, Brazil, Colombia, Peru,
+Argentina, Ecuador, Turkey (may show "Türkiye"), Egypt, Nigeria, Kenya, Morocco, Ukraine.
+
+STEP 4 — Japan: confirm it displays ¥500; if it shows a different yen amount, pick the ¥500 price
+point for Japan directly.
+
+STEP 5 — If asked for a start date, choose now / immediately. (No "existing subscribers" prompt
+appears — this is a non-consumable.)
+
+NEVER:
+- Never change a storefront that is not in the Step 2 or Step 3 list (Tier 1 stays at the base).
+- Never change the base price, product availability, Family Sharing (intentionally OFF), offers,
+  or any other product.
+- Never click the final Save without my explicit "go."
+
+BEFORE SAVE — pause and report: the product name, the number of storefronts you changed (must be
+exactly 40 = 22 Tier 2 + 18 Tier 3), and one Tier 2 and one Tier 3 sample price. Wait for me to
+reply "go," then Save.
+
+AFTER SAVE — verify and report: United States = $4.99, Japan = ¥500, Poland ≈ $2.99, India ≈
+$1.99, Germany still at Tier 1 (≈ base), and edited-storefront count = 40.
+```
 
 ---
 
