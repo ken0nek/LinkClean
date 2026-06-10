@@ -20,6 +20,19 @@ final class SettingsViewModel {
     private(set) var saveHistoryEnabled: Bool
     private(set) var isRestoring = false
 
+    // MARK: - Support links
+
+    /// Address opened by the Settings → Support → Contact row; the channel App
+    /// Review and users use to reach the developer. Force-unwrapped: a fixed,
+    /// known-valid literal (cf. `PaywallView`'s policy URLs).
+    let contactURL = URL(string: "mailto:linkclean@ken0nek.com")!
+
+    /// App Store "write a review" deep link for the Rate row. An explicit tap
+    /// opens the review composer directly, unlike Apple's rate-limited
+    /// `requestReview()` — which backs the automatic Home review gate and can
+    /// silently no-op on demand. `6758604043` is LinkClean's App Store ID.
+    let reviewURL = URL(string: "https://apps.apple.com/app/id6758604043?action=write-review")!
+
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
 

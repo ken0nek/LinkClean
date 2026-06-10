@@ -11,6 +11,7 @@ import LinkCleanKit
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openURL) private var openURL
     @Environment(EntitlementsModel.self) private var entitlements
     @State private var viewModel = SettingsViewModel()
     @State private var showClearHistoryConfirmation = false
@@ -40,7 +41,11 @@ struct SettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.autoPasteEnabled },
                     set: { viewModel.setAutoPaste($0) }
-                )) { Text(.settingsClipboardAutoPaste) }
+                )) {
+                    Label { Text(.settingsClipboardAutoPaste) } icon: {
+                        Image(systemName: "doc.on.clipboard").foregroundStyle(.tint)
+                    }
+                }
                     .tint(.accentColor)
                     .accessibilityIdentifier("settings-auto-paste-toggle")
             } header: {
@@ -53,13 +58,17 @@ struct SettingsView: View {
                 NavigationLink {
                     ManageParametersView()
                 } label: {
-                    Text(.settingsCleaningDefaultParameters)
+                    Label { Text(.settingsCleaningDefaultParameters) } icon: {
+                        Image(systemName: "checklist").foregroundStyle(.tint)
+                    }
                 }
 
                 NavigationLink {
                     CustomParametersView()
                 } label: {
-                    Text(.settingsCleaningCustomParameters)
+                    Label { Text(.settingsCleaningCustomParameters) } icon: {
+                        Image(systemName: "plus.circle").foregroundStyle(.tint)
+                    }
                 }
             } header: {
                 Text(.settingsCleaningHeader)
@@ -78,7 +87,9 @@ struct SettingsView: View {
                         }
                     }
                 )) {
-                    Text(.settingsDataSaveHistory)
+                    Label { Text(.settingsDataSaveHistory) } icon: {
+                        Image(systemName: "clock.arrow.circlepath").foregroundStyle(.tint)
+                    }
                 }
                 .tint(.accentColor)
 
@@ -86,7 +97,7 @@ struct SettingsView: View {
                     Button(role: .destructive) {
                         showClearHistoryConfirmation = true
                     } label: {
-                        Text(.settingsDataClearHistory)
+                        Label { Text(.settingsDataClearHistory) } icon: { Image(systemName: "trash") }
                     }
                 }
             } header: {
@@ -98,15 +109,35 @@ struct SettingsView: View {
                     ExtensionGuideView(source: .settings)
                         .navigationTitle(Text(.guideTitle))
                 } label: {
-                    Label { Text(.settingsHowToUseHeader) } icon: { Image(systemName: "wand.and.stars") }
+                    Label { Text(.settingsHowToUseHeader) } icon: {
+                        Image(systemName: "wand.and.stars").foregroundStyle(.tint)
+                    }
                 }
+
+                Button {
+                    openURL(viewModel.contactURL)
+                } label: {
+                    Label { Text(.settingsSupportContact) } icon: { Image(systemName: "envelope") }
+                }
+                .accessibilityIdentifier("settings-contact")
+
+                Button {
+                    openURL(viewModel.reviewURL)
+                } label: {
+                    Label { Text(.settingsSupportRate) } icon: { Image(systemName: "star") }
+                }
+                .accessibilityIdentifier("settings-rate")
+            } header: {
+                Text(.settingsSupportHeader)
             }
 
             Section {
                 LabeledContent {
                     Text(verbatim: "\(version) (\(build))")
                 } label: {
-                    Text(.settingsAboutVersion)
+                    Label { Text(.settingsAboutVersion) } icon: {
+                        Image(systemName: "info.circle").foregroundStyle(.tint)
+                    }
                 }
             } header: {
                 Text(.settingsAboutHeader)
@@ -118,7 +149,9 @@ struct SettingsView: View {
                     NavigationLink {
                         DeveloperMenuView()
                     } label: {
-                        Label { Text(verbatim: "Developer") } icon: { Image(systemName: "hammer") }
+                        Label { Text(verbatim: "Developer") } icon: {
+                            Image(systemName: "hammer").foregroundStyle(.tint)
+                        }
                     }
                 }
             }
@@ -186,7 +219,7 @@ struct SettingsView: View {
                     paywallTrigger = .settingsRow
                 } label: {
                     HStack {
-                        Text(.settingsProUnlock)
+                        Label { Text(.settingsProUnlock) } icon: { Image(systemName: "sparkles") }
                         Spacer()
                         Image(systemName: "chevron.right")
                             .font(.caption2.weight(.bold))
@@ -200,7 +233,7 @@ struct SettingsView: View {
                 Task { restoreResult = await viewModel.restorePurchases(using: entitlements) }
             } label: {
                 HStack {
-                    Text(.settingsProRestore)
+                    Label { Text(.settingsProRestore) } icon: { Image(systemName: "arrow.clockwise") }
                     Spacer()
                     if viewModel.isRestoring {
                         ProgressView()
