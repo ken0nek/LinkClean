@@ -74,6 +74,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E90AABFF2F3058F40021A4A1 /* Exceptions for "LinkClean" folder in "LinkClean" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				LinkClean.storekit,
+			);
+			target = E90AAB582F2F4ED30021A4A1 /* LinkClean */;
+		};
 		E90AAB982F3058F40021A4A1 /* Exceptions for "LinkCleanAction" folder in "LinkCleanAction" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -93,6 +100,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E90AAB5B2F2F4ED30021A4A1 /* LinkClean */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E90AABFF2F3058F40021A4A1 /* Exceptions for "LinkClean" folder in "LinkClean" target */,
+			);
 			path = LinkClean;
 			sourceTree = "<group>";
 		};
