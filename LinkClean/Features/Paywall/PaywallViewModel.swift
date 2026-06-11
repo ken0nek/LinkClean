@@ -35,11 +35,11 @@ final class PaywallViewModel {
     private(set) var didUnlock = false
 
     let trigger: AnalyticsEvent.PaywallTrigger
-    @ObservationIgnored private let entitlements: EntitlementsModel
+    @ObservationIgnored private let entitlements: any EntitlementsProviding
     @ObservationIgnored private let analytics: AnalyticsService
 
     init(
-        entitlements: EntitlementsModel,
+        entitlements: any EntitlementsProviding,
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
         trigger: AnalyticsEvent.PaywallTrigger
     ) {
@@ -72,22 +72,20 @@ final class PaywallViewModel {
         isPurchasing = true
         defer { isPurchasing = false }
 
-        analytics.capture(.purchaseStarted)
+        // The `Pro.Purchase.*` funnel is emitted by ``EntitlementsModel`` (the
+        // engine that establishes each outcome); this only renders the result.
         do {
             switch try await entitlements.purchase() {
             case .completed:
-                analytics.capture(.purchaseCompleted)
                 didUnlock = true
             case .cancelled:
-                analytics.capture(.purchaseFailed(reason: .cancelled))
+                break
             case .pending:
                 // Ask-to-Buy / SCA: the entitlement may arrive later. Reassure,
                 // don't error.
-                analytics.capture(.purchaseFailed(reason: .pending))
                 showPendingApproval = true
             }
         } catch {
-            analytics.capture(.purchaseFailed(reason: .storeError))
             showPurchaseError = true
         }
     }

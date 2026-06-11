@@ -19,7 +19,7 @@ import Observation
 /// UserDefaults rule in `ARCHITECTURE.md`).
 @MainActor
 @Observable
-final class EntitlementsModel {
+final class EntitlementsModel: EntitlementsProviding {
     private(set) var entitlement: Entitlement = .free
     private let service: EntitlementsService
     private let analytics: AnalyticsService
@@ -45,14 +45,31 @@ final class EntitlementsModel {
         try await service.proProduct()
     }
 
-    /// Starts the purchase flow. Reflects a completed entitlement immediately so
-    /// gating updates without waiting on the stream to catch up.
+    /// Starts the purchase flow and emits the `Pro.Purchase.*` funnel facts from
+    /// here — the layer that establishes each outcome — so ViewModels only render
+    /// results and the funnel can't disagree across call sites. Reflects a
+    /// completed entitlement immediately so gating updates without waiting on the
+    /// stream to catch up.
     func purchase() async throws -> PurchaseOutcome {
-        let outcome = try await service.purchase()
-        if case .completed(let entitlement) = outcome {
-            self.entitlement = entitlement
+        analytics.capture(.purchaseStarted)
+        do {
+            let outcome = try await service.purchase()
+            switch outcome {
+            case .completed(let entitlement):
+                self.entitlement = entitlement
+                // Synchronous completion only; an Ask-to-Buy/SCA approval arrives
+                // later via the stream and is deliberately not re-counted here.
+                analytics.capture(.purchaseCompleted)
+            case .cancelled:
+                analytics.capture(.purchaseFailed(reason: .cancelled))
+            case .pending:
+                analytics.capture(.purchaseFailed(reason: .pending))
+            }
+            return outcome
+        } catch {
+            analytics.capture(.purchaseFailed(reason: .storeError))
+            throw error
         }
-        return outcome
     }
 
     /// Restores previous purchases. Restore only ever *grants* Pro — it never

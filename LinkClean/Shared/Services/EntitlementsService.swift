@@ -60,3 +60,16 @@ protocol EntitlementsService: Sendable {
     /// Restores previous purchases and returns the resulting entitlement.
     func restorePurchases() async throws -> Entitlement
 }
+
+/// The small app-facing surface a paywall needs from ``EntitlementsModel`` —
+/// product load, purchase, restore. ViewModels depend on this protocol rather
+/// than the concrete model, so the paywall is testable against a stub (the one
+/// ViewModel that previously couldn't take a double). The model keeps the stream
+/// consumption and grant-only restore semantics as its real, un-abstracted job.
+@MainActor
+protocol EntitlementsProviding {
+    func proProduct() async throws -> ProProduct?
+    func purchase() async throws -> PurchaseOutcome
+    @discardableResult
+    func restorePurchases() async throws -> Entitlement
+}
