@@ -133,19 +133,19 @@ struct HomeView: View {
         }
         .sheet(
             isPresented: Binding(
-                get: { viewModel.showReviewGate },
-                set: { viewModel.showReviewGate = $0 }
+                get: { viewModel.reviewFlow.isPresenting },
+                set: { viewModel.reviewFlow.isPresenting = $0 }
             ),
             onDismiss: {
                 // Fire Apple's prompt only after our sheet is fully gone — calling
                 // requestReview() mid-dismiss makes iOS silently drop it.
-                if viewModel.reviewGateDidDismiss() {
+                if viewModel.reviewFlow.didDismiss() {
                     requestReview()
                 }
             }
         ) {
             ReviewGateSheet { outcome in
-                viewModel.handleReviewRating(outcome)
+                viewModel.reviewFlow.handle(outcome)
             }
         }
     }

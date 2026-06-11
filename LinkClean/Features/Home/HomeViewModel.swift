@@ -21,21 +21,24 @@ final class HomeViewModel {
             handleInputTextChange(previous: oldValue)
         }
     }
-    private(set) var cleanedOutcome: CleanOutcome?
+    /// The dedup ledger for this session — holds the current cleaned outcome and
+    /// owns the export/signal dedup keys. Observed so `cleanedText` and the pills
+    /// update when `setOutcome` runs.
+    var session = CleanSession()
     var didCopy = false
     var showClipboardToast = false
-    /// Drives the in-app review star sheet (``ReviewGateSheet``). Set by the view
-    /// model at a value moment; the system clears it on dismiss.
-    var showReviewGate = false
     var focusResetToken = UUID()
     /// The leftover parameter whose on-device explanation is being generated, or
     /// `nil` when idle. Drives the pill's progress spinner; observed.
     private(set) var explainingParameter: String?
+    /// Owns the in-app review prompt (eligibility, grace delay, presentation,
+    /// rated-high handoff). HomeView renders `reviewFlow.isPresenting`; this model
+    /// only feeds it exports. Read through it observes its `isPresenting`.
+    @ObservationIgnored let reviewFlow: ReviewPromptFlow
     @ObservationIgnored private let service: CleaningService
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private let store: TrackingParameterStore
-    @ObservationIgnored private let review: ReviewService
     @ObservationIgnored private let explanationService: ParameterExplanationService
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
@@ -46,12 +49,10 @@ final class HomeViewModel {
     // Source attribution for `Home.URL.cleaned`. SwiftUI can't tell a paste from
     // typing on a TextField binding, so we infer: a programmatic clipboard fill
     // is `autoPaste`; a single new character is `typed`; a larger jump is
-    // `manualPaste`. `lastSignaledCleanInput` dedupes the once-per-input signal
-    // across re-cleans (e.g. returning to the tab).
+    // `manualPaste`. The once-per-input signal dedup lives in CleanSession.
     @ObservationIgnored private var nextCleanSource: AnalyticsEvent.CleanSource = .typed
     @ObservationIgnored private var isApplyingAutoPaste = false
     @ObservationIgnored private var isSanitizing = false
-    @ObservationIgnored private var lastSignaledCleanInput: String?
     // One-time removals from the leftover pills' "Remove Once" action: extra
     // parameters stripped from the *current* link only, never persisted. Any
     // input edit clears the set — it described the previous link.
@@ -60,25 +61,6 @@ final class HomeViewModel {
     // when a leftover pill is tapped and cached for the session — a name's
     // explanation is stable, so it's fetched at most once.
     @ObservationIgnored private var parameterExplanations: [String: ParameterExplanation] = [:]
-    // Dedupes the export signals per distinct cleaned *output*: repeated taps on
-    // one result count once, but exporting again after a leftover-pill refine
-    // (same input, cleaner output) correctly counts again. Copy and share track
-    // separately (a user can do both), while `lastRecordedHistoryOutput` is
-    // shared so copy-then-share writes one history row, not two.
-    @ObservationIgnored private var lastCopiedOutput: String?
-    @ObservationIgnored private var lastSharedOutput: String?
-    @ObservationIgnored private var lastRecordedHistoryOutput: String?
-    // Review-prompt state. `lastReviewCountedOutput` dedupes the success counter
-    // per distinct exported output (copy-then-share of one URL counts once);
-    // `didOfferReviewThisSession` caps the prompt at once per app run.
-    @ObservationIgnored private var lastReviewCountedOutput: String?
-    @ObservationIgnored private var didOfferReviewThisSession = false
-    @ObservationIgnored private var reviewTask: Task<Void, Never>?
-    // Per-presentation review-sheet state: whether the user rated at all (a
-    // dismissal without a rating is a decline) and whether it was a high rating
-    // (defers Apple's `requestReview()` until after the sheet dismisses).
-    @ObservationIgnored private var reviewDidRate = false
-    @ObservationIgnored private var reviewRatedHigh = false
 
     init(
         service: CleaningService = DefaultCleaningService(),
@@ -92,8 +74,8 @@ final class HomeViewModel {
         self.analytics = analytics
         self.settings = settings
         self.store = store
-        self.review = review
         self.explanationService = explanationService
+        self.reviewFlow = ReviewPromptFlow(review: review, analytics: analytics)
     }
 
     private var isAutoPasteEnabled: Bool { settings.autoPasteEnabled }
@@ -118,14 +100,14 @@ final class HomeViewModel {
     }
 
     var cleanedText: String {
-        cleanedOutcome?.cleaned ?? ""
+        session.outcome?.cleaned ?? ""
     }
 
     /// Exact names removed in producing `cleanedText` — the calm proof-of-work
     /// list shown on Home. The on-device ``CleanOutcome/Display`` view; the type
     /// system keeps these raw names out of analytics.
     var removedParameters: [String] {
-        cleanedOutcome?.display.removedNames ?? []
+        session.outcome?.display.removedNames ?? []
     }
 
     /// Every parameter that survived cleaning — the actionable "remaining" pills.
@@ -134,7 +116,7 @@ final class HomeViewModel {
     /// (``removeLeftoverParameterOnce(_:)``, this link only) or "Always Remove"
     /// (``addLeftoverParameter(_:)``, the custom set).
     var leftoverParameters: [String] {
-        cleanedOutcome?.display.leftoverNames ?? []
+        session.outcome?.display.leftoverNames ?? []
     }
 
     func clearInput() {
@@ -146,15 +128,15 @@ final class HomeViewModel {
     }
 
     func copyCleanedURL() {
-        guard let cleanedOutcome, !cleanedOutcome.cleaned.isEmpty else { return }
-        UIPasteboard.general.string = cleanedOutcome.cleaned
+        guard let outcome = session.outcome, !outcome.cleaned.isEmpty else { return }
+        UIPasteboard.general.string = outcome.cleaned
         didCopy = true
 
-        if cleanedOutcome.cleaned != lastCopiedOutput {
-            lastCopiedOutput = cleanedOutcome.cleaned
-            analytics.capture(.homeURLCopied(changed: cleanedOutcome.telemetry.changed))
-            recordHistoryIfNeeded(for: cleanedOutcome)
-            noteExportForReview(cleanedOutcome.cleaned)
+        let effects = session.noteCopy(saveHistoryEnabled: isSaveHistoryEnabled)
+        if effects.signalExport {
+            analytics.capture(.homeURLCopied(changed: outcome.telemetry.changed))
+            if effects.recordHistory { insertHistoryRow(for: outcome) }
+            reviewFlow.noteExport(counted: effects.countForReview)
         }
 
         copyTask?.cancel()
@@ -165,87 +147,23 @@ final class HomeViewModel {
     }
 
     /// Records a Home share via the system share sheet. Hooked to the ShareLink
-    /// tap (best-effort, mirroring History) — deduped per distinct cleaned output,
-    /// and writes the same single history row a copy would.
+    /// tap (best-effort, mirroring History). The ``CleanSession`` ledger dedupes
+    /// it per distinct output and shares the single history row with copy.
     func recordShare() {
-        guard let cleanedOutcome, !cleanedOutcome.cleaned.isEmpty else { return }
-        guard cleanedOutcome.cleaned != lastSharedOutput else { return }
-        lastSharedOutput = cleanedOutcome.cleaned
-        analytics.capture(.homeURLShared(changed: cleanedOutcome.telemetry.changed))
-        recordHistoryIfNeeded(for: cleanedOutcome)
-        noteExportForReview(cleanedOutcome.cleaned)
+        guard let outcome = session.outcome, !outcome.cleaned.isEmpty else { return }
+        let effects = session.noteShare(saveHistoryEnabled: isSaveHistoryEnabled)
+        guard effects.signalExport else { return }
+        analytics.capture(.homeURLShared(changed: outcome.telemetry.changed))
+        if effects.recordHistory { insertHistoryRow(for: outcome) }
+        reviewFlow.noteExport(counted: effects.countForReview)
     }
 
-    /// Inserts a history row for `outcome` once per distinct output — whether
-    /// reached by copy or share — when history saving is enabled.
-    private func recordHistoryIfNeeded(for outcome: CleanOutcome) {
-        guard isSaveHistoryEnabled, outcome.cleaned != lastRecordedHistoryOutput else { return }
-        lastRecordedHistoryOutput = outcome.cleaned
+    /// Writes a history row for `outcome`. Whether to write at all (per-output
+    /// dedup + the save-history setting) is decided by the ``CleanSession`` ledger's
+    /// `recordHistory` effect; this just performs the insert.
+    private func insertHistoryRow(for outcome: CleanOutcome) {
         let entry = HistoryEntry(input: outcome.input, output: outcome.cleaned)
         modelContext?.insert(entry)
-    }
-
-    /// Counts a distinct exported output toward review eligibility (once per
-    /// output, whether reached by copy or share), then offers the prompt — the
-    /// copy/share is the realized-value moment, the natural place to ask.
-    private func noteExportForReview(_ output: String) {
-        if output != lastReviewCountedOutput {
-            lastReviewCountedOutput = output
-            review.recordSuccess()
-        }
-        maybeOfferReview()
-    }
-
-    /// Schedules ``ReviewGateSheet`` if the gate is eligible and we haven't asked
-    /// this session. A short delay lets the copy's checkmark and success haptic
-    /// land before the sheet rises, so the two moments don't collide. `reviewTask`
-    /// is cancelled in ``onDisappear()`` so it can't fire off-screen.
-    private func maybeOfferReview() {
-        guard !didOfferReviewThisSession, review.shouldRequestReview() else { return }
-        didOfferReviewThisSession = true
-        reviewTask = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(0.6))
-            guard !Task.isCancelled, isHomeVisible else { return }
-            presentReviewGate()
-        }
-    }
-
-    /// Commits to showing the prompt: stamps the persistent cooldown and emits the
-    /// shown signal at the same instant `showReviewGate` flips, so backgrounding
-    /// or a crash can't leave the gate re-armed with no cooldown recorded.
-    private func presentReviewGate() {
-        review.markPrompted()
-        analytics.capture(.reviewPromptShown)
-        reviewDidRate = false
-        reviewRatedHigh = false
-        showReviewGate = true
-    }
-
-    /// Records the star rating (bucket-only) the user gave the sheet. The hop to
-    /// Apple's `requestReview()` is deferred to ``reviewGateDidDismiss()`` so it
-    /// fires after our sheet is gone, not over it.
-    func handleReviewRating(_ outcome: ReviewGateOutcome) {
-        reviewDidRate = true
-        switch outcome {
-        case .ratedHigh:
-            reviewRatedHigh = true
-            analytics.capture(.reviewStarsSelected(bucket: .high))
-            analytics.capture(.reviewSystemPromptRequested)
-        case .ratedLow:
-            analytics.capture(.reviewStarsSelected(bucket: .low))
-        }
-    }
-
-    /// Called when the sheet finishes dismissing. Counts a dismissal when the user
-    /// left without rating (covers both "Not now" and an interactive swipe), and
-    /// returns whether the host should now present Apple's system prompt.
-    func reviewGateDidDismiss() -> Bool {
-        if !reviewDidRate {
-            analytics.capture(.reviewPromptDismissed)
-        }
-        let shouldRequestSystemPrompt = reviewRatedHigh
-        reviewRatedHigh = false
-        return shouldRequestSystemPrompt
     }
 
     /// The "Always Remove" gate decision (T2): a free user past their one custom
@@ -322,6 +240,7 @@ final class HomeViewModel {
 
     func onAppear() {
         isHomeVisible = true
+        reviewFlow.setVisible(true)
 
         if !didRunInitialPaste, isAutoPasteEnabled {
             didRunInitialPaste = true
@@ -333,9 +252,9 @@ final class HomeViewModel {
 
     func onDisappear() {
         isHomeVisible = false
-        // Cancel a pending review offer so it can't surface over a backgrounded
-        // or torn-down Home (the sheet content is unrelated to the current URL).
-        reviewTask?.cancel()
+        // The flow cancels any pending review offer so it can't surface over a
+        // backgrounded or torn-down Home.
+        reviewFlow.setVisible(false)
     }
 
     func handleSceneBecameActive() {
@@ -420,15 +339,10 @@ final class HomeViewModel {
         // previous link and must not silently carry into this one.
         oneTimeRemovals.removeAll()
 
-        if isInputEmpty {
-            lastSignaledCleanInput = nil
-            lastCopiedOutput = nil
-            lastSharedOutput = nil
-            lastRecordedHistoryOutput = nil
-            // `lastReviewCountedOutput` is deliberately NOT reset here: clearing
-            // and re-pasting the same URL is the same realized value, so it must
-            // not count toward review eligibility a second time.
-        }
+        // The session resets its per-input/per-output dedup keys when the input
+        // becomes empty — deliberately keeping the review counter (clearing and
+        // re-pasting the same URL is the same realized value). See CleanSession.
+        session.beginInput(trimmedInput)
 
         refreshCleanedURL()
     }
@@ -437,7 +351,7 @@ final class HomeViewModel {
         cleanTask?.cancel()
 
         guard !isInputEmpty, isInputValidURL else {
-            cleanedOutcome = nil
+            session.setOutcome(nil)
             return
         }
 
@@ -449,20 +363,20 @@ final class HomeViewModel {
             await MainActor.run { [inputSnapshot] in
                 guard inputSnapshot == self.trimmedInput,
                       removalsSnapshot == self.oneTimeRemovals else { return }
-                self.cleanedOutcome = outcome
-                self.signalCleanedIfNeeded(outcome, source: source)
+                // setOutcome records the outcome and decides the once-per-input
+                // cleaned signal (suppressed on re-cleans and leftover refines).
+                if self.session.setOutcome(outcome), let outcome {
+                    self.signalCleaned(outcome, source: source)
+                }
             }
         }
     }
 
-    /// Emits `Home.URL.cleaned` once per distinct input. Re-cleans of the same
-    /// input (returning to the tab, re-focusing) are suppressed. The event takes
-    /// the outcome's ``CleanOutcome/Telemetry`` directly — the analytics-safe
-    /// view, domain and catalog-gap signals included — so no field is re-plumbed
-    /// or re-derived here.
-    private func signalCleanedIfNeeded(_ outcome: CleanOutcome?, source: AnalyticsEvent.CleanSource) {
-        guard let outcome, outcome.input != lastSignaledCleanInput else { return }
-        lastSignaledCleanInput = outcome.input
+    /// Emits `Home.URL.cleaned` for a freshly-signaled outcome (the session
+    /// already decided this is a new input). The event takes the outcome's
+    /// ``CleanOutcome/Telemetry`` directly — the analytics-safe view, domain and
+    /// catalog-gap signals included — so no field is re-plumbed or re-derived.
+    private func signalCleaned(_ outcome: CleanOutcome, source: AnalyticsEvent.CleanSource) {
         analytics.capture(.homeURLCleaned(source: source, telemetry: outcome.telemetry))
         // Tier 1: one signal per known-but-not-default tracker left behind, so
         // the default catalog can grow from real links. These ride in the
