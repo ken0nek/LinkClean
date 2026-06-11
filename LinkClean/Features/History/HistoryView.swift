@@ -18,8 +18,8 @@ struct HistoryView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
 
-    init(viewModel: HistoryViewModel = HistoryViewModel()) {
-        _viewModel = State(initialValue: viewModel)
+    init(deps: AppDependencies) {
+        _viewModel = State(initialValue: HistoryViewModel(deps: deps))
     }
 
     var body: some View {
@@ -181,7 +181,7 @@ struct HistoryView: View {
 
 #Preview {
     NavigationStack {
-        HistoryView()
+        HistoryView(deps: .preview())
             .modelContainer(HistoryContainer.makeInMemory())
             .environment(EntitlementsModel.preview)
     }

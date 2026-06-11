@@ -12,8 +12,11 @@ import SwiftUI
 /// which is only reached after a real extension run is detected.
 struct OnboardingView: View {
     @State private var viewModel: OnboardingViewModel
+    private let deps: AppDependencies
 
-    init(onFinished: @escaping () -> Void, viewModel: OnboardingViewModel = OnboardingViewModel()) {
+    init(deps: AppDependencies, onFinished: @escaping () -> Void) {
+        self.deps = deps
+        let viewModel = OnboardingViewModel(deps: deps)
         viewModel.onFinished = onFinished
         _viewModel = State(initialValue: viewModel)
     }
@@ -46,6 +49,7 @@ struct OnboardingView: View {
                 .transition(.opacity)
         case .tryIt:
             OnboardingTryItPage(
+                deps: deps,
                 onSuccess: viewModel.handleGuideSuccess,
                 onMaybeLater: viewModel.skip
             )
@@ -58,5 +62,5 @@ struct OnboardingView: View {
 }
 
 #Preview {
-    OnboardingView(onFinished: {})
+    OnboardingView(deps: .preview(), onFinished: {})
 }

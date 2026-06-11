@@ -15,38 +15,34 @@ import SwiftUI
 @main
 struct LinkCleanApp: App {
     private let modelContainer: ModelContainer
-    @State private var entitlements: EntitlementsModel
+    private let dependencies: AppDependencies
 
     init() {
         self.modelContainer = HistoryContainer.makeShared() ?? HistoryContainer.makeInMemory()
 
-        // Initialize analytics as early as possible (TelemetryDeck guidance: in
-        // App.init, not onAppear). DEBUG builds are automatically test mode.
-        if !DebugMode.isScreenshotMode {
-            TelemetryDeckAnalytics.start(surface: "app")
-        }
-
-        // StoreKit 2 needs no configuration step or appUserID — the device is the
-        // entitlement store of record for the lifetime non-consumable.
-        let entitlementsService = StoreKitEntitlementsService()
-        self._entitlements = State(initialValue: EntitlementsModel(service: entitlementsService))
+        // The single production wiring path: constructs every service (StoreKit 2
+        // needs no configuration step or appUserID) and starts the analytics SDK
+        // as early as TelemetryDeck wants (App.init, not onAppear), screenshot
+        // builds excepted. The whole object graph is reviewable in `live()`.
+        self.dependencies = AppDependencies.live()
 
         // All UI-test / screenshot / QA launch-argument handling lives in the
-        // DEBUG-only configurator; production launches run none of it.
+        // DEBUG-only configurator; production launches run none of it. It mutates
+        // the same store instances the app uses.
         #if DEBUG
         DebugLaunchConfigurator.apply(
             arguments: ProcessInfo.processInfo.arguments,
             container: modelContainer,
-            settings: SettingsStore(),
-            parameters: TrackingParameterStore()
+            settings: dependencies.settings,
+            parameters: dependencies.parameters
         )
         #endif
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(entitlements)
+            ContentView(deps: dependencies)
+                .environment(dependencies.entitlements)
         }
         .modelContainer(modelContainer)
     }

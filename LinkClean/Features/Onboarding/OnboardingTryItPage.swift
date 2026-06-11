@@ -11,6 +11,7 @@ import SwiftUI
 /// the user opens the real share sheet and runs "Clean URL" for real; a
 /// detected run advances to the celebration page.
 struct OnboardingTryItPage: View {
+    let deps: AppDependencies
     let onSuccess: () -> Void
     let onMaybeLater: () -> Void
 
@@ -22,7 +23,7 @@ struct OnboardingTryItPage: View {
                 .padding(.top, 56)
                 .padding(.horizontal, 24)
 
-            ExtensionGuideView(source: .onboarding, onSuccess: onSuccess)
+            ExtensionGuideView(deps: deps, source: .onboarding, onSuccess: onSuccess)
 
             Button(action: onMaybeLater) {
                 Text(.onboardingTryItMaybeLater)
@@ -37,6 +38,6 @@ struct OnboardingTryItPage: View {
 }
 
 #Preview {
-    OnboardingTryItPage(onSuccess: {}, onMaybeLater: {})
+    OnboardingTryItPage(deps: .preview(), onSuccess: {}, onMaybeLater: {})
         .screenBackground()
 }

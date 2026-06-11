@@ -21,13 +21,13 @@ struct ExtensionGuideView: View {
     var onSuccess: (() -> Void)?
 
     init(
+        deps: AppDependencies,
         source: ExtensionGuideSource,
-        onSuccess: (() -> Void)? = nil,
-        viewModel: ExtensionGuideViewModel = ExtensionGuideViewModel()
+        onSuccess: (() -> Void)? = nil
     ) {
         self.source = source
         self.onSuccess = onSuccess
-        _viewModel = State(initialValue: viewModel)
+        _viewModel = State(initialValue: ExtensionGuideViewModel(deps: deps))
     }
 
     var body: some View {
@@ -136,7 +136,7 @@ private struct GuideStep: View {
 
 #Preview {
     NavigationStack {
-        ExtensionGuideView(source: .settings)
+        ExtensionGuideView(deps: .preview(), source: .settings)
             .navigationTitle(Text(.guideTitle))
     }
 }

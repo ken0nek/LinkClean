@@ -15,8 +15,8 @@ struct CustomParametersView: View {
     @State private var addErrorMessage: String?
     @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
 
-    init(viewModel: CustomParametersViewModel = CustomParametersViewModel()) {
-        _viewModel = State(initialValue: viewModel)
+    init(deps: AppDependencies) {
+        _viewModel = State(initialValue: CustomParametersViewModel(deps: deps))
     }
 
     /// A free user who has used their one free rule — the Add affordance shows a
@@ -152,7 +152,7 @@ struct CustomParametersView: View {
 
 #Preview {
     NavigationStack {
-        CustomParametersView()
+        CustomParametersView(deps: .preview())
             .environment(EntitlementsModel.preview)
     }
 }

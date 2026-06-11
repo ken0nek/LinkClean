@@ -13,11 +13,17 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openURL) private var openURL
     @Environment(EntitlementsModel.self) private var entitlements
-    @State private var viewModel = SettingsViewModel()
+    private let deps: AppDependencies
+    @State private var viewModel: SettingsViewModel
     @State private var showClearHistoryConfirmation = false
     @State private var showDisableHistoryConfirmation = false
     @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
     @State private var restoreResult: SettingsViewModel.RestoreResult?
+
+    init(deps: AppDependencies) {
+        self.deps = deps
+        _viewModel = State(initialValue: SettingsViewModel(deps: deps))
+    }
 
     #if DEBUG
     /// Production never auto-pushes; DEBUG screenshot/testing builds can land
@@ -56,7 +62,7 @@ struct SettingsView: View {
 
             Section {
                 NavigationLink {
-                    ManageParametersView()
+                    ManageParametersView(deps: deps)
                 } label: {
                     Label { Text(.settingsCleaningDefaultParameters) } icon: {
                         Image(systemName: "checklist").foregroundStyle(.tint)
@@ -64,7 +70,7 @@ struct SettingsView: View {
                 }
 
                 NavigationLink {
-                    CustomParametersView()
+                    CustomParametersView(deps: deps)
                 } label: {
                     Label { Text(.settingsCleaningCustomParameters) } icon: {
                         Image(systemName: "plus.circle").foregroundStyle(.tint)
@@ -106,7 +112,7 @@ struct SettingsView: View {
 
             Section {
                 NavigationLink {
-                    ExtensionGuideView(source: .settings)
+                    ExtensionGuideView(deps: deps, source: .settings)
                         .navigationTitle(Text(.guideTitle))
                 } label: {
                     Label { Text(.settingsHowToUseHeader) } icon: {
@@ -162,7 +168,7 @@ struct SettingsView: View {
         .navigationTitle(Text(.settingsTitle))
         #if DEBUG
         .navigationDestination(isPresented: $isShowingParametersForScreenshot) {
-            ManageParametersView()
+            ManageParametersView(deps: deps)
         }
         #endif
         .onAppear { viewModel.onAppear() }
@@ -262,7 +268,7 @@ struct SettingsView: View {
 
 #Preview {
     NavigationStack {
-        SettingsView()
+        SettingsView(deps: .preview())
             .environment(EntitlementsModel.preview)
     }
 }

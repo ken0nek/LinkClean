@@ -27,8 +27,8 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.requestReview) private var requestReview
 
-    init(viewModel: HomeViewModel = HomeViewModel()) {
-        _viewModel = State(initialValue: viewModel)
+    init(deps: AppDependencies) {
+        _viewModel = State(initialValue: HomeViewModel(deps: deps))
     }
 
     var body: some View {
@@ -444,7 +444,7 @@ struct HomeView: View {
 
 #Preview {
     NavigationStack {
-        HomeView()
+        HomeView(deps: .preview())
             .environment(EntitlementsModel.preview)
     }
 }

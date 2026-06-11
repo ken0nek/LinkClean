@@ -9,8 +9,13 @@ import LinkCleanCore
 import SwiftUI
 
 struct ContentView: View {
+    let deps: AppDependencies
     @AppStorage(SettingsKeys.hasCompletedOnboarding) private var hasCompletedOnboarding = false
     @State private var selection: AppTab = .initial
+
+    init(deps: AppDependencies) {
+        self.deps = deps
+    }
 
     enum AppTab: Hashable {
         case home, history, settings
@@ -35,7 +40,7 @@ struct ContentView: View {
                 // Swap onboarding in at the root (not as a cover over the tabs)
                 // so HomeView never mounts during onboarding — its auto-paste
                 // would otherwise trigger the iOS paste-permission banner.
-                OnboardingView(onFinished: { hasCompletedOnboarding = true })
+                OnboardingView(deps: deps, onFinished: { hasCompletedOnboarding = true })
             }
         }
         .animation(.easeInOut(duration: 0.3), value: hasCompletedOnboarding)
@@ -45,7 +50,7 @@ struct ContentView: View {
         TabView(selection: $selection) {
             Tab(value: AppTab.home) {
                 NavigationStack {
-                    HomeView()
+                    HomeView(deps: deps)
                 }
             } label: {
                 Label { Text(.tabHome) } icon: { Image(systemName: "house") }
@@ -53,7 +58,7 @@ struct ContentView: View {
 
             Tab(value: AppTab.history) {
                 NavigationStack {
-                    HistoryView()
+                    HistoryView(deps: deps)
                 }
             } label: {
                 Label { Text(.tabHistory) } icon: { Image(systemName: "clock") }
@@ -61,7 +66,7 @@ struct ContentView: View {
 
             Tab(value: AppTab.settings) {
                 NavigationStack {
-                    SettingsView()
+                    SettingsView(deps: deps)
                 }
             } label: {
                 Label { Text(.tabSettings) } icon: { Image(systemName: "gearshape") }
@@ -74,6 +79,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(deps: .preview())
         .environment(EntitlementsModel.preview)
 }

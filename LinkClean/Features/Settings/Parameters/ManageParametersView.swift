@@ -11,8 +11,8 @@ import LinkCleanCore
 struct ManageParametersView: View {
     @State private var viewModel: ManageParametersViewModel
 
-    init(viewModel: ManageParametersViewModel = ManageParametersViewModel()) {
-        _viewModel = State(initialValue: viewModel)
+    init(deps: AppDependencies) {
+        _viewModel = State(initialValue: ManageParametersViewModel(deps: deps))
     }
 
     var body: some View {
@@ -80,6 +80,6 @@ struct ManageParametersView: View {
 
 #Preview {
     NavigationStack {
-        ManageParametersView()
+        ManageParametersView(deps: .preview())
     }
 }
