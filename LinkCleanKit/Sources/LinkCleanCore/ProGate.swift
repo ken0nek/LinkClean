@@ -9,9 +9,9 @@
 /// Centralized so the Home leftover gate (T2), the Custom Parameters gate (T3),
 /// and the History window (T1) all agree on the same allowances. Lives in the kit
 /// beside ``Entitlement`` so the policy — "what may a free user do" — travels with
-/// the tier it gates and is ready for extension-side gates. Pure value logic —
-/// `nonisolated` so it's callable from any context.
-public nonisolated enum ProGate {
+/// the tier it gates and is ready for extension-side gates. Pure value logic in
+/// `LinkCleanCore`, callable from any context.
+public enum ProGate {
     /// Free users may keep up to this many custom rules; the gate opens past it.
     public static let freeCustomRuleAllowance = 1
 

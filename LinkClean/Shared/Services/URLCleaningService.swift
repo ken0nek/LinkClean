@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 
 protocol URLCleaningService: Sendable {
     func isValidURL(_ input: String) -> Bool

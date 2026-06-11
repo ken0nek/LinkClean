@@ -5,7 +5,7 @@
 
 import Testing
 @testable import LinkClean
-import LinkCleanKit
+import LinkCleanCore
 
 struct ProGateTests {
     @Test func proCanAlwaysAdd() {

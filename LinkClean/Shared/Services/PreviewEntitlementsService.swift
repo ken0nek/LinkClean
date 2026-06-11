@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LinkCleanKit
+import LinkCleanCore
 
 /// An offline ``EntitlementsService`` for SwiftUI previews — no StoreKit, no
 /// network. Resolves to a fixed entitlement and a canned product. Not

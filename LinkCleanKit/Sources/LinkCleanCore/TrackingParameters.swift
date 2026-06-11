@@ -7,7 +7,12 @@
 
 import Foundation
 
-public nonisolated struct TrackingParameterKind: Identifiable, Hashable, Sendable {
+/// A catalog section's identity. Carries only the stable `id` (`"utm"`,
+/// `"ads"`…) and a sort order — no display text. The localized section title
+/// lives in the presenting layer (the app maps `id` to a generated string
+/// symbol in `ManageParametersView`), so the domain ships identifiers, not UI
+/// copy, and stays free of `Bundle.module` and main-actor isolation.
+public struct TrackingParameterKind: Identifiable, Hashable, Sendable {
     public let id: String
     public let sortOrder: Int
 
@@ -15,25 +20,9 @@ public nonisolated struct TrackingParameterKind: Identifiable, Hashable, Sendabl
         self.id = id
         self.sortOrder = sortOrder
     }
-
-    /// Localized section title, resolved at display time. `Bundle.module` is
-    /// main-actor isolated under the package's MainActor default isolation, so
-    /// the lookup cannot happen in the nonisolated catalog initializer.
-    @MainActor public var title: String {
-        switch id {
-        case "utm": String(localized: "parameters.kind.utm", defaultValue: "UTM Parameters", bundle: .module)
-        case "common": String(localized: "parameters.kind.common", defaultValue: "Common Tracking", bundle: .module)
-        case "ads": String(localized: "parameters.kind.ads", defaultValue: "Ads & Attribution", bundle: .module)
-        case "analytics": String(localized: "parameters.kind.analytics", defaultValue: "Analytics", bundle: .module)
-        case "email": String(localized: "parameters.kind.email", defaultValue: "Email/CRM", bundle: .module)
-        case "social": String(localized: "parameters.kind.social", defaultValue: "Social & Share", bundle: .module)
-        case "affiliate": String(localized: "parameters.kind.affiliate", defaultValue: "Affiliate", bundle: .module)
-        default: id
-        }
-    }
 }
 
-public nonisolated struct TrackingParameterDefinition: Identifiable, Hashable, Sendable {
+public struct TrackingParameterDefinition: Identifiable, Hashable, Sendable {
     public var id: String { name }
     public let name: String
     public let displayName: String
@@ -74,7 +63,7 @@ public nonisolated struct TrackingParameterDefinition: Identifiable, Hashable, S
     }
 
     /// Whether this rule applies on `host` (already lowercased, no trailing
-    /// root dot — see `TrackingParameterStore.normalize(host:)`). A global
+    /// root dot — see ``TrackingParameterCatalog/normalize(host:)``). A global
     /// rule (`hosts == nil`) applies everywhere; a scoped rule needs a host
     /// and matches by exact host or any subdomain.
     public func appliesTo(host: String?) -> Bool {
@@ -84,7 +73,7 @@ public nonisolated struct TrackingParameterDefinition: Identifiable, Hashable, S
     }
 }
 
-public nonisolated struct TrackingParameterSection: Identifiable, Hashable, Sendable {
+public struct TrackingParameterSection: Identifiable, Hashable, Sendable {
     public var id: String { kind.id }
     public let kind: TrackingParameterKind
     public let parameters: [TrackingParameterDefinition]
@@ -95,7 +84,7 @@ public nonisolated struct TrackingParameterSection: Identifiable, Hashable, Send
     }
 }
 
-public nonisolated enum TrackingParameterCatalog {
+public enum TrackingParameterCatalog {
     private static let xTwitter: Set<String> = ["twitter.com", "x.com"]
     private static let youtube: Set<String> = ["youtube.com", "youtu.be"]
 
@@ -298,11 +287,13 @@ public nonisolated enum TrackingParameterCatalog {
     /// this and `TrackingParameterStore.enabledParameters(forHost:)` differ
     /// only in their `isOn` predicate, so host-scope semantics cannot drift
     /// between them. Normalizes `host` itself; `nil` admits global rules only.
-    static func names(
+    /// Public because ``TrackingParameterStore`` (in `LinkCleanData`) filters
+    /// through it with its own override-aware predicate.
+    public static func names(
         forHost host: String?,
         where isOn: (TrackingParameterDefinition) -> Bool
     ) -> Set<String> {
-        let host = TrackingParameterStore.normalize(host: host)
+        let host = normalize(host: host)
         var result = Set<String>()
         for section in sections {
             for parameter in section.parameters where isOn(parameter) && parameter.appliesTo(host: host) {
@@ -310,6 +301,20 @@ public nonisolated enum TrackingParameterCatalog {
             }
         }
         return result
+    }
+
+    /// Lowercases `host` and strips a trailing root dot (`youtube.com.`), the
+    /// form ``TrackingParameterDefinition/appliesTo(host:)`` expects. Pure
+    /// host-string logic shared by ``names(forHost:where:)`` and
+    /// `URLCleaner.ruleHost(of:)`, so every host-scope match keys off the same
+    /// string. Lives in the domain catalog rather than a persistence store
+    /// because nothing here touches storage — the cleaner needs it too.
+    static func normalize(host: String?) -> String? {
+        guard var host = host?.lowercased(), !host.isEmpty else { return nil }
+        if host.hasSuffix(".") {
+            host.removeLast()
+        }
+        return host.isEmpty ? nil : host
     }
 
     public static func definition(for name: String) -> TrackingParameterDefinition? {

@@ -31,7 +31,7 @@
 /// | `review.debug.forceShow` (DEBUG) | App Group | `DefaultReviewService`, debug config | `DefaultReviewService` |
 /// | `debug.entitlementOverride` (DEBUG) | standard | `DebugEntitlementOverrideStore` | `DebugEntitlementOverrideStore` (StoreKit service, `EntitlementsModel`) |
 /// | `screenshotFixtures` (DEBUG) | standard | external (capture-script launch arg) | `SettingsStore` (`DebugLaunchConfigurator`) |
-public nonisolated enum SettingsKeys {
+public enum SettingsKeys {
 
     // MARK: App settings
 

@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import LinkCleanKit
+import LinkCleanCore
 
 /// Test double for ``AnalyticsService`` that records captured events in order so
 /// tests can assert which signals a ViewModel emitted.

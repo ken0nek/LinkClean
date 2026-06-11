@@ -5,7 +5,8 @@
 //  Created by Ken Tominaga on 2/4/26.
 //
 
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 import SwiftUI
 import UIKit
 

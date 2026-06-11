@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanAnalytics
 import Observation
 
 /// Drives the custom paywall: loads the Pro product, runs purchase/restore, and

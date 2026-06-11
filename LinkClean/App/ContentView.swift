@@ -5,7 +5,7 @@
 //  Created by Ken Tominaga on 2/1/26.
 //
 
-import LinkCleanKit
+import LinkCleanCore
 import SwiftUI
 
 struct ContentView: View {

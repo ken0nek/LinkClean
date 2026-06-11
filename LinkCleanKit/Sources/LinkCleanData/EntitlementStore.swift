@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LinkCleanCore
 
 /// A persistent, cross-process snapshot of the user's current entitlement.
 ///

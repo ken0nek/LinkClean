@@ -19,7 +19,7 @@ import Foundation
 /// decision (§3, 2026-06-09), the **site domain** (host) of a cleaned link, on
 /// the two clean events only. Still never sent: full URLs, paths, query strings
 /// or values, search text, page titles, or custom-parameter names.
-public nonisolated enum AnalyticsEvent: Equatable {
+public enum AnalyticsEvent: Equatable {
 
     // MARK: Home (§6)
 

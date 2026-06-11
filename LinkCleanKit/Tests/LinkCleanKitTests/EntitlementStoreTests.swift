@@ -7,7 +7,8 @@
 
 import Testing
 import Foundation
-@testable import LinkCleanKit
+@testable import LinkCleanCore
+@testable import LinkCleanData
 
 @Suite struct EntitlementStoreTests {
     private let suiteName = "test.LinkCleanKit.EntitlementStore"

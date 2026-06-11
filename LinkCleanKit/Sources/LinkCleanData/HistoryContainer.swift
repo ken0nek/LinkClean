@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LinkCleanCore
 import SwiftData
 
 public enum HistoryContainer {

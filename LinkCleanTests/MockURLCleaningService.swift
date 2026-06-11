@@ -5,7 +5,7 @@
 
 import Foundation
 @testable import LinkClean
-import LinkCleanKit
+import LinkCleanCore
 
 @MainActor
 struct MockURLCleaningService: URLCleaningService {

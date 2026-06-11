@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 import OSLog
 import StoreKit
 

@@ -7,7 +7,8 @@ import Testing
 import Foundation
 import SwiftUI
 @testable import LinkClean
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 
 @MainActor
 struct ExtensionGuideViewModelTests {

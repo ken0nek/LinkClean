@@ -7,7 +7,7 @@
 
 import SwiftData
 import SwiftUI
-import LinkCleanKit
+import LinkCleanCore
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext

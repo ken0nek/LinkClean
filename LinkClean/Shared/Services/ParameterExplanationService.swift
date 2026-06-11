@@ -7,7 +7,7 @@
 
 import Foundation
 import FoundationModels
-import LinkCleanKit
+import LinkCleanCore
 import OSLog
 
 /// A one-line, plain-language description of a single URL query parameter,

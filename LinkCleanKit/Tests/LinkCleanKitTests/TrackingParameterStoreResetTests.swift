@@ -5,7 +5,7 @@
 
 import Testing
 import Foundation
-@testable import LinkCleanKit
+@testable import LinkCleanData
 
 struct TrackingParameterStoreResetTests {
 

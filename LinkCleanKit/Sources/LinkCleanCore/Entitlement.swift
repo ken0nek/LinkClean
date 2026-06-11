@@ -12,7 +12,7 @@ import Foundation
 /// Use `Entitlement.pro` to gate premium features. Missing or unknown values
 /// must always resolve to `.free` (fail-closed) to ensure data integrity
 /// across different versions of the app and extensions.
-public nonisolated enum Entitlement: String, Sendable {
+public enum Entitlement: String, Sendable {
     /// The default free tier.
     case free
 

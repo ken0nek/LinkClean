@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LinkCleanKit
+import LinkCleanCore
 import StoreKit
 
 /// A lightweight, `Sendable` snapshot of the Pro product for the paywall. Keeps

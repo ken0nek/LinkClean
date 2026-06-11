@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LinkCleanCore
 
 /// The typed facade over every user-facing setting, centralizing which
 /// `UserDefaults` suite owns each key and its default-when-unset. Previously

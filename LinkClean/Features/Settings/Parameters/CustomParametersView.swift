@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import LinkCleanKit
+import LinkCleanCore
 
 struct CustomParametersView: View {
     @Environment(EntitlementsModel.self) private var entitlements

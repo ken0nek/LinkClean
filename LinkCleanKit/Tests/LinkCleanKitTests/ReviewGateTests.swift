@@ -5,7 +5,7 @@
 
 import Foundation
 import Testing
-@testable import LinkCleanKit
+@testable import LinkCleanData
 
 struct ReviewGateTests {
     private let day: TimeInterval = 86_400

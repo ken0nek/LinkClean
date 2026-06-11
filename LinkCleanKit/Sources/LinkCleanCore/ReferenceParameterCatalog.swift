@@ -21,7 +21,7 @@ import Foundation
 /// This is a curated starter set. Expanding it from a vetted public source
 /// (ClearURLs / AdGuard / Brave rulesets) is a follow-up pending a license
 /// review — see `parameter-telemetry.md` §11.
-public nonisolated enum ReferenceParameterCatalog {
+public enum ReferenceParameterCatalog {
 
     /// Lowercased known-tracker names, guaranteed disjoint from the main
     /// catalog — *every* catalog name, not just the enabled-by-default ones. A

@@ -5,7 +5,8 @@
 //  Created by Ken Tominaga on 6/10/26.
 //
 
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanAnalytics
 import SwiftUI
 
 /// External Terms / Privacy destinations the paywall links to (Apple requires an

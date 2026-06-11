@@ -8,7 +8,9 @@
 import Testing
 import Foundation
 import UniformTypeIdentifiers
-@testable import LinkCleanKit
+@testable import LinkCleanCore
+@testable import LinkCleanData
+@testable import LinkCleanExtensionUI
 
 struct URLCleanerTests {
 

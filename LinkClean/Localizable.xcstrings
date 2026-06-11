@@ -210,6 +210,83 @@
         }
       }
     },
+    "parameters.kind.ads" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ads & Attribution"
+          }
+        }
+      }
+    },
+    "parameters.kind.affiliate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiliate"
+          }
+        }
+      }
+    },
+    "parameters.kind.analytics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analytics"
+          }
+        }
+      }
+    },
+    "parameters.kind.common" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Common Tracking"
+          }
+        }
+      }
+    },
+    "parameters.kind.email" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email/CRM"
+          }
+        }
+      }
+    },
+    "parameters.kind.social" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Social & Share"
+          }
+        }
+      }
+    },
+    "parameters.kind.utm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTM Parameters"
+          }
+        }
+      }
+    },
     "guide.intro" : {
       "extractionState" : "manual",
       "localizations" : {

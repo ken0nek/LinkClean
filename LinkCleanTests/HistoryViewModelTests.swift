@@ -8,7 +8,8 @@ import Foundation
 import SwiftData
 import UIKit
 @testable import LinkClean
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 
 @MainActor
 struct HistoryViewModelTests {

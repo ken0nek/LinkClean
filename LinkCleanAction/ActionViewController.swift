@@ -7,7 +7,9 @@
 
 import OSLog
 import UIKit
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
+import LinkCleanExtensionUI
 
 class ActionViewController: ActionExtensionViewController {
     override func processInputItems() {

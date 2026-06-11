@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LinkCleanCore
 
 public nonisolated struct TrackingParameterStore: Sendable {
     private let suiteName: String?
@@ -116,16 +117,6 @@ public nonisolated struct TrackingParameterStore: Sendable {
     /// Removes every user-added custom parameter.
     public func removeAllCustomParameters() {
         defaults.removeObject(forKey: customKey)
-    }
-
-    /// Lowercases `host` and strips a trailing root dot (`youtube.com.`), the
-    /// form `TrackingParameterDefinition.appliesTo(host:)` expects.
-    static func normalize(host: String?) -> String? {
-        guard var host = host?.lowercased(), !host.isEmpty else { return nil }
-        if host.hasSuffix(".") {
-            host.removeLast()
-        }
-        return host.isEmpty ? nil : host
     }
 
     private func disabledParameters() -> Set<String> {

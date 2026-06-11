@@ -7,7 +7,8 @@ import Testing
 import Foundation
 import SwiftData
 @testable import LinkClean
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 
 @MainActor
 struct SettingsViewModelTests {

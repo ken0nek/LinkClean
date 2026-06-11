@@ -6,7 +6,8 @@
 import Testing
 import Foundation
 @testable import LinkClean
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 
 @MainActor
 struct HistoryArchiveTests {

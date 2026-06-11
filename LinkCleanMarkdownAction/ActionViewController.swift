@@ -9,7 +9,9 @@ import UIKit
 import UniformTypeIdentifiers
 import LinkPresentation
 import OSLog
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
+import LinkCleanExtensionUI
 
 class ActionViewController: ActionExtensionViewController {
     override var surface: String { "markdownAction" }

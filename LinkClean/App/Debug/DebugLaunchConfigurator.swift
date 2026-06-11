@@ -7,7 +7,8 @@
 
 #if DEBUG
 import Foundation
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 import SwiftData
 import UIKit
 

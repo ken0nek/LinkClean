@@ -4,7 +4,7 @@
 //
 
 import Testing
-@testable import LinkCleanKit
+@testable import LinkCleanCore
 
 struct ReferenceParameterCatalogTests {
 

@@ -8,6 +8,9 @@
 import OSLog
 import UIKit
 import UniformTypeIdentifiers
+import LinkCleanCore
+import LinkCleanData
+import LinkCleanAnalytics
 
 open class ActionExtensionViewController: UIViewController {
     public let parameterStore = TrackingParameterStore()

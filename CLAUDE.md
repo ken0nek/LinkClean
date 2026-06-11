@@ -25,13 +25,13 @@ If no precedent exists, state that explicitly before choosing an approach.
 
 **UI:** Standard components inherit Liquid Glass automatically. Native `WebView`—no UIKit bridging.
 
-**Localization (identifier keys + generated symbols):** `Localizable.xcstrings` keys are identifiers (`home.input.header`), not English text. In the app target every `extractionState:"manual"` entry compiles to a type-safe symbol (`STRING_CATALOG_GENERATE_SYMBOLS = YES`): dots stripped + camelCased (`home.input.header` → `.homeInputHeader`), `%@` keys become methods (`.customParametersDelete(parameter)`). Consume via `Text(.symbol)`; wrap in `Text(.symbol)` for `Button`/`Label`/`Toggle`/`Section`/`.navigationTitle`/`.alert`/`.accessibilityLabel`; use `String(localized: .symbol)` where a `String` is needed (`TextField` placeholder, ViewModel return values). **LinkCleanKit is the exception:** its catalog must have NO `manual` entries — Xcode's generated `#if SWIFT_PACKAGE` symbol code conflicts with the package's `defaultIsolation(MainActor.self)` (`Bundle.module` is MainActor-isolated). The kit uses explicit keys instead: `String(localized: "toast.copied", defaultValue: "Copied", bundle: .module)`, resolved on MainActor (see `TrackingParameterKind.title`).
+**Localization (identifier keys + generated symbols):** `Localizable.xcstrings` keys are identifiers (`home.input.header`), not English text. In the app target every `extractionState:"manual"` entry compiles to a type-safe symbol (`STRING_CATALOG_GENERATE_SYMBOLS = YES`): dots stripped + camelCased (`home.input.header` → `.homeInputHeader`), `%@` keys become methods (`.customParametersDelete(parameter)`). Consume via `Text(.symbol)`; wrap in `Text(.symbol)` for `Button`/`Label`/`Toggle`/`Section`/`.navigationTitle`/`.alert`/`.accessibilityLabel`; use `String(localized: .symbol)` where a `String` is needed (`TextField` placeholder, ViewModel return values). **Domain types ship identifiers, not copy:** `TrackingParameterKind` carries `id` (`"utm"`); `ManageParametersView.sectionTitle(for:)` maps it to a generated symbol (`.parametersKindUtm`). **`LinkCleanExtensionUI` is the one exception:** it is the only kit target with a string catalog (the action-extension toast strings) and `defaultIsolation(MainActor.self)`, so its catalog has NO `manual` entries — Xcode's generated `#if SWIFT_PACKAGE` symbol code conflicts with `Bundle.module` being MainActor-isolated — and it uses explicit keys: `String(localized: "toast.copied", defaultValue: "Copied", bundle: .module)`. `LinkCleanCore`/`Data`/`Analytics` have no catalog and no resources.
 
 ## Testing
 Swift Testing framework: `@Test`, `#expect`, `#require`.
 
 ## Debugging
-- **Logger** (`Log.logger.debug(...)` via `LinkCleanKit/Sources/LinkCleanKit/Log.swift`): use for permanently useful operational messages that stay in the codebase.
+- **Logger** (`Log.app`/`Log.action` via `LinkCleanKit/Sources/LinkCleanCore/Log.swift`): use for permanently useful operational messages that stay in the codebase.
 - **print()**: use for one-time investigation debugging — add, build & run, read logs, remove.
 
 ## Avoid
@@ -55,6 +55,11 @@ LinkClean/
   Shared/Models/            – Domain types used across features
   Shared/Services/          – Service protocols and implementations
   Shared/UI/                – Reusable view modifiers, components
-LinkCleanKit/               – Local package shared with extensions (domain logic, SwiftData models, stores)
+LinkCleanKit/               – Local package, one product ("LinkCleanKit"), four layered targets; consumers import the layers they use:
+  Sources/LinkCleanCore/        – pure domain, nonisolated default, no deps/resources (URLCleaner, catalogs, AnalyticsEvent + AnalyticsService protocol, Entitlement, ProGate, SettingsKeys, Log)
+  Sources/LinkCleanData/        – persistence, →Core, MainActor default (SwiftData models + container, stores, DefaultReviewService)
+  Sources/LinkCleanAnalytics/   – →Core+Data, the only target linking the TelemetryDeck SDK (TelemetryDeckAnalytics)
+  Sources/LinkCleanExtensionUI/ – →all, MainActor, UIKit (ActionExtensionViewController + toast catalog)
 LinkCleanAction/            – Action extension target
 ```
+Dependency direction is compiler-enforced: Core cannot reach UIKit, SwiftData, or the analytics SDK. Core/Data/Analytics build on macOS (`swift build --target LinkCleanCore` etc. in `LinkCleanKit/`); the single test target still pulls in UIKit, so full `swift test` on macOS awaits the two-speed test split.

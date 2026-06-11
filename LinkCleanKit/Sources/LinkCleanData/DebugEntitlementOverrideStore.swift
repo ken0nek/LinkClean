@@ -7,6 +7,7 @@
 
 #if DEBUG
 import Foundation
+import LinkCleanCore
 
 /// Owns the developer entitlement-override key (Developer menu): a persisted
 /// ``Entitlement`` the StoreKit resolver honors first, so it survives relaunch

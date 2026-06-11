@@ -5,7 +5,8 @@
 
 import Testing
 import Foundation
-@testable import LinkCleanKit
+@testable import LinkCleanCore
+@testable import LinkCleanData
 
 /// The catalog's three rule classes — global, host-scoped, and
 /// off-by-default — exist so cleaning never breaks a functional parameter:
@@ -207,9 +208,9 @@ struct HostScopedParameterTests {
     }
 
     @Test func normalizeHostStripsCaseAndTrailingDot() {
-        #expect(TrackingParameterStore.normalize(host: "YouTube.com.") == "youtube.com")
-        #expect(TrackingParameterStore.normalize(host: "") == nil)
-        #expect(TrackingParameterStore.normalize(host: nil) == nil)
+        #expect(TrackingParameterCatalog.normalize(host: "YouTube.com.") == "youtube.com")
+        #expect(TrackingParameterCatalog.normalize(host: "") == nil)
+        #expect(TrackingParameterCatalog.normalize(host: nil) == nil)
     }
 
     @Test func ruleHostParsesAndNormalizes() {

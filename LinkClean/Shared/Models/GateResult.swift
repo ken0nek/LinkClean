@@ -5,7 +5,7 @@
 //  Created by Ken Tominaga on 6/10/26.
 //
 
-import LinkCleanKit
+import LinkCleanCore
 
 /// The decision a Pro-gated action hands back to its view: proceed, or raise the
 /// paywall with a specific trigger. Lets the entitlement + count + ``ProGate``

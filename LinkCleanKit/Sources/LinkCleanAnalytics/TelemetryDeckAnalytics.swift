@@ -7,6 +7,8 @@
 
 import Foundation
 import TelemetryDeck
+import LinkCleanCore
+import LinkCleanData
 
 /// TelemetryDeck-backed ``AnalyticsService``. This is the only type in the
 /// codebase that touches the TelemetryDeck SDK; the app and both action

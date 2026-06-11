@@ -8,7 +8,7 @@
 import Testing
 import Foundation
 import SwiftData
-@testable import LinkCleanKit
+@testable import LinkCleanData
 
 struct HistoryRecorderTests {
 

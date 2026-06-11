@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanAnalytics
 import Observation
 
 @MainActor

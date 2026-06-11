@@ -7,7 +7,7 @@
 
 import Foundation
 
-public nonisolated enum AppGroup {
+public enum AppGroup {
     public static let identifier = "group.com.ken0nek.LinkClean"
 
     /// The cross-process settings suite shared by the app and the action

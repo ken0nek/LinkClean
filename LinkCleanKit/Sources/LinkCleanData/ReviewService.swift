@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LinkCleanCore
 
 /// The injectable seam the Home flow uses to count realized-value moments and
 /// decide when to surface the in-app review prompt. Inject a spy in tests

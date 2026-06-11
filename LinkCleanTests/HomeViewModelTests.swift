@@ -7,7 +7,8 @@ import Testing
 import Foundation
 import SwiftData
 @testable import LinkClean
-import LinkCleanKit
+import LinkCleanCore
+import LinkCleanData
 
 /// Polls until `condition` holds (10 ms × 200, ≈2 s cap) so the view model's
 /// async clean pipeline can settle without fixed sleeps. Times out silently —

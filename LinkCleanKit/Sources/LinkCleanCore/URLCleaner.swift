@@ -12,7 +12,7 @@ import Foundation
 /// (for catalog-gap telemetry — see `parameter-telemetry.md`). Everything is
 /// derived from the same single pass `clean` makes over the query items, so the
 /// fields can never disagree, and callers (analytics) never re-parse the URL.
-public nonisolated struct CleanResult: Sendable, Equatable {
+public struct CleanResult: Sendable, Equatable {
     public let cleaned: String
     public let removedCount: Int
     /// Number of query *items* remaining after cleaning (duplicates counted).
@@ -47,7 +47,7 @@ public nonisolated struct CleanResult: Sendable, Equatable {
     }
 }
 
-public nonisolated enum URLCleaner {
+public enum URLCleaner {
 
     public static func isValidURL(_ urlString: String) -> Bool {
         let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -212,7 +212,7 @@ public nonisolated enum URLCleaner {
     /// exists so every call site resolves `enabledParameters(forHost:)` from
     /// the same host string.
     public static func ruleHost(of urlString: String) -> String? {
-        TrackingParameterStore.normalize(host: URLComponents(string: urlString)?.host)
+        TrackingParameterCatalog.normalize(host: URLComponents(string: urlString)?.host)
     }
 
     /// `URL` overload of ``ruleHost(of:)-(String)`` for call sites that already

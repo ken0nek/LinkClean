@@ -10,7 +10,7 @@ import Foundation
 /// The sample link used by the onboarding / extension-guide "Try it" flow.
 /// Shared between the app (which presents it) and the action extensions (which
 /// recognize it so they don't persist a practice run to History).
-public nonisolated enum OnboardingDemo {
+public enum OnboardingDemo {
     /// A real-looking link on the reserved `example.com` documentation domain,
     /// loaded with tracking junk (`utm_*`, `fbclid`) that the default parameter
     /// set strips.

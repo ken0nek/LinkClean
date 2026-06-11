@@ -8,7 +8,7 @@
 #if DEBUG
 import SwiftData
 import SwiftUI
-import LinkCleanKit
+import LinkCleanCore
 
 /// DEBUG-only menu for inspecting and clearing the app's persisted state.
 /// Strings are intentionally `verbatim` — this screen never ships to users, so
