@@ -14,6 +14,10 @@ import LinkCleanAnalytics
 
 open class ActionExtensionViewController: UIViewController {
     public let parameterStore = TrackingParameterStore()
+    /// The shared clean pipeline (store + host resolution + cleaner), the same
+    /// one Home uses — so the extensions no longer hand-roll
+    /// `enabledParameters(forHost:)` + `URLCleaner.outcome`.
+    public let cleaningService: CleaningService = DefaultCleaningService()
     public let analytics: AnalyticsService = TelemetryDeckAnalytics()
     public let settings = SettingsStore()
 

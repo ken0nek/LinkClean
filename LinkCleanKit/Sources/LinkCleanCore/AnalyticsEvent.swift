@@ -24,19 +24,12 @@ public enum AnalyticsEvent: Equatable {
     // MARK: Home (§6)
 
     /// A valid URL produced a cleaned result. Fired once per distinct input.
-    /// `leftoverCount`/`referenceMatchCount`/`removedKinds` are the privacy-safe
-    /// catalog-gap signals (`parameter-telemetry.md` Tier 0). `domain` is the
-    /// link's host for site-popularity analytics — the one URL-derived value sent
-    /// (`analytics.md` §3), produced by `URLCleaner.analyticsDomain(from:)`.
-    case homeURLCleaned(
-        source: CleanSource,
-        changed: Bool,
-        removedCount: Int,
-        leftoverCount: Int,
-        referenceMatchCount: Int,
-        removedKinds: Set<String>,
-        domain: String
-    )
+    /// Carries the clean's ``CleanOutcome/Telemetry`` — the analytics-safe view
+    /// (catalog-gap signals `parameter-telemetry.md` Tier 0, plus the link's
+    /// host for site-popularity analytics, the one URL-derived value sent,
+    /// `analytics.md` §3). The compiler guarantees a ``CleanOutcome/Display``
+    /// name can never be routed here.
+    case homeURLCleaned(source: CleanSource, telemetry: CleanOutcome.Telemetry)
     /// The cleaned URL was copied from Home — the in-app north-star export.
     /// Deduped per distinct cleaned output, so this counts *distinct exports*,
     /// not raw tap volume (contrast ``historyEntryActioned``, which fires per tap).
@@ -93,16 +86,10 @@ public enum AnalyticsEvent: Equatable {
 
     // MARK: Action extensions (§7)
 
-    /// A share-sheet clean produced output. Mirrors ``homeURLCleaned``'s
-    /// catalog-gap params and carries the same `domain` host signal (§3).
-    case actionCleanSucceeded(
-        changed: Bool,
-        removedCount: Int,
-        leftoverCount: Int,
-        referenceMatchCount: Int,
-        removedKinds: Set<String>,
-        domain: String
-    )
+    /// A share-sheet clean produced output. Carries the same
+    /// ``CleanOutcome/Telemetry`` as ``homeURLCleaned`` (catalog-gap params plus
+    /// the `domain` host signal, §3).
+    case actionCleanSucceeded(telemetry: CleanOutcome.Telemetry)
     case actionCleanFailed(reason: FailureReason)
     case actionMarkdownSucceeded(titleSource: TitleSource, changed: Bool)
     case actionMarkdownFailed(reason: FailureReason)
@@ -239,15 +226,15 @@ public enum AnalyticsEvent: Equatable {
     /// so insights stay aggregatable and no exact per-user values leak (§5).
     public var parameters: [String: String] {
         switch self {
-        case let .homeURLCleaned(source, changed, removedCount, leftoverCount, referenceMatchCount, removedKinds, domain):
+        case let .homeURLCleaned(source, t):
             return [
                 "source": source.rawValue,
-                "changed": Self.string(changed),
-                "removedCount": Bucket.removedCount(removedCount),
-                "leftoverCount": Bucket.leftoverCount(leftoverCount),
-                "referenceMatchCount": Bucket.leftoverCount(referenceMatchCount),
-                "removedKinds": Self.kinds(removedKinds),
-                "domain": domain,
+                "changed": Self.string(t.changed),
+                "removedCount": Bucket.removedCount(t.removedCount),
+                "leftoverCount": Bucket.leftoverCount(t.leftoverCount),
+                "referenceMatchCount": Bucket.leftoverCount(t.referenceMatches.count),
+                "removedKinds": Self.kinds(t.removedKindIDs),
+                "domain": t.domain,
             ]
         case let .homeURLCopied(changed),
              let .homeURLShared(changed):
@@ -270,14 +257,14 @@ public enum AnalyticsEvent: Equatable {
             return ["parameter": parameter]
         case let .onboardingExtensionGuideShown(source):
             return ["source": source.rawValue]
-        case let .actionCleanSucceeded(changed, removedCount, leftoverCount, referenceMatchCount, removedKinds, domain):
+        case let .actionCleanSucceeded(t):
             return [
-                "changed": Self.string(changed),
-                "removedCount": Bucket.removedCount(removedCount),
-                "leftoverCount": Bucket.leftoverCount(leftoverCount),
-                "referenceMatchCount": Bucket.leftoverCount(referenceMatchCount),
-                "removedKinds": Self.kinds(removedKinds),
-                "domain": domain,
+                "changed": Self.string(t.changed),
+                "removedCount": Bucket.removedCount(t.removedCount),
+                "leftoverCount": Bucket.leftoverCount(t.leftoverCount),
+                "referenceMatchCount": Bucket.leftoverCount(t.referenceMatches.count),
+                "removedKinds": Self.kinds(t.removedKindIDs),
+                "domain": t.domain,
             ]
         case let .actionCleanFailed(reason):
             return ["reason": reason.rawValue]

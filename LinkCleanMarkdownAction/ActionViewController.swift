@@ -38,10 +38,12 @@ class ActionViewController: ActionExtensionViewController {
                 return
             }
 
-            let (cleaned, cleanResult) = URLCleaner.cleanResult(
-                url,
-                removing: parameterStore.enabledParameters(forHost: URLCleaner.ruleHost(of: url))
-            )
+            // Clean through the shared service. A non-web JS URL the service
+            // declines to clean falls back to the original, unchanged — Markdown
+            // is still produced (the title path is the point here).
+            let outcome = try? await cleaningService.clean(url.absoluteString)
+            let cleaned = outcome.flatMap { URL(string: $0.cleaned) } ?? url
+            let changed = outcome?.telemetry.changed ?? false
 
             // 3. Determine title: prefer JS title, fall back to LPMetadataProvider
             // (fetch the cleaned URL so tracking parameters never go over the wire)
@@ -69,7 +71,7 @@ class ActionViewController: ActionExtensionViewController {
             // network time in the short-lived extension (analytics §8).
             analytics.capture(.actionMarkdownSucceeded(
                 titleSource: titleSource,
-                changed: cleanResult.removedCount > 0
+                changed: changed
             ))
             saveHistory(input: url.absoluteString, output: cleaned.absoluteString)
             recordSuccessfulRun()

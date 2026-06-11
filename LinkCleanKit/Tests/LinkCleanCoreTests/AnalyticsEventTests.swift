@@ -1,6 +1,6 @@
 //
 //  AnalyticsEventTests.swift
-//  LinkCleanKitTests
+//  LinkCleanCoreTests
 //
 
 import Testing
@@ -8,11 +8,32 @@ import Testing
 
 struct AnalyticsEventTests {
 
+    /// Builds a ``CleanOutcome/Telemetry`` for the clean events, defaulting the
+    /// fields a given test doesn't care about. `referenceMatchCount` is expressed
+    /// as the `referenceMatches` array length, since the event buckets its count.
+    private func telemetry(
+        changed: Bool = true,
+        removedCount: Int = 0,
+        leftoverCount: Int = 0,
+        referenceMatches: [String] = [],
+        removedKindIDs: Set<String> = [],
+        domain: String = "example.com"
+    ) -> CleanOutcome.Telemetry {
+        .init(
+            changed: changed,
+            removedCount: removedCount,
+            leftoverCount: leftoverCount,
+            removedKindIDs: removedKindIDs,
+            referenceMatches: referenceMatches,
+            domain: domain
+        )
+    }
+
     // MARK: - Signal names
 
     @Test func signalNamesMatchTaxonomy() {
         let expected: [(AnalyticsEvent, String)] = [
-            (.homeURLCleaned(source: .typed, changed: true, removedCount: 0, leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "example.com"), "Home.URL.cleaned"),
+            (.homeURLCleaned(source: .typed, telemetry: telemetry()), "Home.URL.cleaned"),
             (.homeURLCopied(changed: true), "Home.URL.copied"),
             (.homeURLShared(changed: true), "Home.URL.shared"),
             (.homeClipboardInvalidPasted, "Home.Clipboard.invalidPasted"),
@@ -33,7 +54,7 @@ struct AnalyticsEventTests {
             (.onboardingFlowCompleted, "Onboarding.Flow.completed"),
             (.onboardingFlowSkipped, "Onboarding.Flow.skipped"),
             (.onboardingExtensionGuideShown(source: .onboarding), "Onboarding.ExtensionGuide.shown"),
-            (.actionCleanSucceeded(changed: true, removedCount: 1, leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "example.com"), "Action.Clean.succeeded"),
+            (.actionCleanSucceeded(telemetry: telemetry(removedCount: 1)), "Action.Clean.succeeded"),
             (.actionCleanFailed(reason: .noURL), "Action.Clean.failed"),
             (.actionMarkdownSucceeded(titleSource: .javascript, changed: true), "Action.Markdown.succeeded"),
             (.actionMarkdownFailed(reason: .invalidInput), "Action.Markdown.failed"),
@@ -56,9 +77,11 @@ struct AnalyticsEventTests {
 
     @Test func cleanedCarriesSourceChangedAndBucketedRemovedCount() {
         let params = AnalyticsEvent.homeURLCleaned(
-            source: .autoPaste, changed: true, removedCount: 3,
-            leftoverCount: 2, referenceMatchCount: 1, removedKinds: ["utm", "ads"],
-            domain: "youtube.com"
+            source: .autoPaste,
+            telemetry: telemetry(
+                changed: true, removedCount: 3, leftoverCount: 2,
+                referenceMatches: ["epik"], removedKindIDs: ["utm", "ads"], domain: "youtube.com"
+            )
         ).parameters
         #expect(params == [
             "source": "autoPaste",
@@ -73,9 +96,7 @@ struct AnalyticsEventTests {
 
     @Test func cleanedCarriesCatalogGapSignals() {
         let params = AnalyticsEvent.actionCleanSucceeded(
-            changed: true, removedCount: 1,
-            leftoverCount: 6, referenceMatchCount: 0, removedKinds: [],
-            domain: "x.com"
+            telemetry: telemetry(changed: true, removedCount: 1, leftoverCount: 6, domain: "x.com")
         ).parameters
         #expect(params["leftoverCount"] == "5+")
         #expect(params["referenceMatchCount"] == "0")
@@ -85,9 +106,8 @@ struct AnalyticsEventTests {
 
     @Test func removedKindsAreSortedAndJoined() {
         let params = AnalyticsEvent.homeURLCleaned(
-            source: .typed, changed: true, removedCount: 4,
-            leftoverCount: 0, referenceMatchCount: 0, removedKinds: ["social", "ads", "utm"],
-            domain: "example.com"
+            source: .typed,
+            telemetry: telemetry(removedCount: 4, removedKindIDs: ["social", "ads", "utm"])
         ).parameters
         #expect(params["removedKinds"] == "ads,social,utm")
     }
@@ -97,12 +117,10 @@ struct AnalyticsEventTests {
         // already normalized by URLCleaner.analyticsDomain, so the event passes it
         // through unchanged on both clean events.
         let home = AnalyticsEvent.homeURLCleaned(
-            source: .typed, changed: true, removedCount: 1,
-            leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "youtube.com"
+            source: .typed, telemetry: telemetry(removedCount: 1, domain: "youtube.com")
         ).parameters
         let action = AnalyticsEvent.actionCleanSucceeded(
-            changed: true, removedCount: 1,
-            leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "youtube.com"
+            telemetry: telemetry(removedCount: 1, domain: "youtube.com")
         ).parameters
         #expect(home["domain"] == "youtube.com")
         #expect(action["domain"] == "youtube.com")
@@ -120,11 +138,10 @@ struct AnalyticsEventTests {
         // key (the disclosed site-popularity signal, analytics.md §3); this pins
         // that *no other* name-bearing key joins it. (That referenceMatches itself
         // can only ever hold public reference names is guarded at the source in
-        // CleanResultTests.novelLeftoverNamesNeverBecomeReferenceMatches.)
+        // CleanOutcomeTests.novelLeftoverNamesNeverBecomeReferenceMatches.)
         let home = AnalyticsEvent.homeURLCleaned(
-            source: .typed, changed: false, removedCount: 0,
-            leftoverCount: 3, referenceMatchCount: 2, removedKinds: [],
-            domain: "example.com"
+            source: .typed,
+            telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
         #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain"])
     }
@@ -197,9 +214,7 @@ struct AnalyticsEventTests {
     @Test func removedCountBuckets() {
         func bucket(_ n: Int) -> String? {
             AnalyticsEvent.actionCleanSucceeded(
-                changed: true, removedCount: n,
-                leftoverCount: 0, referenceMatchCount: 0, removedKinds: [],
-                domain: "example.com"
+                telemetry: telemetry(removedCount: n)
             ).parameters["removedCount"]
         }
         #expect(bucket(0) == "0")

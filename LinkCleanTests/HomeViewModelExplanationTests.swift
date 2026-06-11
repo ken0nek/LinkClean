@@ -13,7 +13,7 @@ struct HomeViewModelExplanationTests {
     private func makeViewModel(
         _ explanation: MockParameterExplanationService
     ) -> HomeViewModel {
-        HomeViewModel(service: MockURLCleaningService(), explanationService: explanation)
+        HomeViewModel(service: MockCleaningService(), explanationService: explanation)
     }
 
     @Test func skipsGenerationWhenModelUnavailable() async {

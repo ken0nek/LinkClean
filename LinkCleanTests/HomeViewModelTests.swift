@@ -24,28 +24,28 @@ private func waitUntil(_ condition: () -> Bool) async {
 struct HomeViewModelTests {
 
     @Test func isInputEmptyWhenBlank() {
-        let vm = HomeViewModel(service: MockURLCleaningService())
+        let vm = HomeViewModel(service: MockCleaningService())
         vm.inputText = ""
 
         #expect(vm.isInputEmpty == true)
     }
 
     @Test func isInputEmptyWhenWhitespace() {
-        let vm = HomeViewModel(service: MockURLCleaningService())
+        let vm = HomeViewModel(service: MockCleaningService())
         vm.inputText = "   "
 
         #expect(vm.isInputEmpty == true)
     }
 
     @Test func isInputNotEmpty() {
-        let vm = HomeViewModel(service: MockURLCleaningService())
+        let vm = HomeViewModel(service: MockCleaningService())
         vm.inputText = "https://example.com"
 
         #expect(vm.isInputEmpty == false)
     }
 
     @Test func isInputValidURLDelegatesToService() {
-        var mock = MockURLCleaningService()
+        var mock = MockCleaningService()
         mock.isValidURLHandler = { $0.contains("valid") }
         let vm = HomeViewModel(service: mock)
 
@@ -57,7 +57,7 @@ struct HomeViewModelTests {
     }
 
     @Test func shouldShowInvalidWhenNotEmptyAndInvalid() {
-        var mock = MockURLCleaningService()
+        var mock = MockCleaningService()
         mock.isValidURLHandler = { _ in false }
         let vm = HomeViewModel(service: mock)
 
@@ -67,7 +67,7 @@ struct HomeViewModelTests {
     }
 
     @Test func shouldNotShowInvalidWhenEmpty() {
-        var mock = MockURLCleaningService()
+        var mock = MockCleaningService()
         mock.isValidURLHandler = { _ in false }
         let vm = HomeViewModel(service: mock)
 
@@ -77,13 +77,13 @@ struct HomeViewModelTests {
     }
 
     @Test func cleanedTextEmptyByDefault() {
-        let vm = HomeViewModel(service: MockURLCleaningService())
+        let vm = HomeViewModel(service: MockCleaningService())
 
         #expect(vm.cleanedText == "")
     }
 
     @Test func clearInputResets() {
-        let vm = HomeViewModel(service: MockURLCleaningService())
+        let vm = HomeViewModel(service: MockCleaningService())
         vm.inputText = "https://example.com"
         vm.clearInput()
 
@@ -92,7 +92,7 @@ struct HomeViewModelTests {
     }
 
     @Test func inputSanitizesNewlines() {
-        let vm = HomeViewModel(service: MockURLCleaningService())
+        let vm = HomeViewModel(service: MockCleaningService())
         vm.inputText = "https://example\n.com"
 
         #expect(!vm.inputText.contains("\n"))
@@ -102,7 +102,7 @@ struct HomeViewModelTests {
 
     @Test func invalidClipboardPasteEmitsSignal() {
         let spy = SpyAnalytics()
-        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy)
+        let vm = HomeViewModel(service: MockCleaningService(), analytics: spy)
 
         vm.showInvalidClipboardToast()
 
@@ -111,8 +111,8 @@ struct HomeViewModelTests {
 
     @Test func cleanThenCopyEmitsBothSignals() async {
         let spy = SpyAnalytics()
-        var mock = MockURLCleaningService()
-        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
+        var mock = MockCleaningService()
+        mock.cleanHandler = { input in .stub(input: input, cleaned: "https://clean.example", removedCount: 1) }
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         // A full string arriving in one binding update reads as a manual paste.
@@ -121,8 +121,8 @@ struct HomeViewModelTests {
         await waitUntil { !spy.events.isEmpty }
 
         #expect(spy.events == [.homeURLCleaned(
-            source: .manualPaste, changed: true, removedCount: 1,
-            leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "x.com"
+            source: .manualPaste,
+            telemetry: .init(changed: true, removedCount: 1, leftoverCount: 0, removedKindIDs: [], referenceMatches: [], domain: "x.com")
         )])
 
         vm.copyCleanedURL()
@@ -132,8 +132,8 @@ struct HomeViewModelTests {
 
     @Test func copyIsDedupedForRepeatedTapsOnTheSameResult() async {
         let spy = SpyAnalytics()
-        var mock = MockURLCleaningService()
-        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
+        var mock = MockCleaningService()
+        mock.cleanHandler = { input in .stub(input: input, cleaned: "https://clean.example", removedCount: 1) }
         // Isolated suites so save-history is deterministically on (default unset = on).
         let settings = SettingsStore(
             standardSuiteName: "test.std.\(UUID().uuidString)",
@@ -159,9 +159,9 @@ struct HomeViewModelTests {
 
     @Test func copyEmitsAgainAfterTheCleanedResultChanges() async {
         let spy = SpyAnalytics()
-        var mock = MockURLCleaningService()
+        var mock = MockCleaningService()
         // Output varies with input length, so the two distinct inputs clean differently.
-        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example/\(input.count)", removedCount: 1) }
+        mock.cleanHandler = { input in .stub(input: input, cleaned: "https://clean.example/\(input.count)", removedCount: 1) }
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         vm.inputText = "https://x.com?utm_source=a"
@@ -186,8 +186,8 @@ struct HomeViewModelTests {
 
     @Test func shareEmitsSignalAndIsDedupedPerResult() async {
         let spy = SpyAnalytics()
-        var mock = MockURLCleaningService()
-        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
+        var mock = MockCleaningService()
+        mock.cleanHandler = { input in .stub(input: input, cleaned: "https://clean.example", removedCount: 1) }
         let settings = SettingsStore(
             standardSuiteName: "test.std.\(UUID().uuidString)",
             appGroupSuiteName: "test.grp.\(UUID().uuidString)"
@@ -210,8 +210,8 @@ struct HomeViewModelTests {
 
     @Test func copyThenShareCountsBothButWritesOneHistoryRow() async {
         let spy = SpyAnalytics()
-        var mock = MockURLCleaningService()
-        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
+        var mock = MockCleaningService()
+        mock.cleanHandler = { input in .stub(input: input, cleaned: "https://clean.example", removedCount: 1) }
         let settings = SettingsStore(
             standardSuiteName: "test.std.\(UUID().uuidString)",
             appGroupSuiteName: "test.grp.\(UUID().uuidString)"
@@ -235,8 +235,8 @@ struct HomeViewModelTests {
 
     @Test func cleanedSignalIsDedupedPerDistinctInput() async {
         let spy = SpyAnalytics()
-        var mock = MockURLCleaningService()
-        mock.cleanHandler = { input in CleanedURL(input: input, output: "https://clean.example", removedCount: 1) }
+        var mock = MockCleaningService()
+        mock.cleanHandler = { input in .stub(input: input, cleaned: "https://clean.example", removedCount: 1) }
         let vm = HomeViewModel(service: mock, analytics: spy)
 
         vm.inputText = "https://x.com?utm_source=a"
@@ -247,18 +247,18 @@ struct HomeViewModelTests {
         try? await Task.sleep(for: .milliseconds(80))
 
         let expected = AnalyticsEvent.homeURLCleaned(
-            source: .manualPaste, changed: true, removedCount: 1,
-            leftoverCount: 0, referenceMatchCount: 0, removedKinds: [], domain: "x.com"
+            source: .manualPaste,
+            telemetry: .init(changed: true, removedCount: 1, leftoverCount: 0, removedKindIDs: [], referenceMatches: [], domain: "x.com")
         )
         #expect(spy.events.filter { $0 == expected }.count == 1)
     }
 
     @Test func referenceMatchesEmitOnePerMatch() async {
         let spy = SpyAnalytics()
-        var mock = MockURLCleaningService()
+        var mock = MockCleaningService()
         mock.cleanHandler = { input in
-            CleanedURL(
-                input: input, output: "https://clean.example",
+            .stub(
+                input: input, cleaned: "https://clean.example",
                 removedCount: 1, referenceMatches: ["gbraid", "yclid"]
             )
         }
@@ -279,10 +279,10 @@ struct HomeViewModelTests {
 
     @Test func referenceMatchesAreDedupedPerInput() async {
         let spy = SpyAnalytics()
-        var mock = MockURLCleaningService()
+        var mock = MockCleaningService()
         mock.cleanHandler = { input in
-            CleanedURL(
-                input: input, output: "https://clean.example",
+            .stub(
+                input: input, cleaned: "https://clean.example",
                 removedCount: 1, referenceMatches: ["yclid"]
             )
         }
@@ -307,7 +307,7 @@ struct HomeViewModelTests {
         let suiteName = "test.\(UUID().uuidString)"
         let store = TrackingParameterStore(suiteName: suiteName)
         defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
-        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy, store: store)
+        let vm = HomeViewModel(service: MockCleaningService(), analytics: spy, store: store)
 
         vm.addLeftoverParameter("yclid")
 
@@ -322,7 +322,7 @@ struct HomeViewModelTests {
         let suiteName = "test.\(UUID().uuidString)"
         let store = TrackingParameterStore(suiteName: suiteName)
         defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
-        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy, store: store)
+        let vm = HomeViewModel(service: MockCleaningService(), analytics: spy, store: store)
 
         let result = vm.requestAlwaysRemove("yclid", entitlement: .free)
 
@@ -338,7 +338,7 @@ struct HomeViewModelTests {
         let store = TrackingParameterStore(suiteName: suiteName)
         defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         store.addCustomParameter("existing") // consumes the one free rule
-        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy, store: store)
+        let vm = HomeViewModel(service: MockCleaningService(), analytics: spy, store: store)
 
         let result = vm.requestAlwaysRemove("yclid", entitlement: .free)
 
@@ -354,7 +354,7 @@ struct HomeViewModelTests {
         defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         store.addCustomParameter("a")
         store.addCustomParameter("b")
-        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: SpyAnalytics(), store: store)
+        let vm = HomeViewModel(service: MockCleaningService(), analytics: SpyAnalytics(), store: store)
 
         let result = vm.requestAlwaysRemove("yclid", entitlement: .pro)
 
@@ -370,7 +370,7 @@ struct HomeViewModelTests {
         let store = TrackingParameterStore(suiteName: suiteName)
         defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let vm = HomeViewModel(
-            service: DefaultURLCleaningService(store: store),
+            service: DefaultCleaningService(store: store),
             analytics: SpyAnalytics(),
             store: store
         )
@@ -397,7 +397,7 @@ struct HomeViewModelTests {
         let store = TrackingParameterStore(suiteName: suiteName)
         defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let vm = HomeViewModel(
-            service: DefaultURLCleaningService(store: store),
+            service: DefaultCleaningService(store: store),
             analytics: SpyAnalytics(),
             store: store
         )
@@ -427,7 +427,7 @@ struct HomeViewModelTests {
         defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let spy = SpyAnalytics()
         let vm = HomeViewModel(
-            service: DefaultURLCleaningService(store: store),
+            service: DefaultCleaningService(store: store),
             analytics: spy,
             store: store
         )
@@ -452,7 +452,7 @@ struct HomeViewModelTests {
         let store = TrackingParameterStore(suiteName: suiteName)
         defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
         let vm = HomeViewModel(
-            service: DefaultURLCleaningService(store: store),
+            service: DefaultCleaningService(store: store),
             analytics: SpyAnalytics(),
             store: store
         )

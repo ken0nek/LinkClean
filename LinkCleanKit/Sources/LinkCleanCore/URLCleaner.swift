@@ -7,46 +7,6 @@
 
 import Foundation
 
-/// The outcome of cleaning a URL: the cleaned string, how many tracking
-/// parameters were removed, and a privacy-safe analysis of what was left behind
-/// (for catalog-gap telemetry — see `parameter-telemetry.md`). Everything is
-/// derived from the same single pass `clean` makes over the query items, so the
-/// fields can never disagree, and callers (analytics) never re-parse the URL.
-public struct CleanResult: Sendable, Equatable {
-    public let cleaned: String
-    public let removedCount: Int
-    /// Number of query *items* remaining after cleaning (duplicates counted).
-    /// Sizes the gap between our catalog and the trackers in real URLs (Tier 0).
-    /// Note: this counts items, whereas `referenceMatches` is de-duplicated by
-    /// name — so the two are only directly comparable when a URL has no repeated
-    /// query keys (rare).
-    public let leftoverCount: Int
-    /// Catalog kind ids that fired in this clean (which categories earn their
-    /// keep). Finite, known set — safe to send (Tier 0).
-    public let removedKindIDs: Set<String>
-    /// Leftover names that match the bundled reference catalog — known trackers
-    /// missing from our defaults. Sorted, unique; all *public* names, never
-    /// user-authored or arbitrary URL keys (Tier 1).
-    public let referenceMatches: [String]
-
-    /// Whether cleaning removed at least one tracking parameter.
-    public var changed: Bool { removedCount > 0 }
-
-    public init(
-        cleaned: String,
-        removedCount: Int,
-        leftoverCount: Int = 0,
-        removedKindIDs: Set<String> = [],
-        referenceMatches: [String] = []
-    ) {
-        self.cleaned = cleaned
-        self.removedCount = removedCount
-        self.leftoverCount = leftoverCount
-        self.removedKindIDs = removedKindIDs
-        self.referenceMatches = referenceMatches
-    }
-}
-
 public enum URLCleaner {
 
     public static func isValidURL(_ urlString: String) -> Bool {
@@ -75,118 +35,7 @@ public enum URLCleaner {
     }
 
     public static func clean(_ urlString: String, removing parameters: Set<String>) -> String {
-        cleanResult(urlString, removing: parameters).cleaned
-    }
-
-    /// Cleans `urlString` and, in the same single pass over the query items,
-    /// reports the removed count plus the privacy-safe catalog-gap analysis
-    /// (`leftoverCount`, `removedKindIDs`, `referenceMatches`). Callers never
-    /// re-parse the URL, and the analysis can never disagree with the cleaning.
-    public static func cleanResult(
-        _ urlString: String,
-        removing parameters: Set<String>,
-        referenceNames: Set<String> = ReferenceParameterCatalog.names
-    ) -> CleanResult {
-        // Iterate the *percent-encoded* items, not `queryItems`. Reading
-        // `queryItems` decodes values and assigning it back re-encodes with a
-        // charset that leaves `+`, `/`, etc. bare — so a kept `%2B` round-trips
-        // to a literal `+`, which form-decoding servers read as a space. That
-        // would silently change a kept param's value, even on a URL where we
-        // remove nothing (we still reassign the items). Keeping each encoded
-        // item verbatim preserves kept params byte-for-byte; we decode only the
-        // *name* for catalog matching (a key may itself be percent-encoded).
-        guard var components = URLComponents(string: urlString),
-              let queryItems = components.percentEncodedQueryItems, !queryItems.isEmpty
-        else {
-            return CleanResult(cleaned: urlString, removedCount: 0)
-        }
-
-        let normalized = Set(parameters.map { $0.lowercased() })
-        var kept: [URLQueryItem] = []
-        var removedKindIDs = Set<String>()
-        var leftoverNames = Set<String>()
-        for item in queryItems {
-            let name = (item.name.removingPercentEncoding ?? item.name).lowercased()
-            if normalized.contains(name) {
-                if let kindID = TrackingParameterCatalog.kindID(for: name) {
-                    removedKindIDs.insert(kindID)
-                }
-            } else {
-                kept.append(item)
-                leftoverNames.insert(name)
-            }
-        }
-
-        components.percentEncodedQueryItems = kept.isEmpty ? nil : kept
-
-        return CleanResult(
-            cleaned: components.string ?? urlString,
-            removedCount: queryItems.count - kept.count,
-            leftoverCount: kept.count,
-            removedKindIDs: removedKindIDs,
-            referenceMatches: leftoverNames.intersection(referenceNames).sorted()
-        )
-    }
-
-    /// The exact parameter names removed from `urlString` by `parameters`, in
-    /// first-seen order, de-duplicated case-insensitively with the first
-    /// occurrence's original case preserved.
-    ///
-    /// Display-only — for *showing the user their own link* on Home. It lives
-    /// apart from ``cleanResult(_:removing:referenceNames:)`` on purpose: that
-    /// result is the analytics-bound, name-free catalog-gap summary
-    /// (`parameter-telemetry.md`), and raw query-key names must never reach it.
-    /// These names never leave the device.
-    public static func removedParameterNames(
-        _ urlString: String,
-        removing parameters: Set<String>
-    ) -> [String] {
-        guard let components = URLComponents(string: urlString),
-              let queryItems = components.queryItems
-        else {
-            return []
-        }
-
-        let normalized = Set(parameters.map { $0.lowercased() })
-        var seen = Set<String>()
-        var names: [String] = []
-        for item in queryItems where normalized.contains(item.name.lowercased()) {
-            if seen.insert(item.name.lowercased()).inserted {
-                names.append(item.name)
-            }
-        }
-        return names
-    }
-
-    /// The exact parameter names that survive cleaning `urlString` with
-    /// `parameters` — everything *not* removed — in first-seen order,
-    /// de-duplicated case-insensitively with the first occurrence's original
-    /// case preserved.
-    ///
-    /// Same contract as ``removedParameterNames(_:removing:)``: these are raw
-    /// query keys (potentially arbitrary or sensitive), so they exist only to
-    /// show the user their own link on-device and must never reach analytics.
-    /// The name-free ``CleanResult`` stays the telemetry path, and
-    /// `referenceMatches` remains the only leftover names that may be *sent*.
-    public static func leftoverParameterNames(
-        _ urlString: String,
-        removing parameters: Set<String>
-    ) -> [String] {
-        guard let components = URLComponents(string: urlString),
-              let queryItems = components.queryItems
-        else {
-            return []
-        }
-
-        let normalized = Set(parameters.map { $0.lowercased() })
-        var seen = Set<String>()
-        var names: [String] = []
-        for item in queryItems where !normalized.contains(item.name.lowercased()) {
-            if seen.insert(item.name.lowercased()).inserted {
-                names.append(item.name)
-            }
-        }
-        return names
+        outcome(for: urlString, removing: parameters).cleaned
     }
 
     public static func clean(_ url: URL) -> URL {
@@ -194,14 +43,94 @@ public enum URLCleaner {
     }
 
     public static func clean(_ url: URL, removing parameters: Set<String>) -> URL {
-        cleanResult(url, removing: parameters).cleaned
+        URL(string: outcome(for: url.absoluteString, removing: parameters).cleaned) ?? url
     }
 
-    /// URL counterpart of `cleanResult(_:removing:)`: the cleaned URL plus the
-    /// full ``CleanResult`` (removed count and catalog-gap analysis).
-    public static func cleanResult(_ url: URL, removing parameters: Set<String>) -> (cleaned: URL, result: CleanResult) {
-        let result = cleanResult(url.absoluteString, removing: parameters)
-        return (URL(string: result.cleaned) ?? url, result)
+    /// Cleans `input` and reports everything a caller could need — the cleaned
+    /// string, the analytics-safe ``CleanOutcome/Telemetry`` (counts, kind ids,
+    /// reference matches, site domain), and the on-device ``CleanOutcome/Display``
+    /// names — all in a single pass over the query items. One parse, so the
+    /// shapes can never disagree, and the privacy boundary is a type, not a
+    /// comment (raw key names live only in `display`, which no event accepts).
+    public static func outcome(
+        for input: String,
+        removing parameters: Set<String>,
+        referenceNames: Set<String> = ReferenceParameterCatalog.names
+    ) -> CleanOutcome {
+        let domain = analyticsDomain(from: input)
+
+        // Iterate the *percent-encoded* items, not `queryItems`. Reading
+        // `queryItems` decodes values and assigning it back re-encodes with a
+        // charset that leaves `+`, `/`, etc. bare — so a kept `%2B` round-trips
+        // to a literal `+`, which form-decoding servers read as a space. That
+        // would silently change a kept param's value, even on a URL where we
+        // remove nothing (we still reassign the items). Keeping each encoded
+        // item verbatim preserves kept params byte-for-byte; we decode only the
+        // *name* for catalog matching and display (a key may itself be encoded).
+        guard var components = URLComponents(string: input),
+              let queryItems = components.percentEncodedQueryItems, !queryItems.isEmpty
+        else {
+            return CleanOutcome(
+                input: input,
+                cleaned: input,
+                telemetry: .init(
+                    changed: false,
+                    removedCount: 0,
+                    leftoverCount: 0,
+                    removedKindIDs: [],
+                    referenceMatches: [],
+                    domain: domain
+                ),
+                display: .init(removedNames: [], leftoverNames: [])
+            )
+        }
+
+        let normalized = Set(parameters.map { $0.lowercased() })
+        var kept: [URLQueryItem] = []
+        var removedKindIDs = Set<String>()
+        // Lowercased keys of kept items, for the reference-catalog intersection.
+        var leftoverKeys = Set<String>()
+        // First-seen display names (original case), de-duplicated per lowercased key.
+        var removedNames: [String] = []
+        var removedSeen = Set<String>()
+        var leftoverNames: [String] = []
+        var leftoverSeen = Set<String>()
+
+        for item in queryItems {
+            let decoded = item.name.removingPercentEncoding ?? item.name
+            let key = decoded.lowercased()
+            if normalized.contains(key) {
+                if let kindID = TrackingParameterCatalog.kindID(for: key) {
+                    removedKindIDs.insert(kindID)
+                }
+                if removedSeen.insert(key).inserted {
+                    removedNames.append(decoded)
+                }
+            } else {
+                kept.append(item)
+                leftoverKeys.insert(key)
+                if leftoverSeen.insert(key).inserted {
+                    leftoverNames.append(decoded)
+                }
+            }
+        }
+
+        components.percentEncodedQueryItems = kept.isEmpty ? nil : kept
+        let removedCount = queryItems.count - kept.count
+
+        return CleanOutcome(
+            input: input,
+            cleaned: components.string ?? input,
+            telemetry: .init(
+                changed: removedCount > 0,
+                removedCount: removedCount,
+                leftoverCount: kept.count,
+                removedKindIDs: removedKindIDs,
+                referenceMatches: leftoverKeys.intersection(referenceNames).sorted(),
+                domain: domain
+            ),
+            display: .init(removedNames: removedNames, leftoverNames: leftoverNames)
+        )
     }
 
     /// The lowercased host of `urlString` for host-scoped rule matching, with

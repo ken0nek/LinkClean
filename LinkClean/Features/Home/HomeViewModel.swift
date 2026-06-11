@@ -21,7 +21,7 @@ final class HomeViewModel {
             handleInputTextChange(previous: oldValue)
         }
     }
-    private(set) var cleanedURL: CleanedURL?
+    private(set) var cleanedOutcome: CleanOutcome?
     var didCopy = false
     var showClipboardToast = false
     /// Drives the in-app review star sheet (``ReviewGateSheet``). Set by the view
@@ -31,7 +31,7 @@ final class HomeViewModel {
     /// The leftover parameter whose on-device explanation is being generated, or
     /// `nil` when idle. Drives the pill's progress spinner; observed.
     private(set) var explainingParameter: String?
-    @ObservationIgnored private let service: URLCleaningService
+    @ObservationIgnored private let service: CleaningService
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private let store: TrackingParameterStore
@@ -81,7 +81,7 @@ final class HomeViewModel {
     @ObservationIgnored private var reviewRatedHigh = false
 
     init(
-        service: URLCleaningService = DefaultURLCleaningService(),
+        service: CleaningService = DefaultCleaningService(),
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
         settings: SettingsStore = SettingsStore(),
         store: TrackingParameterStore = TrackingParameterStore(),
@@ -118,21 +118,23 @@ final class HomeViewModel {
     }
 
     var cleanedText: String {
-        cleanedURL?.output ?? ""
+        cleanedOutcome?.cleaned ?? ""
     }
 
     /// Exact names removed in producing `cleanedText` — the calm proof-of-work
-    /// list shown on Home. Display-only; never sent to analytics.
+    /// list shown on Home. The on-device ``CleanOutcome/Display`` view; the type
+    /// system keeps these raw names out of analytics.
     var removedParameters: [String] {
-        cleanedURL?.removedNames ?? []
+        cleanedOutcome?.display.removedNames ?? []
     }
 
     /// Every parameter that survived cleaning — the actionable "remaining" pills.
-    /// Display-only raw query keys (never sent to analytics); tapping one offers
-    /// "Remove Once" (``removeLeftoverParameterOnce(_:)``, this link only) or
-    /// "Always Remove" (``addLeftoverParameter(_:)``, the custom set).
+    /// Display-only raw query keys (the ``CleanOutcome/Display`` view, never sent
+    /// to analytics); tapping one offers "Remove Once"
+    /// (``removeLeftoverParameterOnce(_:)``, this link only) or "Always Remove"
+    /// (``addLeftoverParameter(_:)``, the custom set).
     var leftoverParameters: [String] {
-        cleanedURL?.leftoverNames ?? []
+        cleanedOutcome?.display.leftoverNames ?? []
     }
 
     func clearInput() {
@@ -144,15 +146,15 @@ final class HomeViewModel {
     }
 
     func copyCleanedURL() {
-        guard let cleanedURL, !cleanedURL.output.isEmpty else { return }
-        UIPasteboard.general.string = cleanedURL.output
+        guard let cleanedOutcome, !cleanedOutcome.cleaned.isEmpty else { return }
+        UIPasteboard.general.string = cleanedOutcome.cleaned
         didCopy = true
 
-        if cleanedURL.output != lastCopiedOutput {
-            lastCopiedOutput = cleanedURL.output
-            analytics.capture(.homeURLCopied(changed: cleanedURL.changed))
-            recordHistoryIfNeeded(for: cleanedURL)
-            noteExportForReview(cleanedURL.output)
+        if cleanedOutcome.cleaned != lastCopiedOutput {
+            lastCopiedOutput = cleanedOutcome.cleaned
+            analytics.capture(.homeURLCopied(changed: cleanedOutcome.telemetry.changed))
+            recordHistoryIfNeeded(for: cleanedOutcome)
+            noteExportForReview(cleanedOutcome.cleaned)
         }
 
         copyTask?.cancel()
@@ -166,20 +168,20 @@ final class HomeViewModel {
     /// tap (best-effort, mirroring History) — deduped per distinct cleaned output,
     /// and writes the same single history row a copy would.
     func recordShare() {
-        guard let cleanedURL, !cleanedURL.output.isEmpty else { return }
-        guard cleanedURL.output != lastSharedOutput else { return }
-        lastSharedOutput = cleanedURL.output
-        analytics.capture(.homeURLShared(changed: cleanedURL.changed))
-        recordHistoryIfNeeded(for: cleanedURL)
-        noteExportForReview(cleanedURL.output)
+        guard let cleanedOutcome, !cleanedOutcome.cleaned.isEmpty else { return }
+        guard cleanedOutcome.cleaned != lastSharedOutput else { return }
+        lastSharedOutput = cleanedOutcome.cleaned
+        analytics.capture(.homeURLShared(changed: cleanedOutcome.telemetry.changed))
+        recordHistoryIfNeeded(for: cleanedOutcome)
+        noteExportForReview(cleanedOutcome.cleaned)
     }
 
-    /// Inserts a history row for `cleanedURL` once per distinct output — whether
+    /// Inserts a history row for `outcome` once per distinct output — whether
     /// reached by copy or share — when history saving is enabled.
-    private func recordHistoryIfNeeded(for cleanedURL: CleanedURL) {
-        guard isSaveHistoryEnabled, cleanedURL.output != lastRecordedHistoryOutput else { return }
-        lastRecordedHistoryOutput = cleanedURL.output
-        let entry = HistoryEntry(input: cleanedURL.input, output: cleanedURL.output)
+    private func recordHistoryIfNeeded(for outcome: CleanOutcome) {
+        guard isSaveHistoryEnabled, outcome.cleaned != lastRecordedHistoryOutput else { return }
+        lastRecordedHistoryOutput = outcome.cleaned
+        let entry = HistoryEntry(input: outcome.input, output: outcome.cleaned)
         modelContext?.insert(entry)
     }
 
@@ -435,7 +437,7 @@ final class HomeViewModel {
         cleanTask?.cancel()
 
         guard !isInputEmpty, isInputValidURL else {
-            cleanedURL = nil
+            cleanedOutcome = nil
             return
         }
 
@@ -443,34 +445,29 @@ final class HomeViewModel {
         let removalsSnapshot = oneTimeRemovals
         let source = nextCleanSource
         cleanTask = Task { [service] in
-            let result = try? await service.clean(inputSnapshot, removingAlso: removalsSnapshot)
+            let outcome = try? await service.clean(inputSnapshot, removingAlso: removalsSnapshot)
             await MainActor.run { [inputSnapshot] in
                 guard inputSnapshot == self.trimmedInput,
                       removalsSnapshot == self.oneTimeRemovals else { return }
-                self.cleanedURL = result
-                self.signalCleanedIfNeeded(result, source: source)
+                self.cleanedOutcome = outcome
+                self.signalCleanedIfNeeded(outcome, source: source)
             }
         }
     }
 
     /// Emits `Home.URL.cleaned` once per distinct input. Re-cleans of the same
-    /// input (returning to the tab, re-focusing) are suppressed.
-    private func signalCleanedIfNeeded(_ result: CleanedURL?, source: AnalyticsEvent.CleanSource) {
-        guard let result, result.input != lastSignaledCleanInput else { return }
-        lastSignaledCleanInput = result.input
-        analytics.capture(.homeURLCleaned(
-            source: source,
-            changed: result.changed,
-            removedCount: result.removedCount,
-            leftoverCount: result.leftoverCount,
-            referenceMatchCount: result.referenceMatches.count,
-            removedKinds: result.removedKindIDs,
-            domain: URLCleaner.analyticsDomain(from: result.input)
-        ))
+    /// input (returning to the tab, re-focusing) are suppressed. The event takes
+    /// the outcome's ``CleanOutcome/Telemetry`` directly — the analytics-safe
+    /// view, domain and catalog-gap signals included — so no field is re-plumbed
+    /// or re-derived here.
+    private func signalCleanedIfNeeded(_ outcome: CleanOutcome?, source: AnalyticsEvent.CleanSource) {
+        guard let outcome, outcome.input != lastSignaledCleanInput else { return }
+        lastSignaledCleanInput = outcome.input
+        analytics.capture(.homeURLCleaned(source: source, telemetry: outcome.telemetry))
         // Tier 1: one signal per known-but-not-default tracker left behind, so
-        // the default catalog can grow from real links. Names are public
-        // reference-catalog entries (`parameter-telemetry.md`).
-        for parameter in result.referenceMatches {
+        // the default catalog can grow from real links. These ride in the
+        // privacy-safe Telemetry — public reference-catalog names only.
+        for parameter in outcome.telemetry.referenceMatches {
             analytics.capture(.parametersReferenceObserved(parameter: parameter))
         }
     }
