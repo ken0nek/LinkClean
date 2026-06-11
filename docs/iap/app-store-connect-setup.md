@@ -112,8 +112,8 @@ For the **first** review, the IAP and the app version are reviewed together:
 [x] Paywall review screenshot + review notes
 [x] App Privacy: Purchases → Analytics declaration removed → "Purchases: No" (revenue tracking dropped 2026-06-10; funnel events are Product Interaction, already declared)
 [x] Terms of Use page published (links resolve)
-[ ] IAP attached to the launch build (1.0.0 (10)), status Ready to Submit
-[ ] Sandbox purchase + restore verified on device
+[x] IAP attached to the launch build (1.0.0 (10)), status Ready to Submit
+[x] Sandbox purchase + restore verified on device
 ```
 
 ## What is NOT needed (because it's StoreKit 2, not RevenueCat)

@@ -99,7 +99,7 @@ platform :ios do
     build
     upload_to_app_store(
       skip_screenshots: true,
-      skip_metadata: options[:skip_metadata] || false,
+      skip_metadata: options.fetch(:skip_metadata, false),
       submit_for_review: options[:submit] || false,
       automatic_release: options[:auto_release].nil? ? true : options[:auto_release],
       force: true
@@ -111,9 +111,30 @@ platform :ios do
     build
     upload_to_app_store(
       skip_screenshots: true,
-      skip_metadata: options[:skip_metadata] || false,
+      skip_metadata: options.fetch(:skip_metadata, false),
       submit_for_review: options[:submit] || false,
       automatic_release: options[:auto_release].nil? ? true : options[:auto_release],
+      force: true
+    )
+  end
+
+  # Reads composited PNGs from fastlane/screenshots/{locale}/{device}_*.png
+  # (produced by the LinkCleanScreenshots scheme — see
+  # docs/release/app-store-metadata.md). Composite outputs
+  # before running this lane; nothing here builds them.
+  desc "Upload screenshots only (no binary, no metadata)"
+  lane :screenshots do
+    app_version = get_version_number_from_xcodeproj(
+      xcodeproj: XCODEPROJ,
+      target: SCHEME
+    )
+    upload_to_app_store(
+      app_version: app_version,
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      skip_metadata: true,
+      overwrite_screenshots: true,
+      submit_for_review: false,
       force: true
     )
   end
