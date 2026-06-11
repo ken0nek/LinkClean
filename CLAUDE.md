@@ -56,10 +56,11 @@ LinkClean/
   Shared/Services/          – Service protocols and implementations
   Shared/UI/                – Reusable view modifiers, components
 LinkCleanKit/               – Local package, one product ("LinkCleanKit"), four layered targets; consumers import the layers they use:
-  Sources/LinkCleanCore/        – pure domain, nonisolated default, no deps/resources (URLCleaner, catalogs, AnalyticsEvent + AnalyticsService protocol, Entitlement, ProGate, SettingsKeys, Log)
-  Sources/LinkCleanData/        – persistence, →Core, MainActor default (SwiftData models + container, stores, DefaultReviewService)
+  Sources/LinkCleanCore/        – pure domain, nonisolated default, no deps/resources (URLCleaner + CleanOutcome [Telemetry/Display], CleanSession, catalogs, AnalyticsEvent + AnalyticsService protocol, Entitlement, ProGate, SettingsKeys, Log)
+  Sources/LinkCleanData/        – persistence, →Core, MainActor default (SwiftData models + container, stores, CleaningService, HistoryStore + HistoryRecorder, LinkMetadataService, DefaultReviewService)
   Sources/LinkCleanAnalytics/   – →Core+Data, the only target linking the TelemetryDeck SDK (TelemetryDeckAnalytics)
-  Sources/LinkCleanExtensionUI/ – →all, MainActor, UIKit (ActionExtensionViewController + toast catalog)
-LinkCleanAction/            – Action extension target
+  Sources/LinkCleanExtensionUI/ – →all, MainActor, UIKit (ActionPipeline + ActionOutputStrategy [Clean/Markdown] + URLExtraction + ActionHostViewController + toast catalog)
+  Tests/                        – LinkCleanCoreTests + LinkCleanDataTests (macOS fast lane), LinkCleanExtensionUITests (sim, UIKit-guarded), LinkCleanTestSupport (shared SpyAnalytics/Stub/fixtures)
+LinkCleanAction/            – Action extension target (a config: subclasses ActionHostViewController, picks a strategy)
 ```
-Dependency direction is compiler-enforced: Core cannot reach UIKit, SwiftData, or the analytics SDK. Core/Data/Analytics build on macOS (`swift build --target LinkCleanCore` etc. in `LinkCleanKit/`); the single test target still pulls in UIKit, so full `swift test` on macOS awaits the two-speed test split.
+Dependency direction is compiler-enforced: Core cannot reach UIKit, SwiftData, or the analytics SDK. Two-speed tests: `swift test` in `LinkCleanKit/` runs Core+Data on macOS in <1s (the ExtensionUI test target's UIKit dep is `.when(platforms: [.iOS])` + `#if canImport(UIKit)`, so it builds empty on macOS); ExtensionUI tests run via `xcodebuild test -scheme LinkCleanKit` on the simulator. Production wiring is the composition root `AppDependencies.live(container:)` (app target); see `ARCHITECTURE.md`.
