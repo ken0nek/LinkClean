@@ -7,12 +7,13 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .iOS(.v26),
-        // Declared so the non-UIKit layers build on the Mac host via
-        // `swift build --target LinkCleanCore` (and Data/Analytics) — the fast
-        // feedback loop the split unlocks. Full `swift test` on macOS still awaits
-        // splitting the test target off LinkCleanExtensionUI/UIKit; until then a
-        // bare `swift build`/`swift test` pulls in UIKit and fails. App and
-        // extensions deploy against iOS only.
+        // The non-UIKit layers (Core/Data/Analytics) and their test suites build
+        // and run on the Mac host — the fast lane: `swift test` runs the
+        // LinkCleanCoreTests + LinkCleanDataTests suites in seconds, no simulator.
+        // LinkCleanExtensionUI links UIKit, so it and its tests build only for
+        // iOS; on macOS the ExtensionUI test target compiles to an empty bundle
+        // (its UIKit dependency is `.when(platforms: [.iOS])` and its sources are
+        // `#if canImport(UIKit)`). App and extensions deploy against iOS only.
         .macOS(.v15)
     ],
     products: [
@@ -75,15 +76,49 @@ let package = Package(
                 .defaultIsolation(MainActor.self)
             ]
         ),
-        // One test target spanning all four layers for now; the two-speed
-        // macOS/simulator split is a separate step.
+
+        // MARK: - Test support
+
+        // Shared doubles/fixtures for every test suite (one `SpyAnalytics`, not a
+        // copy per suite). A regular target depended on by the test targets — not
+        // a member of any product, so it never ships. Core+Data only (no UIKit),
+        // so it builds on the macOS fast lane.
+        .target(
+            name: "LinkCleanTestSupport",
+            dependencies: ["LinkCleanCore", "LinkCleanData"],
+            path: "Tests/LinkCleanTestSupport"
+        ),
+
+        // MARK: - Test suites (two-speed)
+
+        // Fast lane — run on macOS with `swift test`. Pure domain.
         .testTarget(
-            name: "LinkCleanKitTests",
+            name: "LinkCleanCoreTests",
+            dependencies: ["LinkCleanCore", "LinkCleanTestSupport"],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self)
+            ]
+        ),
+        // Fast lane — run on macOS with `swift test`. Persistence over
+        // UserDefaults + an in-memory SwiftData container.
+        .testTarget(
+            name: "LinkCleanDataTests",
+            dependencies: ["LinkCleanCore", "LinkCleanData", "LinkCleanTestSupport"],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self)
+            ]
+        ),
+        // Sim lane — UIKit, so the ExtensionUI dependency is iOS-only and the
+        // sources are `#if canImport(UIKit)`. On macOS this builds to an empty
+        // test bundle (so `swift test` stays green without a simulator); the real
+        // tests run via the LinkCleanKit scheme on the iOS simulator.
+        .testTarget(
+            name: "LinkCleanExtensionUITests",
             dependencies: [
                 "LinkCleanCore",
                 "LinkCleanData",
-                "LinkCleanAnalytics",
-                "LinkCleanExtensionUI"
+                "LinkCleanTestSupport",
+                .target(name: "LinkCleanExtensionUI", condition: .when(platforms: [.iOS]))
             ],
             swiftSettings: [
                 .defaultIsolation(MainActor.self)

@@ -1,8 +1,12 @@
 //
 //  ActionExtensionViewControllerTests.swift
-//  LinkCleanKitTests
+//  LinkCleanExtensionUITests
 //
 
+// LinkCleanExtensionUI links UIKit, so these tests compile and run only on the
+// simulator (the sim lane). On the macOS fast lane (`swift test`) the module is
+// absent and this target builds to an empty test bundle — see Package.swift.
+#if canImport(UIKit)
 import Testing
 import Foundation
 @testable import LinkCleanCore
@@ -36,3 +40,4 @@ struct ActionExtensionViewControllerTests {
         #expect(stored == date.timeIntervalSinceReferenceDate)
     }
 }
+#endif
