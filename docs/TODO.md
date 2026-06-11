@@ -35,10 +35,10 @@ Done:
 Out of scope for this version:
 
 - No localization (identifier-key mechanism is in place; translations come later)
-- No IAP
 
-## 1.1.0
+Added during 1.0.0 — IAP:
 
-- [~] IAP using **StoreKit 2** (was RevenueCat) — code shipped 2026-06-10 (custom paywall + T1–T4 gates + 7-day/1-rule free tier, no grandfathering); ⛔ blocked on App Store Connect setup → [docs/iap/app-store-connect-setup.md](iap/app-store-connect-setup.md). Plan: [docs/plans/iap-implementation-plan.md](plans/iap-implementation-plan.md)
+- [x] IAP using **StoreKit 2** — custom paywall + T1–T4 gates + 7-day/1-rule free tier, no grandfathering; plan: [docs/plans/iap-implementation-plan.md](plans/iap-implementation-plan.md)
 - [x] IAP strategy (pricing, premium features, free tier limitations) — [docs/strategy/iap-strategy.md](strategy/iap-strategy.md)
 - [x] Terms of use — published & live at [ken0nek.com/apps/linkclean/terms-of-use](https://ken0nek.com/apps/linkclean/terms-of-use/)
+- [~] App Store Connect setup — ⛔ blocked on regional pricing + paywall screenshot + sandbox test → [docs/iap/app-store-connect-setup.md](iap/app-store-connect-setup.md)

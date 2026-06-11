@@ -73,13 +73,15 @@ Set each storefront below to the listed **USD price point** for the LinkClean Pr
 > ASC shows a different yen amount, pick the **¥500** price point for Japan directly — clean yen
 > wins.
 
-### Tier 3 → **US$1.99** (18 storefronts)
+### Tier 3 → **US$1.99** (17 storefronts)
+
+> **Bangladesh is not an App Store storefront** — ASC has no Bangladesh territory. The override table originally listed 18 Tier 3 countries; the actual count is 17.
 
 | # | Storefront | ASC name note |
 |---|---|---|
 | 1 | India | |
 | 2 | Pakistan | |
-| 3 | Bangladesh | |
+| 3 | ~~Bangladesh~~ | *not an App Store storefront — skip* |
 | 4 | Sri Lanka | |
 | 5 | Indonesia | |
 | 6 | Philippines | |
@@ -122,7 +124,7 @@ Set each storefront below to the listed **USD price point** for the LinkClean Pr
 5. If ASC asks for a **start date**, choose **now / immediately**. (No "existing subscribers"
    prompt will appear — this is a non-consumable.)
 6. **PAUSE** before the final **Save**: confirm which product, how many storefronts changed
-   (should be 40), and one Tier 2 + one Tier 3 sample price. Then Save.
+   (should be 39 — 22 Tier 2 + 17 Tier 3; Bangladesh is not an App Store storefront), and one Tier 2 + one Tier 3 sample price. Then Save.
 
 **Never:** change a storefront outside the Override Table (Tier 1 stays at base); change any other
 product; touch availability / Family Sharing (it's intentionally **OFF**) / offers; Save without a go.
@@ -158,9 +160,10 @@ Japan, Mexico, Chile, Uruguay, Costa Rica, Panama, Poland, Czechia (may show "Cz
 Hungary, Romania, Croatia, Slovakia, Slovenia, Bulgaria, Estonia, Latvia, Lithuania, Greece,
 Malaysia, Thailand, China mainland, South Africa.
 
-STEP 3 — Set these 18 storefronts to the US$1.99 price point (Tier 3):
-India, Pakistan, Bangladesh, Sri Lanka, Indonesia, Philippines, Vietnam, Brazil, Colombia, Peru,
+STEP 3 — Set these 17 storefronts to the US$1.99 price point (Tier 3):
+India, Pakistan, Sri Lanka, Indonesia, Philippines, Vietnam, Brazil, Colombia, Peru,
 Argentina, Ecuador, Turkey (may show "Türkiye"), Egypt, Nigeria, Kenya, Morocco, Ukraine.
+(Bangladesh is not an App Store storefront — it does not appear in ASC; do not search for it.)
 
 STEP 4 — Japan: confirm it displays ¥500; if it shows a different yen amount, pick the ¥500 price
 point for Japan directly.
@@ -175,23 +178,23 @@ NEVER:
 - Never click the final Save without my explicit "go."
 
 BEFORE SAVE — pause and report: the product name, the number of storefronts you changed (must be
-exactly 40 = 22 Tier 2 + 18 Tier 3), and one Tier 2 and one Tier 3 sample price. Wait for me to
-reply "go," then Save.
+exactly 39 = 22 Tier 2 + 17 Tier 3; Bangladesh is not an App Store storefront — skip it), and one
+Tier 2 and one Tier 3 sample price. Wait for me to reply "go," then Save.
 
 AFTER SAVE — verify and report: United States = $4.99, Japan = ¥500, Poland ≈ $2.99, India ≈
-$1.99, Germany still at Tier 1 (≈ base), and edited-storefront count = 40.
+$1.99, Germany still at Tier 1 (≈ base), and edited-storefront count = 39.
 ```
 
 ---
 
 ## 4. Verification checklist
 
-- [ ] United States = **$4.99** (unchanged base)
-- [ ] Japan = **¥500**
-- [ ] A Tier 2 sample (e.g. Poland) ≈ **$2.99**
-- [ ] A Tier 3 sample (e.g. India) ≈ **$1.99**
-- [ ] A random unlisted country (e.g. Germany) still at Tier 1 — confirms no over-edit
-- [ ] Count of edited storefronts = **40** (22 Tier 2 + 18 Tier 3)
+- [x] United States = **$4.99** (unchanged base)
+- [x] Japan = **¥500**
+- [x] A Tier 2 sample (e.g. Poland) ≈ **$2.99**
+- [x] A Tier 3 sample (e.g. India) ≈ **$1.99**
+- [x] A random unlisted country (e.g. Germany) still at Tier 1 — confirms no over-edit
+- [x] Count of edited storefronts = **39** (22 Tier 2 + 17 Tier 3 — Bangladesh is not an App Store storefront)
 
 ## 5. Notes / maintenance
 

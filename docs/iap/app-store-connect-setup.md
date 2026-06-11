@@ -107,9 +107,9 @@ For the **first** review, the IAP and the app version are reviewed together:
 [x] Paid Apps Agreement + Banking/Tax active
 [x] Small Business Program enrolled (15%)
 [x] IAP created: Non-Consumable, linkclean_pro_lifetime, $4.99 base, Family Sharing OFF
-[ ] Regional 3-tier pricing applied — regional-pricing-setup.md (40 storefronts: 22×$2.99, 18×$1.99)
+[x] Regional 3-tier pricing applied — 39 storefronts (22×$2.99, 17×$1.99; Bangladesh is not an App Store storefront)
 [x] en-US localization (display name + description)
-[ ] Paywall review screenshot + review notes
+[x] Paywall review screenshot + review notes
 [x] App Privacy: Purchases → Analytics declaration removed → "Purchases: No" (revenue tracking dropped 2026-06-10; funnel events are Product Interaction, already declared)
 [x] Terms of Use page published (links resolve)
 [ ] IAP attached to the launch build (1.0.0 (10)), status Ready to Submit
