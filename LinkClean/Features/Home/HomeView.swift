@@ -56,9 +56,6 @@ struct HomeView: View {
         .overlay(alignment: .top) { clipboardToast }
         .screenBackground()
         .navigationTitle(Text(.homeTitle))
-        .task {
-            viewModel.setModelContext(modelContext)
-        }
         .onAppear {
             viewModel.onAppear()
         }

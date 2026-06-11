@@ -45,9 +45,6 @@ struct HistoryView: View {
         .screenBackground()
         .navigationTitle(Text(.historyTitle))
         .paywallSheet(trigger: $paywallTrigger, entitlements: entitlements)
-        .task {
-            viewModel.setModelContext(modelContext)
-        }
         .onAppear {
             viewModel.handleAppear(entryCount: entries.count)
         }

@@ -175,7 +175,7 @@ struct SettingsView: View {
         .paywallSheet(trigger: $paywallTrigger, entitlements: entitlements)
         .alert(Text(.settingsDisableHistoryTitle), isPresented: $showDisableHistoryConfirmation) {
             Button(role: .destructive) {
-                viewModel.disableSaveHistory(in: modelContext)
+                viewModel.disableSaveHistory()
             } label: {
                 Text(.settingsDisableHistoryConfirm)
             }
@@ -185,7 +185,7 @@ struct SettingsView: View {
         }
         .alert(Text(.settingsClearHistoryTitle), isPresented: $showClearHistoryConfirmation) {
             Button(role: .destructive) {
-                viewModel.clearHistory(in: modelContext)
+                viewModel.clearHistory()
             } label: {
                 Text(.commonDelete)
             }

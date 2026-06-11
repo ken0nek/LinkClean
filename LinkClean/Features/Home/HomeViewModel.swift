@@ -40,10 +40,10 @@ final class HomeViewModel {
     @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private let store: TrackingParameterStore
     @ObservationIgnored private let explanationService: ParameterExplanationService
+    @ObservationIgnored private let history: HistoryStore
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
-    @ObservationIgnored private var modelContext: ModelContext?
     @ObservationIgnored private var isHomeVisible = false
     @ObservationIgnored private var didRunInitialPaste = false
     // Source attribution for `Home.URL.cleaned`. SwiftUI can't tell a paste from
@@ -68,13 +68,15 @@ final class HomeViewModel {
         settings: SettingsStore = SettingsStore(),
         store: TrackingParameterStore = TrackingParameterStore(),
         review: ReviewService = DefaultReviewService(),
-        explanationService: ParameterExplanationService = FoundationModelsParameterExplanationService()
+        explanationService: ParameterExplanationService = FoundationModelsParameterExplanationService(),
+        history: HistoryStore = .inMemoryPreview
     ) {
         self.service = service
         self.analytics = analytics
         self.settings = settings
         self.store = store
         self.explanationService = explanationService
+        self.history = history
         self.reviewFlow = ReviewPromptFlow(review: review, analytics: analytics)
     }
 
@@ -123,10 +125,6 @@ final class HomeViewModel {
         inputText = ""
     }
 
-    func setModelContext(_ context: ModelContext) {
-        self.modelContext = context
-    }
-
     func copyCleanedURL() {
         guard let outcome = session.outcome, !outcome.cleaned.isEmpty else { return }
         UIPasteboard.general.string = outcome.cleaned
@@ -135,7 +133,7 @@ final class HomeViewModel {
         let effects = session.noteCopy(saveHistoryEnabled: isSaveHistoryEnabled)
         if effects.signalExport {
             analytics.capture(.homeURLCopied(changed: outcome.telemetry.changed))
-            if effects.recordHistory { insertHistoryRow(for: outcome) }
+            if effects.recordHistory { history.record(outcome) }
             reviewFlow.noteExport(counted: effects.countForReview)
         }
 
@@ -154,16 +152,8 @@ final class HomeViewModel {
         let effects = session.noteShare(saveHistoryEnabled: isSaveHistoryEnabled)
         guard effects.signalExport else { return }
         analytics.capture(.homeURLShared(changed: outcome.telemetry.changed))
-        if effects.recordHistory { insertHistoryRow(for: outcome) }
+        if effects.recordHistory { history.record(outcome) }
         reviewFlow.noteExport(counted: effects.countForReview)
-    }
-
-    /// Writes a history row for `outcome`. Whether to write at all (per-output
-    /// dedup + the save-history setting) is decided by the ``CleanSession`` ledger's
-    /// `recordHistory` effect; this just performs the insert.
-    private func insertHistoryRow(for outcome: CleanOutcome) {
-        let entry = HistoryEntry(input: outcome.input, output: outcome.cleaned)
-        modelContext?.insert(entry)
     }
 
     /// The "Always Remove" gate decision (T2): a free user past their one custom

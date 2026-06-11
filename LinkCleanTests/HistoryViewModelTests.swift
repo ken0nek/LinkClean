@@ -30,7 +30,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func filteredReturnsAllWhenSearchEmpty() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
         let entries = makeEntries()
 
         vm.searchText = ""
@@ -40,7 +40,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func filteredMatchesPageTitle() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
         let entries = makeEntries()
 
         vm.searchText = "Apple"
@@ -51,7 +51,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func filteredMatchesOutput() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
         let entries = makeEntries()
 
         vm.searchText = "github"
@@ -62,7 +62,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func filteredIsCaseInsensitive() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
         let entries = makeEntries()
 
         vm.searchText = "aPpLe"
@@ -72,7 +72,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func filteredReturnsEmptyOnNoMatch() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
         let entries = makeEntries()
 
         vm.searchText = "zzzznotfound"
@@ -82,7 +82,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func viewStateDisabled() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
 
         let suiteName = AppGroup.identifier
         let defaults = UserDefaults(suiteName: suiteName)
@@ -102,7 +102,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func viewStateEmpty() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
 
         let suiteName = AppGroup.identifier
         let defaults = UserDefaults(suiteName: suiteName)
@@ -122,7 +122,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func viewStatePopulated() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
 
         let suiteName = AppGroup.identifier
         let defaults = UserDefaults(suiteName: suiteName)
@@ -144,7 +144,7 @@ struct HistoryViewModelTests {
     // MARK: - Copy as Markdown
 
     @Test func copyMarkdownWithTitle() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
         let entry = HistoryEntry(
             input: "https://example.com?utm_source=tw",
             output: "https://example.com",
@@ -158,7 +158,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func copyMarkdownWithoutTitle() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
         let entry = HistoryEntry(
             input: "https://example.com?utm_source=tw",
             output: "https://example.com"
@@ -171,7 +171,7 @@ struct HistoryViewModelTests {
     }
 
     @Test func copyMarkdownEscapesBracketsInTitle() {
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService())
+        let vm = HistoryViewModel()
         let entry = HistoryEntry(
             input: "https://example.com?ref=home",
             output: "https://example.com",
@@ -192,7 +192,7 @@ struct HistoryViewModelTests {
 
     @Test func copyEmitsCopyAction() {
         let spy = SpyAnalytics()
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+        let vm = HistoryViewModel(analytics: spy)
 
         vm.copyURL(for: makeEntry())
 
@@ -201,7 +201,7 @@ struct HistoryViewModelTests {
 
     @Test func copyMarkdownEmitsMarkdownAction() {
         let spy = SpyAnalytics()
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+        let vm = HistoryViewModel(analytics: spy)
 
         vm.copyMarkdown(for: makeEntry())
 
@@ -210,7 +210,7 @@ struct HistoryViewModelTests {
 
     @Test func recordSharedEmitsShareAction() {
         let spy = SpyAnalytics()
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+        let vm = HistoryViewModel(analytics: spy)
 
         vm.recordShared(for: makeEntry())
 
@@ -219,7 +219,7 @@ struct HistoryViewModelTests {
 
     @Test func urlToOpenEmitsActionAndReturnsURL() {
         let spy = SpyAnalytics()
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+        let vm = HistoryViewModel(analytics: spy)
 
         let url = vm.urlToOpen(for: makeEntry())
 
@@ -229,7 +229,7 @@ struct HistoryViewModelTests {
 
     @Test func deleteEmitsDeleted() {
         let spy = SpyAnalytics()
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+        let vm = HistoryViewModel(analytics: spy)
 
         vm.deleteEntry(makeEntry())
 
@@ -238,7 +238,7 @@ struct HistoryViewModelTests {
 
     @Test func handleAppearEmitsScreenShownWithBucketedCount() {
         let spy = SpyAnalytics()
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+        let vm = HistoryViewModel(analytics: spy)
 
         vm.handleAppear(entryCount: 12)
 
@@ -247,7 +247,7 @@ struct HistoryViewModelTests {
 
     @Test func searchSignalsOncePerVisit() {
         let spy = SpyAnalytics()
-        let vm = HistoryViewModel(metadataService: MockLinkMetadataService(), analytics: spy)
+        let vm = HistoryViewModel(analytics: spy)
 
         vm.handleAppear(entryCount: 3) // resets the per-visit search flag
         spy.reset()

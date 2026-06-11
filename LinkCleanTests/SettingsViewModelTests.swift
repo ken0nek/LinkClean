@@ -22,8 +22,12 @@ struct SettingsViewModelTests {
         return (store, UserDefaults(suiteName: stdName)!, UserDefaults(suiteName: grpName)!)
     }
 
-    private func makeContext() -> ModelContext {
-        ModelContext(HistoryContainer.makeInMemory())
+    /// A ``HistoryStore`` over a fresh in-memory container, plus the container so
+    /// tests can seed/assert rows through the same `mainContext` the store writes.
+    private func makeHistory(settings: SettingsStore) -> (history: HistoryStore, container: ModelContainer) {
+        let container = HistoryContainer.makeInMemory()
+        let history = HistoryStore(container: container, metadata: MockLinkMetadataService(), settings: settings)
+        return (history, container)
     }
 
     @Test func initReadsStoredValues() {
@@ -82,19 +86,19 @@ struct SettingsViewModelTests {
 
     @Test func disableSaveHistoryWipesEntriesAndSignalsToggle() {
         let (store, _, grp) = makeStore()
+        let (history, container) = makeHistory(settings: store)
         let spy = SpyAnalytics()
-        let vm = SettingsViewModel(analytics: spy, settings: store)
-        let context = makeContext()
-        context.insert(HistoryEntry(input: "https://x.com?a=1", output: "https://x.com"))
-        try? context.save()
+        let vm = SettingsViewModel(analytics: spy, settings: store, history: history)
+        container.mainContext.insert(HistoryEntry(input: "https://x.com?a=1", output: "https://x.com"))
+        try? container.mainContext.save()
 
-        vm.disableSaveHistory(in: context)
+        vm.disableSaveHistory()
 
         #expect(vm.saveHistoryEnabled == false)
         #expect(grp.bool(forKey: SettingsKeys.saveHistoryEnabled) == false)
         // A single user action emits the toggle, not History.All.cleared.
         #expect(spy.events == [.settingsSaveHistoryToggled(enabled: false)])
-        let remaining = try? context.fetch(FetchDescriptor<HistoryEntry>())
+        let remaining = try? container.mainContext.fetch(FetchDescriptor<HistoryEntry>())
         #expect(remaining?.isEmpty == true)
     }
 
@@ -110,16 +114,16 @@ struct SettingsViewModelTests {
 
     @Test func clearHistoryWipesEntriesAndSignalsAllCleared() {
         let (store, _, _) = makeStore()
+        let (history, container) = makeHistory(settings: store)
         let spy = SpyAnalytics()
-        let vm = SettingsViewModel(analytics: spy, settings: store)
-        let context = makeContext()
-        context.insert(HistoryEntry(input: "https://x.com?a=1", output: "https://x.com"))
-        try? context.save()
+        let vm = SettingsViewModel(analytics: spy, settings: store, history: history)
+        container.mainContext.insert(HistoryEntry(input: "https://x.com?a=1", output: "https://x.com"))
+        try? container.mainContext.save()
 
-        vm.clearHistory(in: context)
+        vm.clearHistory()
 
         #expect(spy.events == [.historyAllCleared])
-        let remaining = try? context.fetch(FetchDescriptor<HistoryEntry>())
+        let remaining = try? container.mainContext.fetch(FetchDescriptor<HistoryEntry>())
         #expect(remaining?.isEmpty == true)
     }
 }

@@ -37,6 +37,7 @@ final class SettingsViewModel {
 
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
+    @ObservationIgnored private let history: HistoryStore
 
     /// Outcome of a Restore Purchases tap, for the result alert.
     enum RestoreResult: Equatable {
@@ -47,10 +48,12 @@ final class SettingsViewModel {
 
     init(
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
-        settings: SettingsStore = SettingsStore()
+        settings: SettingsStore = SettingsStore(),
+        history: HistoryStore = .inMemoryPreview
     ) {
         self.analytics = analytics
         self.settings = settings
+        self.history = history
         self.autoPasteEnabled = settings.autoPasteEnabled
         self.saveHistoryEnabled = settings.saveHistoryEnabled
     }
@@ -81,15 +84,15 @@ final class SettingsViewModel {
     /// Disables history and wipes existing entries (the toggle's destructive
     /// confirm path). Fires the toggle signal — not `History.All.cleared` — so a
     /// single user action maps to a single primary signal.
-    func disableSaveHistory(in context: ModelContext) {
+    func disableSaveHistory() {
         saveHistoryEnabled = false
         settings.saveHistoryEnabled = false
-        try? context.delete(model: HistoryEntry.self)
+        history.clearAll()
         analytics.capture(.settingsSaveHistoryToggled(enabled: false))
     }
 
-    func clearHistory(in context: ModelContext) {
-        try? context.delete(model: HistoryEntry.self)
+    func clearHistory() {
+        history.clearAll()
         analytics.capture(.historyAllCleared)
     }
 

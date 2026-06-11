@@ -139,9 +139,9 @@ struct HomeViewModelTests {
             standardSuiteName: "test.std.\(UUID().uuidString)",
             appGroupSuiteName: "test.grp.\(UUID().uuidString)"
         )
-        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings)
-        let context = ModelContext(HistoryContainer.makeInMemory())
-        vm.setModelContext(context)
+        let container = HistoryContainer.makeInMemory()
+        let history = HistoryStore(container: container, metadata: MockLinkMetadataService(), settings: settings)
+        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings, history: history)
 
         vm.inputText = "https://x.com?utm_source=a"
         await waitUntil { !spy.events.isEmpty }
@@ -153,7 +153,7 @@ struct HomeViewModelTests {
         // Repeated taps on one cleaned output export once...
         #expect(spy.events.filter { $0 == .homeURLCopied(changed: true) }.count == 1)
         // ...and write exactly one history row, not one per tap.
-        let rows = try? context.fetch(FetchDescriptor<HistoryEntry>())
+        let rows = try? container.mainContext.fetch(FetchDescriptor<HistoryEntry>())
         #expect(rows?.count == 1)
     }
 
@@ -192,9 +192,9 @@ struct HomeViewModelTests {
             standardSuiteName: "test.std.\(UUID().uuidString)",
             appGroupSuiteName: "test.grp.\(UUID().uuidString)"
         )
-        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings)
-        let context = ModelContext(HistoryContainer.makeInMemory())
-        vm.setModelContext(context)
+        let container = HistoryContainer.makeInMemory()
+        let history = HistoryStore(container: container, metadata: MockLinkMetadataService(), settings: settings)
+        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings, history: history)
 
         vm.inputText = "https://x.com?utm_source=a"
         await waitUntil { !spy.events.isEmpty }
@@ -204,7 +204,7 @@ struct HomeViewModelTests {
 
         // Repeated shares of one result export once, and write one history row.
         #expect(spy.events.filter { $0 == .homeURLShared(changed: true) }.count == 1)
-        let rows = try? context.fetch(FetchDescriptor<HistoryEntry>())
+        let rows = try? container.mainContext.fetch(FetchDescriptor<HistoryEntry>())
         #expect(rows?.count == 1)
     }
 
@@ -216,9 +216,9 @@ struct HomeViewModelTests {
             standardSuiteName: "test.std.\(UUID().uuidString)",
             appGroupSuiteName: "test.grp.\(UUID().uuidString)"
         )
-        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings)
-        let context = ModelContext(HistoryContainer.makeInMemory())
-        vm.setModelContext(context)
+        let container = HistoryContainer.makeInMemory()
+        let history = HistoryStore(container: container, metadata: MockLinkMetadataService(), settings: settings)
+        let vm = HomeViewModel(service: mock, analytics: spy, settings: settings, history: history)
 
         vm.inputText = "https://x.com?utm_source=a"
         await waitUntil { !spy.events.isEmpty }
@@ -229,7 +229,7 @@ struct HomeViewModelTests {
         // Copy and share are distinct exports, but the same output is one history row.
         #expect(spy.events.contains(.homeURLCopied(changed: true)))
         #expect(spy.events.contains(.homeURLShared(changed: true)))
-        let rows = try? context.fetch(FetchDescriptor<HistoryEntry>())
+        let rows = try? container.mainContext.fetch(FetchDescriptor<HistoryEntry>())
         #expect(rows?.count == 1)
     }
 

@@ -19,24 +19,24 @@ final class HistoryViewModel {
         didSet { handleSearchTextChange() }
     }
     var copiedEntryID: UUID?
-    var fetchingEntryIDs: Set<UUID> = []
     @ObservationIgnored private var copyTask: Task<Void, Never>?
-    @ObservationIgnored private var fetchTasks: [UUID: Task<Void, Never>] = [:]
-    @ObservationIgnored private var modelContext: ModelContext?
-    @ObservationIgnored private let metadataService: LinkMetadataService
+    @ObservationIgnored private let history: HistoryStore
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private var didSignalSearch = false
-    private let maxConcurrentFetches = 3
 
     private(set) var isSaveHistoryEnabled: Bool
 
+    /// Entries currently being enriched — the ``HistoryStore`` owns the fetch
+    /// pool now; the cell reads this for its spinner (observes the store).
+    var fetchingEntryIDs: Set<UUID> { history.enrichingIDs }
+
     init(
-        metadataService: LinkMetadataService = DefaultLinkMetadataService(),
+        history: HistoryStore = .inMemoryPreview,
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
         settings: SettingsStore = SettingsStore()
     ) {
-        self.metadataService = metadataService
+        self.history = history
         self.analytics = analytics
         self.settings = settings
         self.isSaveHistoryEnabled = settings.saveHistoryEnabled
@@ -114,10 +114,6 @@ final class HistoryViewModel {
         return .populated
     }
 
-    func setModelContext(_ context: ModelContext) {
-        self.modelContext = context
-    }
-
     func copyURL(for entry: HistoryEntry) {
         UIPasteboard.general.string = entry.output
         analytics.capture(.historyEntryActioned(.copy))
@@ -160,45 +156,21 @@ final class HistoryViewModel {
 
     func deleteEntry(_ entry: HistoryEntry) {
         analytics.capture(.historyEntryDeleted)
-        modelContext?.delete(entry)
+        history.delete(entry)
     }
 
+    /// Enrichment is delegated to the ``HistoryStore`` (it owns the fetch pool and
+    /// the concurrency cap). The cell calls this from its `.task(id:)`.
     func fetchMetadataIfNeeded(for entry: HistoryEntry) {
-        guard !entry.metadataFetchAttempted,
-              !fetchingEntryIDs.contains(entry.id),
-              fetchingEntryIDs.count < maxConcurrentFetches else { return }
-
-        fetchingEntryIDs.insert(entry.id)
-        let entryID = entry.id
-
-        guard let url = URL(string: entry.output) else {
-            entry.metadataFetchAttempted = true
-            fetchingEntryIDs.remove(entryID)
-            return
-        }
-
-        fetchTasks[entryID] = Task {
-            let metadata = await metadataService.fetchMetadata(for: url)
-            entry.pageTitle = metadata.title
-            entry.thumbnailData = metadata.thumbnailData
-            entry.metadataFetchAttempted = true
-            fetchingEntryIDs.remove(entryID)
-            fetchTasks.removeValue(forKey: entryID)
-        }
+        history.enrich(entry)
     }
 
     func retryMetadataFetch(for entry: HistoryEntry) {
-        entry.metadataFetchAttempted = false
-        entry.pageTitle = nil
-        entry.thumbnailData = nil
-        fetchMetadataIfNeeded(for: entry)
+        history.retryEnrich(entry)
     }
 
     func cancelTasks() {
         copyTask?.cancel()
-        for task in fetchTasks.values {
-            task.cancel()
-        }
-        fetchTasks.removeAll()
+        history.cancelEnrichment()
     }
 }

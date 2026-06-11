@@ -8,6 +8,7 @@
 import LinkCleanCore
 import LinkCleanData
 import LinkCleanAnalytics
+import SwiftData
 
 /// The app's composition root: the one place production dependencies are
 /// constructed and wired together. `ARCHITECTURE.md` promised this; before it,
@@ -27,27 +28,29 @@ struct AppDependencies {
     let parameters: TrackingParameterStore
     let review: ReviewService
     let explanations: ParameterExplanationService
-    let metadata: LinkMetadataService
+    let history: HistoryStore
     let entitlements: EntitlementsModel
 
-    /// The production graph, built once in `LinkCleanApp.init`. The TelemetryDeck
-    /// SDK lifecycle starts here — instance creation and `start(surface:)` finally
-    /// live in the same place (and screenshot builds suppress it in one spot).
-    static func live() -> AppDependencies {
+    /// The production graph, built once in `LinkCleanApp.init` with the app's
+    /// `ModelContainer`. The TelemetryDeck SDK lifecycle starts here — instance
+    /// creation and `start(surface:)` finally live in the same place (and
+    /// screenshot builds suppress it in one spot).
+    static func live(container: ModelContainer) -> AppDependencies {
         if !DebugMode.isScreenshotMode {
             TelemetryDeckAnalytics.start(surface: "app")
         }
         let analytics = TelemetryDeckAnalytics()
         // One store, shared by the cleaning service and the parameter ViewModels.
         let parameters = TrackingParameterStore()
+        let settings = SettingsStore()
         return AppDependencies(
             cleaning: DefaultCleaningService(store: parameters),
             analytics: analytics,
-            settings: SettingsStore(),
+            settings: settings,
             parameters: parameters,
             review: DefaultReviewService(),
             explanations: FoundationModelsParameterExplanationService(),
-            metadata: DefaultLinkMetadataService(),
+            history: HistoryStore(container: container, metadata: DefaultLinkMetadataService(), settings: settings),
             entitlements: EntitlementsModel(
                 service: StoreKitEntitlementsService(),
                 analytics: analytics
@@ -55,18 +58,19 @@ struct AppDependencies {
         )
     }
 
-    /// Offline dependencies for `#Preview` and the environment default: no
-    /// analytics network (the instance is never `start()`-ed, so `capture`
-    /// no-ops) and no StoreKit (the preview entitlements service).
+    /// Offline dependencies for `#Preview`: no analytics network (the instance is
+    /// never `start()`-ed, so `capture` no-ops), no StoreKit (the preview
+    /// entitlements service), and an in-memory history container.
     static func preview(entitlement: Entitlement = .free) -> AppDependencies {
-        AppDependencies(
+        let settings = SettingsStore()
+        return AppDependencies(
             cleaning: DefaultCleaningService(),
             analytics: TelemetryDeckAnalytics(),
-            settings: SettingsStore(),
+            settings: settings,
             parameters: TrackingParameterStore(),
             review: DefaultReviewService(),
             explanations: FoundationModelsParameterExplanationService(),
-            metadata: DefaultLinkMetadataService(),
+            history: HistoryStore(container: HistoryContainer.makeInMemory(), metadata: DefaultLinkMetadataService(), settings: settings),
             entitlements: EntitlementsModel(service: PreviewEntitlementsService(entitlement: entitlement))
         )
     }

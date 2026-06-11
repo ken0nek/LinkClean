@@ -24,7 +24,7 @@ struct LinkCleanApp: App {
         // needs no configuration step or appUserID) and starts the analytics SDK
         // as early as TelemetryDeck wants (App.init, not onAppear), screenshot
         // builds excepted. The whole object graph is reviewable in `live()`.
-        self.dependencies = AppDependencies.live()
+        self.dependencies = AppDependencies.live(container: modelContainer)
 
         // All UI-test / screenshot / QA launch-argument handling lives in the
         // DEBUG-only configurator; production launches run none of it. It mutates
