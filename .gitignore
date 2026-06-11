@@ -104,7 +104,14 @@ Temporary Items
 # Only skills-lock.json is committed; restore the skill folders with
 # `npx skills experimental_install`. Add/remove a managed skill → mirror it here.
 # Locally-authored skills (bump, analytics-audit, asc-metadata, release-notes) stay tracked.
-/.agents/
+/.agents/skills/app-store-optimization/
+/.agents/skills/copywriting/
+/.agents/skills/swift-concurrency-pro/
+/.agents/skills/swift-testing-pro/
+/.agents/skills/swiftdata-pro/
+/.agents/skills/swiftui-liquid-glass/
+/.agents/skills/swiftui-pro/
+/.agents/skills/improve
 /.claude/skills/app-store-optimization/
 /.claude/skills/copywriting/
 /.claude/skills/swift-concurrency-pro/
@@ -112,3 +119,4 @@ Temporary Items
 /.claude/skills/swiftdata-pro/
 /.claude/skills/swiftui-liquid-glass/
 /.claude/skills/swiftui-pro/
+/.claude/skills/improve
