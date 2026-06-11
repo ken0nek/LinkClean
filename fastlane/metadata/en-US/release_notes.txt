@@ -5,5 +5,6 @@ Welcome to LinkClean 1.0!
 • See exactly what was removed — and tap a leftover parameter to remove it for good
 • A searchable History of everything you've cleaned
 • 100% on-device cleaning — the full links you clean never leave your device
+• LinkClean Pro: unlimited custom rules and your full History archive — one purchase, no subscription
 
 Thanks for trying LinkClean. Feedback is always welcome.

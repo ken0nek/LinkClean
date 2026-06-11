@@ -1,7 +1,9 @@
 # LinkClean Pro — App Store Connect setup (hand-off)
 
-> What **Ken** must do in App Store Connect (and on a device) to make the 1.1 in-app purchase real. Everything on the **code** side is done and verified locally — see `../plans/iap-implementation-plan.md`. There is **no RevenueCat** and **no server**: this is a single StoreKit 2 non-consumable.
+> What **Ken** must do in App Store Connect (and on a device) to make the LinkClean Pro in-app purchase real. Everything on the **code** side is done and verified locally — see `../plans/iap-implementation-plan.md`. There is **no RevenueCat** and **no server**: this is a single StoreKit 2 non-consumable.
 > Modelled on Whyzard's IAP go-live runbook, trimmed to a one-product, no-server, no-subscription app.
+>
+> **Status (Jun 10, 2026):** the 1.0.0 (8) submission was withdrawn before entering review, so the IAP ships in the **first public release — 1.0.0 (10)**. There is no separate 1.1 release; the ASC version record already reads 1.0.0 and needs no edit.
 
 ## The one fact that must match everywhere
 
@@ -72,13 +74,13 @@ App Review requires the paywall's **Terms of Use** + **Privacy Policy** links to
 
 For the **first** review, the IAP and the app version are reviewed together:
 
-- [ ] Attach **`linkclean_pro_lifetime`** to the **1.1 build** in the version's "In-App Purchases" section before submitting.
+- [ ] Attach **`linkclean_pro_lifetime`** to the **launch build — 1.0.0 (10)** — in the version's "In-App Purchases" section before submitting.
 - [ ] The IAP status should move to **"Ready to Submit"** (green) — needs the localization + screenshot + review notes above.
-- [ ] Submit the 1.1 version for review with the IAP attached.
+- [ ] Submit the version for review with the IAP attached.
 
 **App Review Information → Notes (Optional) — suggested text** (paste into the version's *Review Notes* field; it points the reviewer straight at the IAP + Restore):
 
-> LinkClean 1.1 adds one in-app purchase: **LinkClean Pro** (`linkclean_pro_lifetime`), a non-consumable **one-time purchase** — no subscription, no account, no login, no server. The core link-cleaning is free and fully functional without it.
+> This version includes one in-app purchase: **LinkClean Pro** (`linkclean_pro_lifetime`), a non-consumable **one-time purchase** — no subscription, no account, no login, no server. The core link-cleaning is free and fully functional without it.
 >
 > **Pro unlocks:** unlimited custom tracking-parameter rules, full cleaning history (the free tier keeps the last 7 days), and future Pro features.
 >
@@ -87,6 +89,8 @@ For the **first** review, the IAP and the app version are reviewed together:
 > **Restore Purchases** is in Settings and on the paywall, reachable without buying.
 >
 > **Privacy:** all cleaning happens on-device — full links, clipboard, and typed text never leave. The only datum derived from a link is its **bare site domain** (host only, e.g. `youtube.com`), sent anonymously and in aggregate (TelemetryDeck) and declared under **App Privacy → Browsing History** (Analytics; not linked to identity, not used for tracking). **No purchase, transaction, or price data is collected** — purchase processing is entirely Apple's, and revenue is read from App Store Connect.
+
+> ℹ️ The operative copy — this text merged with the 1.0 cleaning-test walkthrough — lives in `fastlane/metadata/review_information/notes.txt`, which `deliver` uploads. That directory is **gitignored**, so this doc holds the versioned copy; keep the two in sync.
 
 ---
 
@@ -108,7 +112,7 @@ For the **first** review, the IAP and the app version are reviewed together:
 [ ] Paywall review screenshot + review notes
 [x] App Privacy: Purchases → Analytics declaration removed → "Purchases: No" (revenue tracking dropped 2026-06-10; funnel events are Product Interaction, already declared)
 [x] Terms of Use page published (links resolve)
-[ ] IAP attached to the 1.1 build, status Ready to Submit
+[ ] IAP attached to the launch build (1.0.0 (10)), status Ready to Submit
 [ ] Sandbox purchase + restore verified on device
 ```
 
