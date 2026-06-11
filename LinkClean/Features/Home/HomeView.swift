@@ -16,6 +16,10 @@ struct HomeView: View {
     @FocusState private var isInputFocused: Bool
     @State private var isRemovedExpanded = false
     @State private var parameterPendingAdd: String?
+    /// The leftover parameter a tap requested an explanation for. A `.task(id:)`
+    /// resolves it on-device, then opens the confirm dialog — the dialog's message
+    /// isn't reactive, so the explanation must be ready before it presents.
+    @State private var parameterToExplain: String?
     @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
     /// Bumped on a confirmed leftover-add so `.sensoryFeedback` fires a success tap.
     @State private var leftoverAddedHaptic = 0
@@ -104,8 +108,23 @@ struct HomeView: View {
             }
         } message: {
             if let parameterPendingAdd {
-                Text(.homeLeftoverConfirmMessage(parameterPendingAdd))
+                // When an on-device explanation was prepared, lead with it; the
+                // existing copy still explains the two actions below.
+                if let explanation = viewModel.explanation(for: parameterPendingAdd) {
+                    Text(explanation + "\n\n" + String(localized: .homeLeftoverConfirmMessage(parameterPendingAdd)))
+                } else {
+                    Text(.homeLeftoverConfirmMessage(parameterPendingAdd))
+                }
             }
+        }
+        // Resolve the explanation off the tap, then present. `.task(id:)` cancels
+        // if the user leaves, so a slow generation can't open a stale dialog.
+        .task(id: parameterToExplain) {
+            guard let name = parameterToExplain else { return }
+            await viewModel.prepareExplanation(for: name)
+            guard !Task.isCancelled else { return }
+            parameterPendingAdd = name
+            parameterToExplain = nil
         }
         .sheet(
             isPresented: Binding(
@@ -324,31 +343,33 @@ struct HomeView: View {
         parameterPendingAdd = nil
     }
 
-    /// "Always Remove" persists a custom rule, so it gates on the free allowance:
-    /// within it, add; past it (free, the 1 rule already used), open the paywall.
-    /// "Remove Once" never routes here — it stays free.
+    /// "Always Remove" persists a custom rule, so it gates on the free allowance.
+    /// The decision (and the add, when allowed) lives in the ViewModel; the view
+    /// only plays the haptic or raises the paywall. "Remove Once" never routes
+    /// here — it stays free.
     private func confirmAlwaysRemove() {
         guard let name = parameterPendingAdd else { return }
         parameterPendingAdd = nil
-        if ProGate.canAddCustomRule(entitlement: entitlements.entitlement, currentCount: viewModel.customParameterCount) {
-            viewModel.addLeftoverParameter(name)
+        switch viewModel.requestAlwaysRemove(name, entitlement: entitlements.entitlement) {
+        case .allowed:
             leftoverAddedHaptic += 1
-        } else {
+        case .gated(let trigger):
             // Let the confirm dialog finish dismissing before the sheet rises.
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(400))
-                paywallTrigger = .customParamHome
+                paywallTrigger = trigger
             }
         }
     }
 
     private func leftoverRow(_ name: String) -> some View {
         Button {
-            // Always open the confirm dialog — "Remove Once" is a one-time,
-            // non-persisted strip (operation, never gated; §6 rule 3). The
-            // 1-free-rule gate lives on "Always Remove" inside the dialog, so a
-            // free user can always strip a tracker from the current link.
-            parameterPendingAdd = name
+            // Request an explanation, then the confirm dialog opens (see the
+            // `.task(id:)` above). "Remove Once" is a one-time, non-persisted strip
+            // (operation, never gated; §6 rule 3); the 1-free-rule gate lives on
+            // "Always Remove" inside the dialog, so a free user can always strip a
+            // tracker from the current link.
+            parameterToExplain = name
         } label: {
             HStack(spacing: 12) {
                 Text(name)
@@ -359,9 +380,14 @@ struct HomeView: View {
 
                 Spacer(minLength: 8)
 
-                Image(systemName: "plus.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(.tint)
+                if viewModel.explainingParameter == name {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.tint)
+                }
             }
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
@@ -369,6 +395,7 @@ struct HomeView: View {
             .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
         }
         .buttonStyle(.plain)
+        .disabled(viewModel.explainingParameter != nil)
         .accessibilityLabel(Text(.homeLeftoverRemove(name)))
         .accessibilityIdentifier("leftover-tracker-\(name)")
     }

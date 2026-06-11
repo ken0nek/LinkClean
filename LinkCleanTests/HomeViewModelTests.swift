@@ -314,6 +314,53 @@ struct HomeViewModelTests {
         #expect(spy.events == [.parametersCustomAdded(totalCount: 1)])
     }
 
+    // MARK: - Always-Remove gate (T2)
+
+    @Test func requestAlwaysRemoveAllowedForFreeUnderAllowance() {
+        let spy = SpyAnalytics()
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy, store: store)
+
+        let result = vm.requestAlwaysRemove("yclid", entitlement: .free)
+
+        // Under the free allowance: proceed and persist the rule in the same call.
+        #expect(result == .allowed)
+        #expect(store.customParameters().contains("yclid"))
+        #expect(spy.events == [.parametersCustomAdded(totalCount: 1)])
+    }
+
+    @Test func requestAlwaysRemoveGatedForFreeAtAllowance() {
+        let spy = SpyAnalytics()
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+        store.addCustomParameter("existing") // consumes the one free rule
+        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: spy, store: store)
+
+        let result = vm.requestAlwaysRemove("yclid", entitlement: .free)
+
+        // At the allowance: gate to the Home paywall trigger and add nothing.
+        #expect(result == .gated(.customParamHome))
+        #expect(!store.customParameters().contains("yclid"))
+        #expect(spy.events.isEmpty)
+    }
+
+    @Test func requestAlwaysRemoveAllowedForProRegardlessOfCount() {
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+        store.addCustomParameter("a")
+        store.addCustomParameter("b")
+        let vm = HomeViewModel(service: MockURLCleaningService(), analytics: SpyAnalytics(), store: store)
+
+        let result = vm.requestAlwaysRemove("yclid", entitlement: .pro)
+
+        #expect(result == .allowed)
+        #expect(store.customParameters().contains("yclid"))
+    }
+
     @Test func addingLeftoverTrackerStripsItOnReclean() async {
         // Real service + a shared store, so adding a custom parameter actually
         // changes what the re-clean removes — the full "still tracking → removed"

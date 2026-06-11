@@ -96,16 +96,17 @@ final class PaywallViewModel {
         isPurchasing = true
         defer { isPurchasing = false }
 
+        // The `Pro.Purchase.restored` funnel fact is emitted once by
+        // ``EntitlementsModel`` (the layer that establishes the outcome); this
+        // only renders the result.
         do {
             let restored = try await entitlements.restorePurchases() == .pro
-            analytics.capture(.purchaseRestored(restored: restored))
             if restored {
                 didUnlock = true
             } else {
                 showNothingToRestore = true
             }
         } catch {
-            analytics.capture(.purchaseRestored(restored: false))
             showNothingToRestore = true
         }
     }

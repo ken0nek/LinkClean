@@ -46,8 +46,10 @@ struct PaywallViewModelTests {
     ) -> (PaywallViewModel, SpyAnalytics) {
         let stub = StubEntitlementsService()
         configure(stub)
-        let model = EntitlementsModel(service: stub)
+        // One spy shared by both layers: the paywall VM emits the impression and
+        // purchase funnel, the model emits the single `Pro.Purchase.restored` fact.
         let spy = SpyAnalytics()
+        let model = EntitlementsModel(service: stub, analytics: spy)
         let vm = PaywallViewModel(entitlements: model, analytics: spy, trigger: trigger)
         return (vm, spy)
     }

@@ -34,22 +34,22 @@ final class ExtensionGuideViewModel {
     /// exact link and skips saving it to History (see `OnboardingDemo`).
     let demoURL = OnboardingDemo.url
 
-    @ObservationIgnored private let defaults: UserDefaults?
+    @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private let now: () -> Date
     @ObservationIgnored private let analytics: AnalyticsService
-    /// Reference-date interval captured when the guide appears. Any extension
-    /// run with a newer timestamp counts as success. Armed on appear (not on
-    /// the ShareLink tap) so a swallowed tap gesture or an iPad popover that
-    /// never toggles scenePhase can't strand the user.
-    @ObservationIgnored private var watchStartedAt: Double?
+    /// The moment the guide armed detection. Any extension run stamped after it
+    /// counts as success. Armed on appear (not on the ShareLink tap) so a
+    /// swallowed tap gesture or an iPad popover that never toggles scenePhase
+    /// can't strand the user.
+    @ObservationIgnored private var watchStartedAt: Date?
     @ObservationIgnored private var pollTask: Task<Void, Never>?
 
     init(
-        defaults: UserDefaults? = UserDefaults(suiteName: AppGroup.identifier),
+        settings: SettingsStore = SettingsStore(),
         now: @escaping () -> Date = { .now },
         analytics: AnalyticsService = TelemetryDeckAnalytics()
     ) {
-        self.defaults = defaults
+        self.settings = settings
         self.now = now
         self.analytics = analytics
     }
@@ -100,7 +100,7 @@ final class ExtensionGuideViewModel {
     private func startWatching() {
         guard state != .succeeded else { return }
         if watchStartedAt == nil {
-            watchStartedAt = now().timeIntervalSinceReferenceDate
+            watchStartedAt = now()
         }
         startPolling()
     }
@@ -125,8 +125,7 @@ final class ExtensionGuideViewModel {
 
     private func checkForSuccess() {
         guard state != .succeeded, let watchStartedAt else { return }
-        let lastRun = defaults?.double(forKey: SettingsKeys.lastActionExtensionRunAt) ?? 0
-        guard lastRun > watchStartedAt else { return }
+        guard let lastRun = settings.lastActionExtensionRunAt, lastRun > watchStartedAt else { return }
         state = .succeeded
         pollTask?.cancel()
         pollTask = nil

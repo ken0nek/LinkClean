@@ -168,4 +168,70 @@ struct CustomParametersViewModelTests {
 
         #expect(spy.events.isEmpty)
     }
+
+    // MARK: - Add gate (T3)
+
+    @Test func isAtFreeLimitReflectsEntitlementAndCount() {
+        let (vm, suiteName) = makeSUT()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+
+        // No rules yet: neither tier is limited.
+        #expect(vm.isAtFreeLimit(entitlement: .free) == false)
+        #expect(vm.isAtFreeLimit(entitlement: .pro) == false)
+
+        vm.newParameter = "alpha"
+        _ = vm.addParameter() // consumes the one free rule
+
+        #expect(vm.isAtFreeLimit(entitlement: .free) == true)
+        #expect(vm.isAtFreeLimit(entitlement: .pro) == false) // Pro is never limited
+    }
+
+    @Test func requestAddParameterAddsWhenAllowed() {
+        let (vm, suiteName) = makeSUT()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+        vm.newParameter = "alpha"
+
+        let result = vm.requestAddParameter(entitlement: .free)
+
+        #expect(result == .attempted(error: nil))
+        #expect(vm.customParameters.contains("alpha"))
+    }
+
+    @Test func requestAddParameterGatesFreeUserAtLimit() {
+        let (vm, suiteName) = makeSUT()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+        vm.newParameter = "alpha"
+        _ = vm.addParameter() // consumes the one free rule
+
+        vm.newParameter = "beta"
+        let result = vm.requestAddParameter(entitlement: .free)
+
+        #expect(result == .gated(.customParamSettings))
+        #expect(!vm.customParameters.contains("beta")) // nothing added while gated
+    }
+
+    @Test func requestAddParameterSurfacesValidationError() {
+        let (vm, suiteName) = makeSUT()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+        vm.newParameter = "utm_source" // already a default catalog param
+
+        let result = vm.requestAddParameter(entitlement: .free)
+
+        #expect(result == .attempted(error: "Already in default parameters."))
+    }
+
+    @Test func requestAddParameterNeverGatesPro() {
+        let (vm, suiteName) = makeSUT()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+        vm.newParameter = "a"
+        _ = vm.addParameter()
+        vm.newParameter = "b"
+        _ = vm.addParameter() // two rules — well past the free allowance
+
+        vm.newParameter = "c"
+        let result = vm.requestAddParameter(entitlement: .pro)
+
+        #expect(result == .attempted(error: nil))
+        #expect(vm.customParameters.contains("c"))
+    }
 }

@@ -11,21 +11,23 @@ import Foundation
 struct ActionExtensionViewControllerTests {
 
     @Test func recordSuccessfulRunWritesTimestampToProvidedSuite() {
-        let suite = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        let suiteName = "test.\(UUID().uuidString)"
+        let suite = UserDefaults(suiteName: suiteName)!
         let controller = ActionExtensionViewController()
         let date = Date(timeIntervalSinceReferenceDate: 12_345)
 
-        controller.recordSuccessfulRun(at: date, in: suite)
+        controller.recordSuccessfulRun(at: date, settings: SettingsStore(appGroupSuiteName: suiteName))
 
         #expect(suite.double(forKey: SettingsKeys.lastActionExtensionRunAt) == 12_345)
     }
 
     @Test func recordSuccessfulRunUsesReferenceDateInterval() {
-        let suite = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        let suiteName = "test.\(UUID().uuidString)"
+        let suite = UserDefaults(suiteName: suiteName)!
         let controller = ActionExtensionViewController()
         let date = Date(timeIntervalSinceReferenceDate: 1000)
 
-        controller.recordSuccessfulRun(at: date, in: suite)
+        controller.recordSuccessfulRun(at: date, settings: SettingsStore(appGroupSuiteName: suiteName))
 
         // Stored value must be comparable as a plain interval, not a bridged Date.
         let stored = suite.double(forKey: SettingsKeys.lastActionExtensionRunAt)

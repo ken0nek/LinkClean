@@ -12,8 +12,10 @@ import LinkCleanKit
 @MainActor
 struct ExtensionGuideViewModelTests {
 
-    private func makeSuite() -> UserDefaults {
-        UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+    /// A `SettingsStore` over a fresh isolated App Group suite, so each test's
+    /// `lastActionExtensionRunAt` reads/writes can't collide under parallel runs.
+    private func makeStore() -> SettingsStore {
+        SettingsStore(appGroupSuiteName: "test.\(UUID().uuidString)")
     }
 
     private func isWaiting(_ vm: ExtensionGuideViewModel) -> Bool {
@@ -23,12 +25,12 @@ struct ExtensionGuideViewModelTests {
 
     private let start = Date(timeIntervalSinceReferenceDate: 1000)
 
-    private func runTimestamp(_ interval: Double, in suite: UserDefaults) {
-        suite.set(interval, forKey: SettingsKeys.lastActionExtensionRunAt)
+    private func setRun(_ date: Date, in store: SettingsStore) {
+        store.lastActionExtensionRunAt = date
     }
 
     @Test func startsIdle() {
-        let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start })
+        let vm = ExtensionGuideViewModel(settings: makeStore(), now: { self.start })
 
         #expect(vm.state == .idle)
         #expect(vm.isIdleOrWaiting == true)
@@ -36,7 +38,7 @@ struct ExtensionGuideViewModelTests {
     }
 
     @Test func tryItTappedMovesToWaiting() {
-        let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start })
+        let vm = ExtensionGuideViewModel(settings: makeStore(), now: { self.start })
 
         vm.tryItTapped()
 
@@ -46,7 +48,7 @@ struct ExtensionGuideViewModelTests {
     }
 
     @Test func staysWaitingWithNoTimestamp() {
-        let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start })
+        let vm = ExtensionGuideViewModel(settings: makeStore(), now: { self.start })
 
         vm.tryItTapped()
         vm.handleScenePhase(.active)
@@ -56,10 +58,10 @@ struct ExtensionGuideViewModelTests {
     }
 
     @Test func staysWaitingForStaleTimestamp() {
-        let suite = makeSuite()
+        let store = makeStore()
         // A run that happened before "Try it" was tapped must not count.
-        runTimestamp(Date(timeIntervalSinceReferenceDate: 500).timeIntervalSinceReferenceDate, in: suite)
-        let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
+        setRun(Date(timeIntervalSinceReferenceDate: 500), in: store)
+        let vm = ExtensionGuideViewModel(settings: store, now: { self.start })
 
         vm.tryItTapped()
         vm.handleScenePhase(.active)
@@ -69,11 +71,11 @@ struct ExtensionGuideViewModelTests {
     }
 
     @Test func succeedsForNewerTimestampOnSceneActive() {
-        let suite = makeSuite()
-        let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
+        let store = makeStore()
+        let vm = ExtensionGuideViewModel(settings: store, now: { self.start })
 
         vm.tryItTapped()
-        runTimestamp(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate, in: suite)
+        setRun(Date(timeIntervalSinceReferenceDate: 1001), in: store)
         vm.handleScenePhase(.active)
 
         #expect(vm.state == .succeeded)
@@ -84,11 +86,11 @@ struct ExtensionGuideViewModelTests {
     @Test func succeedsWithoutTryItTapWhenArmedOnAppear() {
         // Detection is armed on appear, so a run is caught even if the
         // ShareLink tap gesture never fired.
-        let suite = makeSuite()
-        let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
+        let store = makeStore()
+        let vm = ExtensionGuideViewModel(settings: store, now: { self.start })
 
         vm.onAppear(source: .settings)
-        runTimestamp(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate, in: suite)
+        setRun(Date(timeIntervalSinceReferenceDate: 1001), in: store)
         vm.handleScenePhase(.active)
 
         #expect(vm.hasSucceeded == true)
@@ -96,11 +98,11 @@ struct ExtensionGuideViewModelTests {
     }
 
     @Test func nonActiveScenePhaseIsNoOp() {
-        let suite = makeSuite()
-        let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
+        let store = makeStore()
+        let vm = ExtensionGuideViewModel(settings: store, now: { self.start })
 
         vm.tryItTapped()
-        runTimestamp(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate, in: suite)
+        setRun(Date(timeIntervalSinceReferenceDate: 1001), in: store)
 
         vm.handleScenePhase(.background)
         #expect(isWaiting(vm) == true)
@@ -113,7 +115,7 @@ struct ExtensionGuideViewModelTests {
     }
 
     @Test func resetReturnsToIdle() {
-        let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start })
+        let vm = ExtensionGuideViewModel(settings: makeStore(), now: { self.start })
 
         vm.tryItTapped()
         vm.reset()
@@ -122,11 +124,11 @@ struct ExtensionGuideViewModelTests {
     }
 
     @Test func successIsIdempotentAcrossScenePhases() {
-        let suite = makeSuite()
-        let vm = ExtensionGuideViewModel(defaults: suite, now: { self.start })
+        let store = makeStore()
+        let vm = ExtensionGuideViewModel(settings: store, now: { self.start })
 
         vm.tryItTapped()
-        runTimestamp(Date(timeIntervalSinceReferenceDate: 1001).timeIntervalSinceReferenceDate, in: suite)
+        setRun(Date(timeIntervalSinceReferenceDate: 1001), in: store)
         vm.handleScenePhase(.active)
         vm.handleScenePhase(.active)
 
@@ -135,7 +137,7 @@ struct ExtensionGuideViewModelTests {
 
     @Test func onAppearFromSettingsEmitsGuideShownWithSource() {
         let spy = SpyAnalytics()
-        let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start }, analytics: spy)
+        let vm = ExtensionGuideViewModel(settings: makeStore(), now: { self.start }, analytics: spy)
 
         vm.onAppear(source: .settings)
 
@@ -145,7 +147,7 @@ struct ExtensionGuideViewModelTests {
 
     @Test func onAppearFromOnboardingTagsSource() {
         let spy = SpyAnalytics()
-        let vm = ExtensionGuideViewModel(defaults: makeSuite(), now: { self.start }, analytics: spy)
+        let vm = ExtensionGuideViewModel(settings: makeStore(), now: { self.start }, analytics: spy)
 
         vm.onAppear(source: .onboarding)
 

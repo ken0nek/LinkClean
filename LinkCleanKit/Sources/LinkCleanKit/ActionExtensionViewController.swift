@@ -191,15 +191,15 @@ open class ActionExtensionViewController: UIViewController {
     // MARK: - Onboarding success signal
 
     /// Records that an action extension completed successfully, so the app's
-    /// onboarding/guide "Try it now" flow can auto-detect the run. Written to
-    /// the App Group suite because the app process reads it on scene activation.
-    /// Independent of `saveHistoryEnabled`. The `defaults` parameter is
-    /// injectable so tests can run without the App Group container.
+    /// onboarding/guide "Try it now" flow can auto-detect the run. Goes through
+    /// ``SettingsStore`` (App Group suite, the cross-process bus the app reads on
+    /// scene activation). Independent of `saveHistoryEnabled`. The `settings`
+    /// parameter is injectable so tests can target an isolated suite.
     public func recordSuccessfulRun(
         at date: Date = .now,
-        in defaults: UserDefaults? = UserDefaults(suiteName: AppGroup.identifier)
+        settings: SettingsStore = SettingsStore()
     ) {
-        defaults?.set(date.timeIntervalSinceReferenceDate, forKey: SettingsKeys.lastActionExtensionRunAt)
+        settings.lastActionExtensionRunAt = date
     }
 
     // MARK: - Haptic

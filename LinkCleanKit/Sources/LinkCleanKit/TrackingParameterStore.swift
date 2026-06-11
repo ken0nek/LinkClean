@@ -9,12 +9,13 @@ import Foundation
 
 public nonisolated struct TrackingParameterStore: Sendable {
     private let suiteName: String?
-    private let disabledKey = "trackingParametersDisabled"
-    /// User opt-ins for catalog names that ship `enabledByDefault: false`.
-    /// Kept disjoint from the disabled set by `setEnabled`; only deviations
-    /// from the catalog default are persisted.
-    private let enabledKey = "trackingParametersEnabled"
-    private let customKey = "trackingParametersCustom"
+    // Keys live in the single ``SettingsKeys`` registry (the cross-process
+    // contract). `enabledKey` holds user opt-ins for catalog names that ship
+    // `enabledByDefault: false`, kept disjoint from `disabledKey` by `setEnabled`
+    // so only deviations from the catalog default are persisted.
+    private let disabledKey = SettingsKeys.trackingParametersDisabled
+    private let enabledKey = SettingsKeys.trackingParametersEnabled
+    private let customKey = SettingsKeys.trackingParametersCustom
 
     public init(suiteName: String? = AppGroup.identifier) {
         self.suiteName = suiteName

@@ -12,6 +12,7 @@ public nonisolated enum AppGroup {
 
     /// The cross-process settings suite shared by the app and the action
     /// extensions. `nil` only if the App Group is misconfigured. Centralizes the
-    /// suite lookup that ``ReviewGate`` and other shared-state readers default to.
+    /// suite lookup that ``DefaultReviewService`` and other shared-state readers
+    /// default to.
     public static var userDefaults: UserDefaults? { UserDefaults(suiteName: identifier) }
 }

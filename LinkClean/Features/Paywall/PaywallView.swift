@@ -15,11 +15,6 @@ enum ProLegal {
     static let privacyPolicy = URL(string: "https://ken0nek.com/apps/linkclean/privacy-policy/")!
 }
 
-// `.sheet(item:)` needs Identifiable; the trigger's rawValue is a stable id.
-extension AnalyticsEvent.PaywallTrigger: @retroactive Identifiable {
-    public var id: String { rawValue }
-}
-
 /// The hand-rolled LinkClean Pro paywall. One sheet, a contextual header per
 /// trigger over a constant body, fed by a StoreKit product through
 /// ``EntitlementsModel`` — no third-party paywall SDK.

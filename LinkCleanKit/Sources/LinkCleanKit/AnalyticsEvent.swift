@@ -366,3 +366,10 @@ public nonisolated enum AnalyticsEvent: Equatable {
         }
     }
 }
+
+extension AnalyticsEvent.PaywallTrigger: Identifiable {
+    /// `.sheet(item:)` (the paywall presentation currency) needs `Identifiable`;
+    /// the trigger's `rawValue` is a stable id. Declared here next to the enum so
+    /// the app no longer needs a `@retroactive` conformance.
+    public var id: String { rawValue }
+}

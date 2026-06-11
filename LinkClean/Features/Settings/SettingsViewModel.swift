@@ -92,17 +92,16 @@ final class SettingsViewModel {
     }
 
     /// Restores previous purchases (App Review requires this reachable without
-    /// buying — §9-D). Fires `Pro.Purchase.restored`; the entitlement flip itself
-    /// is published by ``EntitlementsModel``.
+    /// buying — §9-D). The `Pro.Purchase.restored` funnel fact and the entitlement
+    /// flip are both owned by ``EntitlementsModel``; this only maps the outcome to
+    /// the result alert.
     func restorePurchases(using entitlements: EntitlementsModel) async -> RestoreResult {
         isRestoring = true
         defer { isRestoring = false }
         do {
             let restored = try await entitlements.restorePurchases() == .pro
-            analytics.capture(.purchaseRestored(restored: restored))
             return restored ? .restored : .nothingToRestore
         } catch {
-            analytics.capture(.purchaseRestored(restored: false))
             return .failed
         }
     }

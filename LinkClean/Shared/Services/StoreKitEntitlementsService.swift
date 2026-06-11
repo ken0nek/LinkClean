@@ -125,7 +125,7 @@ final class StoreKitEntitlementsService: EntitlementsService {
     /// survives relaunch and the `Transaction.updates` stream can't clobber it.
     private func currentEntitlementFromStoreKit() async -> Entitlement {
         #if DEBUG
-        if let override = Self.debugOverride() { return override }
+        if let override = DebugEntitlementOverrideStore().override { return override }
         #endif
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
@@ -143,15 +143,4 @@ final class StoreKitEntitlementsService: EntitlementsService {
     private func loadProduct() async throws -> Product? {
         try await Product.products(for: [Self.lifetimeProductID]).first
     }
-
-    #if DEBUG
-    /// Developer entitlement override (Developer menu). Persisted so it survives
-    /// relaunch; `nil` means "resolve from StoreKit" (the real path).
-    static let debugOverrideKey = "debug.entitlementOverride"
-
-    static func debugOverride() -> Entitlement? {
-        guard let raw = UserDefaults.standard.string(forKey: debugOverrideKey) else { return nil }
-        return Entitlement(rawValue: raw)
-    }
-    #endif
 }

@@ -35,6 +35,25 @@ final class CustomParametersViewModel {
         analytics.capture(.parametersCustomShown)
     }
 
+    /// Whether a free user has used their one custom-rule allowance (T3): past it
+    /// the Add affordance shows a lock and routes to the paywall. Display state for
+    /// the view's icon/disabled; the policy (``ProGate``) lives here, not in the
+    /// view.
+    func isAtFreeLimit(entitlement: Entitlement) -> Bool {
+        !ProGate.canAddCustomRule(entitlement: entitlement, currentCount: customParameters.count)
+    }
+
+    /// The Add button's full decision: gate to the paywall when the free allowance
+    /// is used up (T3), otherwise attempt the add and surface any validation error.
+    /// Keeps the entitlement + count + ``ProGate`` policy out of the view closure
+    /// (P10); the view maps the result to the paywall trigger or the error alert.
+    func requestAddParameter(entitlement: Entitlement) -> CustomParameterAddResult {
+        guard !isAtFreeLimit(entitlement: entitlement) else {
+            return .gated(.customParamSettings)
+        }
+        return .attempted(error: addParameter())
+    }
+
     func addParameter() -> String? {
         let normalized = normalizedInput
         guard !normalized.isEmpty else { return nil }

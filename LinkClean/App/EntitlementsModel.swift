@@ -20,9 +20,14 @@ import Observation
 final class EntitlementsModel {
     private(set) var entitlement: Entitlement = .free
     private let service: EntitlementsService
+    private let analytics: AnalyticsService
 
-    init(service: EntitlementsService) {
+    init(
+        service: EntitlementsService,
+        analytics: AnalyticsService = TelemetryDeckAnalytics()
+    ) {
         self.service = service
+        self.analytics = analytics
         self.entitlement = service.currentEntitlement()
 
         let stream = service.entitlementStream()
@@ -52,34 +57,44 @@ final class EntitlementsModel {
     /// downgrades, so a restore that resolves `.free` (wrong Apple ID signed in,
     /// transient StoreKit emptiness) can't yank access from a real owner. Genuine
     /// loss (a refund) flips the entitlement through the stream instead.
+    ///
+    /// Emits the single `Pro.Purchase.restored` funnel fact here — the layer that
+    /// establishes the restore outcome — so the Paywall and Settings restore
+    /// buttons render the result without each re-capturing (and risking drift). On
+    /// a thrown StoreKit error the fact is recorded as `restored: false` before the
+    /// error is rethrown for the caller's own alerting.
     @discardableResult
     func restorePurchases() async throws -> Entitlement {
-        let entitlement = try await service.restorePurchases()
-        if entitlement == .pro {
-            self.entitlement = entitlement
+        do {
+            let entitlement = try await service.restorePurchases()
+            if entitlement == .pro {
+                self.entitlement = entitlement
+            }
+            analytics.capture(.purchaseRestored(restored: entitlement == .pro))
+            return entitlement
+        } catch {
+            analytics.capture(.purchaseRestored(restored: false))
+            throw error
         }
-        return entitlement
     }
 
     #if DEBUG
+    private var debugOverrideStore: DebugEntitlementOverrideStore { DebugEntitlementOverrideStore() }
+
     /// The persisted developer override, or `nil` when resolving from StoreKit.
     var debugOverrideValue: Entitlement? {
-        guard let raw = UserDefaults.standard.string(forKey: StoreKitEntitlementsService.debugOverrideKey) else {
-            return nil
-        }
-        return Entitlement(rawValue: raw)
+        debugOverrideStore.override
     }
 
     /// Developer testing only. Persists an override the service resolver honors
     /// first (so it survives relaunch and the stream can't clobber it); `nil`
     /// clears it and re-resolves the real entitlement.
     func debugSetOverride(_ entitlement: Entitlement?) {
+        debugOverrideStore.override = entitlement
         if let entitlement {
-            UserDefaults.standard.set(entitlement.rawValue, forKey: StoreKitEntitlementsService.debugOverrideKey)
             EntitlementStore().save(entitlement)
             self.entitlement = entitlement
         } else {
-            UserDefaults.standard.removeObject(forKey: StoreKitEntitlementsService.debugOverrideKey)
             Task { self.entitlement = await service.refreshEntitlement() }
         }
     }

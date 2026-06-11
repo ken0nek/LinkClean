@@ -26,11 +26,15 @@ final class HomeViewModel {
     /// model at a value moment; the system clears it on dismiss.
     var showReviewGate = false
     var focusResetToken = UUID()
+    /// The leftover parameter whose on-device explanation is being generated, or
+    /// `nil` when idle. Drives the pill's progress spinner; observed.
+    private(set) var explainingParameter: String?
     @ObservationIgnored private let service: URLCleaningService
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private let store: TrackingParameterStore
     @ObservationIgnored private let review: ReviewService
+    @ObservationIgnored private let explanationService: ParameterExplanationService
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
@@ -50,6 +54,10 @@ final class HomeViewModel {
     // parameters stripped from the *current* link only, never persisted. Any
     // input edit clears the set — it described the previous link.
     @ObservationIgnored private var oneTimeRemovals: Set<String> = []
+    // On-device parameter explanations, keyed by lowercased name. Generated lazily
+    // when a leftover pill is tapped and cached for the session — a name's
+    // explanation is stable, so it's fetched at most once.
+    @ObservationIgnored private var parameterExplanations: [String: ParameterExplanation] = [:]
     // Dedupes the export signals per distinct cleaned *output*: repeated taps on
     // one result count once, but exporting again after a leftover-pill refine
     // (same input, cleaner output) correctly counts again. Copy and share track
@@ -75,13 +83,15 @@ final class HomeViewModel {
         analytics: AnalyticsService = TelemetryDeckAnalytics(),
         settings: SettingsStore = SettingsStore(),
         store: TrackingParameterStore = TrackingParameterStore(),
-        review: ReviewService = DefaultReviewService()
+        review: ReviewService = DefaultReviewService(),
+        explanationService: ParameterExplanationService = FoundationModelsParameterExplanationService()
     ) {
         self.service = service
         self.analytics = analytics
         self.settings = settings
         self.store = store
         self.review = review
+        self.explanationService = explanationService
     }
 
     private var isAutoPasteEnabled: Bool { settings.autoPasteEnabled }
@@ -234,6 +244,20 @@ final class HomeViewModel {
         return shouldRequestSystemPrompt
     }
 
+    /// The "Always Remove" gate decision (T2): a free user past their one custom
+    /// rule must hit the paywall; otherwise the leftover is promoted to an
+    /// always-remove rule right here. Composes entitlement + the live custom-rule
+    /// count + ``ProGate`` policy in the model rather than a view closure (P10). On
+    /// `.allowed` the add has already happened — the view only plays its haptic;
+    /// on `.gated` the view raises the paywall (after the dialog's dismiss grace).
+    func requestAlwaysRemove(_ name: String, entitlement: Entitlement) -> GateResult {
+        guard ProGate.canAddCustomRule(entitlement: entitlement, currentCount: customParameterCount) else {
+            return .gated(.customParamHome)
+        }
+        addLeftoverParameter(name)
+        return .allowed
+    }
+
     /// Adds a surfaced leftover tracker to the user's custom parameters so it is
     /// stripped from now on, then re-cleans the current input — moving the
     /// tracker out of `leftoverTrackers` and into `removedParameters`. The
@@ -254,6 +278,42 @@ final class HomeViewModel {
         oneTimeRemovals.insert(name.lowercased())
         analytics.capture(.parametersLeftoverRemovedOnce)
         refreshCleanedURL()
+    }
+
+    /// Whether the on-device model can explain a parameter. The view reads this to
+    /// decide whether tapping a pill is worth a brief wait or should open the
+    /// generic dialog immediately.
+    var isParameterExplanationAvailable: Bool {
+        explanationService.isAvailable
+    }
+
+    /// The cached one-line explanation for `parameter`, or `nil` if none was
+    /// generated (model unavailable, generation failed, or not yet prepared). Read
+    /// synchronously by the confirm dialog, so it must already be cached — see
+    /// ``prepareExplanation(for:)``.
+    func explanation(for parameter: String) -> String? {
+        parameterExplanations[parameter.lowercased()]?.oneLiner
+    }
+
+    /// Generates and caches a leftover parameter's explanation *before* its confirm
+    /// dialog opens — the dialog's message isn't reactive, so the text must be
+    /// ready at present time. No-ops when the model is unavailable or the parameter
+    /// is already cached, so those paths present instantly. Sets
+    /// ``explainingParameter`` for the duration so the pill can show a spinner.
+    func prepareExplanation(for parameter: String) async {
+        let key = parameter.lowercased()
+        guard explanationService.isAvailable else { return }
+        guard parameterExplanations[key] == nil else { return }
+        // One generation at a time; a second tap during the brief wait is ignored
+        // (the alert blocks further taps once it opens).
+        guard explainingParameter == nil else { return }
+
+        explainingParameter = parameter
+        defer { explainingParameter = nil }
+
+        if let explanation = await explanationService.explain(parameter: parameter) {
+            parameterExplanations[key] = explanation
+        }
     }
 
     func onAppear() {

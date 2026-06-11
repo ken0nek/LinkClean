@@ -22,11 +22,9 @@ struct CustomParametersView: View {
     /// A free user who has used their one free rule — the Add affordance shows a
     /// lock and routes to the paywall instead of adding (§9-C). On a deliberate
     /// management screen a persistent lock is honest, unlike the Home pill (§9-B).
+    /// The gate policy lives in the ViewModel; this only reads it for display.
     private var isAtFreeLimit: Bool {
-        !ProGate.canAddCustomRule(
-            entitlement: entitlements.entitlement,
-            currentCount: viewModel.customParameters.count
-        )
+        viewModel.isAtFreeLimit(entitlement: entitlements.entitlement)
     }
 
     var body: some View {
@@ -41,10 +39,11 @@ struct CustomParametersView: View {
                         .accessibilityIdentifier("custom-parameter-input")
 
                     Button {
-                        if isAtFreeLimit {
-                            paywallTrigger = .customParamSettings
-                        } else {
-                            addErrorMessage = viewModel.addParameter()
+                        switch viewModel.requestAddParameter(entitlement: entitlements.entitlement) {
+                        case .gated(let trigger):
+                            paywallTrigger = trigger
+                        case .attempted(let error):
+                            addErrorMessage = error
                         }
                     } label: {
                         Image(systemName: isAtFreeLimit ? "lock.fill" : "plus.circle.fill")

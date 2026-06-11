@@ -2,6 +2,7 @@
 
 Research date: 2026-06-10. Sources: Apple developer docs, WWDC 2026 sessions 241, 269, 274, 210, 326.
 Adversarial verification: 23/25 claims confirmed, 2 refuted (noted below).
+Codebase-grounded corrections (2026-06-10): 2 further claims revised against the actual source — Foundation Models is **not yet in the codebase** (#1), and History does **not** use day-bucket grouping (#2). See the ⚠️ notes in those sections.
 
 LinkClean targets **iOS 26+**. Core AI (iOS 27+) and PrivateCloudComputeLanguageModel are noted separately as forward-looking.
 
@@ -11,13 +12,15 @@ LinkClean targets **iOS 26+**. Core AI (iOS 27+) and PrivateCloudComputeLanguage
 
 ### 1. Explain leftover parameters with Foundation Models
 
+**Status (2026-06-10): scaffolded.** First Foundation Models integration landed — `LinkClean/Shared/Services/ParameterExplanationService.swift` (`@Generable nonisolated struct ParameterExplanation` + `FoundationModelsParameterExplanationService`), wired through `HomeViewModel.prepareExplanation(for:)`/`explanation(for:)` and surfaced in the leftover confirm dialog (resolve-then-present, since an `.alert` message isn't reactive). Availability-gated, fails soft to the generic copy. Tests in `HomeViewModelExplanationTests`. Deferred: `GenerationOptions` tuning, `prewarm`, analytics, localized model output (see "Follow-ups" at section end).
+
 **What:** When a user taps a leftover parameter pill on the Home screen, the confirm dialog currently shows a generic "Always remove this parameter?" prompt. Use `LanguageModelSession` to generate a one-line plain-English explanation of what the parameter does — e.g. `fbclid` → "Facebook click tracking, added when you click a link on Facebook."
 
 **Why this fits LinkClean:** The core value prop is transparency. A user who understands *why* a parameter is tracking them is more likely to remove it — and more likely to trust the app. Fully on-device, no data leaves the device.
 
 **Where:** `HomeViewModel` — already has the leftover parameter names locally. Add a `Foundation Models`-powered `explain(parameter:)` method, gate on `SystemLanguageModel.default.availability`, display inline in the confirm dialog.
 
-**Pattern already in use:** CLAUDE.md already calls out `@Generable` structs for type-safe Foundation Models output. Define a small `@Generable` struct:
+**Pattern to introduce (corrected):** CLAUDE.md names `@Generable` structs as the *intended* pattern, but Foundation Models is **not yet used anywhere in the codebase** — verified 2026-06-10: zero hits for `@Generable`, `LanguageModelSession`, `SystemLanguageModel`, or `import FoundationModels`. This proposal is the **first** Foundation Models integration, not an extension of existing code. Define a small `@Generable` struct:
 
 ```swift
 @Generable
@@ -27,9 +30,17 @@ struct ParameterExplanation {
 }
 ```
 
-**Effort:** Small. The `@Generable` + `LanguageModelSession` path is already in the codebase. The availability gate (`SystemLanguageModel.default.availability`) is already the established pattern.
+**Effort (corrected):** Small–medium, not "small." The `@Generable` + `LanguageModelSession` path is **not** already in the codebase — this is greenfield. Budget for first-time framework setup: the availability gate (`SystemLanguageModel.default.availability`), session lifecycle, prompt design, and the `.unavailable` fallback all built from scratch. Self-contained, but not a one-line extension.
 
 **Fallback:** If `.unavailable`, show the existing generic dialog unchanged.
+
+**Follow-ups (not yet done):**
+- **Tune `GenerationOptions`** — currently defaults; a low temperature + small `maximumResponseTokens` would make the one-liner more deterministic and factual.
+- **`prewarm`** the session when the leftover section appears, to cut the tap→dialog latency the resolve-then-present design introduces.
+- **Category hint** — pass `TrackingParameterCatalog.kindID(for:)` into the prompt for better accuracy on known names (kept the service catalog-decoupled for now).
+- **Analytics** — no event added (taxonomy is owned by the analytics-audit skill); decide whether "explanation shown" is worth a signal.
+- **Localized output** — the model one-liner is runtime English, prepended to localized guidance; fine while the app is en-US only, revisit when localizing.
+- **Release build** — verified compiling + tests green in Debug only (system framework, low risk); confirm in a Release build before shipping.
 
 ---
 
@@ -37,9 +48,9 @@ struct ParameterExplanation {
 
 **What:** WWDC 2026 adds a `sectionBy:` parameter to `@Query` that produces grouped results natively — `_trips.sections` gives you an iterable collection of sections, each with an `id` and its items.
 
-**Why this fits LinkClean:** `HistoryView` already groups entries into Today / Yesterday / Earlier using manual logic in the ViewModel. `sectionBy:` would replace that with a single declarative query, eliminate the intermediate computed grouping, and make the `ResultsObserver` pattern (see #4) available for free.
+**Why this fits LinkClean:** ⚠️ **Premise correction (verified 2026-06-10):** `HistoryView` does **not** group entries into Today / Yesterday / Earlier. The actual structure (`HistoryView.swift:13`, `HistoryViewModel.archive(from:isPro:)`) is a flat `@Query(sort: \HistoryEntry.createdAt, order: .reverse)` split by **entitlement + a rolling 7-day window** — the T1 Pro gate (§9-A): a `visible` set inside the window plus a blurred, counted `teaser`/`olderCount` archive for non-Pro users. There is no chronological day-bucket sectioning. `sectionBy:` solves day-grouping, which this screen doesn't currently do — so it is **not** a clean drop-in. Rescope before adopting: it would only apply if History gains real date sections (a redesign), and even then the Pro-gate window split is orthogonal to day-bucketing.
 
-**Where:** `HistoryView` / `HistoryViewModel` — the `@Query` for `CleanedURL` (or equivalent `@Model`).
+**Where:** `HistoryView` / `HistoryViewModel` — the `@Query` for `HistoryEntry` (the actual `@Model`; there is no `CleanedURL` type).
 
 **Example:**
 ```swift
