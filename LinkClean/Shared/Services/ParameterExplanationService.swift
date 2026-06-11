@@ -23,12 +23,8 @@ nonisolated struct ParameterExplanation: Equatable, Sendable {
     @Guide(description: "One short, factual sentence under 20 words. No advice, no warnings, no marketing.")
     let oneLiner: String
 
-    @Guide(description: "True if the parameter mainly identifies or tracks a user or click; false if it is functional.")
-    let isTracking: Bool
-
-    init(oneLiner: String, isTracking: Bool) {
+    init(oneLiner: String) {
         self.oneLiner = oneLiner
-        self.isTracking = isTracking
     }
 }
 

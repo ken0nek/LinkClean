@@ -64,6 +64,11 @@ struct HomeView: View {
         }
         .onDisappear {
             viewModel.onDisappear()
+            // Drop any in-flight explanation request: the `.task(id:)` is cancelled
+            // on disappear but only clears this on its non-cancelled path, so
+            // without this a tab switch mid-generation would leave the trigger set
+            // and auto-open the confirm dialog when Home reappears.
+            parameterToExplain = nil
         }
         .onChange(of: scenePhase) { _, newValue in
             guard newValue == .active else { return }
@@ -364,12 +369,18 @@ struct HomeView: View {
 
     private func leftoverRow(_ name: String) -> some View {
         Button {
-            // Request an explanation, then the confirm dialog opens (see the
-            // `.task(id:)` above). "Remove Once" is a one-time, non-persisted strip
-            // (operation, never gated; §6 rule 3); the 1-free-rule gate lives on
-            // "Always Remove" inside the dialog, so a free user can always strip a
-            // tracker from the current link.
-            parameterToExplain = name
+            // When the on-device model is available, request an explanation first
+            // and let the `.task(id:)` above open the confirm dialog once it's
+            // ready; otherwise open the dialog immediately with the generic copy —
+            // no async hop, no spinner. "Remove Once" is a one-time, non-persisted
+            // strip (operation, never gated; §6 rule 3); the 1-free-rule gate lives
+            // on "Always Remove" inside the dialog, so a free user can always strip
+            // a tracker from the current link.
+            if viewModel.isParameterExplanationAvailable {
+                parameterToExplain = name
+            } else {
+                parameterPendingAdd = name
+            }
         } label: {
             HStack(spacing: 12) {
                 Text(name)

@@ -17,8 +17,7 @@ struct MockParameterExplanationService: ParameterExplanationService {
 
     var available = true
     var result: ParameterExplanation? = ParameterExplanation(
-        oneLiner: "Identifies the click that brought you here.",
-        isTracking: true
+        oneLiner: "Identifies the click that brought you here."
     )
     let recorder = Recorder()
 
