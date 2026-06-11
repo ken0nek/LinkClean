@@ -5,7 +5,6 @@
 
 import Foundation
 import LinkCleanKit
-import StoreKit
 
 /// Test double for ``AnalyticsService`` that records captured events in order so
 /// tests can assert which signals a ViewModel emitted.
@@ -15,10 +14,6 @@ final class SpyAnalytics: AnalyticsService {
 
     func capture(_ event: AnalyticsEvent) {
         events.append(event)
-    }
-
-    func recordPurchase(transaction: Transaction) {
-        // No-op for now in spy
     }
 
     /// Captured signal names, in order — convenience for coarse assertions.

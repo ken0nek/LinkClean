@@ -77,11 +77,11 @@ The identity split forces the join to **dimension grain**, so neither tool's job
 | Do Pro users behave differently? Which surface converts? | TelemetryDeck, sliced by `tier` / `surface` |
 | Revenue, refunds, units, proceeds | **App Store Connect** (Sales & Trends) — never rebuilt in TelemetryDeck |
 
-Three connective mechanisms, no ID join:
+Connective mechanisms, no ID join:
 
 1. **`tier` as a default parameter on every signal** (the one low-cardinality join dimension), wired via `TelemetryDeck.Config.defaultParameters` — a **closure** (`@Sendable () -> [String:String]`) reading `EntitlementStore`, so `tier` is evaluated live per signal (flips to `pro` the instant a purchase resolves). A per-target `surface` parameter (`app` / `action` / `markdownAction`) answers the share-sheet question the same way.
 2. **The purchase funnel lives wholly in TelemetryDeck**, fired from the **custom paywall's view model**: `Paywall.Screen.shown(trigger)` → `Pro.Purchase.started` / `.completed` / `.failed(reason)` / `.restored(restored)`. Trigger is a fixed `PaywallTrigger` enum (never a URL or parameter name).
-3. **TelemetryDeck's Purchases preset** (`TelemetryDeck.purchaseCompleted(transaction:)`) fired from the service at the completion boundary with the verified `Transaction` — directional USD revenue cohorted against behavior. ASC remains authoritative for money (this is blind to refunds and off-device events, by design).
+3. **Revenue analytics — dropped (2026-06-10).** The app does **not** call `TelemetryDeck.purchaseCompleted(transaction:)`; no transaction or amount reaches analytics. **App Store Connect is the sole source of revenue, refunds, units, and proceeds** (Sales & Trends). The `Pro.Purchase.*` funnel events above are count-only — behavior, not money. *(Why: TelemetryDeck revenue is "live, not correct" — no dedup — so it double-counts cross-device/reinstall restores.)*
 
 Deliberately not done: any server-side forwarding (no server) and any user-grain bridge.
 

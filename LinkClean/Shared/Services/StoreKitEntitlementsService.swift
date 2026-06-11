@@ -26,19 +26,9 @@ final class StoreKitEntitlementsService: EntitlementsService {
     static let lifetimeProductID = "linkclean_pro_lifetime"
 
     private let store: EntitlementStore
-    private let analytics: AnalyticsService
     private let logger = Logger(subsystem: "com.ken0nek.LinkClean", category: "Entitlements")
-    /// Transaction IDs already reported for revenue, so a foreground purchase
-    /// isn't double-counted if it also echoes through `Transaction.updates`.
-    /// In-memory (reset per launch) is enough — finished transactions aren't
-    /// redelivered across launches.
-    private var recordedTransactionIDs: Set<UInt64> = []
 
-    init(
-        analytics: AnalyticsService = TelemetryDeckAnalytics(),
-        store: EntitlementStore = EntitlementStore()
-    ) {
-        self.analytics = analytics
+    init(store: EntitlementStore = EntitlementStore()) {
         self.store = store
     }
 
@@ -61,10 +51,9 @@ final class StoreKitEntitlementsService: EntitlementsService {
                 // approval, and refund/revocation (including off-device events).
                 for await update in Transaction.updates {
                     if case .verified(let transaction) = update {
-                        // Covers Ask-to-Buy / SCA approvals and purchases made on
-                        // another device — the verified transaction lands here, not
-                        // in the purchase() call that already returned `.pending`.
-                        self.recordCompletedPurchase(transaction)
+                        // Finish verified transactions from Ask-to-Buy / SCA
+                        // approvals and purchases made on another device; the
+                        // entitlement is recomputed from StoreKit just below.
                         await transaction.finish()
                     }
                     continuation.yield(await self.resolveAndCache())
@@ -94,7 +83,6 @@ final class StoreKitEntitlementsService: EntitlementsService {
                 throw EntitlementsError.unverified
             }
             await transaction.finish()
-            recordCompletedPurchase(transaction)
             let entitlement = await resolveAndCache()
             logger.info("Purchase completed → \(entitlement.rawValue, privacy: .public)")
             return .completed(entitlement)
@@ -129,19 +117,6 @@ final class StoreKitEntitlementsService: EntitlementsService {
         let entitlement = await currentEntitlementFromStoreKit()
         store.save(entitlement)
         return entitlement
-    }
-
-    /// Records revenue for a newly completed Pro purchase, exactly once. Called
-    /// from both the foreground `purchase()` and the `Transaction.updates` loop
-    /// (Ask-to-Buy / SCA approvals, cross-device purchases); the seen-ID set keeps
-    /// a transaction that surfaces in both paths from double-counting. The revenue
-    /// preset (plan §3) is directional USD, blind to later refunds, and no-ops
-    /// unless TelemetryDeck is initialized.
-    private func recordCompletedPurchase(_ transaction: Transaction) {
-        guard transaction.productID == Self.lifetimeProductID,
-              transaction.revocationDate == nil,
-              recordedTransactionIDs.insert(transaction.id).inserted else { return }
-        analytics.recordPurchase(transaction: transaction)
     }
 
     /// `.pro` iff the user owns a verified, non-revoked lifetime transaction.

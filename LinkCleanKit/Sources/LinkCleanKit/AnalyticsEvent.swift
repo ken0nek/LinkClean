@@ -127,7 +127,11 @@ public nonisolated enum AnalyticsEvent: Equatable {
     case paywallShown(trigger: PaywallTrigger)
     /// A purchase was initiated from the paywall.
     case purchaseStarted
-    /// A purchase completed successfully.
+    /// A purchase completed synchronously from the paywall (`purchase()` →
+    /// `.completed`); pairs with ``paywallShown`` for the paywall→purchase funnel.
+    /// An Ask-to-Buy/SCA approval arrives later via `Transaction.updates` and is
+    /// deliberately not counted here — re-emitting from that loop would double-fire
+    /// on cross-device/reinstall syncs. Real units sold: App Store Connect.
     case purchaseCompleted
     /// A purchase attempt produced no entitlement (cancelled / pending / error).
     case purchaseFailed(reason: PurchaseFailureReason)

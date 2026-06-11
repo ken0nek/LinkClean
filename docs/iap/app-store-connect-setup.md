@@ -43,16 +43,17 @@ App Store Connect → **My Apps → LinkClean → Monetization → In-App Purcha
 
 ---
 
-## 2. App Privacy (nutrition label) — one decision
+## 2. App Privacy (nutrition label) — keep "Purchases: No"
 
-The 1.0 label declared **Purchases: No** (no IAP). For 1.1 you must reconcile it with the IAP:
+The 1.0 label declared **Purchases: No** (no IAP). **That stays true for 1.1.**
 
 - **The purchase itself** (StoreKit, on Apple's servers) is **not** "data your app collects" — no change needed for StoreKit alone.
-- **BUT** the app currently calls `TelemetryDeck.purchaseCompleted(transaction:)`, which sends the **transaction (product, price, currency)** to TelemetryDeck for directional revenue analytics. That **is** collection of **Purchases** data by a third party.
+- **Revenue analytics was dropped** — decision 2026-06-10, superseding the earlier same-day "keep it + declare." The app no longer calls `TelemetryDeck.purchaseCompleted(transaction:)`, so **no transaction, product, price, or amount** is sent anywhere. Dollars come from **App Store Connect sales reports**, not TelemetryDeck. *(Why: TelemetryDeck revenue is "live, not correct" — no dedup — so it double-counts cross-device/reinstall restores; ASC is the source of truth for revenue.)*
+- The remaining purchase **funnel events** — `Pro.Purchase.started / completed / failed / restored` and `Paywall.Screen.shown` — carry **no amount, price, or transaction ID**. They're conversion/usage signals → **Product Interaction**, which the label **already declares**. So they need **no new data type**. (Apple's "Purchases" type means purchase *history* — what was bought and the amount; a no-amount conversion event is an interaction, not a purchase record.)
 
-**Decision (Ken, 2026-06-10): keep it + declare.** The app keeps calling `TelemetryDeck.purchaseCompleted(transaction:)` (directional revenue alongside behavior). So:
-
-- [x] In **App Privacy → App Privacy questionnaire**, add data type **Purchases → used for Analytics**, **not linked to the user's identity**, **not used for tracking**. (This is the only nutrition-label change vs the 1.0 "Purchases: No".)
+**Action (Ken):**
+- [x] **Removed** the **Purchases → Analytics** declaration in the App Privacy questionnaire → reverted to **Purchases: No** (done 2026-06-10). Nothing else on the label changed.
+- The `tier: free/pro` analytics dimension stays under the existing **Product Interaction** (a coarse feature-access flag, not a transaction record).
 
 ---
 
@@ -85,7 +86,7 @@ For the **first** review, the IAP and the app version are reviewed together:
 >
 > **Restore Purchases** is in Settings and on the paywall, reachable without buying.
 >
-> **Privacy:** all cleaning happens on-device; no link or browsing data leaves the device. Analytics is anonymous and aggregate (TelemetryDeck), including one directional purchase event (product, price, currency) used for revenue analytics — declared under App Privacy → Purchases → Analytics.
+> **Privacy:** all cleaning happens on-device — full links, clipboard, and typed text never leave. The only datum derived from a link is its **bare site domain** (host only, e.g. `youtube.com`), sent anonymously and in aggregate (TelemetryDeck) and declared under **App Privacy → Browsing History** (Analytics; not linked to identity, not used for tracking). **No purchase, transaction, or price data is collected** — purchase processing is entirely Apple's, and revenue is read from App Store Connect.
 
 ---
 
@@ -105,7 +106,7 @@ For the **first** review, the IAP and the app version are reviewed together:
 [ ] Regional 3-tier pricing applied — regional-pricing-setup.md (40 storefronts: 22×$2.99, 18×$1.99)
 [x] en-US localization (display name + description)
 [ ] Paywall review screenshot + review notes
-[x] App Privacy: declare Purchases → Analytics (decided: keep TelemetryDeck revenue)
+[x] App Privacy: Purchases → Analytics declaration removed → "Purchases: No" (revenue tracking dropped 2026-06-10; funnel events are Product Interaction, already declared)
 [x] Terms of Use page published (links resolve)
 [ ] IAP attached to the 1.1 build, status Ready to Submit
 [ ] Sandbox purchase + restore verified on device

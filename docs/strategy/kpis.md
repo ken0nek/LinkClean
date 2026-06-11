@@ -248,7 +248,7 @@ Reserved-but-unfired today. The event names exist in the analytics facade shippe
   | 7% (upside) | 700 | **$2,968** |
 
 - **Price realization** (App Store Connect, by product/territory): no launch promo; **$4.99 base nets $4.24**, regional tiers net ~$1.69 (Tier 3) – $2.54 (Tier 2); **blended net depends on where installs land** (weight by storefront mix). Track the blended net, not the sticker price.
-- **`TelemetryDeck.purchaseCompleted(transaction:)`** also auto-sends USD-normalized revenue into TelemetryDeck for cohorting against behavior — but it's **directional only** (client-side, blind to refunds). RevenueCat remains authoritative for money.
+- **Revenue is read from App Store Connect only** (Sales & Trends). Client-side revenue analytics (`TelemetryDeck.purchaseCompleted(transaction:)`) was **dropped 2026-06-10** — no transaction or amount is sent to TelemetryDeck. The `Pro.Purchase.*` events are count-only (paywall conversion), not revenue.
 
 ## 18. Refund rate
 
@@ -304,7 +304,7 @@ The KPIs split across two importable TelemetryDeck dashboards **by function, not
 
 ### Reserved-but-unfired 1.1 events (so Phase 2 lights up with a baseline, not a blank)
 
-`Paywall.Screen.shown / dismissed`, `Paywall.Purchase.started`, plus the `tier` default param flip and `TelemetryDeck.purchaseCompleted(transaction:)`. Reserved in the facade today (`iap-implementation-plan.md` Phase 0); **neither `tier` nor `surface` default params nor any `Purchase.*` event is wired in the shipped 1.0 build** — Phase 1 deliberately depends on none of them.
+`Paywall.Screen.shown / dismissed`, `Paywall.Purchase.started`, plus the `tier` default param flip (client-side **revenue** via `purchaseCompleted` was later **dropped 2026-06-10** — ASC owns money). Reserved in the facade today (`iap-implementation-plan.md` Phase 0); **neither `tier` nor `surface` default params nor any `Purchase.*` event is wired in the shipped 1.0 build** — Phase 1 deliberately depends on none of them.
 
 ### Re-evaluate this doc when
 

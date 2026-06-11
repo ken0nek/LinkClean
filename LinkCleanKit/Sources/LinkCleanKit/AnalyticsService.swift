@@ -5,8 +5,6 @@
 //  Created by Ken Tominaga on 6/8/26.
 //
 
-import StoreKit
-
 /// A typed analytics sink. The single `capture(_:)` entry point takes an
 /// ``AnalyticsEvent``, so call sites can never invent signal names or parameter
 /// keys — the entire taxonomy lives in ``AnalyticsEvent``.
@@ -17,7 +15,4 @@ import StoreKit
 /// tests. See `docs/plans/analytics.md`.
 public protocol AnalyticsService: Sendable {
     func capture(_ event: AnalyticsEvent)
-
-    /// Records a successful purchase transaction for revenue analytics.
-    func recordPurchase(transaction: Transaction)
 }
