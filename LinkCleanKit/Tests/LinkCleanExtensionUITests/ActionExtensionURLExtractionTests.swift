@@ -18,7 +18,7 @@ struct ActionExtensionURLExtractionTests {
 
     @Test func extractsURLAttachment() async {
         let provider = NSItemProvider(object: NSURL(string: "https://example.com/page?utm_source=x")!)
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://example.com/page?utm_source=x"))
     }
 
@@ -31,7 +31,7 @@ struct ActionExtensionURLExtractionTests {
             item: "https://www.linkedin.com/posts/example-123/?utm_source=social_share_send" as NSString,
             typeIdentifier: UTType.plainText.identifier
         )
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://www.linkedin.com/posts/example-123/?utm_source=social_share_send"))
     }
 
@@ -41,7 +41,7 @@ struct ActionExtensionURLExtractionTests {
             item: NSURL(string: "https://example.com/item-backed"),
             typeIdentifier: UTType.url.identifier
         )
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://example.com/item-backed"))
     }
 
@@ -50,13 +50,13 @@ struct ActionExtensionURLExtractionTests {
             item: "https://example.com/from-string" as NSString,
             typeIdentifier: UTType.plainText.identifier
         )
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://example.com/from-string"))
     }
 
     @Test func trimsWhitespaceFromPlainText() async {
         let provider = NSItemProvider(object: "  https://example.com/page\n" as NSString)
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://example.com/page"))
     }
 
@@ -67,7 +67,7 @@ struct ActionExtensionURLExtractionTests {
             item: "Check this out https://example.com/page?utm_source=x and more" as NSString,
             typeIdentifier: UTType.plainText.identifier
         )
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://example.com/page?utm_source=x"))
     }
 
@@ -78,7 +78,7 @@ struct ActionExtensionURLExtractionTests {
             item: "https://example.com/x?utm_source=share extra words" as NSString,
             typeIdentifier: UTType.plainText.identifier
         )
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://example.com/x?utm_source=share"))
     }
 
@@ -87,7 +87,7 @@ struct ActionExtensionURLExtractionTests {
             item: "https://first.example.com/a then https://second.example.com/b" as NSString,
             typeIdentifier: UTType.plainText.identifier
         )
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://first.example.com/a"))
     }
 
@@ -96,26 +96,26 @@ struct ActionExtensionURLExtractionTests {
             item: "Read https://example.com/page." as NSString,
             typeIdentifier: UTType.plainText.identifier
         )
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://example.com/page"))
     }
 
     @Test func returnsNilForNonURLText() async {
         let provider = NSItemProvider(object: "just some shared text" as NSString)
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == nil)
     }
 
     @Test func returnsNilForFileURL() async {
         let provider = NSItemProvider(object: NSURL(fileURLWithPath: "/tmp/document.pdf"))
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == nil)
     }
 
     @Test func returnsNilForNonWebSchemeURLs() async {
         let ftp = NSItemProvider(object: NSURL(string: "ftp://example.com/file")!)
         let custom = NSItemProvider(object: NSURL(string: "linkclean://settings")!)
-        let result = await ActionExtensionViewController.extractURL(from: [ftp, custom])
+        let result = await URLExtraction.firstWebURL(from: [ftp, custom])
         #expect(result == nil)
     }
 
@@ -127,7 +127,7 @@ struct ActionExtensionURLExtractionTests {
             typeIdentifier: UTType.plainText.identifier
         )
         let urlProvider = NSItemProvider(object: NSURL(string: "https://example.com/from-url")!)
-        let result = await ActionExtensionViewController.extractURL(from: [textProvider, urlProvider])
+        let result = await URLExtraction.firstWebURL(from: [textProvider, urlProvider])
         #expect(result == URL(string: "https://example.com/from-url"))
     }
 
@@ -141,7 +141,7 @@ struct ActionExtensionURLExtractionTests {
         provider.registerItem(forTypeIdentifier: UTType.url.identifier) { @Sendable completion, _, _ in
             completion?(NSURL(string: "https://example.com/canonical"), nil)
         }
-        let result = await ActionExtensionViewController.extractURL(from: [provider])
+        let result = await URLExtraction.firstWebURL(from: [provider])
         #expect(result == URL(string: "https://example.com/canonical"))
     }
 }
