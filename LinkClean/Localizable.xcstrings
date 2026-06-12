@@ -980,6 +980,28 @@
         }
       }
     },
+    "settings.cleaning.textFragments" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove text fragments"
+          }
+        }
+      }
+    },
+    "settings.cleaning.textFragments.footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some browsers and search results append a link to a highlighted passage on the page. Keep this on to strip it for a cleaner link."
+          }
+        }
+      }
+    },
     "settings.clearHistory.message" : {
       "extractionState" : "manual",
       "localizations" : {

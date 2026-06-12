@@ -46,6 +46,7 @@ struct AnalyticsEventTests {
             (.historySearchUsed, "History.Search.used"),
             (.settingsAutoPasteToggled(enabled: true), "Settings.AutoPaste.toggled"),
             (.settingsSaveHistoryToggled(enabled: true), "Settings.SaveHistory.toggled"),
+            (.settingsTextFragmentsToggled(enabled: true), "Settings.TextFragments.toggled"),
             (.settingsScreenShown, "Settings.Screen.shown"),
             (.parametersDefaultToggled(parameter: "utm_source", enabled: false), "Parameters.Default.toggled"),
             (.parametersCustomAdded(totalCount: 1), "Parameters.Custom.added"),

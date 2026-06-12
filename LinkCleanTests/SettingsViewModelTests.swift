@@ -47,6 +47,7 @@ struct SettingsViewModelTests {
 
         #expect(vm.autoPasteEnabled == true)
         #expect(vm.saveHistoryEnabled == true)
+        #expect(vm.removeTextFragmentsEnabled == true)
     }
 
     @Test func setAutoPastePersistsAndSignals() {
@@ -59,6 +60,18 @@ struct SettingsViewModelTests {
         #expect(vm.autoPasteEnabled == false)
         #expect(std.bool(forKey: SettingsKeys.autoPasteEnabled) == false)
         #expect(spy.events == [.settingsAutoPasteToggled(enabled: false)])
+    }
+
+    @Test func setRemoveTextFragmentsPersistsAndSignals() {
+        let (store, _, grp) = makeStore()
+        let spy = SpyAnalytics()
+        let vm = SettingsViewModel(analytics: spy, settings: store)
+
+        vm.setRemoveTextFragments(false)
+
+        #expect(vm.removeTextFragmentsEnabled == false)
+        #expect(grp.bool(forKey: SettingsKeys.removeTextFragmentsEnabled) == false)   // App Group suite
+        #expect(spy.events == [.settingsTextFragmentsToggled(enabled: false)])
     }
 
     @Test func setAutoPasteIsNoOpWhenUnchanged() {

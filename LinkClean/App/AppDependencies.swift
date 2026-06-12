@@ -44,7 +44,7 @@ struct AppDependencies {
         let parameters = TrackingParameterStore()
         let settings = SettingsStore()
         return AppDependencies(
-            cleaning: DefaultCleaningService(store: parameters),
+            cleaning: DefaultCleaningService(store: parameters, settings: settings),
             analytics: analytics,
             settings: settings,
             parameters: parameters,
@@ -64,7 +64,7 @@ struct AppDependencies {
     static func preview(entitlement: Entitlement = .free) -> AppDependencies {
         let settings = SettingsStore()
         return AppDependencies(
-            cleaning: DefaultCleaningService(),
+            cleaning: DefaultCleaningService(settings: settings),
             analytics: TelemetryDeckAnalytics(),
             settings: settings,
             parameters: TrackingParameterStore(),

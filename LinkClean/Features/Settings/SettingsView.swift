@@ -76,8 +76,21 @@ struct SettingsView: View {
                         Image(systemName: "plus.circle").foregroundStyle(.tint)
                     }
                 }
+
+                Toggle(isOn: Binding(
+                    get: { viewModel.removeTextFragmentsEnabled },
+                    set: { viewModel.setRemoveTextFragments($0) }
+                )) {
+                    Label { Text(.settingsCleaningTextFragments) } icon: {
+                        Image(systemName: "highlighter").foregroundStyle(.tint)
+                    }
+                }
+                    .tint(.accentColor)
+                    .accessibilityIdentifier("settings-text-fragments-toggle")
             } header: {
                 Text(.settingsCleaningHeader)
+            } footer: {
+                Text(.settingsCleaningTextFragmentsFooter)
             }
 
             proSection

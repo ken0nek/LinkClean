@@ -32,9 +32,14 @@ public extension CleaningService {
 
 public struct DefaultCleaningService: CleaningService {
     private let store: TrackingParameterStore
+    private let settings: SettingsStore
 
-    public init(store: TrackingParameterStore = TrackingParameterStore()) {
+    public init(
+        store: TrackingParameterStore = TrackingParameterStore(),
+        settings: SettingsStore = SettingsStore()
+    ) {
         self.store = store
+        self.settings = settings
     }
 
     public func isValidURL(_ input: String) -> Bool {
@@ -54,6 +59,11 @@ public struct DefaultCleaningService: CleaningService {
         let unwrap = URLCleaner.unwrap(trimmed)
         let enabled = store.enabledParameters(forHost: URLCleaner.ruleHost(of: unwrap.destination))
             .union(extraParameters.map { $0.lowercased() })
-        return URLCleaner.outcome(for: unwrap.destination, removing: enabled, wrappers: unwrap.wrappers)
+        return URLCleaner.outcome(
+            for: unwrap.destination,
+            removing: enabled,
+            wrappers: unwrap.wrappers,
+            stripTextFragment: settings.removeTextFragmentsEnabled
+        )
     }
 }

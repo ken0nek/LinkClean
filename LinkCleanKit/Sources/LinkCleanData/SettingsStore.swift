@@ -47,6 +47,14 @@ public nonisolated struct SettingsStore: Sendable {
         nonmutating set { appGroup?.set(newValue, forKey: SettingsKeys.saveHistoryEnabled) }
     }
 
+    /// Whether the `:~:` scroll-to-text directive is stripped during cleaning.
+    /// Defaults to `true` (on). Cross-process: read by the cleaning service in the
+    /// app and both action extensions.
+    public var removeTextFragmentsEnabled: Bool {
+        get { appGroup?.object(forKey: SettingsKeys.removeTextFragmentsEnabled) as? Bool ?? true }
+        nonmutating set { appGroup?.set(newValue, forKey: SettingsKeys.removeTextFragmentsEnabled) }
+    }
+
     /// Whether first-launch onboarding is complete. Defaults to `false` when
     /// unset, matching `ContentView`'s `@AppStorage` read of the same key.
     public var hasCompletedOnboarding: Bool {

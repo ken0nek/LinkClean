@@ -18,6 +18,7 @@
 /// |-----|-------|-----------|-----------|
 /// | `autoPasteEnabled` | standard | `SettingsStore` (Settings toggle, screenshot prep) | `SettingsStore` (Home/Settings) |
 /// | `saveHistoryEnabled` | App Group | `SettingsStore` (Settings toggle, screenshot prep) | `SettingsStore` (Home/History/Settings, extensions) |
+/// | `removeTextFragmentsEnabled` | App Group | `SettingsStore` (Settings toggle) | `SettingsStore` (cleaning service: app + extensions) |
 /// | `hasCompletedOnboarding` | standard | `SettingsStore` / `@AppStorage` (onboarding finish, debug config) | `ContentView` (`@AppStorage`), `DeveloperMenu` |
 /// | `lastActionExtensionRunAt` | App Group | `SettingsStore` (extensions, on success) | `SettingsStore` (`ExtensionGuideViewModel`), `DeveloperMenu` |
 /// | `analyticsUserIdentifier` | App Group | `TelemetryDeckAnalytics` | `TelemetryDeckAnalytics` |
@@ -43,6 +44,11 @@ public enum SettingsKeys {
     /// Settings, read by the app and both action extensions. Stored in the App
     /// Group suite.
     public static let saveHistoryEnabled = "saveHistoryEnabled"
+
+    /// Whether the `:~:` scroll-to-text directive is stripped when cleaning a link
+    /// (default on). Cross-process: written from Settings, read by the cleaning
+    /// service in the app and both action extensions. Stored in the App Group suite.
+    public static let removeTextFragmentsEnabled = "removeTextFragmentsEnabled"
 
     /// Whether the user has finished (or skipped) the first-launch onboarding.
     /// App-only: stored in `UserDefaults.standard`.

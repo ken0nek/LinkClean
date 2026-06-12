@@ -56,6 +56,9 @@ public enum AnalyticsEvent: Equatable {
     case settingsScreenShown
     case settingsAutoPasteToggled(enabled: Bool)
     case settingsSaveHistoryToggled(enabled: Bool)
+    /// The scroll-to-text fragment (`:~:`) removal setting was toggled — tells us
+    /// whether the default-on fragment cleaning is wanted (§6).
+    case settingsTextFragmentsToggled(enabled: Bool)
     /// A built-in default parameter was toggled. Its name comes from a finite,
     /// known set, so it is safe to send (§3).
     case parametersDefaultToggled(parameter: String, enabled: Bool)
@@ -195,6 +198,7 @@ public enum AnalyticsEvent: Equatable {
         case .settingsScreenShown: "Settings.Screen.shown"
         case .settingsAutoPasteToggled: "Settings.AutoPaste.toggled"
         case .settingsSaveHistoryToggled: "Settings.SaveHistory.toggled"
+        case .settingsTextFragmentsToggled: "Settings.TextFragments.toggled"
         case .parametersDefaultToggled: "Parameters.Default.toggled"
         case .parametersCustomAdded: "Parameters.Custom.added"
         case .parametersCustomDeleted: "Parameters.Custom.deleted"
@@ -247,6 +251,8 @@ public enum AnalyticsEvent: Equatable {
         case let .settingsAutoPasteToggled(enabled):
             return ["enabled": Self.string(enabled)]
         case let .settingsSaveHistoryToggled(enabled):
+            return ["enabled": Self.string(enabled)]
+        case let .settingsTextFragmentsToggled(enabled):
             return ["enabled": Self.string(enabled)]
         case let .parametersDefaultToggled(parameter, enabled):
             return ["parameter": parameter, "enabled": Self.string(enabled)]

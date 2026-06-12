@@ -20,6 +20,9 @@ final class SettingsViewModel {
     /// Mirrors `SettingsKeys.saveHistoryEnabled` (App Group suite; shared with
     /// the action extensions and the Home/History screens).
     private(set) var saveHistoryEnabled: Bool
+    /// Mirrors `SettingsKeys.removeTextFragmentsEnabled` (App Group suite; shared
+    /// with the cleaning service in the app and both extensions).
+    private(set) var removeTextFragmentsEnabled: Bool
     private(set) var isRestoring = false
 
     // MARK: - Support links
@@ -56,6 +59,7 @@ final class SettingsViewModel {
         self.history = history
         self.autoPasteEnabled = settings.autoPasteEnabled
         self.saveHistoryEnabled = settings.saveHistoryEnabled
+        self.removeTextFragmentsEnabled = settings.removeTextFragmentsEnabled
     }
 
     /// `@Observable` doesn't track external `UserDefaults`, so re-read the stored
@@ -64,6 +68,7 @@ final class SettingsViewModel {
     func onAppear() {
         autoPasteEnabled = settings.autoPasteEnabled
         saveHistoryEnabled = settings.saveHistoryEnabled
+        removeTextFragmentsEnabled = settings.removeTextFragmentsEnabled
         analytics.capture(.settingsScreenShown)
     }
 
@@ -72,6 +77,13 @@ final class SettingsViewModel {
         autoPasteEnabled = enabled
         settings.autoPasteEnabled = enabled
         analytics.capture(.settingsAutoPasteToggled(enabled: enabled))
+    }
+
+    func setRemoveTextFragments(_ enabled: Bool) {
+        guard enabled != removeTextFragmentsEnabled else { return }
+        removeTextFragmentsEnabled = enabled
+        settings.removeTextFragmentsEnabled = enabled
+        analytics.capture(.settingsTextFragmentsToggled(enabled: enabled))
     }
 
     func enableSaveHistory() {

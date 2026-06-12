@@ -34,6 +34,18 @@ struct FragmentTextDirectiveTests {
         // SPA route — load-bearing, must survive verbatim.
         #expect(URLCleaner.clean("https://example.com/app#/dashboard/settings") == "https://example.com/app#/dashboard/settings")
     }
+
+    @Test func keepsTheDirectiveWhenStrippingIsDisabled() {
+        // Toggle off: the directive is preserved (untouched link round-trips)…
+        let kept = URLCleaner.outcome(for: "https://example.com/page#:~:text=hello", removing: [], stripTextFragment: false)
+        #expect(kept.cleaned == "https://example.com/page#:~:text=hello")
+        #expect(kept.telemetry.changed == false)
+
+        // …but fragment tracking params are still removed, directive and all.
+        let mixed = URLCleaner.outcome(for: "https://example.com/page#utm_source=a:~:text=hi", removing: ["utm_source"], stripTextFragment: false)
+        #expect(mixed.cleaned == "https://example.com/page#:~:text=hi")
+        #expect(mixed.telemetry.removedCount == 1)
+    }
 }
 
 // MARK: - Tracking params in the fragment

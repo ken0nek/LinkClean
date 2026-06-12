@@ -53,4 +53,29 @@ struct DefaultCleaningServiceTests {
         #expect(outcome.cleaned == "https://example.com/article?id=5")
         #expect(outcome.telemetry.wrappers.isEmpty)
     }
+
+    @Test func stripsTheScrollToTextDirectiveByDefault() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let service = DefaultCleaningService(
+            store: TrackingParameterStore(suiteName: suiteName),
+            settings: SettingsStore(appGroupSuiteName: suiteName)        // unset → default on
+        )
+
+        let outcome = try #require(await service.clean("https://example.com/page#:~:text=hello"))
+        #expect(outcome.cleaned == "https://example.com/page")
+    }
+
+    @Test func preservesTheScrollToTextDirectiveWhenTheSettingIsOff() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let settings = SettingsStore(appGroupSuiteName: suiteName)
+        settings.removeTextFragmentsEnabled = false
+        let service = DefaultCleaningService(store: TrackingParameterStore(suiteName: suiteName), settings: settings)
+
+        let outcome = try #require(await service.clean("https://example.com/page#:~:text=hello"))
+        #expect(outcome.cleaned == "https://example.com/page#:~:text=hello")
+    }
 }

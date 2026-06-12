@@ -56,11 +56,14 @@ public enum URLCleaner {
     /// `wrappers` records redirect wrappers a caller already peeled to reach
     /// `input` (``CleaningService`` passes ``unwrap(_:maxDepth:)``'s result). It
     /// is reported verbatim in the telemetry; it does not affect cleaning.
+    /// `stripTextFragment` gates removal of the `:~:` scroll-to-text directive
+    /// (the user's default-on setting); fragment tracking params are always cleaned.
     public static func outcome(
         for input: String,
         removing parameters: Set<String>,
         referenceNames: Set<String> = ReferenceParameterCatalog.names,
-        wrappers: [String] = []
+        wrappers: [String] = [],
+        stripTextFragment: Bool = true
     ) -> CleanOutcome {
         let domain = analyticsDomain(from: input)
         let normalized = Set(parameters.map { $0.lowercased() })
@@ -85,7 +88,7 @@ public enum URLCleaner {
         // Fragment cleaning, independent of the query: a URL can carry tracking
         // params or a scroll-to-text directive in its fragment with no query at
         // all. Anchors (#section) and SPA routes (#/path) are left untouched.
-        let fragment = cleanFragment(components.percentEncodedFragment, removing: normalized)
+        let fragment = cleanFragment(components.percentEncodedFragment, removing: normalized, stripTextDirective: stripTextFragment)
         components.percentEncodedFragment = fragment.cleaned
 
         // Iterate the *percent-encoded* items, not `queryItems`. Reading
@@ -162,42 +165,54 @@ public enum URLCleaner {
         )
     }
 
-    /// Cleans a URL fragment: strips the spec scroll-to-text directive (everything
-    /// from `:~:`) and any fragment-borne tracking params (matched against the same
-    /// `removing` set as the query). A fragment is treated as parameters only when
-    /// it is a *pure* `key=value(&…)` list (optionally `?`-prefixed) — a bare anchor
-    /// (`#section`) or single-page-app route (`#/path`) has a `=`-less segment, so it
-    /// is left entirely untouched. Returns `nil` when nothing meaningful remains.
+    /// Cleans a URL fragment: optionally strips the spec scroll-to-text directive
+    /// (everything from `:~:`) and always strips fragment-borne tracking params
+    /// (matched against the same `removing` set as the query). The directive and
+    /// the anchor are separated first, so a kept directive survives while the
+    /// anchor is still cleaned; `stripTextDirective` (the user's default-on
+    /// setting) decides whether the directive is dropped. Returns `nil` when
+    /// nothing meaningful remains.
     static func cleanFragment(
         _ fragment: String?,
-        removing normalized: Set<String>
+        removing normalized: Set<String>,
+        stripTextDirective: Bool
     ) -> (cleaned: String?, removedNames: [String], removedTextDirective: Bool) {
         guard let fragment, !fragment.isEmpty else { return (nil, [], false) }
 
-        // Drop the text-fragment directive — everything from the spec delimiter
-        // `:~:` onward. It is a browser highlight/scroll directive, never a
-        // navigation anchor, and it leaks the quoted passage.
-        var base = fragment
-        var removedTextDirective = false
-        if let directive = base.range(of: ":~:") {
-            removedTextDirective = true
-            base = String(base[..<directive.lowerBound])
+        // Separate the spec scroll-to-text directive (everything from `:~:`) from
+        // the anchor. It is a browser highlight/scroll directive, never a
+        // navigation anchor, and it leaks the quoted passage — but it is dropped
+        // only when the user keeps the default-on setting. The anchor is cleaned
+        // of tracking params either way.
+        var anchor = fragment
+        var directive = ""
+        if let range = fragment.range(of: ":~:") {
+            directive = String(fragment[range.lowerBound...])
+            anchor = String(fragment[..<range.lowerBound])
         }
-        guard !base.isEmpty else { return (nil, [], removedTextDirective) }
+        let droppedDirective = stripTextDirective && !directive.isEmpty
 
-        // A fragment beginning with "/" is a single-page-app route (#/path),
-        // never a tracking-param list — leave it untouched even when it carries a
-        // "&key=value" tail, so client-side routing never breaks.
-        guard !base.hasPrefix("/") else { return (base, [], removedTextDirective) }
+        let (cleanedAnchor, removedNames) = stripFragmentParams(anchor, removing: normalized)
 
-        // Treat the remainder as parameters only when every `&`-segment is a
-        // `key=value` pair; otherwise it is an anchor or SPA route — leave it be.
-        let hasQueryPrefix = base.hasPrefix("?")
-        let core = hasQueryPrefix ? String(base.dropFirst()) : base
+        let combined = cleanedAnchor + (droppedDirective ? "" : directive)
+        return (combined.isEmpty ? nil : combined, removedNames, droppedDirective)
+    }
+
+    /// Strips tracking params from a fragment's anchor when it is a *pure*
+    /// `key=value(&…)` list (optionally `?`-prefixed). A bare anchor (`section`)
+    /// or single-page-app route (a leading `/`, even with a `&key=value` tail) is
+    /// returned unchanged, so neither navigation nor client-side routing breaks.
+    /// Returns the cleaned anchor (possibly empty) and the decoded names removed.
+    private static func stripFragmentParams(
+        _ anchor: String,
+        removing normalized: Set<String>
+    ) -> (cleaned: String, removedNames: [String]) {
+        guard !anchor.isEmpty, !anchor.hasPrefix("/") else { return (anchor, []) }
+
+        let hasQueryPrefix = anchor.hasPrefix("?")
+        let core = hasQueryPrefix ? String(anchor.dropFirst()) : anchor
         let segments = core.components(separatedBy: "&")
-        guard !core.isEmpty, segments.allSatisfy({ $0.contains("=") }) else {
-            return (base, [], removedTextDirective)
-        }
+        guard !core.isEmpty, segments.allSatisfy({ $0.contains("=") }) else { return (anchor, []) }
 
         var removedNames: [String] = []
         var kept: [String] = []
@@ -210,14 +225,10 @@ public enum URLCleaner {
                 kept.append(segment)
             }
         }
+        guard !removedNames.isEmpty else { return (anchor, []) }
 
-        guard !removedNames.isEmpty else {
-            // Nothing matched — preserve the fragment (minus any directive) verbatim.
-            return (base, [], removedTextDirective)
-        }
         let rebuilt = kept.joined(separator: "&")
-        let cleaned = rebuilt.isEmpty ? nil : (hasQueryPrefix ? "?" + rebuilt : rebuilt)
-        return (cleaned, removedNames, removedTextDirective)
+        return (rebuilt.isEmpty ? "" : (hasQueryPrefix ? "?" + rebuilt : rebuilt), removedNames)
     }
 
     /// The lowercased host of `urlString` for host-scoped rule matching, with
