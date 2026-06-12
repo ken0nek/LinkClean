@@ -63,18 +63,9 @@ public enum URLCleaner {
         wrappers: [String] = []
     ) -> CleanOutcome {
         let domain = analyticsDomain(from: input)
+        let normalized = Set(parameters.map { $0.lowercased() })
 
-        // Iterate the *percent-encoded* items, not `queryItems`. Reading
-        // `queryItems` decodes values and assigning it back re-encodes with a
-        // charset that leaves `+`, `/`, etc. bare — so a kept `%2B` round-trips
-        // to a literal `+`, which form-decoding servers read as a space. That
-        // would silently change a kept param's value, even on a URL where we
-        // remove nothing (we still reassign the items). Keeping each encoded
-        // item verbatim preserves kept params byte-for-byte; we decode only the
-        // *name* for catalog matching and display (a key may itself be encoded).
-        guard var components = URLComponents(string: input),
-              let queryItems = components.percentEncodedQueryItems, !queryItems.isEmpty
-        else {
+        guard var components = URLComponents(string: input) else {
             return CleanOutcome(
                 input: input,
                 cleaned: input,
@@ -91,7 +82,21 @@ public enum URLCleaner {
             )
         }
 
-        let normalized = Set(parameters.map { $0.lowercased() })
+        // Fragment cleaning, independent of the query: a URL can carry tracking
+        // params or a scroll-to-text directive in its fragment with no query at
+        // all. Anchors (#section) and SPA routes (#/path) are left untouched.
+        let fragment = cleanFragment(components.percentEncodedFragment, removing: normalized)
+        components.percentEncodedFragment = fragment.cleaned
+
+        // Iterate the *percent-encoded* items, not `queryItems`. Reading
+        // `queryItems` decodes values and assigning it back re-encodes with a
+        // charset that leaves `+`, `/`, etc. bare — so a kept `%2B` round-trips
+        // to a literal `+`, which form-decoding servers read as a space. That
+        // would silently change a kept param's value, even on a URL where we
+        // remove nothing (we still reassign the items). Keeping each encoded
+        // item verbatim preserves kept params byte-for-byte; we decode only the
+        // *name* for catalog matching and display (a key may itself be encoded).
+        let queryItems = components.percentEncodedQueryItems ?? []
         var kept: [URLQueryItem] = []
         var removedKindIDs = Set<String>()
         // Lowercased keys of kept items, for the reference-catalog intersection.
@@ -122,13 +127,30 @@ public enum URLCleaner {
         }
 
         components.percentEncodedQueryItems = kept.isEmpty ? nil : kept
-        let removedCount = queryItems.count - kept.count
+
+        // Fold fragment-borne tracking-param removals into the same totals so the
+        // "N removed" proof-of-work and telemetry count them like query params.
+        for name in fragment.removedNames {
+            let key = name.lowercased()
+            if let kindID = TrackingParameterCatalog.kindID(for: key) {
+                removedKindIDs.insert(kindID)
+            }
+            if removedSeen.insert(key).inserted {
+                removedNames.append(name)
+            }
+        }
+
+        let removedCount = (queryItems.count - kept.count) + fragment.removedNames.count
+        // `changed` tracks intentional cleaning — query/fragment param removals or
+        // a stripped text directive — never incidental `URLComponents` re-encoding,
+        // so an untouched link round-trips to itself byte-for-byte.
+        let changed = removedCount > 0 || fragment.removedTextDirective
 
         return CleanOutcome(
             input: input,
-            cleaned: components.string ?? input,
+            cleaned: changed ? (components.string ?? input) : input,
             telemetry: .init(
-                changed: removedCount > 0,
+                changed: changed,
                 removedCount: removedCount,
                 leftoverCount: kept.count,
                 removedKindIDs: removedKindIDs,
@@ -138,6 +160,64 @@ public enum URLCleaner {
             ),
             display: .init(removedNames: removedNames, leftoverNames: leftoverNames)
         )
+    }
+
+    /// Cleans a URL fragment: strips the spec scroll-to-text directive (everything
+    /// from `:~:`) and any fragment-borne tracking params (matched against the same
+    /// `removing` set as the query). A fragment is treated as parameters only when
+    /// it is a *pure* `key=value(&…)` list (optionally `?`-prefixed) — a bare anchor
+    /// (`#section`) or single-page-app route (`#/path`) has a `=`-less segment, so it
+    /// is left entirely untouched. Returns `nil` when nothing meaningful remains.
+    static func cleanFragment(
+        _ fragment: String?,
+        removing normalized: Set<String>
+    ) -> (cleaned: String?, removedNames: [String], removedTextDirective: Bool) {
+        guard let fragment, !fragment.isEmpty else { return (nil, [], false) }
+
+        // Drop the text-fragment directive — everything from the spec delimiter
+        // `:~:` onward. It is a browser highlight/scroll directive, never a
+        // navigation anchor, and it leaks the quoted passage.
+        var base = fragment
+        var removedTextDirective = false
+        if let directive = base.range(of: ":~:") {
+            removedTextDirective = true
+            base = String(base[..<directive.lowerBound])
+        }
+        guard !base.isEmpty else { return (nil, [], removedTextDirective) }
+
+        // A fragment beginning with "/" is a single-page-app route (#/path),
+        // never a tracking-param list — leave it untouched even when it carries a
+        // "&key=value" tail, so client-side routing never breaks.
+        guard !base.hasPrefix("/") else { return (base, [], removedTextDirective) }
+
+        // Treat the remainder as parameters only when every `&`-segment is a
+        // `key=value` pair; otherwise it is an anchor or SPA route — leave it be.
+        let hasQueryPrefix = base.hasPrefix("?")
+        let core = hasQueryPrefix ? String(base.dropFirst()) : base
+        let segments = core.components(separatedBy: "&")
+        guard !core.isEmpty, segments.allSatisfy({ $0.contains("=") }) else {
+            return (base, [], removedTextDirective)
+        }
+
+        var removedNames: [String] = []
+        var kept: [String] = []
+        for segment in segments {
+            let encodedKey = String(segment.prefix { $0 != "=" })
+            let decodedKey = encodedKey.removingPercentEncoding ?? encodedKey
+            if normalized.contains(decodedKey.lowercased()) {
+                removedNames.append(decodedKey)
+            } else {
+                kept.append(segment)
+            }
+        }
+
+        guard !removedNames.isEmpty else {
+            // Nothing matched — preserve the fragment (minus any directive) verbatim.
+            return (base, [], removedTextDirective)
+        }
+        let rebuilt = kept.joined(separator: "&")
+        let cleaned = rebuilt.isEmpty ? nil : (hasQueryPrefix ? "?" + rebuilt : rebuilt)
+        return (cleaned, removedNames, removedTextDirective)
     }
 
     /// The lowercased host of `urlString` for host-scoped rule matching, with

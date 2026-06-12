@@ -187,12 +187,12 @@ struct URLCleanerTests {
         #expect(result == "https://example.com/p?token=ab%2Bcd%2F")
     }
 
-    @Test func doesNotCleanTrackingParametersInsideFragment() {
-        // Tracking params embedded in the fragment (`#utm_source=…`) are
-        // intentionally left untouched: cleaning operates on the query only, so
-        // the fragment passes through byte-for-byte.
+    @Test func cleansTrackingParametersInsideFragment() {
+        // E2: tracking params embedded in the fragment (`#utm_source=…`) are now
+        // stripped alongside the query in one pass (full coverage in
+        // FragmentCleaningTests). A bare anchor would still pass through untouched.
         let result = URLCleaner.clean("https://example.com/p?a=1#utm_source=x&utm_medium=y")
-        #expect(result == "https://example.com/p?a=1#utm_source=x&utm_medium=y")
+        #expect(result == "https://example.com/p?a=1")
     }
 
     @Test func caseInsensitiveMatching() {
