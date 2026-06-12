@@ -551,6 +551,17 @@
         }
       }
     },
+    "home.cleaned.unwrapped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redirect expanded from %@"
+          }
+        }
+      }
+    },
     "home.clipboardToast" : {
       "extractionState" : "manual",
       "localizations" : {

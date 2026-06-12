@@ -49,10 +49,11 @@ public struct DefaultCleaningService: CleaningService {
 
         // Peel known redirect wrappers first, then resolve rules against the
         // *destination's* host — not the wrapper's (a google.com/url?q=… link
-        // must clean by the inner site's rules, e.g. youtube's t=/si=).
-        let unwrapped = URLCleaner.unwrap(trimmed).destination
-        let enabled = store.enabledParameters(forHost: URLCleaner.ruleHost(of: unwrapped))
+        // must clean by the inner site's rules, e.g. youtube's t=/si=). The
+        // peeled wrapper hosts ride along in the outcome's telemetry.
+        let unwrap = URLCleaner.unwrap(trimmed)
+        let enabled = store.enabledParameters(forHost: URLCleaner.ruleHost(of: unwrap.destination))
             .union(extraParameters.map { $0.lowercased() })
-        return URLCleaner.outcome(for: unwrapped, removing: enabled)
+        return URLCleaner.outcome(for: unwrap.destination, removing: enabled, wrappers: unwrap.wrappers)
     }
 }

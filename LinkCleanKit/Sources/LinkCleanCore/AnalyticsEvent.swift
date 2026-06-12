@@ -235,6 +235,7 @@ public enum AnalyticsEvent: Equatable {
                 "referenceMatchCount": Bucket.leftoverCount(t.referenceMatches.count),
                 "removedKinds": Self.kinds(t.removedKindIDs),
                 "domain": t.domain,
+                "unwrapped": Self.string(!t.wrappers.isEmpty),
             ]
         case let .homeURLCopied(changed),
              let .homeURLShared(changed):
@@ -265,6 +266,7 @@ public enum AnalyticsEvent: Equatable {
                 "referenceMatchCount": Bucket.leftoverCount(t.referenceMatches.count),
                 "removedKinds": Self.kinds(t.removedKindIDs),
                 "domain": t.domain,
+                "unwrapped": Self.string(!t.wrappers.isEmpty),
             ]
         case let .actionCleanFailed(reason):
             return ["reason": reason.rawValue]

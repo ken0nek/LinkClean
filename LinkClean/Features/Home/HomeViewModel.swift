@@ -105,6 +105,15 @@ final class HomeViewModel {
         session.outcome?.cleaned ?? ""
     }
 
+    /// The outermost redirect wrapper peeled before cleaning — the host the user
+    /// actually pasted (`google.com` for a `google.com/url?q=…` link) — driving
+    /// the "redirect expanded" note. `nil` when the input was not a wrapper. Reads
+    /// the analytics-safe ``CleanOutcome/Telemetry`` view (public wrapper domains,
+    /// never raw URL data).
+    var unwrappedFromHost: String? {
+        session.outcome?.telemetry.wrappers.first
+    }
+
     /// Exact names removed in producing `cleanedText` — the calm proof-of-work
     /// list shown on Home. The on-device ``CleanOutcome/Display`` view; the type
     /// system keeps these raw names out of analytics.

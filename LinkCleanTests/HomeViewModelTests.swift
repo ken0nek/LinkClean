@@ -82,6 +82,32 @@ struct HomeViewModelTests {
         #expect(vm.cleanedText == "")
     }
 
+    @Test func unwrappedFromHostSurfacesThePeeledWrapper() async {
+        var mock = MockCleaningService()
+        mock.cleanHandler = { input in
+            .stub(input: input, cleaned: "https://shop.example.com/sneakers", removedCount: 1, wrappers: ["google.com"])
+        }
+        let vm = HomeViewModel(service: mock)
+
+        vm.inputText = "https://www.google.com/url?q=https%3A%2F%2Fshop.example.com"
+
+        await waitUntil { !vm.cleanedText.isEmpty }
+
+        #expect(vm.unwrappedFromHost == "google.com")
+    }
+
+    @Test func unwrappedFromHostIsNilForAnOrdinaryLink() async {
+        var mock = MockCleaningService()
+        mock.cleanHandler = { input in .stub(input: input, cleaned: input) }
+        let vm = HomeViewModel(service: mock)
+
+        vm.inputText = "https://example.com/article"
+
+        await waitUntil { !vm.cleanedText.isEmpty }
+
+        #expect(vm.unwrappedFromHost == nil)
+    }
+
     @Test func clearInputResets() {
         let vm = HomeViewModel(service: MockCleaningService())
         vm.inputText = "https://example.com"

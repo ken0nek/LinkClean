@@ -37,7 +37,8 @@ extension CleanOutcome {
         removedKindIDs: Set<String> = [],
         referenceMatches: [String] = [],
         removedNames: [String] = [],
-        leftoverNames: [String] = []
+        leftoverNames: [String] = [],
+        wrappers: [String] = []
     ) -> CleanOutcome {
         CleanOutcome(
             input: input,
@@ -48,7 +49,8 @@ extension CleanOutcome {
                 leftoverCount: leftoverCount,
                 removedKindIDs: removedKindIDs,
                 referenceMatches: referenceMatches,
-                domain: URLCleaner.analyticsDomain(from: input)
+                domain: URLCleaner.analyticsDomain(from: input),
+                wrappers: wrappers
             ),
             display: .init(removedNames: removedNames, leftoverNames: leftoverNames)
         )

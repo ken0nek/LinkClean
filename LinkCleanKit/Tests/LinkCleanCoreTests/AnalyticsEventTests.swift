@@ -17,7 +17,8 @@ struct AnalyticsEventTests {
         leftoverCount: Int = 0,
         referenceMatches: [String] = [],
         removedKindIDs: Set<String> = [],
-        domain: String = "example.com"
+        domain: String = "example.com",
+        wrappers: [String] = []
     ) -> CleanOutcome.Telemetry {
         .init(
             changed: changed,
@@ -25,7 +26,8 @@ struct AnalyticsEventTests {
             leftoverCount: leftoverCount,
             removedKindIDs: removedKindIDs,
             referenceMatches: referenceMatches,
-            domain: domain
+            domain: domain,
+            wrappers: wrappers
         )
     }
 
@@ -91,6 +93,7 @@ struct AnalyticsEventTests {
             "referenceMatchCount": "1",
             "removedKinds": "ads,utm",
             "domain": "youtube.com",
+            "unwrapped": "false",
         ])
     }
 
@@ -126,6 +129,20 @@ struct AnalyticsEventTests {
         #expect(action["domain"] == "youtube.com")
     }
 
+    @Test func cleanEventsReportWhetherARedirectWasUnwrapped() {
+        // Decision: how often do users paste redirect-wrapper links → whether to
+        // expand the wrapper catalog. A bool only; the wrapper host is public but
+        // deliberately not sent (no sharp decision rides on the distribution).
+        let unwrapped = AnalyticsEvent.homeURLCleaned(
+            source: .typed, telemetry: telemetry(removedCount: 1, wrappers: ["google.com"])
+        ).parameters
+        let direct = AnalyticsEvent.actionCleanSucceeded(
+            telemetry: telemetry(removedCount: 1)
+        ).parameters
+        #expect(unwrapped["unwrapped"] == "true")
+        #expect(direct["unwrapped"] == "false")
+    }
+
     @Test func referenceObservedCarriesTheName() {
         // Tier 1: the name is a public reference-catalog entry, so it is sent.
         #expect(AnalyticsEvent.parametersReferenceObserved(parameter: "gbraid").parameters == ["parameter": "gbraid"])
@@ -143,7 +160,7 @@ struct AnalyticsEventTests {
             source: .typed,
             telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
-        #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain"])
+        #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
     }
 
     @Test func copiedCarriesOnlyChanged() {

@@ -25,6 +25,7 @@ struct DefaultCleaningServiceTests {
         let wrapped = "https://www.google.com/url?q=https%3A%2F%2Fshop.example.com%2Fsneakers%3Futm_source%3Dnewsletter%26fbclid%3Dabc&sa=D"
         let outcome = try #require(await service.clean(wrapped))
         #expect(outcome.cleaned == "https://shop.example.com/sneakers")
+        #expect(outcome.telemetry.wrappers == ["google.com"])
     }
 
     @Test func resolvesRemovalRulesForTheDestinationHostNotTheWrapper() async throws {
@@ -50,5 +51,6 @@ struct DefaultCleaningServiceTests {
         // No wrapper host: unwrap is a no-op, normal cleaning still applies.
         let outcome = try #require(await service.clean("https://example.com/article?utm_source=x&id=5"))
         #expect(outcome.cleaned == "https://example.com/article?id=5")
+        #expect(outcome.telemetry.wrappers.isEmpty)
     }
 }

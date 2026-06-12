@@ -52,10 +52,15 @@ public enum URLCleaner {
     /// names — all in a single pass over the query items. One parse, so the
     /// shapes can never disagree, and the privacy boundary is a type, not a
     /// comment (raw key names live only in `display`, which no event accepts).
+    ///
+    /// `wrappers` records redirect wrappers a caller already peeled to reach
+    /// `input` (``CleaningService`` passes ``unwrap(_:maxDepth:)``'s result). It
+    /// is reported verbatim in the telemetry; it does not affect cleaning.
     public static func outcome(
         for input: String,
         removing parameters: Set<String>,
-        referenceNames: Set<String> = ReferenceParameterCatalog.names
+        referenceNames: Set<String> = ReferenceParameterCatalog.names,
+        wrappers: [String] = []
     ) -> CleanOutcome {
         let domain = analyticsDomain(from: input)
 
@@ -79,7 +84,8 @@ public enum URLCleaner {
                     leftoverCount: 0,
                     removedKindIDs: [],
                     referenceMatches: [],
-                    domain: domain
+                    domain: domain,
+                    wrappers: wrappers
                 ),
                 display: .init(removedNames: [], leftoverNames: [])
             )
@@ -127,7 +133,8 @@ public enum URLCleaner {
                 leftoverCount: kept.count,
                 removedKindIDs: removedKindIDs,
                 referenceMatches: leftoverKeys.intersection(referenceNames).sorted(),
-                domain: domain
+                domain: domain,
+                wrappers: wrappers
             ),
             display: .init(removedNames: removedNames, leftoverNames: leftoverNames)
         )

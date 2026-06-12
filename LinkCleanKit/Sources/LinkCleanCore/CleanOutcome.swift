@@ -49,6 +49,12 @@ public struct CleanOutcome: Sendable, Equatable {
         /// ``URLCleaner/analyticsDomain(from:)-(String)`` — the one URL-derived
         /// value sent (`analytics.md` §3). `"unknown"` when no host parses.
         public let domain: String
+        /// The redirect wrappers peeled before this clean, outermost first — e.g.
+        /// `["google.com"]` for a `google.com/url?q=…` link (see
+        /// ``URLCleaner/unwrap(_:maxDepth:)``). Canonical public wrapper domains,
+        /// the same risk class as `domain` and safe to send; empty when the input
+        /// was not a wrapper.
+        public let wrappers: [String]
 
         public init(
             changed: Bool,
@@ -56,7 +62,8 @@ public struct CleanOutcome: Sendable, Equatable {
             leftoverCount: Int,
             removedKindIDs: Set<String>,
             referenceMatches: [String],
-            domain: String
+            domain: String,
+            wrappers: [String] = []
         ) {
             self.changed = changed
             self.removedCount = removedCount
@@ -64,6 +71,7 @@ public struct CleanOutcome: Sendable, Equatable {
             self.removedKindIDs = removedKindIDs
             self.referenceMatches = referenceMatches
             self.domain = domain
+            self.wrappers = wrappers
         }
     }
     public let telemetry: Telemetry

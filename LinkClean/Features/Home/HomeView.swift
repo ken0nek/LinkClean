@@ -229,6 +229,18 @@ struct HomeView: View {
             .font(.system(.title3, design: .rounded).weight(.semibold))
             .frame(maxWidth: .infinity, alignment: .leading)
 
+            if let host = viewModel.unwrappedFromHost {
+                Label {
+                    Text(.homeCleanedUnwrapped(host))
+                } icon: {
+                    Image(systemName: "arrowshape.turn.up.right")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .transition(.opacity)
+            }
+
             if isRemovedExpanded, !viewModel.removedParameters.isEmpty {
                 Text(viewModel.removedParameters.joined(separator: "   ·   "))
                     .font(.system(.footnote, design: .monospaced))

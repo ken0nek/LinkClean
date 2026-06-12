@@ -111,6 +111,26 @@ struct CleanOutcomeTests {
         #expect(outcome.telemetry.domain == "youtube.com")
     }
 
+    @Test func recordsTheWrappersItIsGiven() {
+        let outcome = URLCleaner.outcome(
+            for: "https://shop.example.com/?utm_source=x",
+            removing: ["utm_source"],
+            wrappers: ["google.com"]
+        )
+        #expect(outcome.telemetry.wrappers == ["google.com"])
+    }
+
+    @Test func recordsWrappersOnTheNoQueryGuardPath() {
+        // The early-return (no query items) path must still report the wrappers —
+        // a wrapper can resolve to a destination that carries no query at all.
+        let outcome = URLCleaner.outcome(for: "https://example.com/", removing: [], wrappers: ["google.com", "l.facebook.com"])
+        #expect(outcome.telemetry.wrappers == ["google.com", "l.facebook.com"])
+    }
+
+    @Test func wrappersDefaultToEmptyForADirectClean() {
+        #expect(URLCleaner.outcome(for: "https://x.com/?utm_source=a", removing: ["utm_source"]).telemetry.wrappers.isEmpty)
+    }
+
     // MARK: - Display: removed/leftover names (Home transparency, on-device only)
 
     @Test func displayRemovedNamesListsRemovedKeysInURLOrder() {

@@ -91,7 +91,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Home.URL.cleaned` | Valid URL produced a cleaned result (once per distinct input) | `source: autoPaste\|manualPaste\|typed`, `changed: true\|false`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>` | Volume; how URLs arrive; how often cleaning changes anything; catalog-gap size and which categories fire (`parameter-telemetry.md` Tier 0); which sites are cleaned most (§3) |
+| `Home.URL.cleaned` | Valid URL produced a cleaned result (once per distinct input) | `source: autoPaste\|manualPaste\|typed`, `changed: true\|false`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>`, `unwrapped: true\|false` | Volume; how URLs arrive; how often cleaning changes anything; catalog-gap size and which categories fire (`parameter-telemetry.md` Tier 0); which sites are cleaned most (§3); how often inputs are redirect wrappers (E1 offline unwrapping) → whether to expand the wrapper catalog |
 | `Home.URL.copied` | Copy button tapped | `changed` | Home-flow conversion (cleaned → exported) |
 | `Home.Clipboard.invalidPasted` | Auto-paste found non-URL (toast shown) | — | Auto-paste annoyance rate; whether it should stay default-on |
 
@@ -129,7 +129,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>` | Extension volume — the habit metric; plus catalog-gap signals and which sites are cleaned most (§3) on the extension surface (`parameter-telemetry.md` Tier 0). Per-match `Parameters.Reference.observed` is emitted after this signal (§8 convergence) |
+| `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>`, `unwrapped: true\|false` | Extension volume — the habit metric; plus catalog-gap signals and which sites are cleaned most (§3) on the extension surface (`parameter-telemetry.md` Tier 0); whether share-sheet inputs are redirect wrappers (E1). Per-match `Parameters.Reference.observed` is emitted after this signal (§8 convergence) |
 | `Action.Clean.failed` | No URL extractable from host input | `reason: noURL\|invalidInput` | Host-app compatibility gaps (e.g. the known Google Maps issue) |
 | `Action.Markdown.succeeded` | Markdown action copied `[title](url)` | `titleSource: javascript\|linkPresentation\|urlOnly`, `changed` | Markdown adoption (premium candidate); title-extraction reliability by path |
 | `Action.Markdown.failed` | Extraction failed | `reason` | Reliability |
