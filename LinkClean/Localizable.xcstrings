@@ -12,6 +12,17 @@
         }
       }
     },
+    "common.close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
     "common.copied" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -155,6 +166,17 @@
         }
       }
     },
+    "customParameters.freeCounter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free custom rules: %lld of %lld · Pro unlocks unlimited"
+          }
+        }
+      }
+    },
     "customParameters.list.empty" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -206,83 +228,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Default Parameters"
-          }
-        }
-      }
-    },
-    "parameters.kind.ads" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ads & Attribution"
-          }
-        }
-      }
-    },
-    "parameters.kind.affiliate" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Affiliate"
-          }
-        }
-      }
-    },
-    "parameters.kind.analytics" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Analytics"
-          }
-        }
-      }
-    },
-    "parameters.kind.common" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Common Tracking"
-          }
-        }
-      }
-    },
-    "parameters.kind.email" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Email/CRM"
-          }
-        }
-      }
-    },
-    "parameters.kind.social" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Social & Share"
-          }
-        }
-      }
-    },
-    "parameters.kind.utm" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "UTM Parameters"
           }
         }
       }
@@ -404,6 +349,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Waiting for you to tap Clean URL…"
+          }
+        }
+      }
+    },
+    "history.archive.disclosure" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved on this device — nothing is ever deleted. Pro unlocks your full archive."
+          }
+        }
+      }
+    },
+    "history.archive.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Earlier · %lld link"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Earlier · %lld links"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "history.archive.searchHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "+%lld older match · Pro"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "+%lld older matches · Pro"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "history.archive.unlock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock your full history — Pro"
           }
         }
       }
@@ -738,6 +751,28 @@
         }
       }
     },
+    "intents.cleanClipboard.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Clipboard"
+          }
+        }
+      }
+    },
+    "intents.cleanLink.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Link"
+          }
+        }
+      }
+    },
     "onboarding.celebration.getStarted" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -866,6 +901,336 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clean links, instantly"
+          }
+        }
+      }
+    },
+    "parameters.kind.ads" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ads & Attribution"
+          }
+        }
+      }
+    },
+    "parameters.kind.affiliate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiliate"
+          }
+        }
+      }
+    },
+    "parameters.kind.analytics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analytics"
+          }
+        }
+      }
+    },
+    "parameters.kind.common" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Common Tracking"
+          }
+        }
+      }
+    },
+    "parameters.kind.email" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email/CRM"
+          }
+        }
+      }
+    },
+    "parameters.kind.social" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Social & Share"
+          }
+        }
+      }
+    },
+    "parameters.kind.utm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTM Parameters"
+          }
+        }
+      }
+    },
+    "paywall.benefit.future.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New formats, export, and more — yours as they arrive, at no extra cost."
+          }
+        }
+      }
+    },
+    "paywall.benefit.future.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every future Pro feature"
+          }
+        }
+      }
+    },
+    "paywall.benefit.history.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep and search every link you clean — not just the last 7 days."
+          }
+        }
+      }
+    },
+    "paywall.benefit.history.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlimited history"
+          }
+        }
+      }
+    },
+    "paywall.benefit.rules.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block any tracker you spot, on every link."
+          }
+        }
+      }
+    },
+    "paywall.benefit.rules.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlimited custom rules"
+          }
+        }
+      }
+    },
+    "paywall.error.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something went wrong and you haven’t been charged. Please try again."
+          }
+        }
+      }
+    },
+    "paywall.error.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase Failed"
+          }
+        }
+      }
+    },
+    "paywall.header.generic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock everything"
+          }
+        }
+      }
+    },
+    "paywall.header.history" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep every link, always searchable"
+          }
+        }
+      }
+    },
+    "paywall.header.trackers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove every tracker you find"
+          }
+        }
+      }
+    },
+    "paywall.pending.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your purchase needs approval before LinkClean Pro unlocks."
+          }
+        }
+      }
+    },
+    "paywall.pending.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase Pending"
+          }
+        }
+      }
+    },
+    "paywall.pitch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your full history, unlimited custom rules, and every Pro feature still to come — yours for one purchase, forever."
+          }
+        }
+      }
+    },
+    "paywall.priceNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pay once, own it forever · not a subscription"
+          }
+        }
+      }
+    },
+    "paywall.privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        }
+      }
+    },
+    "paywall.restore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Purchases"
+          }
+        }
+      }
+    },
+    "paywall.restoreNone.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No previous purchase was found for this Apple Account."
+          }
+        }
+      }
+    },
+    "paywall.restoreNone.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to Restore"
+          }
+        }
+      }
+    },
+    "paywall.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        }
+      }
+    },
+    "paywall.terms" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Use"
+          }
+        }
+      }
+    },
+    "paywall.unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The store isn’t available right now. Please try again in a moment."
+          }
+        }
+      }
+    },
+    "paywall.unlock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock Pro — %@"
           }
         }
       }
@@ -1134,6 +1499,94 @@
         }
       }
     },
+    "settings.pro.active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro Unlocked"
+          }
+        }
+      }
+    },
+    "settings.pro.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LinkClean Pro"
+          }
+        }
+      }
+    },
+    "settings.pro.restore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Purchases"
+          }
+        }
+      }
+    },
+    "settings.pro.thanks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thanks for going Pro — every feature is yours to keep."
+          }
+        }
+      }
+    },
+    "settings.pro.unlock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock Pro"
+          }
+        }
+      }
+    },
+    "settings.restore.failed.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t restore right now. Please try again."
+          }
+        }
+      }
+    },
+    "settings.restore.none.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No previous purchase was found for this Apple Account."
+          }
+        }
+      }
+    },
+    "settings.restore.success.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LinkClean Pro is now active."
+          }
+        }
+      }
+    },
     "settings.support.contact" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1207,437 +1660,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
-          }
-        }
-      }
-    },
-    "common.close" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Close"
-          }
-        }
-      }
-    },
-    "customParameters.freeCounter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Free custom rules: %lld of %lld · Pro unlocks unlimited"
-          }
-        }
-      }
-    },
-    "history.archive.header" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Earlier · %lld link"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Earlier · %lld links"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "history.archive.disclosure" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saved on this device — nothing is ever deleted. Pro unlocks your full archive."
-          }
-        }
-      }
-    },
-    "history.archive.unlock" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock your full history — Pro"
-          }
-        }
-      }
-    },
-    "history.archive.searchHint" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "+%lld older match · Pro"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "+%lld older matches · Pro"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "paywall.header.history" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keep every link, always searchable"
-          }
-        }
-      }
-    },
-    "paywall.header.trackers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remove every tracker you find"
-          }
-        }
-      }
-    },
-    "paywall.header.generic" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock everything"
-          }
-        }
-      }
-    },
-    "paywall.pitch" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your full history, unlimited custom rules, and every Pro feature still to come — yours for one purchase, forever."
-          }
-        }
-      }
-    },
-    "paywall.benefit.history.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlimited history"
-          }
-        }
-      }
-    },
-    "paywall.benefit.history.body" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keep and search every link you clean — not just the last 7 days."
-          }
-        }
-      }
-    },
-    "paywall.benefit.rules.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlimited custom rules"
-          }
-        }
-      }
-    },
-    "paywall.benefit.rules.body" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Block any tracker you spot, on every link."
-          }
-        }
-      }
-    },
-    "paywall.benefit.future.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every future Pro feature"
-          }
-        }
-      }
-    },
-    "paywall.benefit.future.body" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New formats, export, and more — yours as they arrive, at no extra cost."
-          }
-        }
-      }
-    },
-    "paywall.unlock" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock Pro — %@"
-          }
-        }
-      }
-    },
-    "paywall.priceNote" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pay once, own it forever · not a subscription"
-          }
-        }
-      }
-    },
-    "paywall.unavailable" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The store isn’t available right now. Please try again in a moment."
-          }
-        }
-      }
-    },
-    "paywall.retry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Try Again"
-          }
-        }
-      }
-    },
-    "paywall.restore" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restore Purchases"
-          }
-        }
-      }
-    },
-    "paywall.terms" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Terms of Use"
-          }
-        }
-      }
-    },
-    "paywall.privacy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Privacy Policy"
-          }
-        }
-      }
-    },
-    "paywall.pending.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Purchase Pending"
-          }
-        }
-      }
-    },
-    "paywall.pending.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your purchase needs approval before LinkClean Pro unlocks."
-          }
-        }
-      }
-    },
-    "paywall.error.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Purchase Failed"
-          }
-        }
-      }
-    },
-    "paywall.error.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Something went wrong and you haven’t been charged. Please try again."
-          }
-        }
-      }
-    },
-    "paywall.restoreNone.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nothing to Restore"
-          }
-        }
-      }
-    },
-    "paywall.restoreNone.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No previous purchase was found for this Apple Account."
-          }
-        }
-      }
-    },
-    "settings.pro.header" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "LinkClean Pro"
-          }
-        }
-      }
-    },
-    "settings.pro.unlock" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock Pro"
-          }
-        }
-      }
-    },
-    "settings.pro.active" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro Unlocked"
-          }
-        }
-      }
-    },
-    "settings.pro.thanks" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thanks for going Pro — every feature is yours to keep."
-          }
-        }
-      }
-    },
-    "settings.pro.restore" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restore Purchases"
-          }
-        }
-      }
-    },
-    "settings.restore.success.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "LinkClean Pro is now active."
-          }
-        }
-      }
-    },
-    "settings.restore.none.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No previous purchase was found for this Apple Account."
-          }
-        }
-      }
-    },
-    "settings.restore.failed.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn’t restore right now. Please try again."
           }
         }
       }

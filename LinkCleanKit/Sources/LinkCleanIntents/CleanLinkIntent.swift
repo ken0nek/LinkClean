@@ -19,7 +19,7 @@ import LinkCleanAnalytics
 /// read from the App Group — and returns the cleaned string so it chains into the
 /// next Shortcuts action.
 public struct CleanLinkIntent: AppIntent {
-    public static let title: LocalizedStringResource = "Clean Link"
+    public static let title: LocalizedStringResource = .init("intents.cleanLink.title", defaultValue: "Clean Link")
     public static let description = IntentDescription(
         "Removes tracking parameters and redirect wrappers from a link."
     )

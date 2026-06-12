@@ -21,7 +21,7 @@ import LinkCleanAnalytics
 /// its value or prompting — and only read `string` when a probable web URL is
 /// actually present, so an empty/irrelevant clipboard never triggers a banner.
 public struct CleanClipboardIntent: AppIntent {
-    public static let title: LocalizedStringResource = "Clean Clipboard"
+    public static let title: LocalizedStringResource = .init("intents.cleanClipboard.title", defaultValue: "Clean Clipboard")
     public static let description = IntentDescription(
         "Removes tracking parameters from the link on your clipboard."
     )

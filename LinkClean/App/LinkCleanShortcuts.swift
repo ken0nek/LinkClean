@@ -21,7 +21,7 @@ struct LinkCleanShortcuts: AppShortcutsProvider {
                 "Clean my link with \(.applicationName)",
                 "Clean the link on my clipboard with \(.applicationName)"
             ],
-            shortTitle: "Clean Clipboard",
+            shortTitle: LocalizedStringResource("intents.cleanClipboard.title", defaultValue: "Clean Clipboard"),
             systemImageName: "doc.on.clipboard"
         )
         AppShortcut(
@@ -29,7 +29,7 @@ struct LinkCleanShortcuts: AppShortcutsProvider {
             phrases: [
                 "Clean a link with \(.applicationName)"
             ],
-            shortTitle: "Clean Link",
+            shortTitle: LocalizedStringResource("intents.cleanLink.title", defaultValue: "Clean Link"),
             systemImageName: "link"
         )
     }
