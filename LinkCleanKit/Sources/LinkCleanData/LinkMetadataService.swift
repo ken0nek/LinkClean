@@ -17,10 +17,21 @@ public nonisolated protocol LinkMetadataService: Sendable {
 }
 
 public nonisolated struct DefaultLinkMetadataService: LinkMetadataService {
-    public init() {}
+    /// Caps `LPMetadataProvider`'s fetch. `nil` leaves the provider's own default
+    /// (in-app History enrichment, where a longer wait for a thumbnail is fine);
+    /// the action extension passes a short cap so a slow or unreachable host can't
+    /// hang — or get the OS to jetsam — the short-lived extension process.
+    private let timeout: TimeInterval?
+
+    public init(timeout: TimeInterval? = nil) {
+        self.timeout = timeout
+    }
 
     public func fetchMetadata(for url: URL) async -> (title: String?, thumbnailData: Data?) {
         let provider = LPMetadataProvider()
+        if let timeout {
+            provider.timeout = timeout
+        }
         do {
             let metadata = try await provider.startFetchingMetadata(for: url)
             let title = metadata.title

@@ -18,7 +18,11 @@ import LinkCleanData
 public struct MarkdownLinkStrategy: ActionOutputStrategy {
     private let metadata: LinkMetadataService
 
-    public init(metadata: LinkMetadataService = DefaultLinkMetadataService()) {
+    /// `timeout: 5` caps the LPMetadata title fetch: the action extension is a
+    /// short-lived, memory-limited process, so a slow host must not stall it
+    /// before the toast (restores the cap the standalone Markdown extension used
+    /// before consolidating onto the shared fetcher).
+    public init(metadata: LinkMetadataService = DefaultLinkMetadataService(timeout: 5)) {
         self.metadata = metadata
     }
 
