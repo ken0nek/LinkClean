@@ -97,6 +97,16 @@ public enum AnalyticsEvent: Equatable {
     case actionMarkdownSucceeded(titleSource: TitleSource, changed: Bool)
     case actionMarkdownFailed(reason: FailureReason)
 
+    // MARK: App Intents (clean-from-anywhere surfaces — growth-roadmap §4 S1)
+
+    /// An App Intent produced a cleaned link — the Shortcuts / Siri / Spotlight /
+    /// Action-button / Control Center / widget surfaces. Carries the same
+    /// analytics-safe ``CleanOutcome/Telemetry`` as ``homeURLCleaned`` /
+    /// ``actionCleanSucceeded`` (catalog-gap params + the `domain` host signal,
+    /// §3), plus which ``IntentSurface`` ran it — the surface-mix read (kpis §6)
+    /// for the 1.1 distribution goal.
+    case intentCleanSucceeded(surface: IntentSurface, telemetry: CleanOutcome.Telemetry)
+
     // MARK: Review (§6)
 
     /// The in-app star prompt (`ReviewGateSheet`) appeared.
@@ -153,6 +163,17 @@ public enum AnalyticsEvent: Equatable {
     /// Which path produced the Markdown title.
     public enum TitleSource: String {
         case javascript, linkPresentation, urlOnly
+    }
+
+    /// Which App Intents surface ran a clean — the surface-mix slice (kpis §6). A
+    /// fixed, low-cardinality enum, never a URL or parameter name. The Control
+    /// Center control and the widget button both run the *clipboard* intent, so
+    /// they report ``clipboard``; splitting them apart would need a per-surface
+    /// intent parameter (which would clutter the Shortcuts editor), deferred until
+    /// the data shows it's worth it.
+    public enum IntentSurface: String {
+        case shortcut    // CleanLinkIntent — Shortcuts / Siri / Spotlight / Action button
+        case clipboard   // CleanClipboardIntent — incl. the Control Center control + widget
     }
 
     /// Coarse rating outcome — the only rating detail ever sent (§3), never the
@@ -212,6 +233,7 @@ public enum AnalyticsEvent: Equatable {
         case .actionCleanFailed: "Action.Clean.failed"
         case .actionMarkdownSucceeded: "Action.Markdown.succeeded"
         case .actionMarkdownFailed: "Action.Markdown.failed"
+        case .intentCleanSucceeded: "Intent.Clean.succeeded"
         case .reviewPromptShown: "Review.Prompt.shown"
         case .reviewStarsSelected: "Review.Stars.selected"
         case .reviewSystemPromptRequested: "Review.SystemPrompt.requested"
@@ -283,6 +305,21 @@ public enum AnalyticsEvent: Equatable {
             ]
         case let .actionMarkdownFailed(reason):
             return ["reason": reason.rawValue]
+        case let .intentCleanSucceeded(surface, t):
+            return [
+                // Distinct from the process-level `surface` default parameter
+                // (`app`/`intent`, set in TelemetryDeckAnalytics.start) so the two
+                // never collide on this signal — this carries the *logical* surface
+                // (shortcut vs clipboard), that carries the process.
+                "intentSurface": surface.rawValue,
+                "changed": Self.string(t.changed),
+                "removedCount": Bucket.removedCount(t.removedCount),
+                "leftoverCount": Bucket.leftoverCount(t.leftoverCount),
+                "referenceMatchCount": Bucket.leftoverCount(t.referenceMatches.count),
+                "removedKinds": Self.kinds(t.removedKindIDs),
+                "domain": t.domain,
+                "unwrapped": Self.string(!t.wrappers.isEmpty),
+            ]
         case let .reviewStarsSelected(bucket):
             return ["bucket": bucket.rawValue]
         case let .paywallShown(trigger):

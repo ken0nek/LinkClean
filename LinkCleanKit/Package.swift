@@ -17,7 +17,7 @@ let package = Package(
         .macOS(.v15)
     ],
     products: [
-        // One product, four layered targets. App and extension targets import the
+        // One product, five layered targets. App and extension targets import the
         // specific modules they need; the dependency direction below is the
         // architecture, enforced by the compiler.
         .library(
@@ -26,7 +26,8 @@ let package = Package(
                 "LinkCleanCore",
                 "LinkCleanData",
                 "LinkCleanAnalytics",
-                "LinkCleanExtensionUI"
+                "LinkCleanExtensionUI",
+                "LinkCleanIntents"
             ]
         )
     ],
@@ -72,6 +73,24 @@ let package = Package(
                 "LinkCleanAnalytics"
             ],
             resources: [.process("Localizable.xcstrings")],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self)
+            ]
+        ),
+        // The App Intents surface (S1): the Shortcuts / Siri / Spotlight /
+        // Action-button / Control Center / widget intents. UIKit (`UIPasteboard`)
+        // + the AppIntents framework, MainActor default isolation. iOS-only — its
+        // sources are `#if canImport(UIKit)`, so on macOS it compiles to an empty
+        // module and the fast lane (`swift test`) stays green, exactly like
+        // LinkCleanExtensionUI. The app target and the (Phase B) widget extension
+        // both link it; the intents are defined once here, not per binary.
+        .target(
+            name: "LinkCleanIntents",
+            dependencies: [
+                "LinkCleanCore",
+                "LinkCleanData",
+                "LinkCleanAnalytics"
+            ],
             swiftSettings: [
                 .defaultIsolation(MainActor.self)
             ]

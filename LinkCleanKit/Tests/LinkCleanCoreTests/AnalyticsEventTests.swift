@@ -61,6 +61,7 @@ struct AnalyticsEventTests {
             (.actionCleanFailed(reason: .noURL), "Action.Clean.failed"),
             (.actionMarkdownSucceeded(titleSource: .javascript, changed: true), "Action.Markdown.succeeded"),
             (.actionMarkdownFailed(reason: .invalidInput), "Action.Markdown.failed"),
+            (.intentCleanSucceeded(surface: .clipboard, telemetry: telemetry(removedCount: 1)), "Intent.Clean.succeeded"),
             (.reviewPromptShown, "Review.Prompt.shown"),
             (.reviewStarsSelected(bucket: .high), "Review.Stars.selected"),
             (.reviewSystemPromptRequested, "Review.SystemPrompt.requested"),
@@ -162,6 +163,39 @@ struct AnalyticsEventTests {
             telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
         #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
+    }
+
+    @Test func intentCleanCarriesSurfaceAndCleanTelemetry() {
+        // Surface-mix slice (kpis §6) alongside the same analytics-safe telemetry
+        // the other clean events carry.
+        let shortcut = AnalyticsEvent.intentCleanSucceeded(
+            surface: .shortcut,
+            telemetry: telemetry(changed: true, removedCount: 2, domain: "youtube.com", wrappers: ["google.com"])
+        ).parameters
+        #expect(shortcut == [
+            "intentSurface": "shortcut",
+            "changed": "true",
+            "removedCount": "2",
+            "leftoverCount": "0",
+            "referenceMatchCount": "0",
+            "removedKinds": "none",
+            "domain": "youtube.com",
+            "unwrapped": "true",
+        ])
+        // The control and widget both run the clipboard intent → report `clipboard`.
+        #expect(AnalyticsEvent.intentCleanSucceeded(
+            surface: .clipboard, telemetry: telemetry(removedCount: 1)
+        ).parameters["intentSurface"] == "clipboard")
+    }
+
+    @Test func intentCleanParameterSurfaceIsCountsAndEnumsOnly() {
+        // Same privacy pin as the other clean events: surface + counts + the one
+        // disclosed domain, never a leftover key name.
+        let params = AnalyticsEvent.intentCleanSucceeded(
+            surface: .clipboard,
+            telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
+        ).parameters
+        #expect(Set(params.keys) == ["intentSurface", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
     }
 
     @Test func copiedCarriesOnlyChanged() {

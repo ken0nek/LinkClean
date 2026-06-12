@@ -30,7 +30,11 @@ public extension CleaningService {
     }
 }
 
-public struct DefaultCleaningService: CleaningService {
+/// `nonisolated` like the stores it composes (``TrackingParameterStore`` /
+/// ``SettingsStore``): a stateless value type with no MainActor state, so it can
+/// be constructed and run from any isolation — the app and extensions (MainActor)
+/// and the App Intents (which run nonisolated, off the main thread, for speed).
+public nonisolated struct DefaultCleaningService: CleaningService {
     private let store: TrackingParameterStore
     private let settings: SettingsStore
 

@@ -60,6 +60,17 @@ public nonisolated struct TelemetryDeckAnalytics: AnalyticsService {
         TelemetryDeck.updateDefaultUserID(to: sharedUserIdentifier())
     }
 
+    /// Initializes the SDK only if it hasn't been already. The App Intents (S1)
+    /// run either in the app process (where ``start(surface:)`` already ran) or in
+    /// a fresh widget-extension process (where it did not), so an intent calls this
+    /// before `capture(_:)`: a no-op when the SDK is up, an initialize otherwise.
+    /// Without it, intent cleans from the control/widget would silently drop their
+    /// signal, since `capture(_:)` no-ops until the SDK is initialized.
+    public static func startIfNeeded(surface: String) {
+        guard !TelemetryManager.isInitialized else { return }
+        start(surface: surface)
+    }
+
     /// Reads — or lazily creates — the cross-process anonymous user identifier
     /// from the App Group suite. Without a shared identifier the app and each
     /// extension would count as separate users and the activation funnel would
