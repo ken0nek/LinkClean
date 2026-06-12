@@ -26,6 +26,7 @@
 /// | `trackingParametersDisabled` | App Group | `TrackingParameterStore` | `TrackingParameterStore` |
 /// | `trackingParametersEnabled` | App Group | `TrackingParameterStore` | `TrackingParameterStore` |
 /// | `trackingParametersCustom` | App Group | `TrackingParameterStore` | `TrackingParameterStore` |
+/// | `lifetimeStats` | App Group | `StatsStore` (app + extensions + intents) | `StatsStore` |
 /// | `review.successCount` | App Group | `DefaultReviewService` | `DefaultReviewService` |
 /// | `review.firstSuccessAt` | App Group | `DefaultReviewService` | `DefaultReviewService` |
 /// | `review.lastPromptAt` | App Group | `DefaultReviewService` | `DefaultReviewService` |
@@ -70,6 +71,14 @@ public enum SettingsKeys {
     /// The current cached entitlement (free/pro). Stored in the App Group suite
     /// so action extensions can read it.
     public static let currentEntitlement = "currentEntitlement"
+
+    // MARK: Lifetime stats (App Group suite, owned by `StatsStore`)
+
+    /// Lifetime cleaning aggregates (``StatsStore``): total cleans, parameters
+    /// removed, by-category and by-host counts, as a JSON blob. Cross-process:
+    /// incremented by the app, both action extensions, and the App Intents; read
+    /// by the (1.2) stats dashboard. Stored in the App Group suite.
+    public static let lifetimeStats = "lifetimeStats"
 
     // MARK: Tracking parameters (App Group suite, owned by `TrackingParameterStore`)
 

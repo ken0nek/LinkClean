@@ -47,7 +47,8 @@ extension HomeViewModel {
             store: deps.parameters,
             review: deps.review,
             explanationService: deps.explanations,
-            history: deps.history
+            history: deps.history,
+            stats: deps.stats
         )
     }
 }

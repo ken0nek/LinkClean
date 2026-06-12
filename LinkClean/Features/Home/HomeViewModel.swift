@@ -41,6 +41,7 @@ final class HomeViewModel {
     @ObservationIgnored private let store: TrackingParameterStore
     @ObservationIgnored private let explanationService: ParameterExplanationService
     @ObservationIgnored private let history: HistoryStore
+    @ObservationIgnored private let stats: StatsStore
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
@@ -69,7 +70,8 @@ final class HomeViewModel {
         store: TrackingParameterStore = TrackingParameterStore(),
         review: ReviewService = DefaultReviewService(),
         explanationService: ParameterExplanationService = FoundationModelsParameterExplanationService(),
-        history: HistoryStore = .inMemoryPreview
+        history: HistoryStore = .inMemoryPreview,
+        stats: StatsStore = StatsStore()
     ) {
         self.service = service
         self.analytics = analytics
@@ -77,6 +79,7 @@ final class HomeViewModel {
         self.store = store
         self.explanationService = explanationService
         self.history = history
+        self.stats = stats
         self.reviewFlow = ReviewPromptFlow(review: review, analytics: analytics)
     }
 
@@ -383,5 +386,6 @@ final class HomeViewModel {
         for parameter in outcome.telemetry.referenceMatches {
             analytics.capture(.parametersReferenceObserved(parameter: parameter))
         }
+        stats.record(outcome.telemetry)
     }
 }

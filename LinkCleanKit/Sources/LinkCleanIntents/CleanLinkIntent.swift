@@ -46,6 +46,7 @@ public struct CleanLinkIntent: AppIntent {
         // Emit the signal before the slower history write (analytics §8).
         TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
         TelemetryDeckAnalytics().capture(.intentCleanSucceeded(surface: .shortcut, telemetry: outcome.telemetry))
+        StatsStore().record(outcome.telemetry)
         await IntentHistory.record(input: link, output: outcome.cleaned, settings: settings)
         return .result(
             value: outcome.cleaned,

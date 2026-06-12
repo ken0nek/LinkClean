@@ -107,17 +107,20 @@ public struct ActionPipeline {
     private let cleaning: CleaningService
     private let settings: SettingsStore
     private let analytics: AnalyticsService
+    private let stats: StatsStore
 
     public init(
         strategy: any ActionOutputStrategy,
         cleaning: CleaningService = DefaultCleaningService(),
         settings: SettingsStore = SettingsStore(),
-        analytics: AnalyticsService = TelemetryDeckAnalytics()
+        analytics: AnalyticsService = TelemetryDeckAnalytics(),
+        stats: StatsStore = StatsStore()
     ) {
         self.strategy = strategy
         self.cleaning = cleaning
         self.settings = settings
         self.analytics = analytics
+        self.stats = stats
     }
 
     public func run(items: [NSExtensionItem], hasAttachments: Bool) async -> ActionPresentation {
@@ -140,6 +143,7 @@ public struct ActionPipeline {
         for event in result.successEvents {
             analytics.capture(event)
         }
+        stats.record(outcome.telemetry)
         saveHistory(input: extracted.url.absoluteString, output: outcome.cleaned)
         recordSuccessfulRun()
         return ActionPresentation(payload: result.payload, toast: .copied, haptic: .success)
