@@ -9,11 +9,13 @@ import Foundation
 import LinkCleanCore
 
 /// The one place that composes the user's parameter rules with the cleaner:
-/// resolve the host's enabled set from the ``TrackingParameterStore``, fold in
-/// any transient extras, and run ``URLCleaner/outcome(for:removing:)`` — yielding
-/// a single ``CleanOutcome``. Lives in `LinkCleanData` so the app **and both
-/// action extensions** share it instead of each hand-rolling
-/// `enabledParameters(forHost:)` + `URLCleaner.outcome`.
+/// peel any known redirect wrapper (``URLCleaner/unwrap(_:maxDepth:)``) so the
+/// real destination is cleaned, resolve *that host's* enabled set from the
+/// ``TrackingParameterStore``, fold in any transient extras, and run
+/// ``URLCleaner/outcome(for:removing:)`` — yielding a single ``CleanOutcome``.
+/// Lives in `LinkCleanData` so the app **and both action extensions** share it
+/// instead of each hand-rolling unwrap + `enabledParameters(forHost:)` +
+/// `URLCleaner.outcome`.
 public protocol CleaningService: Sendable {
     func isValidURL(_ input: String) -> Bool
     /// Cleans `input` with the user's enabled parameters plus `extraParameters` —
@@ -45,8 +47,12 @@ public struct DefaultCleaningService: CleaningService {
             return nil
         }
 
-        let enabled = store.enabledParameters(forHost: URLCleaner.ruleHost(of: trimmed))
+        // Peel known redirect wrappers first, then resolve rules against the
+        // *destination's* host — not the wrapper's (a google.com/url?q=… link
+        // must clean by the inner site's rules, e.g. youtube's t=/si=).
+        let unwrapped = URLCleaner.unwrap(trimmed).destination
+        let enabled = store.enabledParameters(forHost: URLCleaner.ruleHost(of: unwrapped))
             .union(extraParameters.map { $0.lowercased() })
-        return URLCleaner.outcome(for: trimmed, removing: enabled)
+        return URLCleaner.outcome(for: unwrapped, removing: enabled)
     }
 }
