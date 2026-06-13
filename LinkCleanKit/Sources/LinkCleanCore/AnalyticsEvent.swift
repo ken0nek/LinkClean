@@ -80,6 +80,19 @@ public enum AnalyticsEvent: Equatable {
     /// (§3). Pairs with ``parametersCustomAdded`` — the "always" path — to show
     /// which removal the pill flow actually satisfies.
     case parametersLeftoverRemovedOnce
+    /// The unknown-parameter advisor surfaced a leftover it judged a likely
+    /// tracker (at most one per clean). ``AdvisorTier`` says which stage produced
+    /// it — deterministic reference/heuristic, or the on-device model. Never the
+    /// parameter name (a raw URL key, §3) — only the finite tier.
+    case parametersAdvisorSuggested(tier: AdvisorTier)
+    /// The user accepted an advisor suggestion (tapped Always Remove). Fires on
+    /// the intent, whether or not the add is then gated — the funnel's accept
+    /// signal. Pairs with ``paywallShown`` (trigger ``PaywallTrigger/advisorAccept``)
+    /// for gated free users and ``parametersCustomAdded`` when it lands.
+    case parametersAdvisorAccepted(tier: AdvisorTier)
+    /// The user dismissed an advisor suggestion ("Not now"). The dismiss-vs-accept
+    /// split, sliced by tier, is the advisor's value read (ai-features §9-A).
+    case parametersAdvisorDismissed(tier: AdvisorTier)
 
     // MARK: Onboarding (§6)
 
@@ -176,6 +189,17 @@ public enum AnalyticsEvent: Equatable {
         case clipboard   // CleanClipboardIntent — incl. the Control Center control + widget
     }
 
+    /// Which stage of the unknown-parameter advisor produced a suggestion — the
+    /// heuristic-vs-model read (ai-features §9-A). Low-cardinality and name-free:
+    /// ``reference`` and ``heuristic`` run on every device, ``model`` only on
+    /// Apple-Intelligence hardware, so the split also measures how often the
+    /// deterministic floor suffices versus needing the model.
+    public enum AdvisorTier: String {
+        case reference   // bundled ReferenceParameterCatalog match (deterministic)
+        case heuristic   // TrackerHeuristic name-shape rule (deterministic)
+        case model       // on-device Foundation Models verdict
+    }
+
     /// Coarse rating outcome — the only rating detail ever sent (§3), never the
     /// exact star count. ≥ 4 stars is ``high``, ≤ 3 is ``low``.
     public enum ReviewBucket: String {
@@ -226,6 +250,9 @@ public enum AnalyticsEvent: Equatable {
         case .parametersCustomShown: "Parameters.Custom.shown"
         case .parametersReferenceObserved: "Parameters.Reference.observed"
         case .parametersLeftoverRemovedOnce: "Parameters.Leftover.removedOnce"
+        case .parametersAdvisorSuggested: "Parameters.Advisor.suggested"
+        case .parametersAdvisorAccepted: "Parameters.Advisor.accepted"
+        case .parametersAdvisorDismissed: "Parameters.Advisor.dismissed"
         case .onboardingFlowCompleted: "Onboarding.Flow.completed"
         case .onboardingFlowSkipped: "Onboarding.Flow.skipped"
         case .onboardingExtensionGuideShown: "Onboarding.ExtensionGuide.shown"
@@ -284,6 +311,10 @@ public enum AnalyticsEvent: Equatable {
             return ["totalCount": Bucket.count(totalCount)]
         case let .parametersReferenceObserved(parameter):
             return ["parameter": parameter]
+        case let .parametersAdvisorSuggested(tier),
+             let .parametersAdvisorAccepted(tier),
+             let .parametersAdvisorDismissed(tier):
+            return ["tier": tier.rawValue]
         case let .onboardingExtensionGuideShown(source):
             return ["source": source.rawValue]
         case let .actionCleanSucceeded(t):

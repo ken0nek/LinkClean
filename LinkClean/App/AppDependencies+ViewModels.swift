@@ -46,7 +46,7 @@ extension HomeViewModel {
             settings: deps.settings,
             store: deps.parameters,
             review: deps.review,
-            explanationService: deps.explanations,
+            advisor: deps.advisor,
             history: deps.history,
             stats: deps.stats
         )

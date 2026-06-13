@@ -28,9 +28,11 @@ final class HomeViewModel {
     var didCopy = false
     var showClipboardToast = false
     var focusResetToken = UUID()
-    /// The leftover parameter whose on-device explanation is being generated, or
-    /// `nil` when idle. Drives the pill's progress spinner; observed.
-    private(set) var explainingParameter: String?
+    /// The advisor's single proactive pick for the current clean — a leftover it
+    /// judged a likely tracker — or `nil`. Observed: drives the Home suggestion
+    /// card. Set off a debounced, cancellable task so the on-device model never
+    /// runs on the per-keystroke path.
+    private(set) var suggestion: ParameterSuggestion?
     /// Owns the in-app review prompt (eligibility, grace delay, presentation,
     /// rated-high handoff). HomeView renders `reviewFlow.isPresenting`; this model
     /// only feeds it exports. Read through it observes its `isPresenting`.
@@ -39,7 +41,7 @@ final class HomeViewModel {
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore
     @ObservationIgnored private let store: TrackingParameterStore
-    @ObservationIgnored private let explanationService: ParameterExplanationService
+    @ObservationIgnored private let advisor: ParameterAdvising
     @ObservationIgnored private let history: HistoryStore
     @ObservationIgnored private let stats: StatsStore
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
@@ -47,6 +49,7 @@ final class HomeViewModel {
     @ObservationIgnored private var toastTask: Task<Void, Never>?
     @ObservationIgnored private var isHomeVisible = false
     @ObservationIgnored private var didRunInitialPaste = false
+    @ObservationIgnored private var didPrewarmAdvisor = false
     // Source attribution for `Home.URL.cleaned`. SwiftUI can't tell a paste from
     // typing on a TextField binding, so we infer: a programmatic clipboard fill
     // is `autoPaste`; a single new character is `typed`; a larger jump is
@@ -58,10 +61,15 @@ final class HomeViewModel {
     // parameters stripped from the *current* link only, never persisted. Any
     // input edit clears the set — it described the previous link.
     @ObservationIgnored private var oneTimeRemovals: Set<String> = []
-    // On-device parameter explanations, keyed by lowercased name. Generated lazily
-    // when a leftover pill is tapped and cached for the session — a name's
-    // explanation is stable, so it's fetched at most once.
-    @ObservationIgnored private var parameterExplanations: [String: ParameterExplanation] = [:]
+    @ObservationIgnored private var advisorTask: Task<Void, Never>?
+    // Names the user dismissed ("Not now") for the current link, so the advisor
+    // won't re-propose them. Lowercased; cleared on any input edit — a new link
+    // is a new context.
+    @ObservationIgnored private var dismissedSuggestions: Set<String> = []
+    // The input the user has already engaged the advisor on (accepted or
+    // dismissed). Once set for an input, no further suggestion auto-surfaces for
+    // it: handle one, then the leftover pills cover the rest — no nagging.
+    @ObservationIgnored private var advisorEngagedInput: String?
 
     init(
         service: CleaningService = DefaultCleaningService(),
@@ -69,19 +77,29 @@ final class HomeViewModel {
         settings: SettingsStore = SettingsStore(),
         store: TrackingParameterStore = TrackingParameterStore(),
         review: ReviewService = DefaultReviewService(),
-        explanationService: ParameterExplanationService = FoundationModelsParameterExplanationService(),
+        // Test/preview default is the no-op advisor (production injects the real
+        // one via the composition root), so a clean in a test never schedules
+        // model work — mirrors `HistoryStore.inMemoryPreview`.
+        advisor: ParameterAdvising = DisabledParameterAdvisor(),
         history: HistoryStore = .inMemoryPreview,
-        stats: StatsStore = StatsStore()
+        stats: StatsStore = StatsStore(),
+        advisorDebounce: Duration = .milliseconds(350)
     ) {
         self.service = service
         self.analytics = analytics
         self.settings = settings
         self.store = store
-        self.explanationService = explanationService
+        self.advisor = advisor
         self.history = history
         self.stats = stats
+        self.advisorDebounce = advisorDebounce
         self.reviewFlow = ReviewPromptFlow(review: review, analytics: analytics)
     }
+
+    // Debounce before the advisor runs after a clean, keeping the on-device model
+    // off the per-keystroke path (a distinct input cleans on every change).
+    // Injectable so tests run it without the wait.
+    @ObservationIgnored private let advisorDebounce: Duration
 
     private var isAutoPasteEnabled: Bool { settings.autoPasteEnabled }
 
@@ -124,13 +142,17 @@ final class HomeViewModel {
         session.outcome?.display.removedNames ?? []
     }
 
-    /// Every parameter that survived cleaning — the actionable "remaining" pills.
-    /// Display-only raw query keys (the ``CleanOutcome/Display`` view, never sent
-    /// to analytics); tapping one offers "Remove Once"
-    /// (``removeLeftoverParameterOnce(_:)``, this link only) or "Always Remove"
-    /// (``addLeftoverParameter(_:)``, the custom set).
+    /// Every parameter that survived cleaning — the actionable "remaining" pills —
+    /// minus the one currently surfaced as a ``suggestion`` (it's shown once, in
+    /// the advisor card above). Dismissing the suggestion returns its name here so
+    /// the user can still act on it manually. Display-only raw query keys (the
+    /// ``CleanOutcome/Display`` view, never sent to analytics); tapping one offers
+    /// "Remove Once" (``removeLeftoverParameterOnce(_:)``, this link only) or
+    /// "Always Remove" (``addLeftoverParameter(_:)``, the custom set).
     var leftoverParameters: [String] {
-        session.outcome?.display.leftoverNames ?? []
+        let all = session.outcome?.display.leftoverNames ?? []
+        guard let suggested = suggestion?.name.lowercased() else { return all }
+        return all.filter { $0.lowercased() != suggested }
     }
 
     func clearInput() {
@@ -175,8 +197,20 @@ final class HomeViewModel {
     /// `.allowed` the add has already happened — the view only plays its haptic;
     /// on `.gated` the view raises the paywall (after the dialog's dismiss grace).
     func requestAlwaysRemove(_ name: String, entitlement: Entitlement) -> GateResult {
+        promoteToAlwaysRemove(name, entitlement: entitlement, gatedBy: .customParamHome)
+    }
+
+    /// The shared Always-Remove gate (T2): promote `name` to a persisted custom
+    /// rule when the free allowance permits (Pro is unlimited), else return the
+    /// paywall `trigger`. Both the leftover-pill path and the advisor card route
+    /// through here, so the gate policy and the add side effect live in one place.
+    private func promoteToAlwaysRemove(
+        _ name: String,
+        entitlement: Entitlement,
+        gatedBy trigger: AnalyticsEvent.PaywallTrigger
+    ) -> GateResult {
         guard ProGate.canAddCustomRule(entitlement: entitlement, currentCount: customParameterCount) else {
-            return .gated(.customParamHome)
+            return .gated(trigger)
         }
         addLeftoverParameter(name)
         return .allowed
@@ -204,45 +238,103 @@ final class HomeViewModel {
         refreshCleanedURL()
     }
 
-    /// Whether the on-device model can explain a parameter. The view reads this to
-    /// decide whether tapping a pill is worth a brief wait or should open the
-    /// generic dialog immediately.
-    var isParameterExplanationAvailable: Bool {
-        explanationService.isAvailable
-    }
+    /// Recomputes the at-most-one tracker suggestion for the current outcome.
+    /// Candidates are the leftovers minus managed catalog defaults (handled by
+    /// the Settings toggles, not the advisor) and names the user already
+    /// dismissed. A still-valid suggestion is kept to avoid flicker as a typed
+    /// URL grows; otherwise it's cleared and a debounced, cancellable task
+    /// re-derives one — the debounce keeps the on-device model off the
+    /// per-keystroke path, and once the user has engaged the advisor for this
+    /// input nothing new auto-surfaces.
+    private func updateAdvisor(for outcome: CleanOutcome?) {
+        advisorTask?.cancel()
 
-    /// The cached one-line explanation for `parameter`, or `nil` if none was
-    /// generated (model unavailable, generation failed, or not yet prepared). Read
-    /// synchronously by the confirm dialog, so it must already be cached — see
-    /// ``prepareExplanation(for:)``.
-    func explanation(for parameter: String) -> String? {
-        parameterExplanations[parameter.lowercased()]?.oneLiner
-    }
+        guard let outcome else { suggestion = nil; return }
 
-    /// Generates and caches a leftover parameter's explanation *before* its confirm
-    /// dialog opens — the dialog's message isn't reactive, so the text must be
-    /// ready at present time. No-ops when the model is unavailable or the parameter
-    /// is already cached, so those paths present instantly. Sets
-    /// ``explainingParameter`` for the duration so the pill can show a spinner.
-    func prepareExplanation(for parameter: String) async {
-        let key = parameter.lowercased()
-        guard explanationService.isAvailable else { return }
-        guard parameterExplanations[key] == nil else { return }
-        // One generation at a time; a second tap during the brief wait is ignored
-        // (the alert blocks further taps once it opens).
-        guard explainingParameter == nil else { return }
-
-        explainingParameter = parameter
-        defer { explainingParameter = nil }
-
-        if let explanation = await explanationService.explain(parameter: parameter) {
-            parameterExplanations[key] = explanation
+        let candidates = outcome.display.leftoverNames.filter { name in
+            let key = name.lowercased()
+            return !dismissedSuggestions.contains(key)
+                && !TrackingParameterCatalog.allNames.contains(key)
         }
+
+        // Keep a current suggestion that still applies — no flicker on re-cleans.
+        if let current = suggestion,
+           candidates.contains(where: { $0.lowercased() == current.name.lowercased() }) {
+            return
+        }
+        suggestion = nil
+
+        guard !candidates.isEmpty, outcome.input != advisorEngagedInput else { return }
+
+        let input = outcome.input
+        advisorTask = Task { @MainActor in
+            try? await Task.sleep(for: advisorDebounce)
+            guard !Task.isCancelled else { return }
+            let result = await advisor.suggestion(among: candidates)
+            // Bail if the input moved on while we were classifying, or the user
+            // engaged the advisor in the meantime.
+            guard !Task.isCancelled,
+                  let result,
+                  session.outcome?.input == input,
+                  advisorEngagedInput != input else { return }
+            suggestion = result
+            analytics.capture(.parametersAdvisorSuggested(tier: result.tier))
+        }
+    }
+
+    /// Accepts the current advisor suggestion (the card's "Always Remove"):
+    /// records the funnel intent, then promotes it to an always-remove rule when
+    /// the free allowance permits, or returns the gate. Mirrors
+    /// ``requestAlwaysRemove(_:entitlement:)`` but tags the paywall as
+    /// advisor-driven (``AnalyticsEvent/PaywallTrigger/advisorAccept``). On
+    /// `.allowed` the add has happened and the suggestion is cleared; on `.gated`
+    /// the suggestion stays so a returning non-buyer can retry.
+    func acceptSuggestion(entitlement: Entitlement) -> GateResult {
+        guard let suggestion else { return .allowed }
+        // Record the accept *intent* once per engaged input. The suggestion-quality
+        // read (accept vs dismiss, ai-features §9-A) must stay entitlement-independent,
+        // so it fires even when gated — but a gated card stays on screen and
+        // re-tappable, so dedupe against the engaged mark to keep a free user's
+        // repeated taps from inflating the count.
+        let input = session.outcome?.input
+        if advisorEngagedInput != input {
+            analytics.capture(.parametersAdvisorAccepted(tier: suggestion.tier))
+        }
+        advisorEngagedInput = input
+        let result = promoteToAlwaysRemove(suggestion.name, entitlement: entitlement, gatedBy: .advisorAccept)
+        if case .allowed = result { self.suggestion = nil }
+        return result
+    }
+
+    /// Dismisses the current suggestion ("Not now"): records it, remembers the
+    /// name so it isn't proposed again for this link, and suppresses any further
+    /// auto-suggestion for the current input. The name returns to the leftover
+    /// pills, so the user can still act on it manually.
+    func dismissSuggestion() {
+        guard let suggestion else { return }
+        analytics.capture(.parametersAdvisorDismissed(tier: suggestion.tier))
+        dismissedSuggestions.insert(suggestion.name.lowercased())
+        advisorEngagedInput = session.outcome?.input
+        self.suggestion = nil
+    }
+
+    /// Awaits the in-flight advisor task. Test seam only — production reacts to
+    /// `suggestion` via observation.
+    func waitForAdvisor() async {
+        await advisorTask?.value
     }
 
     func onAppear() {
         isHomeVisible = true
         reviewFlow.setVisible(true)
+        // Warm the model once per session so the first suggestion after a paste
+        // doesn't pay load latency; no-op on devices without Apple Intelligence.
+        // Assets are process-shared, so re-warming on every tab return is wasted
+        // churn — latch it like `didRunInitialPaste`.
+        if !didPrewarmAdvisor {
+            didPrewarmAdvisor = true
+            advisor.prewarm()
+        }
 
         if !didRunInitialPaste, isAutoPasteEnabled {
             didRunInitialPaste = true
@@ -257,6 +349,10 @@ final class HomeViewModel {
         // The flow cancels any pending review offer so it can't surface over a
         // backgrounded or torn-down Home.
         reviewFlow.setVisible(false)
+        // Drop any in-flight advisor work so a suggestion can't resolve, set
+        // state, fire `Advisor.suggested`, or run on-device inference while Home
+        // is off-screen — it re-derives on the next appear via refreshCleanedURL.
+        advisorTask?.cancel()
     }
 
     func handleSceneBecameActive() {
@@ -338,8 +434,11 @@ final class HomeViewModel {
         }
 
         // Any real edit means a new link state; one-time removals described the
-        // previous link and must not silently carry into this one.
+        // previous link and must not silently carry into this one. The advisor's
+        // dismissals and "already engaged" mark are likewise per-link.
         oneTimeRemovals.removeAll()
+        dismissedSuggestions.removeAll()
+        advisorEngagedInput = nil
 
         // The session resets its per-input/per-output dedup keys when the input
         // becomes empty — deliberately keeping the review counter (clearing and
@@ -351,9 +450,13 @@ final class HomeViewModel {
 
     private func refreshCleanedURL() {
         cleanTask?.cancel()
+        // Drop any pending suggestion work the instant the input changes; the
+        // completion below re-derives it for the new outcome.
+        advisorTask?.cancel()
 
         guard !isInputEmpty, isInputValidURL else {
             session.setOutcome(nil)
+            updateAdvisor(for: nil)
             return
         }
 
@@ -370,6 +473,10 @@ final class HomeViewModel {
                 if self.session.setOutcome(outcome), let outcome {
                     self.signalCleaned(outcome, source: source)
                 }
+                // Re-derive the suggestion for the current outcome (debounced),
+                // on every clean — including re-cleans, which may have removed the
+                // suggested name and need it cleared.
+                self.updateAdvisor(for: self.session.outcome)
             }
         }
     }

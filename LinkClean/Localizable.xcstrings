@@ -542,6 +542,83 @@
         }
       }
     },
+    "home.advisor.dismiss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        }
+      }
+    },
+    "home.advisor.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggested"
+          }
+        }
+      }
+    },
+    "home.advisor.reason.affiliate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looks like an affiliate or referral tag."
+          }
+        }
+      }
+    },
+    "home.advisor.reason.campaign" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looks like a campaign-tracking parameter."
+          }
+        }
+      }
+    },
+    "home.advisor.reason.clickId" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looks like a click-tracking ID."
+          }
+        }
+      }
+    },
+    "home.advisor.reason.generic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looks like a tracking parameter."
+          }
+        }
+      }
+    },
+    "home.advisor.reason.known" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A known tracking parameter."
+          }
+        }
+      }
+    },
     "home.cleaned.header" : {
       "extractionState" : "manual",
       "localizations" : {

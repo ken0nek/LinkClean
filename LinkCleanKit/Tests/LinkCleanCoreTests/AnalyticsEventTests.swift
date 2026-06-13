@@ -54,6 +54,9 @@ struct AnalyticsEventTests {
             (.parametersCustomShown, "Parameters.Custom.shown"),
             (.parametersReferenceObserved(parameter: "epik"), "Parameters.Reference.observed"),
             (.parametersLeftoverRemovedOnce, "Parameters.Leftover.removedOnce"),
+            (.parametersAdvisorSuggested(tier: .reference), "Parameters.Advisor.suggested"),
+            (.parametersAdvisorAccepted(tier: .heuristic), "Parameters.Advisor.accepted"),
+            (.parametersAdvisorDismissed(tier: .model), "Parameters.Advisor.dismissed"),
             (.onboardingFlowCompleted, "Onboarding.Flow.completed"),
             (.onboardingFlowSkipped, "Onboarding.Flow.skipped"),
             (.onboardingExtensionGuideShown(source: .onboarding), "Onboarding.ExtensionGuide.shown"),
@@ -253,6 +256,15 @@ struct AnalyticsEventTests {
         let deleted = AnalyticsEvent.parametersCustomDeleted(totalCount: 2).parameters
         #expect(Array(added.keys) == ["totalCount"])
         #expect(Array(deleted.keys) == ["totalCount"])
+    }
+
+    @Test func advisorEventsCarryOnlyTheTier() {
+        // Privacy (§3): the advisor runs on raw leftover names on-device, but its
+        // events expose only the finite reference/heuristic/model tier — never the
+        // parameter name.
+        #expect(AnalyticsEvent.parametersAdvisorSuggested(tier: .reference).parameters == ["tier": "reference"])
+        #expect(AnalyticsEvent.parametersAdvisorAccepted(tier: .heuristic).parameters == ["tier": "heuristic"])
+        #expect(AnalyticsEvent.parametersAdvisorDismissed(tier: .model).parameters == ["tier": "model"])
     }
 
     @Test func reviewStarsSelectedCarriesOnlyTheBucket() {

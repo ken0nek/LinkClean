@@ -16,10 +16,6 @@ struct HomeView: View {
     @FocusState private var isInputFocused: Bool
     @State private var isRemovedExpanded = false
     @State private var parameterPendingAdd: String?
-    /// The leftover parameter a tap requested an explanation for. A `.task(id:)`
-    /// resolves it on-device, then opens the confirm dialog — the dialog's message
-    /// isn't reactive, so the explanation must be ready before it presents.
-    @State private var parameterToExplain: String?
     @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
     /// Bumped on a confirmed leftover-add so `.sensoryFeedback` fires a success tap.
     @State private var leftoverAddedHaptic = 0
@@ -43,6 +39,8 @@ struct HomeView: View {
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
+                suggestionCard
+
                 if !viewModel.leftoverParameters.isEmpty {
                     leftoverSection
                         .transition(.opacity)
@@ -51,6 +49,7 @@ struct HomeView: View {
             .padding(20)
             .animation(.snappy(duration: 0.28), value: viewModel.cleanedText)
             .animation(.snappy(duration: 0.28), value: viewModel.leftoverParameters)
+            .animation(.snappy(duration: 0.28), value: viewModel.suggestion)
         }
         .scrollDismissesKeyboard(.interactively)
         .overlay(alignment: .top) { clipboardToast }
@@ -61,11 +60,6 @@ struct HomeView: View {
         }
         .onDisappear {
             viewModel.onDisappear()
-            // Drop any in-flight explanation request: the `.task(id:)` is cancelled
-            // on disappear but only clears this on its non-cancelled path, so
-            // without this a tab switch mid-generation would leave the trigger set
-            // and auto-open the confirm dialog when Home reappears.
-            parameterToExplain = nil
         }
         .onChange(of: scenePhase) { _, newValue in
             guard newValue == .active else { return }
@@ -110,23 +104,8 @@ struct HomeView: View {
             }
         } message: {
             if let parameterPendingAdd {
-                // When an on-device explanation was prepared, lead with it; the
-                // existing copy still explains the two actions below.
-                if let explanation = viewModel.explanation(for: parameterPendingAdd) {
-                    Text(explanation + "\n\n" + String(localized: .homeLeftoverConfirmMessage(parameterPendingAdd)))
-                } else {
-                    Text(.homeLeftoverConfirmMessage(parameterPendingAdd))
-                }
+                Text(.homeLeftoverConfirmMessage(parameterPendingAdd))
             }
-        }
-        // Resolve the explanation off the tap, then present. `.task(id:)` cancels
-        // if the user leaves, so a slow generation can't open a stale dialog.
-        .task(id: parameterToExplain) {
-            guard let name = parameterToExplain else { return }
-            await viewModel.prepareExplanation(for: name)
-            guard !Task.isCancelled else { return }
-            parameterPendingAdd = name
-            parameterToExplain = nil
         }
         .sheet(
             isPresented: Binding(
@@ -321,6 +300,78 @@ struct HomeView: View {
         .controlSize(.large)
     }
 
+    // MARK: - Advisor suggestion
+
+    /// The unknown-parameter advisor's single proactive pick: a leftover it
+    /// judged a likely tracker, with a one-line reason and an Always-Remove CTA.
+    /// Calm and dismissible — suggestion-only, and recoverable via the same
+    /// toggles if it's ever wrong. The `sparkles` glyph appears only when the
+    /// on-device model produced the verdict, so the intelligence claim stays
+    /// honest on devices that ran the deterministic tier.
+    @ViewBuilder
+    private var suggestionCard: some View {
+        if let suggestion = viewModel.suggestion {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 6) {
+                    Image(systemName: suggestion.tier == .model ? "sparkles" : "lightbulb.fill")
+                        .foregroundStyle(.tint)
+                    Text(.homeAdvisorHeader)
+                        .font(.caption.weight(.semibold))
+                        .textCase(.uppercase)
+                        .tracking(0.6)
+                        .foregroundStyle(.secondary)
+                }
+
+                Text(suggestion.name)
+                    .font(.system(.title3, design: .monospaced).weight(.bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Text(suggestion.reason)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                HStack(spacing: 12) {
+                    Button {
+                        acceptSuggestion()
+                    } label: {
+                        Text(.homeLeftoverConfirmAction)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.glassProminent)
+
+                    Button {
+                        viewModel.dismissSuggestion()
+                    } label: {
+                        Text(.homeAdvisorDismiss)
+                    }
+                    .buttonStyle(.glass)
+                }
+                .controlSize(.large)
+                .padding(.top, 2)
+            }
+            .padding(20)
+            .glassCard(cornerRadius: 22)
+            .accessibilityElement(children: .combine)
+            .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+    }
+
+    /// Routes the suggestion's "Always Remove" through the ViewModel gate: a
+    /// success haptic when it lands, or the advisor-tagged paywall when a free
+    /// user is past their one custom rule.
+    private func acceptSuggestion() {
+        switch viewModel.acceptSuggestion(entitlement: entitlements.entitlement) {
+        case .allowed:
+            leftoverAddedHaptic += 1
+        case .gated(let trigger):
+            paywallTrigger = trigger
+        }
+    }
+
     // MARK: - Remaining (leftover) trackers
 
     /// Actionable: parameters that survived cleaning. Tapping one opens a confirm
@@ -378,18 +429,11 @@ struct HomeView: View {
 
     private func leftoverRow(_ name: String) -> some View {
         Button {
-            // When the on-device model is available, request an explanation first
-            // and let the `.task(id:)` above open the confirm dialog once it's
-            // ready; otherwise open the dialog immediately with the generic copy —
-            // no async hop, no spinner. "Remove Once" is a one-time, non-persisted
+            // Open the confirm dialog. "Remove Once" is a one-time, non-persisted
             // strip (operation, never gated; §6 rule 3); the 1-free-rule gate lives
             // on "Always Remove" inside the dialog, so a free user can always strip
             // a tracker from the current link.
-            if viewModel.isParameterExplanationAvailable {
-                parameterToExplain = name
-            } else {
-                parameterPendingAdd = name
-            }
+            parameterPendingAdd = name
         } label: {
             HStack(spacing: 12) {
                 Text(name)
@@ -400,14 +444,9 @@ struct HomeView: View {
 
                 Spacer(minLength: 8)
 
-                if viewModel.explainingParameter == name {
-                    ProgressView()
-                        .controlSize(.small)
-                } else {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(.tint)
-                }
+                Image(systemName: "plus.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.tint)
             }
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
@@ -415,7 +454,6 @@ struct HomeView: View {
             .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
         }
         .buttonStyle(.plain)
-        .disabled(viewModel.explainingParameter != nil)
         .accessibilityLabel(Text(.homeLeftoverRemove(name)))
         .accessibilityIdentifier("leftover-tracker-\(name)")
     }

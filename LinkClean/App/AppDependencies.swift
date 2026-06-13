@@ -27,7 +27,7 @@ struct AppDependencies {
     let settings: SettingsStore
     let parameters: TrackingParameterStore
     let review: ReviewService
-    let explanations: ParameterExplanationService
+    let advisor: ParameterAdvising
     let history: HistoryStore
     let stats: StatsStore
     let entitlements: EntitlementsModel
@@ -50,7 +50,7 @@ struct AppDependencies {
             settings: settings,
             parameters: parameters,
             review: DefaultReviewService(),
-            explanations: FoundationModelsParameterExplanationService(),
+            advisor: FoundationModelsParameterAdvisor(),
             history: HistoryStore(container: container, metadata: DefaultLinkMetadataService(), settings: settings),
             stats: StatsStore(),
             entitlements: EntitlementsModel(
@@ -71,7 +71,7 @@ struct AppDependencies {
             settings: settings,
             parameters: TrackingParameterStore(),
             review: DefaultReviewService(),
-            explanations: FoundationModelsParameterExplanationService(),
+            advisor: FoundationModelsParameterAdvisor(),
             history: HistoryStore(container: HistoryContainer.makeInMemory(), metadata: DefaultLinkMetadataService(), settings: settings),
             stats: StatsStore(),
             entitlements: EntitlementsModel(service: PreviewEntitlementsService(entitlement: entitlement))
