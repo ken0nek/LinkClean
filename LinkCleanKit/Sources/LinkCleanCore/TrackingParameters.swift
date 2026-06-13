@@ -87,10 +87,18 @@ public struct TrackingParameterSection: Identifiable, Hashable, Sendable {
 public enum TrackingParameterCatalog {
     private static let xTwitter: Set<String> = ["twitter.com", "x.com"]
     private static let youtube: Set<String> = ["youtube.com", "youtu.be"]
+    /// Amazon storefronts. Amazon's tracking keys (`tag`, `ref_`, `pf_rd_*`…)
+    /// collide with functional keys on other sites, so they're scoped here.
+    private static let amazon: Set<String> = [
+        "amazon.com", "amazon.co.uk", "amazon.de", "amazon.co.jp", "amazon.fr",
+        "amazon.it", "amazon.es", "amazon.ca", "amazon.com.au", "amazon.in",
+        "amazon.com.br", "amazon.com.mx", "amazon.nl", "amazon.se", "amazon.sg",
+        "amazon.ae", "amazon.com.tr", "amazon.pl"
+    ]
 
     public static let sections: [TrackingParameterSection] = {
         let utm = TrackingParameterKind(id: "utm", sortOrder: 0)
-        let common = TrackingParameterKind(id: "common", sortOrder: 1)
+        let referral = TrackingParameterKind(id: "referral", sortOrder: 1)
         let ads = TrackingParameterKind(id: "ads", sortOrder: 2)
         let analytics = TrackingParameterKind(id: "analytics", sortOrder: 3)
         let email = TrackingParameterKind(id: "email", sortOrder: 4)
@@ -116,20 +124,23 @@ public enum TrackingParameterCatalog {
                 )
             ),
             TrackingParameterSection(
-                kind: common,
+                kind: referral,
                 parameters: dedup([
-                    TrackingParameterDefinition(name: "ref", kind: common, enabledByDefault: false),
-                    TrackingParameterDefinition(name: "ref_src", kind: common),
-                    TrackingParameterDefinition(name: "ref_url", kind: common),
+                    TrackingParameterDefinition(name: "ref", kind: referral, enabledByDefault: false),
+                    TrackingParameterDefinition(name: "ref_src", kind: referral),
+                    TrackingParameterDefinition(name: "ref_url", kind: referral),
                     // Play Store install-referrer payloads; functional
                     // redirect targets elsewhere.
-                    TrackingParameterDefinition(name: "referrer", kind: common, hosts: ["play.google.com"]),
-                    TrackingParameterDefinition(name: "source", kind: common, enabledByDefault: false),
-                    TrackingParameterDefinition(name: "campaign", kind: common, enabledByDefault: false),
-                    TrackingParameterDefinition(name: "medium", kind: common, enabledByDefault: false),
+                    TrackingParameterDefinition(name: "referrer", kind: referral, hosts: ["play.google.com"]),
+                    TrackingParameterDefinition(name: "source", kind: referral, enabledByDefault: false),
+                    TrackingParameterDefinition(name: "campaign", kind: referral, enabledByDefault: false),
+                    TrackingParameterDefinition(name: "medium", kind: referral, enabledByDefault: false),
                     // Functional on Google Maps (place ID).
-                    TrackingParameterDefinition(name: "cid", kind: common, enabledByDefault: false),
-                    TrackingParameterDefinition(name: "_cid", kind: common, enabledByDefault: false)
+                    TrackingParameterDefinition(name: "cid", kind: referral, enabledByDefault: false),
+                    TrackingParameterDefinition(name: "_cid", kind: referral, enabledByDefault: false),
+                    // Generic campaign IDs — widespread but generic, so off by default.
+                    TrackingParameterDefinition(name: "icid", kind: referral, enabledByDefault: false),
+                    TrackingParameterDefinition(name: "ncid", kind: referral, enabledByDefault: false)
                 ])
             ),
             TrackingParameterSection(
@@ -176,7 +187,16 @@ public enum TrackingParameterCatalog {
                     TrackingParameterDefinition(name: "section_id", kind: ads, enabledByDefault: false),
                     TrackingParameterDefinition(name: "section_name", kind: ads, enabledByDefault: false),
                     TrackingParameterDefinition(name: "publisher_id", kind: ads, enabledByDefault: false),
-                    TrackingParameterDefinition(name: "publisher_name", kind: ads, enabledByDefault: false)
+                    TrackingParameterDefinition(name: "publisher_name", kind: ads, enabledByDefault: false),
+                    // Vendor click IDs (default-on, vendor-specific).
+                    TrackingParameterDefinition(name: "sc_click_id", kind: ads),
+                    TrackingParameterDefinition(name: "oborigurl", kind: ads),
+                    TrackingParameterDefinition(name: "tblci", kind: ads),
+                    // Meta / TikTok ad pixels — grouped with their click IDs
+                    // (fbclid, ttclid), not under social.
+                    TrackingParameterDefinition(name: "_fbp", kind: ads),
+                    TrackingParameterDefinition(name: "_fbc", kind: ads),
+                    TrackingParameterDefinition(name: "_ttp", kind: ads)
                 ])
             ),
             TrackingParameterSection(
@@ -185,7 +205,18 @@ public enum TrackingParameterCatalog {
                     TrackingParameterDefinition(name: "_ga", kind: analytics),
                     TrackingParameterDefinition(name: "_gl", kind: analytics),
                     TrackingParameterDefinition(name: "ga", kind: analytics, enabledByDefault: false),
-                    TrackingParameterDefinition(name: "ga_session", kind: analytics)
+                    TrackingParameterDefinition(name: "ga_session", kind: analytics),
+                    // HubSpot web-analytics cookies (the email-link trackers
+                    // _hsenc/_hsmi stay under email).
+                    TrackingParameterDefinition(name: "__hssc", kind: analytics),
+                    TrackingParameterDefinition(name: "__hstc", kind: analytics),
+                    TrackingParameterDefinition(name: "__hsfp", kind: analytics),
+                    // Yandex Metrica / ComScore / Adobe (AT Internet).
+                    TrackingParameterDefinition(name: "_openstat", kind: analytics),
+                    TrackingParameterDefinition(name: "ns_campaign", kind: analytics),
+                    TrackingParameterDefinition(name: "ns_source", kind: analytics),
+                    TrackingParameterDefinition(name: "at_medium", kind: analytics),
+                    TrackingParameterDefinition(name: "at_campaign", kind: analytics)
                 ])
             ),
             TrackingParameterSection(
@@ -194,6 +225,7 @@ public enum TrackingParameterCatalog {
                     names: [
                         "mc_eid",
                         "mc_cid",
+                        "mc_tc",
                         "mkt_tok",
                         "vero_id",
                         "vero_conv",
@@ -201,10 +233,9 @@ public enum TrackingParameterCatalog {
                         "oly_anon_id",
                         "_hsenc",
                         "_hsmi",
-                        "__hssc",
-                        "__hstc",
-                        "__hsfp",
-                        "hsctatracking"
+                        "hsctatracking",
+                        // Klaviyo.
+                        "_kx"
                     ],
                     kind: email
                 )
@@ -215,9 +246,9 @@ public enum TrackingParameterCatalog {
                     TrackingParameterDefinition(name: "igshid", kind: social),
                     TrackingParameterDefinition(name: "igsh", kind: social),
                     TrackingParameterDefinition(name: "mibextid", kind: social),
-                    TrackingParameterDefinition(name: "_fbp", kind: social),
-                    TrackingParameterDefinition(name: "_fbc", kind: social),
-                    TrackingParameterDefinition(name: "_ttp", kind: social),
+                    // Branch deep-link attribution.
+                    TrackingParameterDefinition(name: "_branch_match_id", kind: social),
+                    TrackingParameterDefinition(name: "_branch_referrer", kind: social),
                     TrackingParameterDefinition(name: "share_source_type", kind: social),
                     // Google Maps share token.
                     TrackingParameterDefinition(name: "g_st", kind: social),
@@ -257,7 +288,23 @@ public enum TrackingParameterCatalog {
                     TrackingParameterDefinition(name: "subid", kind: affiliate),
                     TrackingParameterDefinition(name: "sharedid", kind: affiliate),
                     // Generic "id" suffix — article/account IDs elsewhere.
-                    TrackingParameterDefinition(name: "aid", kind: affiliate, enabledByDefault: false)
+                    TrackingParameterDefinition(name: "aid", kind: affiliate, enabledByDefault: false),
+                    // Amazon affiliate + navigation tracking, host-scoped to Amazon
+                    // storefronts. Functional search keys (qid, sr, keywords, psc,
+                    // th) are deliberately left alone.
+                    TrackingParameterDefinition(name: "tag", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "linkcode", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "ascsubtag", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "ref_", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pd_rd_w", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pd_rd_r", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pd_rd_wg", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pf_rd_p", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pf_rd_r", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pf_rd_s", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pf_rd_t", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pf_rd_i", kind: affiliate, hosts: amazon),
+                    TrackingParameterDefinition(name: "pf_rd_m", kind: affiliate, hosts: amazon)
                 ])
             )
         ]

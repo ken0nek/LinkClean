@@ -1015,17 +1015,6 @@
         }
       }
     },
-    "parameters.kind.common" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Common Tracking"
-          }
-        }
-      }
-    },
     "parameters.kind.email" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1033,6 +1022,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Email/CRM"
+          }
+        }
+      }
+    },
+    "parameters.kind.referral" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Referral"
           }
         }
       }

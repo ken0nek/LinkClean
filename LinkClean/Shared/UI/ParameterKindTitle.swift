@@ -16,7 +16,7 @@ import SwiftUI
 func parameterKindTitle(_ id: String) -> Text {
     switch id {
     case "utm": Text(.parametersKindUtm)
-    case "common": Text(.parametersKindCommon)
+    case "referral": Text(.parametersKindReferral)
     case "ads": Text(.parametersKindAds)
     case "analytics": Text(.parametersKindAnalytics)
     case "email": Text(.parametersKindEmail)
