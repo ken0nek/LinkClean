@@ -440,15 +440,6 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Helpers
-
-    private func sectionHeader(_ key: LocalizedStringResource) -> some View {
-        Text(key)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .tracking(1.1)
-    }
 }
 
 #Preview {

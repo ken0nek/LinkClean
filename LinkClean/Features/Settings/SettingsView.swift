@@ -44,6 +44,17 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
+                NavigationLink {
+                    StatsView(deps: deps)
+                } label: {
+                    Label { Text(.statsTitle) } icon: {
+                        Image(systemName: "chart.bar.fill").foregroundStyle(.tint)
+                    }
+                }
+                .accessibilityIdentifier("settings-statistics")
+            }
+
+            Section {
                 Toggle(isOn: Binding(
                     get: { viewModel.autoPasteEnabled },
                     set: { viewModel.setAutoPaste($0) }
