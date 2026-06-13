@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import LinkCleanCore
 import LinkCleanData
 
 /// Reads the lifetime cleaning aggregates (`StatsStore`) for the Statistics
@@ -48,9 +49,17 @@ final class StatsViewModel {
         let snapshot = stats.current()
         totalCleans = snapshot.totalCleans
         totalParametersRemoved = snapshot.totalParametersRemoved
-        // Sort by count, with an id/host tiebreaker so equal counts keep a stable
-        // order between reads (dictionary iteration order is nondeterministic).
-        categories = snapshot.removalsByKind
+        // Derive the by-category breakdown from the *current* catalog: the store
+        // keeps parameter-level counts, so a later re-categorization re-buckets all
+        // history here, with no migration.
+        var byKind: [String: Int] = [:]
+        for (name, count) in snapshot.removalsByParameter {
+            guard let kind = TrackingParameterCatalog.kindID(for: name) else { continue }
+            byKind[kind, default: 0] += count
+        }
+        // Sort by count, with an id tiebreaker so equal counts keep a stable order
+        // between reads (dictionary iteration order is nondeterministic).
+        categories = byKind
             .map { CategoryCount(id: $0.key, count: $0.value) }
             .sorted { $0.count != $1.count ? $0.count > $1.count : $0.id < $1.id }
         topSites = Array(

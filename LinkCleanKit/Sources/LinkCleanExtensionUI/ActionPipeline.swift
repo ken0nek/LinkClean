@@ -143,7 +143,7 @@ public struct ActionPipeline {
         for event in result.successEvents {
             analytics.capture(event)
         }
-        stats.record(outcome.telemetry)
+        stats.record(outcome)
         saveHistory(input: extracted.url.absoluteString, output: outcome.cleaned)
         recordSuccessfulRun()
         return ActionPresentation(payload: result.payload, toast: .copied, haptic: .success)

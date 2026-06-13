@@ -62,7 +62,7 @@ public struct CleanClipboardIntent: AppIntent {
         // before awaiting persistence.
         TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
         TelemetryDeckAnalytics().capture(.intentCleanSucceeded(surface: .clipboard, telemetry: outcome.telemetry))
-        StatsStore().record(outcome.telemetry)
+        StatsStore().record(outcome)
         await IntentHistory.record(input: raw, output: outcome.cleaned, settings: settings)
         return .result(
             dialog: outcome.telemetry.changed

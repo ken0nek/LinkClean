@@ -479,6 +479,6 @@ final class HomeViewModel {
         for parameter in outcome.telemetry.referenceMatches {
             analytics.capture(.parametersReferenceObserved(parameter: parameter))
         }
-        stats.record(outcome.telemetry)
+        stats.record(outcome)
     }
 }
