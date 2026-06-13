@@ -25,14 +25,17 @@ final class HomeViewModel {
     /// owns the export/signal dedup keys. Observed so `cleanedText` and the pills
     /// update when `setOutcome` runs.
     var session = CleanSession()
+    /// The advisor's dedup/suppression ledger — owns the surfaced suggestion and
+    /// the per-input dismissed/engaged state (the value-type sibling of
+    /// ``CleanSession``). Observed so the suggestion card updates when the ledger
+    /// mutates; the debounced task feeds it derived suggestions.
+    var advisorSession = AdvisorSession()
     var didCopy = false
     var showClipboardToast = false
     var focusResetToken = UUID()
-    /// The advisor's single proactive pick for the current clean — a leftover it
-    /// judged a likely tracker — or `nil`. Observed: drives the Home suggestion
-    /// card. Set off a debounced, cancellable task so the on-device model never
-    /// runs on the per-keystroke path.
-    private(set) var suggestion: ParameterSuggestion?
+    /// The advisor's single proactive pick for the current clean, or `nil` —
+    /// drives the Home suggestion card, read through the ledger.
+    var suggestion: ParameterSuggestion? { advisorSession.suggestion }
     /// Owns the in-app review prompt (eligibility, grace delay, presentation,
     /// rated-high handoff). HomeView renders `reviewFlow.isPresenting`; this model
     /// only feeds it exports. Read through it observes its `isPresenting`.
@@ -62,14 +65,6 @@ final class HomeViewModel {
     // input edit clears the set — it described the previous link.
     @ObservationIgnored private var oneTimeRemovals: Set<String> = []
     @ObservationIgnored private var advisorTask: Task<Void, Never>?
-    // Names the user dismissed ("Not now") for the current link, so the advisor
-    // won't re-propose them. Lowercased; cleared on any input edit — a new link
-    // is a new context.
-    @ObservationIgnored private var dismissedSuggestions: Set<String> = []
-    // The input the user has already engaged the advisor on (accepted or
-    // dismissed). Once set for an input, no further suggestion auto-surfaces for
-    // it: handle one, then the leftover pills cover the rest — no nagging.
-    @ObservationIgnored private var advisorEngagedInput: String?
 
     init(
         service: CleaningService = DefaultCleaningService(),
@@ -249,36 +244,31 @@ final class HomeViewModel {
     private func updateAdvisor(for outcome: CleanOutcome?) {
         advisorTask?.cancel()
 
-        guard let outcome else { suggestion = nil; return }
+        guard let outcome else { advisorSession.surface(nil); return }
 
-        let candidates = outcome.display.leftoverNames.filter { name in
-            let key = name.lowercased()
-            return !dismissedSuggestions.contains(key)
-                && !TrackingParameterCatalog.allNames.contains(key)
-        }
+        let candidates = advisorSession.candidates(from: outcome.display.leftoverNames)
 
-        // Keep a current suggestion that still applies — no flicker on re-cleans.
-        if let current = suggestion,
-           candidates.contains(where: { $0.lowercased() == current.name.lowercased() }) {
-            return
-        }
-        suggestion = nil
+        // Keep a still-applicable suggestion — no flicker on re-cleans of a
+        // growing URL — otherwise clear and re-derive below.
+        if advisorSession.keepsCurrent(amongCandidates: candidates) { return }
+        advisorSession.surface(nil)
 
-        guard !candidates.isEmpty, outcome.input != advisorEngagedInput else { return }
+        guard !candidates.isEmpty, !advisorSession.isEngaged(with: outcome.input) else { return }
 
         let input = outcome.input
         advisorTask = Task { @MainActor in
             try? await Task.sleep(for: advisorDebounce)
             guard !Task.isCancelled else { return }
-            let result = await advisor.suggestion(among: candidates)
+            let proposed = await advisor.suggestion(among: candidates)
             // Bail if the input moved on while we were classifying, or the user
             // engaged the advisor in the meantime.
             guard !Task.isCancelled,
-                  let result,
+                  let proposed,
                   session.outcome?.input == input,
-                  advisorEngagedInput != input else { return }
-            suggestion = result
-            analytics.capture(.parametersAdvisorSuggested(tier: result.tier))
+                  !advisorSession.isEngaged(with: input) else { return }
+            if advisorSession.surface(proposed) {
+                analytics.capture(.parametersAdvisorSuggested(tier: proposed.tier))
+            }
         }
     }
 
@@ -290,32 +280,29 @@ final class HomeViewModel {
     /// `.allowed` the add has happened and the suggestion is cleared; on `.gated`
     /// the suggestion stays so a returning non-buyer can retry.
     func acceptSuggestion(entitlement: Entitlement) -> GateResult {
-        guard let suggestion else { return .allowed }
+        guard let suggestion = advisorSession.suggestion else { return .allowed }
         // Record the accept *intent* once per engaged input. The suggestion-quality
         // read (accept vs dismiss, ai-features §9-A) must stay entitlement-independent,
         // so it fires even when gated — but a gated card stays on screen and
-        // re-tappable, so dedupe against the engaged mark to keep a free user's
-        // repeated taps from inflating the count.
-        let input = session.outcome?.input
-        if advisorEngagedInput != input {
+        // re-tappable, so the ledger dedupes repeated taps against the engaged mark.
+        if advisorSession.noteAccept(input: session.outcome?.input) {
             analytics.capture(.parametersAdvisorAccepted(tier: suggestion.tier))
         }
-        advisorEngagedInput = input
         let result = promoteToAlwaysRemove(suggestion.name, entitlement: entitlement, gatedBy: .advisorAccept)
-        if case .allowed = result { self.suggestion = nil }
+        if case .allowed = result { advisorSession.surface(nil) }
         return result
     }
 
-    /// Dismisses the current suggestion ("Not now"): records it, remembers the
-    /// name so it isn't proposed again for this link, and suppresses any further
-    /// auto-suggestion for the current input. The name returns to the leftover
-    /// pills, so the user can still act on it manually.
+    /// Dismisses the current suggestion ("Not now"). The ledger remembers the name
+    /// (not proposed again for this link), suppresses further auto-suggestion for
+    /// the input, clears the card, and reports whether to fire `Advisor.dismissed`
+    /// — once per engaged input, and **not** after an accept (a gated accept then
+    /// "Not now" counts as the accept). The name returns to the leftover pills.
     func dismissSuggestion() {
-        guard let suggestion else { return }
-        analytics.capture(.parametersAdvisorDismissed(tier: suggestion.tier))
-        dismissedSuggestions.insert(suggestion.name.lowercased())
-        advisorEngagedInput = session.outcome?.input
-        self.suggestion = nil
+        guard let suggestion = advisorSession.suggestion else { return }
+        if advisorSession.noteDismiss(input: session.outcome?.input) {
+            analytics.capture(.parametersAdvisorDismissed(tier: suggestion.tier))
+        }
     }
 
     /// Awaits the in-flight advisor task. Test seam only — production reacts to
@@ -434,11 +421,10 @@ final class HomeViewModel {
         }
 
         // Any real edit means a new link state; one-time removals described the
-        // previous link and must not silently carry into this one. The advisor's
-        // dismissals and "already engaged" mark are likewise per-link.
+        // previous link and must not silently carry into this one. The advisor
+        // ledger likewise resets its per-link dismissals and "engaged" mark.
         oneTimeRemovals.removeAll()
-        dismissedSuggestions.removeAll()
-        advisorEngagedInput = nil
+        advisorSession.beginInput()
 
         // The session resets its per-input/per-output dedup keys when the input
         // becomes empty — deliberately keeping the review counter (clearing and

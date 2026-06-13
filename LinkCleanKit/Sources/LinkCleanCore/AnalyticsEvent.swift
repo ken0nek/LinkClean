@@ -194,7 +194,7 @@ public enum AnalyticsEvent: Equatable {
     /// ``reference`` and ``heuristic`` run on every device, ``model`` only on
     /// Apple-Intelligence hardware, so the split also measures how often the
     /// deterministic floor suffices versus needing the model.
-    public enum AdvisorTier: String {
+    public enum AdvisorTier: String, Sendable {
         case reference   // bundled ReferenceParameterCatalog match (deterministic)
         case heuristic   // TrackerHeuristic name-shape rule (deterministic)
         case model       // on-device Foundation Models verdict

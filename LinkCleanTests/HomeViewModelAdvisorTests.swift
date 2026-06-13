@@ -147,6 +147,29 @@ struct HomeViewModelAdvisorTests {
         #expect(vm.suggestion != nil) // still gated, card retained for retry
     }
 
+    @Test func gatedAcceptThenDismissCountsAsAcceptNotDismiss() async {
+        // End-to-end of the audit fix: a free user past allowance taps Always
+        // Remove (gated → accepted fires, card stays), then taps "Not now". That
+        // is one accept, not accept + dismiss — dismissed must not fire.
+        let suiteName = "test.\(UUID().uuidString)"
+        let store = TrackingParameterStore(suiteName: suiteName)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suiteName) }
+        store.addCustomParameter("existing") // at the free allowance
+        let spy = SpyAnalytics()
+        var advisor = StubParameterAdvisor()
+        advisor.result = suggestion("cmpid", tier: .model)
+        let vm = makeViewModel(leftoverNames: ["cmpid", "foo"], advisor: advisor, analytics: spy, store: store)
+
+        vm.inputText = "https://x.com/?cmpid=1&foo=2"
+        await waitUntil { vm.suggestion != nil }
+
+        _ = vm.acceptSuggestion(entitlement: .free) // gated → accepted fires, card kept
+        vm.dismissSuggestion()                       // must NOT fire dismissed
+
+        #expect(spy.events.filter { $0 == .parametersAdvisorAccepted(tier: .model) }.count == 1)
+        #expect(!spy.events.contains(.parametersAdvisorDismissed(tier: .model)))
+    }
+
     @Test func dismissRecordsAndReturnsNameToPills() async {
         let suiteName = "test.\(UUID().uuidString)"
         let store = TrackingParameterStore(suiteName: suiteName)

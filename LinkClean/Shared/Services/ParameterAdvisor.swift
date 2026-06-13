@@ -10,16 +10,6 @@ import FoundationModels
 import LinkCleanCore
 import OSLog
 
-/// One advisor suggestion: a leftover query parameter the app judges a likely
-/// tracker, with a one-line reason and the tier that produced it. `name` is a
-/// raw, on-device key — display only; it is never routed to analytics, only the
-/// finite ``AnalyticsEvent/AdvisorTier`` is.
-struct ParameterSuggestion: Equatable, Sendable {
-    let name: String
-    let reason: String
-    let tier: AnalyticsEvent.AdvisorTier
-}
-
 /// Classifies the parameters a clean leaves behind and proposes the single best
 /// one to always-remove — the unknown-parameter advisor (growth-roadmap §5
 /// "ai-A"). Two tiers, both on-device: a deterministic heuristic that runs on
