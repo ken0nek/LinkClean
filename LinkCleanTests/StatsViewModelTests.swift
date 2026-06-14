@@ -93,6 +93,46 @@ struct StatsViewModelTests {
         #expect(viewModel.topSites.map(\.host) == ["g.com", "f.com", "e.com", "d.com", "c.com"])
     }
 
+    @Test func shareCardIsNilUntilThereIsData() {
+        let (store, suite) = makeStore()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+
+        let viewModel = StatsViewModel(stats: store)
+
+        // No share affordance with nothing to show (growth-roadmap §5 V3).
+        #expect(viewModel.shareCard == nil)
+    }
+
+    @Test func shareCardCarriesTotalsAndTopThreeCategories() throws {
+        let (store, suite) = makeStore()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+
+        // Four distinct categories at descending frequencies (utm 4 › ads 3 ›
+        // analytics 2 › social 1), each clean removing one parameter.
+        for _ in 0..<4 { store.record(outcome(removedNames: ["utm_source"])) }
+        for _ in 0..<3 { store.record(outcome(removedNames: ["fbclid"])) }
+        for _ in 0..<2 { store.record(outcome(removedNames: ["_ga"])) }
+        store.record(outcome(removedNames: ["igshid"]))
+
+        let viewModel = StatsViewModel(stats: store)
+        let card = try #require(viewModel.shareCard)
+
+        #expect(card.parametersRemoved == viewModel.totalParametersRemoved)
+        #expect(card.parametersRemoved == 10)
+        #expect(card.cleans == viewModel.totalCleans)
+        #expect(card.cleans == 10)
+        // Every category counts toward the total, but only the top three ride the
+        // card — and in the same ranking the dashboard shows, just truncated.
+        #expect(card.categoryCount == 4)
+        #expect(card.topCategories.count == 3)
+        #expect(card.topCategories.map(\.id) == ["utm", "ads", "analytics"])
+        #expect(card.topCategories.map(\.count) == [4, 3, 2])
+        #expect(card.topCategories.map(\.id) == Array(viewModel.categories.prefix(3).map(\.id)))
+        // The one category beyond the top-3 cap (social, count 1) folds into the
+        // bar's "other" segment rather than vanishing.
+        #expect(card.otherCount == 1)
+    }
+
     @Test func onAppearPicksUpLaterCleans() {
         let (store, suite) = makeStore()
         defer { UserDefaults.standard.removePersistentDomain(forName: suite) }

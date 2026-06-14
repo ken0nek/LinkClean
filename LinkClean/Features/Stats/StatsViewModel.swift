@@ -36,6 +36,23 @@ final class StatsViewModel {
     /// The largest category count, for scaling the by-category bars.
     var maxCategoryCount: Int { categories.map(\.count).max() ?? 0 }
 
+    /// The shareable privacy card's display data (growth-roadmap §5 V3), or `nil`
+    /// until something's been cleaned — so the share affordance only appears once
+    /// there are real numbers to post. The category mix caps at the top
+    /// ``shareCardCategoryLimit`` (host/site is deliberately omitted: it would put
+    /// a personal browsing signal onto a publicly-posted image).
+    var shareCard: ShareCardData? {
+        guard hasData else { return nil }
+        let top = categories.prefix(Self.shareCardCategoryLimit)
+        return ShareCardData(
+            parametersRemoved: totalParametersRemoved,
+            cleans: totalCleans,
+            categoryCount: categories.count,
+            topCategories: top.map { ShareCardData.Segment(id: $0.id, count: $0.count) },
+            otherCount: categories.dropFirst(Self.shareCardCategoryLimit).reduce(0) { $0 + $1.count }
+        )
+    }
+
     init(stats: StatsStore = StatsStore()) {
         self.stats = stats
         refresh()
@@ -71,6 +88,8 @@ final class StatsViewModel {
     }
 
     private static let topSiteLimit = 5
+    /// How many categories ride the shareable card's mix (growth-roadmap §5 V3).
+    private static let shareCardCategoryLimit = 3
 
     struct CategoryCount: Identifiable, Equatable {
         /// The catalog kind id (`"utm"`, `"ads"`, …); mapped to a localized title

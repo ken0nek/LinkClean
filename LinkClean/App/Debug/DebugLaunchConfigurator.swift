@@ -19,7 +19,8 @@ import UIKit
 ///
 /// Pure side effects on `UserDefaults`, the pasteboard, and the model container;
 /// no return value. Each branch keys off one launch arg (`-uiTesting`,
-/// `-seedSampleURL`, `-seedHistory`, `-forceReviewGate`) or ``DebugMode``. The
+/// `-seedSampleURL`, `-seedHistory`, `-seedStats`, `-forceReviewGate`) or
+/// ``DebugMode``. The
 /// UI-test/test launch path always runs Debug (both schemes' test action builds
 /// Debug), so nothing here needs to exist in Release.
 enum DebugLaunchConfigurator {
@@ -66,6 +67,17 @@ enum DebugLaunchConfigurator {
             )
         }
 
+        // Screenshot/manual-testing helper: seeds representative lifetime stats so
+        // the Statistics dashboard and the shareable privacy card (V3) have real
+        // numbers to render. Writes the App Group blob directly, so it's instant
+        // (no 300-record loop). Only seeds when stats are empty (or replaces under
+        // screenshot mode) — the same guard `-seedHistory` uses — so a stray
+        // `-seedStats` launch can't clobber real accrued aggregates.
+        if arguments.contains("-seedStats") {
+            settings.hasCompletedOnboarding = true
+            seedSampleStats(replacingExisting: DebugMode.isScreenshotMode)
+        }
+
         // Review-prompt QA: while -forceReviewGate is present, bypass the
         // success/span/cooldown gating so the star sheet shows after the next copy
         // or share. Set unconditionally so a normal launch clears the persisted
@@ -75,6 +87,28 @@ enum DebugLaunchConfigurator {
         if forceReviewGate {
             settings.hasCompletedOnboarding = true
         }
+    }
+
+    /// Seeds a representative ``Stats`` blob into the App Group suite the
+    /// `StatsStore` reads. Parameter names are real catalog entries (so they
+    /// categorize), counts are plausible, hosts are well-known — the same shape the
+    /// dashboard's `#Preview` uses. No-ops when real stats already exist unless
+    /// `replacingExisting`, mirroring ``seedSampleHistory``.
+    private static func seedSampleStats(replacingExisting: Bool = false) {
+        let store = StatsStore()
+        guard replacingExisting || store.current().totalCleans == 0 else { return }
+        let stats = Stats(
+            totalCleans: 318,
+            totalParametersRemoved: 1247,
+            removalsByParameter: [
+                "utm_source": 412, "fbclid": 388, "_ga": 201, "igshid": 142, "mc_eid": 104
+            ],
+            cleansByHost: [
+                "youtube.com": 92, "x.com": 54, "amazon.com": 31, "google.com": 22, "reddit.com": 18
+            ]
+        )
+        guard let data = try? JSONEncoder().encode(stats) else { return }
+        AppGroup.userDefaults?.set(data, forKey: SettingsKeys.lifetimeStats)
     }
 
     private static func prepareScreenshotState(

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// The Statistics dashboard (growth-roadmap §5 V2): the lifetime privacy impact
 /// the `StatsStore` counters have been accruing since 1.1, surfaced as Liquid
@@ -13,6 +14,9 @@ import SwiftUI
 /// by-category and top-site breakdowns. Free; reached from Settings.
 struct StatsView: View {
     @State private var viewModel: StatsViewModel
+    /// The rendered, shareable privacy card. Re-rendered whenever the underlying
+    /// figures change; `nil` until there's data to show.
+    @State private var renderedCard: SharePrivacyCard?
     @Environment(\.scenePhase) private var scenePhase
 
     init(deps: AppDependencies) {
@@ -39,6 +43,15 @@ struct StatsView: View {
         }
         .screenBackground()
         .navigationTitle(Text(.statsTitle))
+        .toolbar {
+            if renderedCard != nil {
+                ToolbarItem(placement: .topBarTrailing) {
+                    shareLink { Image(systemName: "square.and.arrow.up") }
+                        .accessibilityLabel(Text(.shareCardButton))
+                        .accessibilityIdentifier("share-privacy-card-toolbar")
+                }
+            }
+        }
         .onAppear { viewModel.onAppear() }
         // The stats blob is written by other surfaces (the extensions, Control
         // Center, a Shortcut) while this pushed screen stays on-screen — where
@@ -48,6 +61,11 @@ struct StatsView: View {
             guard newValue == .active else { return }
             withAnimation { viewModel.onAppear() }
         }
+        // Render the privacy card off the current figures. `ImageRenderer` is a UI
+        // concern, so the View owns it; the ViewModel only derives the data.
+        .task(id: viewModel.shareCard) {
+            renderedCard = viewModel.shareCard.flatMap(renderShareCard)
+        }
     }
 
     private var content: some View {
@@ -56,7 +74,50 @@ struct StatsView: View {
             metricsRow
             if !viewModel.categories.isEmpty { categoriesCard }
             if !viewModel.topSites.isEmpty { sitesCard }
+            if renderedCard != nil { shareCTA }
         }
+    }
+
+    // MARK: - Share
+
+    /// The prominent share affordance at the foot of the dashboard — the privacy
+    /// card is the highest-leverage organic loop (growth-marketing §6), so it gets
+    /// a real CTA, not just the toolbar icon.
+    private var shareCTA: some View {
+        shareLink {
+            Label { Text(.shareCardButton) } icon: { Image(systemName: "square.and.arrow.up") }
+                .primaryButtonLabel()
+        }
+        .buttonStyle(.glassProminent)
+        .controlSize(.large)
+        .accessibilityIdentifier("share-privacy-card")
+    }
+
+    /// A `ShareLink` over the rendered card, sharing the same PNG from the toolbar
+    /// and the CTA. Empty until the card has rendered.
+    // TODO(analytics-audit): record a card-share initiation here (ShareLink has no
+    // completion callback — mirror HomeView's `.simultaneousGesture` hook) once the
+    // event lands; `Stats.Card.shared` is owned by the analytics-audit skill.
+    @ViewBuilder
+    private func shareLink(@ViewBuilder label: () -> some View) -> some View {
+        if let renderedCard {
+            ShareLink(
+                item: renderedCard,
+                preview: SharePreview(String(localized: .shareCardPreviewTitle), image: renderedCard.image),
+                label: label
+            )
+        }
+    }
+
+    /// Renders the privacy card to a shareable PNG. `ImageRenderer` doesn't capture
+    /// live Liquid Glass, which is why `ShareCardView` is opaque by design; the PNG
+    /// bytes let `ShareLink` vend a real file (not just an in-memory `Image`).
+    @MainActor
+    private func renderShareCard(_ data: ShareCardData) -> SharePrivacyCard? {
+        let renderer = ImageRenderer(content: ShareCardView(data: data))
+        renderer.scale = 3   // crisp PNG regardless of the device's display scale
+        guard let uiImage = renderer.uiImage, let pngData = uiImage.pngData() else { return nil }
+        return SharePrivacyCard(image: Image(uiImage: uiImage), pngData: pngData)
     }
 
     // MARK: - Hero
