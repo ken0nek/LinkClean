@@ -61,6 +61,20 @@ public struct StrategyResult: Sendable {
     }
 }
 
+/// A user-selectable output option, for strategies that support an in-extension
+/// picker (the Copy action's active formats — `copy-as-you-want` v2). `id`
+/// identifies the choice back to the strategy; `title` is the already-localized
+/// label the host shows.
+public struct ActionChoice: Sendable, Identifiable, Equatable {
+    public let id: UUID
+    public let title: String
+
+    public init(id: UUID, title: String) {
+        self.id = id
+        self.title = title
+    }
+}
+
 /// What the host should present after the pipeline runs: the pasteboard payload
 /// (`nil` on failure), the toast, and the haptic.
 public struct ActionPresentation: Sendable {
@@ -93,8 +107,45 @@ public protocol ActionOutputStrategy: Sendable {
     /// we couldn't turn into a web URL" (`invalidInput`).
     func failureEvent(hasAttachments: Bool) -> AnalyticsEvent
 
-    /// Turn a cleaned outcome into the pasteboard payload + success events.
+    /// Turn a cleaned outcome into the pasteboard payload + success events (the
+    /// single / default output — used when there's no picker).
     func result(for outcome: CleanOutcome, extracted: ExtractedURL) async -> StrategyResult
+
+    /// The user-selectable options to offer *before* producing output. Two or more
+    /// ⇒ the host shows a picker; fewer ⇒ it uses ``result(for:extracted:)``
+    /// directly. Synchronous and URL-independent (the active formats), so the host
+    /// can decide picker-vs-silent the instant the clean finishes.
+    func choices() -> [ActionChoice]
+
+    /// Produce the result for a chosen option (`choiceID` is an ``ActionChoice/id``).
+    func result(for outcome: CleanOutcome, extracted: ExtractedURL, choiceID: UUID) async -> StrategyResult
+}
+
+public extension ActionOutputStrategy {
+    /// Default: no picker. A strategy with a single output (e.g. ``CleanLinkStrategy``)
+    /// inherits this and is never asked to choose.
+    func choices() -> [ActionChoice] { [] }
+
+    /// Default: ignore the choice and produce the single output.
+    func result(for outcome: CleanOutcome, extracted: ExtractedURL, choiceID: UUID) async -> StrategyResult {
+        await result(for: outcome, extracted: extracted)
+    }
+}
+
+/// The cleaned context carried from ``ActionPipeline/prepare(items:hasAttachments:)``
+/// to ``ActionPipeline/complete(_:choiceID:)`` — opaque to the host, which only
+/// holds it across a picker interaction and hands it back.
+public struct Prepared: Sendable {
+    let outcome: CleanOutcome
+    let extracted: ExtractedURL
+}
+
+/// The result of ``ActionPipeline/prepare(items:hasAttachments:)``: either nothing
+/// usable was shared (present the failure directly), or a cleaned context plus the
+/// picker `choices` (two or more ⇒ the host shows a menu before completing).
+public enum PreparedAction: Sendable {
+    case failure(ActionPresentation)
+    case ready(Prepared, choices: [ActionChoice])
 }
 
 /// The shared *sequence* every action extension runs, made the reusable artifact
@@ -123,28 +174,55 @@ public struct ActionPipeline {
         self.stats = stats
     }
 
+    /// The one-shot path: extract → clean → produce the single output. Used by the
+    /// Clean action and by the Copy action when at most one format is active.
     public func run(items: [NSExtensionItem], hasAttachments: Bool) async -> ActionPresentation {
+        switch await prepare(items: items, hasAttachments: hasAttachments) {
+        case .failure(let presentation):
+            return presentation
+        case .ready(let prepared, _):
+            return await complete(prepared, choiceID: nil)
+        }
+    }
+
+    /// Phase 1 (extract + clean), returning the cleaned context plus the picker
+    /// choices to offer — or a failure presentation when no URL was shared. Records
+    /// nothing: a clean the user then cancels in the picker must leave no trace.
+    public func prepare(items: [NSExtensionItem], hasAttachments: Bool) async -> PreparedAction {
         guard let extracted = await strategy.extract(from: items) else {
             // Attachments present but unparseable = host-compat gap; nothing
             // shared at all = noURL.
             analytics.capture(strategy.failureEvent(hasAttachments: hasAttachments))
-            return ActionPresentation(payload: nil, toast: .noLinkFound, haptic: .error)
+            return .failure(ActionPresentation(payload: nil, toast: .noLinkFound, haptic: .error))
         }
 
         // A validated web URL cleans; a non-web JS URL the service declines falls
-        // back to an unchanged outcome so Markdown is still produced.
+        // back to an unchanged outcome so output is still produced.
         let outcome = (try? await cleaning.clean(extracted.url.absoluteString))
             ?? URLCleaner.outcome(for: extracted.url.absoluteString, removing: [])
 
-        let result = await strategy.result(for: outcome, extracted: extracted)
+        return .ready(Prepared(outcome: outcome, extracted: extracted), choices: strategy.choices())
+    }
+
+    /// Phase 2: render `choiceID` (or the single output when `nil`), write the
+    /// pasteboard payload, and record the success signals, stats, and History. This
+    /// is the only place a copy is counted, so it fires once — after the user has
+    /// committed to a format (picker tap) or immediately (single active).
+    public func complete(_ prepared: Prepared, choiceID: UUID?) async -> ActionPresentation {
+        let result: StrategyResult
+        if let choiceID {
+            result = await strategy.result(for: prepared.outcome, extracted: prepared.extracted, choiceID: choiceID)
+        } else {
+            result = await strategy.result(for: prepared.outcome, extracted: prepared.extracted)
+        }
 
         // Emit at clean-success (not dismissal) to maximize in-process network
         // time in the short-lived extension (analytics §8).
         for event in result.successEvents {
             analytics.capture(event)
         }
-        stats.record(outcome)
-        saveHistory(input: extracted.url.absoluteString, output: outcome.cleaned)
+        stats.record(prepared.outcome)
+        saveHistory(input: prepared.extracted.url.absoluteString, output: prepared.outcome.cleaned)
         recordSuccessfulRun()
         return ActionPresentation(payload: result.payload, toast: .copied, haptic: .success)
     }

@@ -19,6 +19,12 @@ open class ActionHostViewController: UIViewController {
     /// The surface-specific output strategy. Subclasses override this.
     open var strategy: any ActionOutputStrategy { CleanLinkStrategy() }
 
+    /// Guards the one-shot pipeline run: `viewDidAppear` can fire more than once
+    /// (re-layout, returning from a presented controller), and the picker path now
+    /// presents a long-lived alert — without this latch a second pass would re-clean
+    /// and either double-record the copy or stack a second picker.
+    private var hasStarted = false
+
     override open func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
@@ -29,13 +35,69 @@ open class ActionHostViewController: UIViewController {
 
     override open func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        guard !hasStarted else { return }
+        hasStarted = true
         let items = (extensionContext?.inputItems as? [NSExtensionItem]) ?? []
         let hasAttachments = items.contains { !($0.attachments ?? []).isEmpty }
         let pipeline = ActionPipeline(strategy: strategy)
         Task {
-            let presentation = await pipeline.run(items: items, hasAttachments: hasAttachments)
-            render(presentation)
+            // Clean first, then decide: a strategy that offers two or more choices
+            // (the Copy action with several *active* formats) gets a picker; anything
+            // else completes silently, exactly as before.
+            switch await pipeline.prepare(items: items, hasAttachments: hasAttachments) {
+            case .failure(let presentation):
+                render(presentation)
+            case .ready(let prepared, let choices):
+                if choices.count >= 2 {
+                    presentChoicePicker(choices, prepared: prepared, pipeline: pipeline)
+                } else {
+                    render(await pipeline.complete(prepared, choiceID: nil))
+                }
+            }
         }
+    }
+
+    /// Presents the active formats as a native action sheet. Picking one completes
+    /// the copy for that format; Cancel dismisses without copying. The clean already
+    /// ran (so we never show a menu for a link that turns out to be unusable), and
+    /// nothing is recorded until a choice is made.
+    private func presentChoicePicker(_ choices: [ActionChoice], prepared: Prepared, pipeline: ActionPipeline) {
+        let alert = UIAlertController(
+            title: String(
+                localized: "picker.title",
+                defaultValue: "Copy link as…",
+                bundle: .module,
+                comment: "Title of the in-extension format picker"
+            ),
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        for choice in choices {
+            alert.addAction(UIAlertAction(title: choice.title, style: .default) { [weak self] _ in
+                Task {
+                    let presentation = await pipeline.complete(prepared, choiceID: choice.id)
+                    self?.render(presentation)
+                }
+            })
+        }
+        alert.addAction(UIAlertAction(
+            title: String(
+                localized: "picker.cancel",
+                defaultValue: "Cancel",
+                bundle: .module,
+                comment: "Cancel button in the in-extension format picker"
+            ),
+            style: .cancel
+        ) { [weak self] _ in
+            self?.dismissExtension()
+        })
+        // iPad presents action sheets as popovers — anchor to the view center.
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        present(alert, animated: true)
     }
 
     private func render(_ presentation: ActionPresentation) {

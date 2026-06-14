@@ -121,8 +121,13 @@ public enum AnalyticsEvent: Equatable {
     /// the `domain` host signal, §3).
     case actionCleanSucceeded(telemetry: CleanOutcome.Telemetry)
     case actionCleanFailed(reason: FailureReason)
-    case actionMarkdownSucceeded(titleSource: TitleSource, changed: Bool)
-    case actionMarkdownFailed(reason: FailureReason)
+    /// The "Copy as you want" action copied a rendered link format (`copy-as-you-want`).
+    /// `preset` separates a shipped preset from a user-authored custom template —
+    /// the customization-adoption read — and `changed` whether cleaning altered the
+    /// URL (as on the other clean events). Never the template's text or name (a
+    /// custom name is user-authored, §3): only the finite preset/custom bit.
+    case actionFormatSucceeded(preset: Bool, changed: Bool)
+    case actionFormatFailed(reason: FailureReason)
 
     // MARK: App Intents (clean-from-anywhere surfaces — growth-roadmap §4 S1)
 
@@ -187,11 +192,6 @@ public enum AnalyticsEvent: Equatable {
         case noURL, invalidInput
     }
 
-    /// Which path produced the Markdown title.
-    public enum TitleSource: String {
-        case javascript, linkPresentation, urlOnly
-    }
-
     /// Which App Intents surface ran a clean — the surface-mix slice (kpis §6). A
     /// fixed, low-cardinality enum, never a URL or parameter name. The Control
     /// Center control and the widget button both run the *clipboard* intent, so
@@ -235,9 +235,10 @@ public enum AnalyticsEvent: Equatable {
     }
 
     /// Which gate raised the paywall. A fixed, low-cardinality enum — never a URL
-    /// or parameter name (privacy rule, §9). Mirrors the §9 trigger inventory;
-    /// `advisorAccept`/`formatPicker`/`export`/`sync` are reserved for 1.2+
-    /// surfaces and ship unfired.
+    /// or parameter name (privacy rule, §9). Mirrors the §9 trigger inventory.
+    /// `formatPicker` fires from the Copy-formats editor (a Pro preset or a custom
+    /// template chosen as the action default — `copy-as-you-want` §4.3);
+    /// `export`/`sync` stay reserved for later surfaces and ship unfired.
     public enum PaywallTrigger: String {
         case historyArchive
         case customParamHome
@@ -283,8 +284,8 @@ public enum AnalyticsEvent: Equatable {
         case .onboardingExtensionGuideShown: "Onboarding.ExtensionGuide.shown"
         case .actionCleanSucceeded: "Action.Clean.succeeded"
         case .actionCleanFailed: "Action.Clean.failed"
-        case .actionMarkdownSucceeded: "Action.Markdown.succeeded"
-        case .actionMarkdownFailed: "Action.Markdown.failed"
+        case .actionFormatSucceeded: "Action.Format.succeeded"
+        case .actionFormatFailed: "Action.Format.failed"
         case .intentCleanSucceeded: "Intent.Clean.succeeded"
         case .reviewPromptShown: "Review.Prompt.shown"
         case .reviewStarsSelected: "Review.Stars.selected"
@@ -361,12 +362,12 @@ public enum AnalyticsEvent: Equatable {
             ]
         case let .actionCleanFailed(reason):
             return ["reason": reason.rawValue]
-        case let .actionMarkdownSucceeded(titleSource, changed):
+        case let .actionFormatSucceeded(preset, changed):
             return [
-                "titleSource": titleSource.rawValue,
+                "preset": Self.string(preset),
                 "changed": Self.string(changed),
             ]
-        case let .actionMarkdownFailed(reason):
+        case let .actionFormatFailed(reason):
             return ["reason": reason.rawValue]
         case let .intentCleanSucceeded(surface, t):
             return [

@@ -88,6 +88,15 @@ struct SettingsView: View {
                     }
                 }
 
+                NavigationLink {
+                    CopyFormatsView(deps: deps)
+                } label: {
+                    Label { Text(.settingsCleaningCopyFormats) } icon: {
+                        Image(systemName: "curlybraces").foregroundStyle(.tint)
+                    }
+                }
+                .accessibilityIdentifier("settings-copy-formats")
+
                 Toggle(isOn: Binding(
                     get: { viewModel.removeTextFragmentsEnabled },
                     set: { viewModel.setRemoveTextFragments($0) }

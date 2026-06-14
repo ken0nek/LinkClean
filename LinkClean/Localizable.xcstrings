@@ -139,6 +139,621 @@
         }
       }
     },
+    "copyFormatEditor.editTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format bearbeiten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Format"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "形式を編集"
+          }
+        }
+      }
+    },
+    "copyFormatEditor.format.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "形式"
+          }
+        }
+      }
+    },
+    "copyFormatEditor.name.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前"
+          }
+        }
+      }
+    },
+    "copyFormatEditor.name.placeholder" : {
+      "comment" : "Placeholder in the format-name text field.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formatname"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format name"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "形式の名前"
+          }
+        }
+      }
+    },
+    "copyFormatEditor.newTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neues Format"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Format"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい形式"
+          }
+        }
+      }
+    },
+    "copyFormatEditor.preview.header" : {
+      "comment" : "Header above a live preview of the format rendered for a sample link.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschau"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレビュー"
+          }
+        }
+      }
+    },
+    "copyFormatEditor.save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sichern"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "copyFormatEditor.tokens.footer" : {
+      "comment" : "Footer explaining that unrecognized placeholders are left as-is.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe, um einen Platzhalter hinzuzufügen. Unbekannte Platzhalter bleiben unverändert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to add a placeholder. Unknown placeholders are left as typed."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タップしてプレースホルダーを追加します。不明なプレースホルダーは入力したまま残ります。"
+          }
+        }
+      }
+    },
+    "copyFormatEditor.tokens.header" : {
+      "comment" : "Header above tappable placeholder chips ({link}, {title}, …) that get inserted into the format.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einfügen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insert"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "挿入"
+          }
+        }
+      }
+    },
+    "copyFormats.custom.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine eigenen Formate."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No custom formats yet."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カスタム形式はまだありません。"
+          }
+        }
+      }
+    },
+    "copyFormats.custom.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Formate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Formats"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたの形式"
+          }
+        }
+      }
+    },
+    "copyFormats.delete.message" : {
+      "comment" : "Delete-confirmation message; %@ is the user's custom format name.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ wird entfernt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” will be removed."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を削除します。"
+          }
+        }
+      }
+    },
+    "copyFormats.delete.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format löschen?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Format?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "形式を削除しますか？"
+          }
+        }
+      }
+    },
+    "copyFormats.edit" : {
+      "comment" : "Swipe action that edits a custom format.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeiten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編集"
+          }
+        }
+      }
+    },
+    "copyFormats.new" : {
+      "comment" : "Button that creates a new custom format (a Pro feature; shows a lock for free users).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neues Format"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Format"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい形式"
+          }
+        }
+      }
+    },
+    "copyFormats.preset.citation" : {
+      "comment" : "Preset name: title — host (date).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quellenangabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Citation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出典"
+          }
+        }
+      }
+    },
+    "copyFormats.preset.clean" : {
+      "comment" : "Preset name: copies just the cleaned link.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauberer Link"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Link"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーンリンク"
+          }
+        }
+      }
+    },
+    "copyFormats.preset.html" : {
+      "comment" : "Preset name: an HTML anchor tag. 'HTML' kept untranslated.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTML"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTML"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTML"
+          }
+        }
+      }
+    },
+    "copyFormats.preset.markdown" : {
+      "comment" : "Preset name: a Markdown link [title](link). 'Markdown' is a proper noun, kept untranslated.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markdown"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markdown"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markdown"
+          }
+        }
+      }
+    },
+    "copyFormats.preset.plainTitle" : {
+      "comment" : "Preset name: the page title only.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur Titel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title Only"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトルのみ"
+          }
+        }
+      }
+    },
+    "copyFormats.preset.quote" : {
+      "comment" : "Preset name: a blockquote of the title followed by the link.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zitat mit Quelle"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote with Source"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "引用＋出典"
+          }
+        }
+      }
+    },
+    "copyFormats.preset.slack" : {
+      "comment" : "Preset name: the angle-bracket link format Slack and Discord use. Both are product names, kept untranslated.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slack & Discord"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slack & Discord"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slack・Discord"
+          }
+        }
+      }
+    },
+    "copyFormats.preset.titleAndURL" : {
+      "comment" : "Preset name: the page title, then the link on the next line.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titel + Link"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title + Link"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトル＋リンク"
+          }
+        }
+      }
+    },
+    "copyFormats.presets.footer" : {
+      "comment" : "Footer under the format list explaining the free vs Pro split. 'Clean Link' and 'Markdown' are preset names shown in the same screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktive Formate erscheinen, wenn du einen Link kopierst. Ist nur eines aktiv, wird sofort kopiert; aktiviere mehrere, um jedes Mal zu wählen. Sauberer Link und Markdown sind kostenlos – Pro schaltet die übrigen und eigene Formate frei."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active formats appear when you Copy link as…. One active copies instantly; activate several to pick each time. Clean Link and Markdown are free — Pro unlocks the rest and custom formats."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティブな形式は「リンクをコピー」したときに表示されます。1つだけアクティブにすると即コピー、複数アクティブにすると毎回選べます。クリーンリンクと Markdown は無料です。Pro でその他とカスタム形式が使えます。"
+          }
+        }
+      }
+    },
+    "copyFormats.presets.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formats"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "形式"
+          }
+        }
+      }
+    },
+    "copyFormats.title" : {
+      "comment" : "Navigation title of the Copy Formats screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopierformate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Formats"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コピー形式"
+          }
+        }
+      }
+    },
     "customParameters.add.button" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2446,6 +3061,30 @@
         }
       }
     },
+    "paywall.header.formats" : {
+      "comment" : "Paywall headline shown when a Pro preset or a custom format raised the paywall. Sentence-style, matching the other paywall headers.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiere Links nach deinen Wünschen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy links your way"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リンクを思いどおりにコピー"
+          }
+        }
+      }
+    },
     "paywall.header.generic" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2950,6 +3589,30 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "バージョン"
+          }
+        }
+      }
+    },
+    "settings.cleaning.copyFormats" : {
+      "comment" : "Settings row opening the Copy Formats screen, where the user picks the format the Copy share action produces.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopierformate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Formats"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コピー形式"
           }
         }
       }

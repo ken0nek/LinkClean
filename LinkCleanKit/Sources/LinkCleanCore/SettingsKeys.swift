@@ -27,6 +27,8 @@
 /// | `trackingParametersEnabled` | App Group | `TrackingParameterStore` | `TrackingParameterStore` |
 /// | `trackingParametersCustom` | App Group | `TrackingParameterStore` | `TrackingParameterStore` |
 /// | `lifetimeStats` | App Group | `StatsStore` (app + extensions + intents) | `StatsStore` |
+/// | `copyFormatCustomTemplates` | App Group | `TemplateStore` (Copy formats editor) | `TemplateStore` (app + Copy action) |
+/// | `copyFormatActiveTemplates` | App Group | `TemplateStore` (Copy formats editor) | `TemplateStore` (app + Copy action) |
 /// | `review.successCount` | App Group | `DefaultReviewService` | `DefaultReviewService` |
 /// | `review.firstSuccessAt` | App Group | `DefaultReviewService` | `DefaultReviewService` |
 /// | `review.lastPromptAt` | App Group | `DefaultReviewService` | `DefaultReviewService` |
@@ -79,6 +81,21 @@ public enum SettingsKeys {
     /// incremented by the app, both action extensions, and the App Intents; read
     /// by the (1.2) stats dashboard. Stored in the App Group suite.
     public static let lifetimeStats = "lifetimeStats"
+
+    // MARK: Copy formats (App Group suite, owned by `TemplateStore`)
+
+    /// User-authored custom link-format templates, as a JSON array
+    /// (``TemplateStore``). Cross-process: written from the in-app Copy formats
+    /// editor, read by the app and the Copy action extension. Stored in the App
+    /// Group suite. Built-in presets are code constants and never persisted here.
+    public static let copyFormatCustomTemplates = "copyFormatCustomTemplates"
+
+    /// The ids (UUID strings) of the templates the user has marked **active** — the
+    /// formats the Copy action offers. One active ⇒ silent copy; two or more ⇒ the
+    /// in-extension picker. Cross-process: written from the editor, read by the
+    /// extension. Absent ⇒ Markdown active (the action's shipped default); an empty
+    /// list ⇒ Markdown is still used as the floor. Stored in the App Group suite.
+    public static let copyFormatActiveTemplates = "copyFormatActiveTemplates"
 
     // MARK: Tracking parameters (App Group suite, owned by `TrackingParameterStore`)
 

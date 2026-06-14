@@ -81,6 +81,12 @@ extension CustomParametersViewModel {
     }
 }
 
+extension CopyFormatsViewModel {
+    convenience init(deps: AppDependencies) {
+        self.init(store: deps.templates, analytics: deps.analytics)
+    }
+}
+
 extension ExtensionGuideViewModel {
     convenience init(deps: AppDependencies) {
         self.init(settings: deps.settings, analytics: deps.analytics)

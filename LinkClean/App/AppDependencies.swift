@@ -30,6 +30,7 @@ struct AppDependencies {
     let advisor: ParameterAdvising
     let history: HistoryStore
     let stats: StatsStore
+    let templates: TemplateStore
     let entitlements: EntitlementsModel
 
     /// The production graph, built once in `LinkCleanApp.init` with the app's
@@ -53,6 +54,7 @@ struct AppDependencies {
             advisor: FoundationModelsParameterAdvisor(),
             history: HistoryStore(container: container, metadata: DefaultLinkMetadataService(), settings: settings),
             stats: StatsStore(),
+            templates: TemplateStore(),
             entitlements: EntitlementsModel(
                 service: StoreKitEntitlementsService(),
                 analytics: analytics
@@ -74,6 +76,7 @@ struct AppDependencies {
             advisor: FoundationModelsParameterAdvisor(),
             history: HistoryStore(container: HistoryContainer.makeInMemory(), metadata: DefaultLinkMetadataService(), settings: settings),
             stats: StatsStore(),
+            templates: TemplateStore(),
             entitlements: EntitlementsModel(service: PreviewEntitlementsService(entitlement: entitlement))
         )
     }

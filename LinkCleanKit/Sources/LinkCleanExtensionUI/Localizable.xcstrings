@@ -1,6 +1,236 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "format.citation" : {
+      "comment" : "Copy-format picker: title — host (date)",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quellenangabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Citation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出典"
+          }
+        }
+      }
+    },
+    "format.clean" : {
+      "comment" : "Copy-format picker: the cleaned link only",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauberer Link"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Link"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーンリンク"
+          }
+        }
+      }
+    },
+    "format.html" : {
+      "comment" : "Copy-format picker: an HTML anchor",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTML"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTML"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTML"
+          }
+        }
+      }
+    },
+    "format.markdown" : {
+      "comment" : "Copy-format picker: a Markdown link",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markdown"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markdown"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markdown"
+          }
+        }
+      }
+    },
+    "format.plainTitle" : {
+      "comment" : "Copy-format picker: the page title only",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur Titel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title Only"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトルのみ"
+          }
+        }
+      }
+    },
+    "format.quote" : {
+      "comment" : "Copy-format picker: a blockquote with the link",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zitat mit Quelle"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote with Source"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "引用＋出典"
+          }
+        }
+      }
+    },
+    "format.slack" : {
+      "comment" : "Copy-format picker: the Slack/Discord link format",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slack & Discord"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slack & Discord"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slack・Discord"
+          }
+        }
+      }
+    },
+    "format.titleAndURL" : {
+      "comment" : "Copy-format picker: title then link",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titel + Link"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title + Link"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトル＋リンク"
+          }
+        }
+      }
+    },
+    "picker.cancel" : {
+      "comment" : "Cancel button in the in-extension format picker",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        }
+      }
+    },
+    "picker.title" : {
+      "comment" : "Title of the in-extension format picker (shown when 2+ formats are active)",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link kopieren als…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy link as…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コピーする形式を選択"
+          }
+        }
+      }
+    },
     "toast.copied" : {
       "comment" : "Toast shown after copying cleaned URL",
       "localizations" : {

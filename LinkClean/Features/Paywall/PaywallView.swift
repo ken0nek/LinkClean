@@ -100,6 +100,8 @@ struct PaywallView: View {
             Text(.paywallHeaderHistory)
         case .customParamHome, .customParamSettings:
             Text(.paywallHeaderTrackers)
+        case .formatPicker:
+            Text(.paywallHeaderFormats)
         default:
             Text(.paywallHeaderGeneric)
         }
@@ -109,6 +111,7 @@ struct PaywallView: View {
         switch viewModel.trigger {
         case .historyArchive: "clock.arrow.circlepath"
         case .customParamHome, .customParamSettings: "shield.lefthalf.filled"
+        case .formatPicker: "curlybraces"
         default: "sparkles"
         }
     }

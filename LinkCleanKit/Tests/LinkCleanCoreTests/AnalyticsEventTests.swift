@@ -64,8 +64,8 @@ struct AnalyticsEventTests {
             (.onboardingExtensionGuideShown(source: .onboarding), "Onboarding.ExtensionGuide.shown"),
             (.actionCleanSucceeded(telemetry: telemetry(removedCount: 1)), "Action.Clean.succeeded"),
             (.actionCleanFailed(reason: .noURL), "Action.Clean.failed"),
-            (.actionMarkdownSucceeded(titleSource: .javascript, changed: true), "Action.Markdown.succeeded"),
-            (.actionMarkdownFailed(reason: .invalidInput), "Action.Markdown.failed"),
+            (.actionFormatSucceeded(preset: true, changed: true), "Action.Format.succeeded"),
+            (.actionFormatFailed(reason: .invalidInput), "Action.Format.failed"),
             (.intentCleanSucceeded(surface: .clipboard, telemetry: telemetry(removedCount: 1)), "Intent.Clean.succeeded"),
             (.reviewPromptShown, "Review.Prompt.shown"),
             (.reviewStarsSelected(bucket: .high), "Review.Stars.selected"),
@@ -222,9 +222,11 @@ struct AnalyticsEventTests {
         #expect(AnalyticsEvent.statsCardShared(entryPoint: .cta).parameters == ["entryPoint": "cta"])
     }
 
-    @Test func markdownSucceededCarriesTitleSourceAndChanged() {
-        let params = AnalyticsEvent.actionMarkdownSucceeded(titleSource: .linkPresentation, changed: false).parameters
-        #expect(params == ["titleSource": "linkPresentation", "changed": "false"])
+    @Test func formatSucceededCarriesPresetAndChanged() {
+        let preset = AnalyticsEvent.actionFormatSucceeded(preset: true, changed: false).parameters
+        #expect(preset == ["preset": "true", "changed": "false"])
+        let custom = AnalyticsEvent.actionFormatSucceeded(preset: false, changed: true).parameters
+        #expect(custom == ["preset": "false", "changed": "true"])
     }
 
     @Test func defaultToggledPassesBuiltInNameThrough() {

@@ -1,8 +1,10 @@
 # Plan: "Copy as you want" — user-defined link formats
 
-> **Status: proposed — 2026-06-13.** Reframes the planned "Copy as HTML / Title+URL" Pro beat ([growth-roadmap.md](../product/growth-roadmap.md) §8 P1, [iap-strategy.md](../strategy/iap-strategy.md) §6) as a **template engine** instead of a fixed set of formats. Scope: the template language + identifiers, the presets, the free/Pro publishing strategy (esp. how gating interacts with action extensions), and a technical-feasibility + implementation plan.
+> **Status: IMPLEMENTED — 2026-06-14 (v1 + v2 in-extension picker built; action display name resolved to "Copy link as…").** Reframes the planned "Copy as HTML / Title+URL" Pro beat ([growth-roadmap.md](../product/growth-roadmap.md) §8 P1, [iap-strategy.md](../strategy/iap-strategy.md) §6) as a **template engine** instead of a fixed set of formats. **Locked 2026-06-13:** Option A (evolve `LinkCleanMarkdownAction`, no new target) · free line = Clean + Markdown free (rest + custom = Pro) · single-brace `{token}`. Scope: the template language + identifiers, the presets, the free/Pro publishing strategy (esp. how gating interacts with action extensions), and a technical-feasibility + implementation plan.
+>
+> **Built 2026-06-14 (v1):** Core `TemplateToken`/`LinkTemplate`/`TemplateContext`/`TemplateRenderer` (+ 8 presets, fast-lane tested); `LinkCleanData.TemplateStore` (App Group blob, `resolveSelected(tier:)` fail-closed fallback, tested); `LinkCleanExtensionUI.TemplateOutputStrategy` (folds `MarkdownLinkStrategy`, which is **retired**) wired into `LinkCleanMarkdownAction`; in-app **Copy Formats** editor (`CopyFormatsView`/`ViewModel` + `CopyFormatEditorView`, live preview + token chips + `formatPicker` paywall gate) reached from Settings → Cleaning; `TemplateStore` threaded through `AppDependencies`; en/ja/de strings added. Analytics: `Action.Markdown.*` → `Action.Format.succeeded(preset,changed)`/`failed`; the reserved `PaywallTrigger.formatPicker` is now fired (taxonomy review still deferred to `analytics-audit`; `docs/plans/analytics.md` §7 lists the old `Action.Markdown.*` names → drift to reconcile there). Verified: fast lane 254 green, iOS kit objects emitted, app target type-checks clean; **`actool`/app-icon thinning unrunnable locally (no iOS 26.5 sim runtime) and the ExtensionUI sim-lane `TemplateOutputStrategy` tests are written but unrun.**
 > **Builds on:** the as-built extension architecture ([ARCHITECTURE.md](../../ARCHITECTURE.md) — `ActionPipeline` + `ActionOutputStrategy`), `EntitlementStore` (the App Group entitlement snapshot), `MarkdownFormatter` / `LinkMetadataService`, `CleanOutcome`. Honors the standing IAP rules (iap §6/§9/§11/§12): never gate the core action, never claw back, gate *addition* not *operation*, **no paywalls in extensions**.
-> **Sources:** codebase audit 2026-06-13 (`CleanLinkStrategy`/`MarkdownLinkStrategy`, `ActionViewController`, `EntitlementStore`, `MarkdownFormatter`).
+> **Sources:** codebase audit 2026-06-13 — **confirmed** the reuse targets exist: `LinkCleanMarkdownAction/ActionViewController.swift` is a 2-line strategy config already carrying the App Group + signing + a `curlybraces-padded-1024.png` icon; `EntitlementStore` (Data, `nonisolated`, fail-closed to `.free`), `Entitlement` / `ProGate` / `PaywallTrigger` (Core), `AppGroup.identifier = "group.com.ken0nek.LinkClean"`, `MarkdownFormatter` / `LinkMetadataService`, and the `ActionOutputStrategy` seam (`CleanLinkStrategy` / `MarkdownLinkStrategy`).
 
 ---
 
@@ -18,7 +20,7 @@ This is a strictly higher-altitude design: infinite formats, one code path, one 
 
 ## 2. The template language
 
-### 2.1 Syntax — `{token}` (single brace, recommended)
+### 2.1 Syntax — `{token}` (single brace — **decided**)
 
 `{title}: {link}` over `{{title}}: {{link}}`. Rationale:
 
@@ -66,7 +68,7 @@ Ship a curated set so users get value without authoring anything — and so we h
 | **Slack/Discord** | `<{link}\|{title}>` | Pro |
 | **Plain title** | `{title}` | Pro |
 
-Free baseline = **Clean link + Markdown** (both already free today). Everything else, plus **any custom template**, is Pro. This keeps the free → Pro line exactly on iap §6's "gate addition, not operation": free users still get a fully working format action; Pro adds *more* formats and *custom* ones.
+**Decided (2026-06-13):** free baseline = **Clean link + Markdown** (both already free today). Everything else, plus **any custom template**, is Pro. This keeps the free → Pro line exactly on iap §6's "gate addition, not operation": free users still get a fully working format action; Pro adds *more* formats and *custom* ones.
 
 ---
 
@@ -78,7 +80,7 @@ This is the crux of Ken's questions. Short version: **you can't hide the extensi
 
 An action/share extension's appearance in the share sheet is governed by its **`NSExtensionActivationRule`** (which *content types* it accepts) — not by purchase state. The list is static per install and OS-cached; there is no API to show/hide an extension based on an IAP entitlement. (The user can manually toggle extensions in the share sheet's *Edit Actions*, but that's user-controlled, not tier-controlled.) So a "Pro-only extension that doesn't appear for free users" is **not possible**.
 
-### 4.2 Q2 — Can we detect free vs Pro *inside* the extension? **Yes — already built.**
+### 4.2 Q2 — Can we detect free vs Pro *inside* the extension? **Yes — already built (verified: `LinkCleanData/EntitlementStore.swift`).**
 
 `EntitlementStore` exists precisely for this. Its doc comment: *"Written by the app target… and read by both the app and the action extensions. This allows the extensions to gate features without the overhead or network requirement of the full SDK."* It reads an App Group snapshot and **fails closed to `.free`** if missing/unknown.
 
@@ -115,7 +117,7 @@ Other ideas considered:
 
 ## 5. Technical possibility (Q4) — high; mostly composition
 
-Every building block exists:
+Every building block exists (audit-confirmed 2026-06-13):
 
 | Need | Existing piece |
 |---|---|
@@ -200,9 +202,16 @@ public struct TemplateOutputStrategy: ActionOutputStrategy {
 ```
 `CleanLinkStrategy`/`MarkdownLinkStrategy` collapse into builtin templates of this one strategy (keep them as thin shims for the dedicated Clean action, or retire — §7).
 
-### 6.4 The action target
-- **Option A (recommended): evolve `LinkCleanMarkdownAction` into the "Copy" action** — swap its strategy to `TemplateOutputStrategy`, update its display name ("Copy link as…"). Markdown becomes the free default preset. **No new target → no new App Group/entitlement/signing handoff.** Keep `LinkCleanAction` (Clean URL) as the sacred, instant, free core action.
-- **Option B: a new `LinkCleanCopyAction` target** — keeps Markdown separate; costs a new extension target (Xcode-GUI handoff: App Group, entitlement, signing — see §8).
+### 6.4 The action target — **Option A (decided): evolve `LinkCleanMarkdownAction`**
+The target is a 2-line config today (`override var strategy { MarkdownLinkStrategy() }`). Swap the strategy and rename the display name; Markdown becomes the free default preset:
+```swift
+class ActionViewController: ActionHostViewController {
+    override var strategy: any ActionOutputStrategy { TemplateOutputStrategy(…) }   // was MarkdownLinkStrategy()
+}
+```
+The target **already carries everything** (audit-confirmed): the App Group `group.com.ken0nek.LinkClean` in its `.entitlements`, signing, the `NSExtensionActivationRule` (web URLs + text) + the `Action.js` title path, and — fittingly — a `curlybraces-padded-1024.png` icon that already suits a `{token}` engine. **So there is no new target and no Xcode-GUI / ASC handoff** (§8). `LinkCleanAction` (Clean URL) stays the sacred, instant, free core action, untouched.
+
+*Option B (a new `LinkCleanCopyAction` target) was rejected: it keeps Markdown separate at the cost of a full new-target handoff (App Group, entitlement, signing, icon, plist) for no user benefit.*
 
 ### 6.5 App UI — the template editor (where the paywall lives)
 - A "Copy formats" screen (Settings): list presets + custom templates, a **live preview** against a sample dirty link, token-insertion chips, set-as-default. Creating/saving a custom template or choosing a Pro preset as default → `ProGate` check → paywall (`PaywallTrigger.copyFormat`). Reuses the existing paywall sheet. Mirror the `ManageParametersView`/advisor gate patterns already in the app.
@@ -215,21 +224,33 @@ public struct TemplateOutputStrategy: ActionOutputStrategy {
 
 ---
 
-## 7. Open decisions & sequencing
+## 7. Decisions & sequencing
 
-1. **Brace syntax** — single `{token}` (recommended) vs `{{token}}`.
-2. **Target shape** — evolve `LinkCleanMarkdownAction` (Option A, recommended, no handoff) vs new `LinkCleanCopyAction` (Option B).
-3. **Free preset set** — confirm "Clean + Markdown free, rest Pro" (no clawback).
-4. **In-extension template picker** — v1 renders the *default* template (one tap); v2 could show a compact picker inside the extension. v1 first.
-5. **Rich HTML pasteboard** — v1 = HTML source as text; v2 = `public.html` representation.
-6. **Retire `CleanLinkStrategy`/`MarkdownLinkStrategy`?** — keep the Clean action standalone; fold Markdown into the template engine.
+**Resolved (2026-06-13):**
+1. ✅ **Brace syntax** — single `{token}`; unknown tokens stay literal (`{{` → literal `{` only if a collision ever surfaces).
+2. ✅ **Target shape** — **Option A**: evolve `LinkCleanMarkdownAction`; no new target (§6.4).
+3. ✅ **Free preset set** — **Clean + Markdown free**; all other presets + any custom template = Pro (no clawback, iap §6).
+4. ✅ **Old strategies** — keep `LinkCleanAction` / `CleanLinkStrategy` standalone (the core Clean action); fold `MarkdownLinkStrategy` into the engine as the free `Markdown` preset.
 
-**Sequencing.** v1 = engine + presets + editor (gated) + the evolved action rendering the default template, tier-aware fallback. v2 = in-extension picker, more tokens (`{description}`, `{selection}` w/ E3), rich HTML paste. This **replaces the "Copy as HTML / Title+URL" line** in iap §6 / growth-roadmap §8 (the 1.2 first-real-Pro-beat) with a more durable engine — update those docs when this is scheduled.
+**Still open:**
+- **Display name** — "Copy link as…" (default) vs a static "Copy Link" / "Format & Copy". The "…" implies a chooser, but v1 copies the *configured default* silently (no in-extension picker yet), so a static name may read truer. **Lean: "Copy link as…"** — confirm before the plist edit. (Stays English even with ja/de shipping — project convention.)
+- **In-extension template picker** — ✅ **BUILT (v2, 2026-06-14).** Replaced the single "default" with an **active set** (`TemplateStore.activeTemplateIDs`/`resolveActive(tier:)`): 0 active → Markdown floor, 1 → silent copy, 2+ → a native action-sheet picker (`ActionPipeline.prepare`/`complete` split + `ActionOutputStrategy.choices()`; host shows the menu, renders the chosen format on tap). Editor rows are now **Active** toggles (free users toggle only the free formats; Pro/custom rows show a lock → paywall). Preset names localized in the ExtensionUI catalog for the picker.
+- **Rich HTML pasteboard** — v1 = HTML *source* as a string (`PasteboardPayload.string` covers it); v2 = a real `public.html` representation for live-link paste.
+- **More tokens** — `{description}` / `{siteName}` (if LPMetadata is reliable), `{selection}` (with E3 multi-link). Deferred until a token earns its place.
+
+**Sequencing.** v1 = engine + presets + gated editor + the evolved action rendering the default template with tier-aware fallback. v2 = in-extension picker, more tokens, rich HTML paste. This **replaces the "Copy as HTML / Title+URL" line** in iap §6 / growth-roadmap §8 (the 1.2 first-real-Pro beat) with a more durable engine — update those docs when this is scheduled.
 
 ---
 
-## 8. Handoffs (Ken / Xcode GUI)
+## 8. Handoffs — **none required (Option A)**
 
-- **Option B only:** a new `LinkCleanCopyAction` extension target needs Xcode-GUI setup — App Group membership (`group.com.ken0nek.LinkClean`), entitlements, signing, and an action icon (per the action-extension icon recipe). **Option A avoids all of this.**
-- Either option: the new action's `Info.plist` display name + `NSExtensionActivationRule` (accept web URLs + text, mirroring the existing actions).
-- `Localizable.xcstrings`: new editor/preset strings (identifier keys + generated symbols), and — if the action toast copy changes — the `LinkCleanExtensionUI` catalog (explicit-key style there, per CLAUDE.md).
+With Option A there is **no Xcode-GUI and no App Store Connect work.** Verified:
+
+- **No new target / App Group / entitlement / signing / icon** — `LinkCleanMarkdownAction` already carries all of them (§6.4).
+- **No new IAP product** — Pro is the single non-consumable already shipping; this is one more gate behind the same unlock.
+- **Source auto-included** — Core / Data / ExtensionUI are SPM targets that glob their sources; the app target uses synchronized file groups, so new editor files join the target automatically. (Lone possible click: target membership for a new app file if synchronization misses it.)
+- **Analytics in code** — I add the `PaywallTrigger.copyFormat` case + `Copy.Format.*` events; taxonomy review is deferred to the `analytics-audit` skill (as with the V3 card and the advisor).
+
+**The only input from Ken:** confirm the action's **display name** (§7). The edit itself is `INFOPLIST_KEY_CFBundleDisplayName` (I make it; it stays English per convention).
+
+**New UI strings** (editor labels, preset names, paywall copy) go in `Localizable.xcstrings` as identifier keys + generated symbols (I add them); they'll need **ja/de translations** later, like any new app copy. The `LinkCleanExtensionUI` toast catalog (explicit-key style) changes only if the action's toast copy does.
