@@ -9,6 +9,7 @@ import Foundation
 import Observation
 import LinkCleanCore
 import LinkCleanData
+import LinkCleanAnalytics
 
 /// Reads the lifetime cleaning aggregates (`StatsStore`) for the Statistics
 /// dashboard (growth-roadmap §5 V2). The counters accrued silently since 1.1
@@ -30,6 +31,7 @@ final class StatsViewModel {
     private(set) var topSites: [SiteCount] = []
 
     @ObservationIgnored private let stats: StatsStore
+    @ObservationIgnored private let analytics: AnalyticsService
 
     /// Whether anything has been cleaned yet — drives the empty state.
     var hasData: Bool { totalCleans > 0 }
@@ -53,13 +55,27 @@ final class StatsViewModel {
         )
     }
 
-    init(stats: StatsStore = StatsStore()) {
+    init(stats: StatsStore = StatsStore(), analytics: AnalyticsService = TelemetryDeckAnalytics()) {
         self.stats = stats
+        self.analytics = analytics
         refresh()
     }
 
     func onAppear() {
         refresh()
+    }
+
+    /// Emitted once per navigation to the dashboard (`.onAppear`, not the
+    /// scenePhase `.active` refresh — that re-reads the blob without re-counting a
+    /// visit). Reads `hasData` *after* the appear refresh has run.
+    func handleScreenShown() {
+        analytics.capture(.statsScreenShown(hasData: hasData))
+    }
+
+    /// Records a privacy-card share initiation from `entryPoint`. `ShareLink` has
+    /// no completion callback, so — like Home's share — this fires on the tap.
+    func recordCardShared(entryPoint: AnalyticsEvent.CardShareEntryPoint) {
+        analytics.capture(.statsCardShared(entryPoint: entryPoint))
     }
 
     private func refresh() {
@@ -110,9 +126,11 @@ final class StatsViewModel {
         totalCleans: Int,
         totalParametersRemoved: Int,
         categories: [CategoryCount],
-        topSites: [SiteCount]
+        topSites: [SiteCount],
+        analytics: AnalyticsService = TelemetryDeckAnalytics()
     ) {
         self.stats = StatsStore()
+        self.analytics = analytics
         self.totalCleans = totalCleans
         self.totalParametersRemoved = totalParametersRemoved
         self.categories = categories

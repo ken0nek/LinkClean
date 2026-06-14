@@ -105,6 +105,13 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 | `History.All.cleared` | Clear-all confirmed (Settings or History) | — | Privacy-wipe behavior |
 | `History.Search.used` | First search per screen visit | — | Whether search justifies its maintenance cost |
 
+### Statistics (growth-roadmap §5 V2/V3)
+
+| Signal | Trigger | Parameters | Answers |
+|---|---|---|---|
+| `Stats.Screen.shown` | Statistics dashboard opened (`.onAppear`, not the scenePhase refresh) | `hasData: <bool>` | Is the Settings-reached dashboard discovered? Empty-state share → entry point surfaced too early. Denominator for the share-card funnel |
+| `Stats.Card.shared` | Privacy card share initiated (no `ShareLink` completion → fires on tap) | `entryPoint: toolbar\|cta` — keyed `entryPoint`, **never `surface`** (process-default param) | **Adoption of the #1 organic growth loop (roadmap §11).** Which entry point drives shares |
+
 ### Settings & parameters
 
 | Signal | Trigger | Parameters | Answers |

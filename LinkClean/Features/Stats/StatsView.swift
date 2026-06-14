@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import LinkCleanCore
 
 /// The Statistics dashboard (growth-roadmap §5 V2): the lifetime privacy impact
 /// the `StatsStore` counters have been accruing since 1.1, surfaced as Liquid
@@ -47,12 +48,18 @@ struct StatsView: View {
             if renderedCard != nil {
                 ToolbarItem(placement: .topBarTrailing) {
                     shareLink { Image(systemName: "square.and.arrow.up") }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            viewModel.recordCardShared(entryPoint: .toolbar)
+                        })
                         .accessibilityLabel(Text(.shareCardButton))
                         .accessibilityIdentifier("share-privacy-card-toolbar")
                 }
             }
         }
-        .onAppear { viewModel.onAppear() }
+        .onAppear {
+            viewModel.onAppear()
+            viewModel.handleScreenShown()   // after the refresh, so hasData is current
+        }
         // The stats blob is written by other surfaces (the extensions, Control
         // Center, a Shortcut) while this pushed screen stays on-screen — where
         // onAppear won't fire again on foreground — so re-read on .active, like
@@ -88,16 +95,18 @@ struct StatsView: View {
             Label { Text(.shareCardButton) } icon: { Image(systemName: "square.and.arrow.up") }
                 .primaryButtonLabel()
         }
+        .simultaneousGesture(TapGesture().onEnded {
+            viewModel.recordCardShared(entryPoint: .cta)
+        })
         .buttonStyle(.glassProminent)
         .controlSize(.large)
         .accessibilityIdentifier("share-privacy-card")
     }
 
     /// A `ShareLink` over the rendered card, sharing the same PNG from the toolbar
-    /// and the CTA. Empty until the card has rendered.
-    // TODO(analytics-audit): record a card-share initiation here (ShareLink has no
-    // completion callback — mirror HomeView's `.simultaneousGesture` hook) once the
-    // event lands; `Stats.Card.shared` is owned by the analytics-audit skill.
+    /// and the CTA. Empty until the card has rendered. Each call site adds its own
+    /// `.simultaneousGesture` to record the share entry point (`ShareLink` has no
+    /// completion callback — mirrors `HomeView`'s share hook).
     @ViewBuilder
     private func shareLink(@ViewBuilder label: () -> some View) -> some View {
         if let renderedCard {

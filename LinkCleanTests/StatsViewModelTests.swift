@@ -133,6 +133,37 @@ struct StatsViewModelTests {
         #expect(card.otherCount == 1)
     }
 
+    @Test func screenShownEmitsWithDataPresence() {
+        let (store, suite) = makeStore()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        let spy = SpyAnalytics()
+
+        // Empty dashboard → hasData false (the entry point surfaced too early).
+        StatsViewModel(stats: store, analytics: spy).handleScreenShown()
+        #expect(spy.events == [.statsScreenShown(hasData: false)])
+
+        // Populated dashboard → hasData true.
+        store.record(outcome(removedNames: ["utm_source"], domain: "youtube.com"))
+        spy.reset()
+        StatsViewModel(stats: store, analytics: spy).handleScreenShown()
+        #expect(spy.events == [.statsScreenShown(hasData: true)])
+    }
+
+    @Test func cardShareEmitsEntryPoint() {
+        let (store, suite) = makeStore()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        let spy = SpyAnalytics()
+        let viewModel = StatsViewModel(stats: store, analytics: spy)
+
+        viewModel.recordCardShared(entryPoint: .toolbar)
+        viewModel.recordCardShared(entryPoint: .cta)
+
+        #expect(spy.events == [
+            .statsCardShared(entryPoint: .toolbar),
+            .statsCardShared(entryPoint: .cta)
+        ])
+    }
+
     @Test func onAppearPicksUpLaterCleans() {
         let (store, suite) = makeStore()
         defer { UserDefaults.standard.removePersistentDomain(forName: suite) }

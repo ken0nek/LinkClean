@@ -95,6 +95,6 @@ extension OnboardingViewModel {
 
 extension StatsViewModel {
     convenience init(deps: AppDependencies) {
-        self.init(stats: deps.stats)
+        self.init(stats: deps.stats, analytics: deps.analytics)
     }
 }

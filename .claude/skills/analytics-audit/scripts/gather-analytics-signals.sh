@@ -12,14 +12,18 @@ set -uo pipefail
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo .)"
 cd "$ROOT" || exit 1
 
-KIT="LinkCleanKit/Sources/LinkCleanKit"
-TAXONOMY="$KIT/AnalyticsEvent.swift"   # the typed taxonomy — every signal is a case here
-SERVICE="$KIT/AnalyticsService.swift"  # the capture(_:) protocol
-SINK="$KIT/TelemetryDeckAnalytics.swift" # the ONLY type allowed to touch the SDK
+# Post-split (Jun 2026) the kit is four layered targets under Sources/ (Core / Data /
+# Analytics / ExtensionUI, plus Intents); these three files moved out of the old
+# single LinkCleanKit target.
+KIT_SRC="LinkCleanKit/Sources"
+TAXONOMY="$KIT_SRC/LinkCleanCore/AnalyticsEvent.swift"        # the typed taxonomy — every signal is a case here
+SERVICE="$KIT_SRC/LinkCleanCore/AnalyticsService.swift"       # the capture(_:) protocol
+SINK="$KIT_SRC/LinkCleanAnalytics/TelemetryDeckAnalytics.swift" # the ONLY type allowed to touch the SDK
 PLAN="docs/plans/analytics.md"
 GAP_PLAN="docs/plans/parameter-telemetry.md"
-# App + extension + kit + test source roots. Missing dirs are harmless (grep finds nothing).
-SRC=(LinkClean LinkCleanAction LinkCleanMarkdownAction "$KIT" LinkCleanKit/Tests LinkCleanTests)
+# App + extension + kit + test source roots. Missing dirs are harmless (grep finds
+# nothing). "$KIT_SRC" covers every kit target (Core/Data/Analytics/ExtensionUI/Intents).
+SRC=(LinkClean LinkCleanAction LinkCleanMarkdownAction LinkCleanWidget "$KIT_SRC" LinkCleanKit/Tests LinkCleanTests)
 GREP=(grep -rn --include='*.swift' --exclude-dir=.build --exclude-dir=DerivedData)
 
 echo "========== TAXONOMY: $TAXONOMY =========="

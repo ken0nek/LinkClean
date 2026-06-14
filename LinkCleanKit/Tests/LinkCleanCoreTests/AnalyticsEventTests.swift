@@ -44,6 +44,8 @@ struct AnalyticsEventTests {
             (.historyEntryDeleted, "History.Entry.deleted"),
             (.historyAllCleared, "History.All.cleared"),
             (.historySearchUsed, "History.Search.used"),
+            (.statsScreenShown(hasData: true), "Stats.Screen.shown"),
+            (.statsCardShared(entryPoint: .toolbar), "Stats.Card.shared"),
             (.settingsAutoPasteToggled(enabled: true), "Settings.AutoPaste.toggled"),
             (.settingsSaveHistoryToggled(enabled: true), "Settings.SaveHistory.toggled"),
             (.settingsTextFragmentsToggled(enabled: true), "Settings.TextFragments.toggled"),
@@ -207,6 +209,17 @@ struct AnalyticsEventTests {
 
     @Test func sharedCarriesOnlyChanged() {
         #expect(AnalyticsEvent.homeURLShared(changed: true).parameters == ["changed": "true"])
+    }
+
+    @Test func statsScreenShownCarriesHasData() {
+        #expect(AnalyticsEvent.statsScreenShown(hasData: true).parameters == ["hasData": "true"])
+        #expect(AnalyticsEvent.statsScreenShown(hasData: false).parameters == ["hasData": "false"])
+    }
+
+    @Test func statsCardSharedCarriesEntryPoint() {
+        // `entryPoint`, never `surface` (that key is the process-level default).
+        #expect(AnalyticsEvent.statsCardShared(entryPoint: .toolbar).parameters == ["entryPoint": "toolbar"])
+        #expect(AnalyticsEvent.statsCardShared(entryPoint: .cta).parameters == ["entryPoint": "cta"])
     }
 
     @Test func markdownSucceededCarriesTitleSourceAndChanged() {

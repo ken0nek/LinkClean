@@ -50,6 +50,20 @@ public enum AnalyticsEvent: Equatable {
     /// First search performed during a single History visit.
     case historySearchUsed
 
+    // MARK: Statistics (growth-roadmap §5 V2/V3)
+
+    /// The Statistics dashboard appeared — discovery of the (Settings-reached)
+    /// privacy-impact screen, and the denominator for the share-card funnel.
+    /// `hasData` separates arrivals at a populated dashboard from the empty state
+    /// (a high empty-state share means the entry point surfaces too early).
+    case statsScreenShown(hasData: Bool)
+    /// The shareable privacy card was shared (growth-roadmap §5 V3) — adoption of
+    /// the highest-leverage organic growth loop (roadmap §11). `entryPoint`
+    /// distinguishes the toolbar icon from the foot-of-screen CTA, to see which
+    /// drives shares. Recorded at share *initiation* (`ShareLink` has no
+    /// completion callback), like ``homeURLShared``.
+    case statsCardShared(entryPoint: CardShareEntryPoint)
+
     // MARK: Settings & parameters (§6)
 
     /// The Settings screen appeared — top of the customization/discovery funnel.
@@ -189,6 +203,15 @@ public enum AnalyticsEvent: Equatable {
         case clipboard   // CleanClipboardIntent — incl. the Control Center control + widget
     }
 
+    /// Which affordance shared the privacy card (growth-roadmap §5 V3) — both run
+    /// the same share, so this only tells which entry point users reach for. Sent
+    /// under the `entryPoint` key, never `surface` (that key is the process-level
+    /// default parameter).
+    public enum CardShareEntryPoint: String {
+        case toolbar     // the navigation-bar share icon
+        case cta         // the prominent foot-of-dashboard "Share your privacy card" button
+    }
+
     /// Which stage of the unknown-parameter advisor produced a suggestion — the
     /// heuristic-vs-model read (ai-features §9-A). Low-cardinality and name-free:
     /// ``reference`` and ``heuristic`` run on every device, ``model`` only on
@@ -240,6 +263,8 @@ public enum AnalyticsEvent: Equatable {
         case .historyEntryDeleted: "History.Entry.deleted"
         case .historyAllCleared: "History.All.cleared"
         case .historySearchUsed: "History.Search.used"
+        case .statsScreenShown: "Stats.Screen.shown"
+        case .statsCardShared: "Stats.Card.shared"
         case .settingsScreenShown: "Settings.Screen.shown"
         case .settingsAutoPasteToggled: "Settings.AutoPaste.toggled"
         case .settingsSaveHistoryToggled: "Settings.SaveHistory.toggled"
@@ -295,6 +320,13 @@ public enum AnalyticsEvent: Equatable {
             return ["changed": Self.string(changed)]
         case let .historyScreenShown(entryCount):
             return ["entryCount": Bucket.historySize(entryCount)]
+        case let .statsScreenShown(hasData):
+            return ["hasData": Self.string(hasData)]
+        case let .statsCardShared(entryPoint):
+            // Keyed `entryPoint`, not `surface` — the process-level `surface`
+            // default parameter (app/intent) would collide, exactly as the
+            // intent-clean event guards against with `intentSurface`.
+            return ["entryPoint": entryPoint.rawValue]
         case let .historyEntryActioned(action):
             return ["action": action.rawValue]
         case let .settingsAutoPasteToggled(enabled):
