@@ -52,6 +52,17 @@ final class HistoryViewModel {
         isSaveHistoryEnabled = settings.saveHistoryEnabled
     }
 
+    /// Turns History on from the disabled empty state — HIG guidance is to give
+    /// people a button to act, not point them to a Settings location. Mirrors the
+    /// Settings toggle, analytics included, so `Settings.SaveHistory.toggled` fires
+    /// no matter where the switch is flipped.
+    func enableHistory() {
+        guard !isSaveHistoryEnabled else { return }
+        settings.saveHistoryEnabled = true
+        isSaveHistoryEnabled = true
+        analytics.capture(.settingsSaveHistoryToggled(enabled: true))
+    }
+
     /// Called when the History tab appears. Refreshes settings, resets the
     /// per-visit search flag, and emits `History.Screen.shown`. `entryCount`
     /// comes from the View's `@Query`.

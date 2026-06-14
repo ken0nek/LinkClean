@@ -31,6 +31,11 @@ struct HistoryView: View {
                     Label { Text(.historyDisabledTitle) } icon: { Image(systemName: "clock.badge.xmark") }
                 } description: {
                     Text(.historyDisabledMessage)
+                } actions: {
+                    // HIG: give people a button to act, not a Settings location to find.
+                    Button { viewModel.enableHistory() } label: { Text(.historyDisabledEnable) }
+                        .buttonStyle(.glassProminent)
+                        .accessibilityIdentifier("history-enable")
                 }
             case .empty:
                 ContentUnavailableView {

@@ -4,6 +4,12 @@
     "toast.copied" : {
       "comment" : "Toast shown after copying cleaned URL",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiert"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -21,6 +27,12 @@
     "toast.noLinkFound" : {
       "comment" : "Toast shown when the shared content contains no web link",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Link gefunden"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
