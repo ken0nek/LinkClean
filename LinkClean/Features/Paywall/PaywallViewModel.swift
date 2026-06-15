@@ -11,8 +11,8 @@ import LinkCleanAnalytics
 import Observation
 
 /// Drives the custom paywall: loads the Pro product, runs purchase/restore, and
-/// fires the §9 funnel (`Paywall.Screen.shown` → `Pro.Purchase.*`). The trigger
-/// that raised the sheet is carried for the impression signal only.
+/// fires the §9 funnel (`Paywall.Screen.shown` → `Pro.Purchase.*`), tagging both
+/// the impression and the purchase facts with the gate that raised the sheet.
 @MainActor
 @Observable
 final class PaywallViewModel {
@@ -75,7 +75,7 @@ final class PaywallViewModel {
         // The `Pro.Purchase.*` funnel is emitted by ``EntitlementsModel`` (the
         // engine that establishes each outcome); this only renders the result.
         do {
-            switch try await entitlements.purchase() {
+            switch try await entitlements.purchase(trigger: trigger) {
             case .completed:
                 didUnlock = true
             case .cancelled:

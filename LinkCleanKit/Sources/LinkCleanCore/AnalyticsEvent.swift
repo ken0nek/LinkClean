@@ -173,16 +173,20 @@ public enum AnalyticsEvent: Equatable {
 
     /// The paywall sheet appeared, tagged with the gate that raised it.
     case paywallShown(trigger: PaywallTrigger)
-    /// A purchase was initiated from the paywall.
-    case purchaseStarted
+    /// A purchase was initiated from the paywall, tagged with the gate that raised
+    /// it — the same `trigger` as ``paywallShown``, so paywall→purchase conversion
+    /// can be sliced per gate (which placement actually sells).
+    case purchaseStarted(trigger: PaywallTrigger)
     /// A purchase completed synchronously from the paywall (`purchase()` →
-    /// `.completed`); pairs with ``paywallShown`` for the paywall→purchase funnel.
-    /// An Ask-to-Buy/SCA approval arrives later via `Transaction.updates` and is
-    /// deliberately not counted here — re-emitting from that loop would double-fire
-    /// on cross-device/reinstall syncs. Real units sold: App Store Connect.
-    case purchaseCompleted
-    /// A purchase attempt produced no entitlement (cancelled / pending / error).
-    case purchaseFailed(reason: PurchaseFailureReason)
+    /// `.completed`); pairs with ``paywallShown`` for the paywall→purchase funnel,
+    /// sliced by the `trigger` gate. An Ask-to-Buy/SCA approval arrives later via
+    /// `Transaction.updates` and is deliberately not counted here — re-emitting from
+    /// that loop would double-fire on cross-device/reinstall syncs. Real units sold:
+    /// App Store Connect.
+    case purchaseCompleted(trigger: PaywallTrigger)
+    /// A purchase attempt produced no entitlement (cancelled / pending / error),
+    /// tagged with the gate that raised the paywall.
+    case purchaseFailed(reason: PurchaseFailureReason, trigger: PaywallTrigger)
     /// A Restore Purchases attempt finished; `restored` is whether it yielded Pro.
     case purchaseRestored(restored: Bool)
 
@@ -426,15 +430,15 @@ public enum AnalyticsEvent: Equatable {
             return ["changed": Self.string(changed)]
         case let .reviewStarsSelected(bucket):
             return ["bucket": bucket.rawValue]
-        case let .paywallShown(trigger):
+        case let .paywallShown(trigger),
+             let .purchaseStarted(trigger),
+             let .purchaseCompleted(trigger):
             return ["trigger": trigger.rawValue]
-        case let .purchaseFailed(reason):
-            return ["reason": reason.rawValue]
+        case let .purchaseFailed(reason, trigger):
+            return ["reason": reason.rawValue, "trigger": trigger.rawValue]
         case let .purchaseRestored(restored):
             return ["restored": Self.string(restored)]
-        case .purchaseStarted,
-             .purchaseCompleted,
-             .settingsScreenShown,
+        case .settingsScreenShown,
              .parametersCustomShown,
              .parametersLeftoverRemovedOnce,
              .homeClipboardInvalidPasted,

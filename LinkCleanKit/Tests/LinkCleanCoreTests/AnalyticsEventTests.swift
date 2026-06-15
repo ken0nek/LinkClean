@@ -75,9 +75,9 @@ struct AnalyticsEventTests {
             (.reviewSystemPromptRequested, "Review.SystemPrompt.requested"),
             (.reviewPromptDismissed, "Review.Prompt.dismissed"),
             (.paywallShown(trigger: .settingsRow), "Paywall.Screen.shown"),
-            (.purchaseStarted, "Pro.Purchase.started"),
-            (.purchaseCompleted, "Pro.Purchase.completed"),
-            (.purchaseFailed(reason: .cancelled), "Pro.Purchase.failed"),
+            (.purchaseStarted(trigger: .settingsRow), "Pro.Purchase.started"),
+            (.purchaseCompleted(trigger: .settingsRow), "Pro.Purchase.completed"),
+            (.purchaseFailed(reason: .cancelled, trigger: .settingsRow), "Pro.Purchase.failed"),
             (.purchaseRestored(restored: true), "Pro.Purchase.restored"),
         ]
         for (event, name) in expected {
@@ -280,7 +280,6 @@ struct AnalyticsEventTests {
             .historySearchUsed, .onboardingFlowCompleted, .onboardingFlowSkipped,
             .settingsScreenShown, .parametersCustomShown, .parametersLeftoverRemovedOnce,
             .reviewPromptShown, .reviewSystemPromptRequested, .reviewPromptDismissed,
-            .purchaseStarted, .purchaseCompleted,
         ]
         for event in events {
             #expect(event.parameters.isEmpty)
@@ -289,11 +288,15 @@ struct AnalyticsEventTests {
 
     @Test func monetizationEventsCarryFixedEnumsOnly() {
         // Privacy (§9): the paywall trigger is a fixed low-cardinality enum, never
-        // a URL or parameter name; purchase events carry no product or price.
+        // a URL or parameter name; purchase events carry no product or price — only
+        // the gate that raised the paywall, under the same `trigger` key as
+        // `paywallShown`, so paywall→purchase conversion is sliceable per gate.
         #expect(AnalyticsEvent.paywallShown(trigger: .customParamHome).parameters == ["trigger": "customParamHome"])
         #expect(AnalyticsEvent.paywallShown(trigger: .historyArchive).parameters == ["trigger": "historyArchive"])
-        #expect(AnalyticsEvent.purchaseFailed(reason: .pending).parameters == ["reason": "pending"])
-        #expect(AnalyticsEvent.purchaseFailed(reason: .storeError).parameters == ["reason": "storeError"])
+        #expect(AnalyticsEvent.purchaseStarted(trigger: .formatPicker).parameters == ["trigger": "formatPicker"])
+        #expect(AnalyticsEvent.purchaseCompleted(trigger: .historyArchive).parameters == ["trigger": "historyArchive"])
+        #expect(AnalyticsEvent.purchaseFailed(reason: .pending, trigger: .formatPicker).parameters == ["reason": "pending", "trigger": "formatPicker"])
+        #expect(AnalyticsEvent.purchaseFailed(reason: .storeError, trigger: .settingsRow).parameters == ["reason": "storeError", "trigger": "settingsRow"])
         #expect(AnalyticsEvent.purchaseRestored(restored: true).parameters == ["restored": "true"])
         #expect(AnalyticsEvent.purchaseRestored(restored: false).parameters == ["restored": "false"])
     }

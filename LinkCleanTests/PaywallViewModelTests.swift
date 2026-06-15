@@ -79,17 +79,26 @@ struct PaywallViewModelTests {
         #expect(vm.didUnlock)
     }
 
+    @Test func purchaseFunnelCarriesRaisingGate() async {
+        // The gate that raised the paywall tags the whole funnel, so conversion is
+        // attributable per gate (e.g. the formats lock vs the history wall).
+        let (vm, spy) = makeSUT(trigger: .formatPicker) { $0.purchaseOutcome = .completed(.pro) }
+        await vm.purchase()
+        #expect(spy.events.contains(.purchaseStarted(trigger: .formatPicker)))
+        #expect(spy.events.contains(.purchaseCompleted(trigger: .formatPicker)))
+    }
+
     @Test func purchaseCancelledReportsCancelled() async {
         let (vm, spy) = makeSUT { $0.purchaseOutcome = .cancelled }
         await vm.purchase()
-        #expect(spy.events.contains(.purchaseFailed(reason: .cancelled)))
+        #expect(spy.events.contains(.purchaseFailed(reason: .cancelled, trigger: .settingsRow)))
         #expect(vm.didUnlock == false)
     }
 
     @Test func purchasePendingShowsApproval() async {
         let (vm, spy) = makeSUT { $0.purchaseOutcome = .pending }
         await vm.purchase()
-        #expect(spy.events.contains(.purchaseFailed(reason: .pending)))
+        #expect(spy.events.contains(.purchaseFailed(reason: .pending, trigger: .settingsRow)))
         #expect(vm.showPendingApproval)
         #expect(vm.didUnlock == false)
     }
@@ -97,7 +106,7 @@ struct PaywallViewModelTests {
     @Test func purchaseErrorReportsStoreError() async {
         let (vm, spy) = makeSUT { $0.purchaseError = StubError() }
         await vm.purchase()
-        #expect(spy.events.contains(.purchaseFailed(reason: .storeError)))
+        #expect(spy.events.contains(.purchaseFailed(reason: .storeError, trigger: .settingsRow)))
         #expect(vm.showPurchaseError)
         #expect(vm.didUnlock == false)
     }

@@ -47,11 +47,13 @@ final class EntitlementsModel: EntitlementsProviding {
 
     /// Starts the purchase flow and emits the `Pro.Purchase.*` funnel facts from
     /// here — the layer that establishes each outcome — so ViewModels only render
-    /// results and the funnel can't disagree across call sites. Reflects a
-    /// completed entitlement immediately so gating updates without waiting on the
-    /// stream to catch up.
-    func purchase() async throws -> PurchaseOutcome {
-        analytics.capture(.purchaseStarted)
+    /// results and the funnel can't disagree across call sites. `trigger` is the
+    /// gate that raised the paywall, threaded through so every funnel fact carries
+    /// the same gate as ``paywallShown`` and conversion can be read per gate.
+    /// Reflects a completed entitlement immediately so gating updates without
+    /// waiting on the stream to catch up.
+    func purchase(trigger: AnalyticsEvent.PaywallTrigger) async throws -> PurchaseOutcome {
+        analytics.capture(.purchaseStarted(trigger: trigger))
         do {
             let outcome = try await service.purchase()
             switch outcome {
@@ -59,15 +61,15 @@ final class EntitlementsModel: EntitlementsProviding {
                 self.entitlement = entitlement
                 // Synchronous completion only; an Ask-to-Buy/SCA approval arrives
                 // later via the stream and is deliberately not re-counted here.
-                analytics.capture(.purchaseCompleted)
+                analytics.capture(.purchaseCompleted(trigger: trigger))
             case .cancelled:
-                analytics.capture(.purchaseFailed(reason: .cancelled))
+                analytics.capture(.purchaseFailed(reason: .cancelled, trigger: trigger))
             case .pending:
-                analytics.capture(.purchaseFailed(reason: .pending))
+                analytics.capture(.purchaseFailed(reason: .pending, trigger: trigger))
             }
             return outcome
         } catch {
-            analytics.capture(.purchaseFailed(reason: .storeError))
+            analytics.capture(.purchaseFailed(reason: .storeError, trigger: trigger))
             throw error
         }
     }

@@ -69,7 +69,9 @@ protocol EntitlementsService: Sendable {
 @MainActor
 protocol EntitlementsProviding {
     func proProduct() async throws -> ProProduct?
-    func purchase() async throws -> PurchaseOutcome
+    /// `trigger` is the gate that raised the paywall; it tags the `Pro.Purchase.*`
+    /// funnel so conversion can be read per gate.
+    func purchase(trigger: AnalyticsEvent.PaywallTrigger) async throws -> PurchaseOutcome
     @discardableResult
     func restorePurchases() async throws -> Entitlement
 }
