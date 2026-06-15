@@ -19,11 +19,18 @@ struct HomeView: View {
     @State private var paywallTrigger: AnalyticsEvent.PaywallTrigger?
     /// Bumped on a confirmed leftover-add so `.sensoryFeedback` fires a success tap.
     @State private var leftoverAddedHaptic = 0
+    /// Presents the full-screen QR scanner (the QR "scan" surface).
+    @State private var presentingScanner = false
+    /// Presents the QR for the current cleaned link (the QR "generate" half).
+    @State private var presentingQRCode = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) private var modelContext
     @Environment(\.requestReview) private var requestReview
 
+    private let deps: AppDependencies
+
     init(deps: AppDependencies) {
+        self.deps = deps
         _viewModel = State(initialValue: HomeViewModel(deps: deps))
     }
 
@@ -55,6 +62,23 @@ struct HomeView: View {
         .overlay(alignment: .top) { clipboardToast }
         .screenBackground()
         .navigationTitle(Text(.homeTitle))
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    presentingScanner = true
+                } label: {
+                    Image(systemName: "qrcode.viewfinder")
+                }
+                .accessibilityLabel(Text(.qrScanTitle))
+                .accessibilityIdentifier("scan-qr")
+            }
+        }
+        .fullScreenCover(isPresented: $presentingScanner) {
+            QRScannerScreen(deps: deps)
+        }
+        .sheet(isPresented: $presentingQRCode) {
+            QRCodeSheet(link: viewModel.cleanedText, onShare: viewModel.recordQRShared)
+        }
         .onAppear {
             viewModel.onAppear()
         }
@@ -296,6 +320,17 @@ struct HomeView: View {
             .simultaneousGesture(TapGesture().onEnded { viewModel.recordShare() })
             .accessibilityLabel(Text(.historyCellShare))
             .accessibilityIdentifier("share-cleaned-url")
+
+            Button {
+                presentingQRCode = true
+            } label: {
+                Image(systemName: "qrcode")
+                    .font(.body.weight(.semibold))
+                    .frame(minWidth: 28)
+            }
+            .buttonStyle(.glass)
+            .accessibilityLabel(Text(.qrShareTitle))
+            .accessibilityIdentifier("show-qr")
         }
         .controlSize(.large)
     }

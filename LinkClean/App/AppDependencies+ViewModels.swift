@@ -104,3 +104,14 @@ extension StatsViewModel {
         self.init(stats: deps.stats, analytics: deps.analytics)
     }
 }
+
+extension QRViewModel {
+    convenience init(deps: AppDependencies) {
+        self.init(
+            service: deps.cleaning,
+            analytics: deps.analytics,
+            history: deps.history,
+            stats: deps.stats
+        )
+    }
+}

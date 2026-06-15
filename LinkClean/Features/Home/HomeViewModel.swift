@@ -185,6 +185,15 @@ final class HomeViewModel {
         reviewFlow.noteExport(counted: effects.countForReview)
     }
 
+    /// Records that a QR image was generated from the current cleaned link and
+    /// shared (the QR "generate" half). Best-effort, hooked to the share tap; the
+    /// scan/clean north-star already counts cleans, so this only measures
+    /// QR-generation adoption — no History or review side effects.
+    func recordQRShared() {
+        guard let outcome = session.outcome, !outcome.cleaned.isEmpty else { return }
+        analytics.capture(.qrCodeGenerated(changed: outcome.telemetry.changed))
+    }
+
     /// The "Always Remove" gate decision (T2): a free user past their one custom
     /// rule must hit the paywall; otherwise the leftover is promoted to an
     /// always-remove rule right here. Composes entitlement + the live custom-rule

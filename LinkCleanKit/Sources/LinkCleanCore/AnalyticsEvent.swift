@@ -139,6 +139,22 @@ public enum AnalyticsEvent: Equatable {
     /// for the 1.1 distribution goal.
     case intentCleanSucceeded(surface: IntentSurface, telemetry: CleanOutcome.Telemetry)
 
+    // MARK: QR (scan & generate — the QR surface)
+
+    /// A QR code was scanned (camera or a picked image) and its link cleaned — the
+    /// QR surface's realized clean. Carries the same analytics-safe
+    /// ``CleanOutcome/Telemetry`` as the other clean surfaces (catalog-gap params +
+    /// the `domain` host signal, §3); History + Stats are recorded at this point,
+    /// as with the App Intents.
+    case qrScanSucceeded(telemetry: CleanOutcome.Telemetry)
+    /// A scan produced no cleanable link: a QR with no web URL (`noLink`) or a
+    /// picked image with no readable QR (`unreadable`) — the QR annoyance-rate read.
+    case qrScanFailed(reason: QRFailureReason)
+    /// A QR image was generated from a cleaned link and shared. `changed` mirrors
+    /// the other export events (whether cleaning altered the URL). Recorded at share
+    /// initiation (`ShareLink` has no completion callback), like ``homeURLShared``.
+    case qrCodeGenerated(changed: Bool)
+
     // MARK: Review (§6)
 
     /// The in-app star prompt (`ReviewGateSheet`) appeared.
@@ -190,6 +206,13 @@ public enum AnalyticsEvent: Equatable {
     /// Why an extension run produced no output.
     public enum FailureReason: String {
         case noURL, invalidInput
+    }
+
+    /// Why a QR scan produced no cleanable link. A fixed enum, never a URL or the
+    /// decoded payload (§3).
+    public enum QRFailureReason: String {
+        case noLink      // a QR decoded, but it held no web link
+        case unreadable  // no QR code was found in the picked image
     }
 
     /// Which App Intents surface ran a clean — the surface-mix slice (kpis §6). A
@@ -287,6 +310,9 @@ public enum AnalyticsEvent: Equatable {
         case .actionFormatSucceeded: "Action.Format.succeeded"
         case .actionFormatFailed: "Action.Format.failed"
         case .intentCleanSucceeded: "Intent.Clean.succeeded"
+        case .qrScanSucceeded: "QR.Scan.succeeded"
+        case .qrScanFailed: "QR.Scan.failed"
+        case .qrCodeGenerated: "QR.Code.generated"
         case .reviewPromptShown: "Review.Prompt.shown"
         case .reviewStarsSelected: "Review.Stars.selected"
         case .reviewSystemPromptRequested: "Review.SystemPrompt.requested"
@@ -384,6 +410,20 @@ public enum AnalyticsEvent: Equatable {
                 "domain": t.domain,
                 "unwrapped": Self.string(!t.wrappers.isEmpty),
             ]
+        case let .qrScanSucceeded(t):
+            return [
+                "changed": Self.string(t.changed),
+                "removedCount": Bucket.removedCount(t.removedCount),
+                "leftoverCount": Bucket.leftoverCount(t.leftoverCount),
+                "referenceMatchCount": Bucket.leftoverCount(t.referenceMatches.count),
+                "removedKinds": Self.kinds(t.removedKindIDs),
+                "domain": t.domain,
+                "unwrapped": Self.string(!t.wrappers.isEmpty),
+            ]
+        case let .qrScanFailed(reason):
+            return ["reason": reason.rawValue]
+        case let .qrCodeGenerated(changed):
+            return ["changed": Self.string(changed)]
         case let .reviewStarsSelected(bucket):
             return ["bucket": bucket.rawValue]
         case let .paywallShown(trigger):

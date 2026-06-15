@@ -67,6 +67,9 @@ struct AnalyticsEventTests {
             (.actionFormatSucceeded(preset: true, changed: true), "Action.Format.succeeded"),
             (.actionFormatFailed(reason: .invalidInput), "Action.Format.failed"),
             (.intentCleanSucceeded(surface: .clipboard, telemetry: telemetry(removedCount: 1)), "Intent.Clean.succeeded"),
+            (.qrScanSucceeded(telemetry: telemetry(removedCount: 1)), "QR.Scan.succeeded"),
+            (.qrScanFailed(reason: .noLink), "QR.Scan.failed"),
+            (.qrCodeGenerated(changed: true), "QR.Code.generated"),
             (.reviewPromptShown, "Review.Prompt.shown"),
             (.reviewStarsSelected(bucket: .high), "Review.Stars.selected"),
             (.reviewSystemPromptRequested, "Review.SystemPrompt.requested"),
@@ -201,6 +204,39 @@ struct AnalyticsEventTests {
             telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
         #expect(Set(params.keys) == ["intentSurface", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
+    }
+
+    @Test func qrScanCarriesCleanTelemetry() {
+        // The QR surface's clean rides the same analytics-safe telemetry as the
+        // other clean surfaces — counts + the one disclosed domain, no key names.
+        let params = AnalyticsEvent.qrScanSucceeded(
+            telemetry: telemetry(changed: true, removedCount: 2, domain: "youtube.com", wrappers: ["google.com"])
+        ).parameters
+        #expect(params == [
+            "changed": "true",
+            "removedCount": "2",
+            "leftoverCount": "0",
+            "referenceMatchCount": "0",
+            "removedKinds": "none",
+            "domain": "youtube.com",
+            "unwrapped": "true",
+        ])
+    }
+
+    @Test func qrScanParameterSurfaceIsCountsAndEnumsOnly() {
+        // Same privacy pin as the other clean events: counts + the one disclosed
+        // domain, never the decoded payload or a leftover key name.
+        let params = AnalyticsEvent.qrScanSucceeded(
+            telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
+        ).parameters
+        #expect(Set(params.keys) == ["changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
+    }
+
+    @Test func qrScanFailedAndGeneratedCarryFixedFields() {
+        #expect(AnalyticsEvent.qrScanFailed(reason: .noLink).parameters == ["reason": "noLink"])
+        #expect(AnalyticsEvent.qrScanFailed(reason: .unreadable).parameters == ["reason": "unreadable"])
+        #expect(AnalyticsEvent.qrCodeGenerated(changed: true).parameters == ["changed": "true"])
+        #expect(AnalyticsEvent.qrCodeGenerated(changed: false).parameters == ["changed": "false"])
     }
 
     @Test func copiedCarriesOnlyChanged() {
