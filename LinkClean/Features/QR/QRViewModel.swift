@@ -32,6 +32,7 @@ final class QRViewModel {
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let history: HistoryStore
     @ObservationIgnored private let stats: StatsStore
+    @ObservationIgnored private let recorder: RealizedCleanRecorder
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     // Set synchronously on the first detection so the live scanner's repeated
     // frames don't enqueue duplicate cleans, and a result already on screen
@@ -55,6 +56,7 @@ final class QRViewModel {
         self.analytics = analytics
         self.history = history
         self.stats = stats
+        self.recorder = RealizedCleanRecorder(analytics: analytics, stats: stats)
     }
 
     var hasResult: Bool { result != nil }
@@ -83,7 +85,7 @@ final class QRViewModel {
         isHandling = true
         scanError = nil
 
-        guard let url = Self.firstWebURL(in: payload) else {
+        guard let url = URLCleaner.firstWebURL(in: payload) else {
             isHandling = false
             fail(.noLink)
             return
@@ -101,12 +103,9 @@ final class QRViewModel {
             // slower Stats/History writes, matching the App Intents' ordering
             // (analytics §8) so the signal isn't delayed behind a SwiftData save.
             analytics.capture(.qrScanSucceeded(telemetry: outcome.telemetry))
-            // Tier 1 catalog-gap signal, as on every other clean surface: one signal
-            // per known-but-not-default tracker left behind (public reference names).
-            for parameter in outcome.telemetry.referenceMatches {
-                analytics.capture(.parametersReferenceObserved(parameter: parameter))
-            }
-            stats.record(outcome)
+            // The shared realized-clean tail (catalog-gap fan-out + lifetime Stats).
+            // History is recorded here too, since a scan persists at clean time.
+            recorder.record(outcome)
             history.record(outcome)
         }
     }
@@ -160,18 +159,5 @@ final class QRViewModel {
     private func fail(_ reason: AnalyticsEvent.QRFailureReason) {
         scanError = reason
         analytics.capture(.qrScanFailed(reason: reason))
-    }
-
-    /// First web URL in arbitrary text — handles a bare-URL QR and a "label + link"
-    /// QR uniformly. Parallels `URLExtraction.firstWebURL(in:)` (the share-sheet
-    /// path); kept local so the app target needn't depend on the extension UI layer.
-    private static func firstWebURL(in text: String) -> URL? {
-        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
-            return nil
-        }
-        let range = NSRange(text.startIndex..., in: text)
-        return detector.matches(in: text, options: [], range: range)
-            .compactMap(\.url)
-            .first(where: URLCleaner.isWebURL)
     }
 }

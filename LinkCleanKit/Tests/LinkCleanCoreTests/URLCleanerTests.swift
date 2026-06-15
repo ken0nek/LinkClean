@@ -268,4 +268,12 @@ struct URLCleanerTests {
         let result = URLCleaner.clean("https://www.example.com/dp/B08N5WRWNW?tag=mystore&utm_source=google&gclid=abc&ref=sr_1_1")
         #expect(result == "https://www.example.com/dp/B08N5WRWNW?tag=mystore&ref=sr_1_1")
     }
+
+    @Test func firstWebURLPullsTheLinkOutOfProse() {
+        // A "label + link" payload (QR codes, shared captions) — the detector finds
+        // the embedded web URL where `URL(string:)` would mangle the whole string.
+        #expect(URLCleaner.firstWebURL(in: "see https://x.com/a?utm_source=n now")?.absoluteString
+            == "https://x.com/a?utm_source=n")
+        #expect(URLCleaner.firstWebURL(in: "no link in this text") == nil)
+    }
 }

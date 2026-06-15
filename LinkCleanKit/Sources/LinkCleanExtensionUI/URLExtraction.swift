@@ -32,7 +32,7 @@ public enum URLExtraction {
 
         for provider in providers {
             if let text = await loadPlainText(from: provider),
-                let url = firstWebURL(in: text)
+                let url = URLCleaner.firstWebURL(in: text)
             {
                 return url
             }
@@ -40,20 +40,6 @@ public enum URLExtraction {
 
         Log.action.debug("URLExtraction: no URL found in input items")
         return nil
-    }
-
-    /// Finds the first web link in text. Hosts share links as bare strings
-    /// (LinkedIn) or as "Title + link" prose; parsing the whole string with
-    /// `URL(string:)` would percent-encode the prose into a mangled URL.
-    static func firstWebURL(in text: String) -> URL? {
-        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
-            return nil
-        }
-
-        let range = NSRange(text.startIndex..., in: text)
-        return detector.matches(in: text, options: [], range: range)
-            .compactMap(\.url)
-            .first(where: URLCleaner.isWebURL)
     }
 
     /// `loadItem` returns whatever representation the host registered: an

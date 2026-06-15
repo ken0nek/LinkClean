@@ -248,6 +248,17 @@ struct AnalyticsEventTests {
         #expect(AnalyticsEvent.qrResultActioned(.open).parameters == ["action": "open"])
     }
 
+    @Test func referenceObservedEventsFanOutOnePerMatch() {
+        // The shared catalog-gap fan-out: one `parametersReferenceObserved` per
+        // match, in order, and nothing when there are no matches.
+        let events = telemetry(referenceMatches: ["epik", "li_fat_id"]).referenceObservedEvents
+        #expect(events == [
+            .parametersReferenceObserved(parameter: "epik"),
+            .parametersReferenceObserved(parameter: "li_fat_id"),
+        ])
+        #expect(telemetry(referenceMatches: []).referenceObservedEvents.isEmpty)
+    }
+
     @Test func copiedCarriesOnlyChanged() {
         #expect(AnalyticsEvent.homeURLCopied(changed: false).parameters == ["changed": "false"])
     }

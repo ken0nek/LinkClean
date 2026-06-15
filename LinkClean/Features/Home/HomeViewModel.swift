@@ -47,6 +47,7 @@ final class HomeViewModel {
     @ObservationIgnored private let advisor: ParameterAdvising
     @ObservationIgnored private let history: HistoryStore
     @ObservationIgnored private let stats: StatsStore
+    @ObservationIgnored private let recorder: RealizedCleanRecorder
     @ObservationIgnored private var cleanTask: Task<Void, Never>?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private var toastTask: Task<Void, Never>?
@@ -87,6 +88,7 @@ final class HomeViewModel {
         self.advisor = advisor
         self.history = history
         self.stats = stats
+        self.recorder = RealizedCleanRecorder(analytics: analytics, stats: stats)
         self.advisorDebounce = advisorDebounce
         self.reviewFlow = ReviewPromptFlow(review: review, analytics: analytics)
     }
@@ -482,12 +484,9 @@ final class HomeViewModel {
     /// catalog-gap signals included — so no field is re-plumbed or re-derived.
     private func signalCleaned(_ outcome: CleanOutcome, source: AnalyticsEvent.CleanSource) {
         analytics.capture(.homeURLCleaned(source: source, telemetry: outcome.telemetry))
-        // Tier 1: one signal per known-but-not-default tracker left behind, so
-        // the default catalog can grow from real links. These ride in the
-        // privacy-safe Telemetry — public reference-catalog names only.
-        for parameter in outcome.telemetry.referenceMatches {
-            analytics.capture(.parametersReferenceObserved(parameter: parameter))
-        }
-        stats.record(outcome)
+        // The shared realized-clean tail: Tier-1 catalog-gap fan-out (so the
+        // default catalog can grow from real links) + lifetime Stats. History is
+        // written on export instead, deduped per cleaned output.
+        recorder.record(outcome)
     }
 }

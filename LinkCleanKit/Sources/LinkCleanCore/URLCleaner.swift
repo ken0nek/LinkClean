@@ -30,6 +30,20 @@ public enum URLCleaner {
         isValidURL(url.absoluteString)
     }
 
+    /// The first web URL in arbitrary text — handles a bare-URL payload and a
+    /// "label + link" payload uniformly. Found with `NSDataDetector` and filtered
+    /// to http(s) via ``isWebURL``. Shared by the QR scanner and the share-extension
+    /// URL extraction so both pull a link out of free text the same way.
+    public static func firstWebURL(in text: String) -> URL? {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
+            return nil
+        }
+        let range = NSRange(text.startIndex..., in: text)
+        return detector.matches(in: text, options: [], range: range)
+            .compactMap(\.url)
+            .first(where: isWebURL)
+    }
+
     public static func clean(_ urlString: String) -> String {
         clean(urlString, removing: TrackingParameterCatalog.defaultRemovalSet(forHost: ruleHost(of: urlString)))
     }

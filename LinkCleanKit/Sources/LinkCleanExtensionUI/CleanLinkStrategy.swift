@@ -27,12 +27,10 @@ public struct CleanLinkStrategy: ActionOutputStrategy {
 
     public func result(for outcome: CleanOutcome, extracted: ExtractedURL) async -> StrategyResult {
         let cleaned = URL(string: outcome.cleaned) ?? extracted.url
-        var events: [AnalyticsEvent] = [.actionCleanSucceeded(telemetry: outcome.telemetry)]
-        // Tier 1 catalog-gap names ride after the success signal so the priority
-        // event uses the scarce in-process network window first (analytics §8).
-        for parameter in outcome.telemetry.referenceMatches {
-            events.append(.parametersReferenceObserved(parameter: parameter))
-        }
+        // The success signal first, then the Tier-1 catalog-gap names — the
+        // priority event uses the scarce in-process network window first (§8).
+        let events: [AnalyticsEvent] =
+            [.actionCleanSucceeded(telemetry: outcome.telemetry)] + outcome.telemetry.referenceObservedEvents
         return StrategyResult(payload: PasteboardPayload(.url(cleaned)), successEvents: events)
     }
 }

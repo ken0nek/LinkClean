@@ -522,6 +522,16 @@ public enum AnalyticsEvent: Equatable {
     }
 }
 
+extension CleanOutcome.Telemetry {
+    /// One ``AnalyticsEvent/parametersReferenceObserved(parameter:)`` per
+    /// catalog-gap tracker left behind (Tier 1) — the fan-out every clean surface
+    /// emits after its own success signal, so no surface re-derives the loop. Only
+    /// public reference-catalog names ride here (finite, never user input; §3).
+    public var referenceObservedEvents: [AnalyticsEvent] {
+        referenceMatches.map { .parametersReferenceObserved(parameter: $0) }
+    }
+}
+
 extension AnalyticsEvent.PaywallTrigger: Identifiable {
     /// `.sheet(item:)` (the paywall presentation currency) needs `Identifiable`;
     /// the trigger's `rawValue` is a stable id. Declared here next to the enum so
