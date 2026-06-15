@@ -209,7 +209,7 @@
       }
     },
     "picker.title" : {
-      "comment" : "Title of the in-extension format picker (shown when 2+ formats are active)",
+      "comment" : "Title of the in-extension format picker",
       "localizations" : {
         "de" : {
           "stringUnit" : {
