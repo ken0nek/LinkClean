@@ -2877,25 +2877,73 @@
         }
       }
     },
+    "paywall.benefit.formats.body" : {
+      "comment" : "Paywall benefit row body for the Copy-formats Pro feature. Markdown is part of the free tier, so do not market Markdown here; the Pro value is unlocking the remaining presets, building custom templates, and choosing a format at copy time.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schalte jedes Format frei, erstelle eigene Vorlagen und wähle beim Kopieren das passende."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock every format, build your own templates, and pick one each time you copy."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのフォーマットを使えるようになり、独自のテンプレートを作成して、コピーするたびに選べます。"
+          }
+        }
+      }
+    },
+    "paywall.benefit.formats.title" : {
+      "comment" : "Paywall benefit row title for custom link formats (Pro). Sentence-style noun phrase, matching the other benefit titles.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigene Linkformate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your own link formats"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カスタムリンクフォーマット"
+          }
+        }
+      }
+    },
     "paywall.benefit.future.body" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Neue Formate, Export und mehr – sobald sie kommen, ohne Aufpreis."
+            "value" : "Export, Synchronisierung und mehr – sobald sie kommen, ohne Aufpreis."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "New formats, export, and more — yours as they arrive, at no extra cost."
+            "value" : "Export, sync, and more — yours as they arrive, at no extra cost."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しいフォーマット、エクスポートなど、追加されるたびに追加料金なしで使えます。"
+            "value" : "エクスポートや同期など、追加されるたびに追加料金なしで使えます。"
           }
         }
       }

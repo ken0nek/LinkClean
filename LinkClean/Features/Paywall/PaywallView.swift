@@ -131,6 +131,11 @@ struct PaywallView: View {
                 body: .paywallBenefitRulesBody
             )
             benefitRow(
+                icon: "curlybraces",
+                title: .paywallBenefitFormatsTitle,
+                body: .paywallBenefitFormatsBody
+            )
+            benefitRow(
                 icon: "sparkles",
                 title: .paywallBenefitFutureTitle,
                 body: .paywallBenefitFutureBody
