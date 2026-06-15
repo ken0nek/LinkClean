@@ -135,12 +135,26 @@ final class QRViewModel {
     func copyCleanedURL() {
         guard let cleaned = result?.cleaned, !cleaned.isEmpty else { return }
         UIPasteboard.general.string = cleaned
+        analytics.capture(.qrResultActioned(.copy))
         didCopy = true
         copyTask?.cancel()
         copyTask = Task { @MainActor in
             try? await Task.sleep(for: .seconds(1.4))
             didCopy = false
         }
+    }
+
+    /// Records a Share of the scan result. The `ShareLink` fires this at
+    /// initiation (it has no completion callback), like Home and History.
+    func recordShare() {
+        guard !cleanedText.isEmpty else { return }
+        analytics.capture(.qrResultActioned(.share))
+    }
+
+    /// Records an Open-in-browser of the scan result; the View owns the actual
+    /// `openURL`. Only reachable while ``cleanedURL`` is non-nil.
+    func recordOpen() {
+        analytics.capture(.qrResultActioned(.open))
     }
 
     private func fail(_ reason: AnalyticsEvent.QRFailureReason) {

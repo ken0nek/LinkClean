@@ -70,6 +70,7 @@ struct AnalyticsEventTests {
             (.qrScanSucceeded(telemetry: telemetry(removedCount: 1)), "QR.Scan.succeeded"),
             (.qrScanFailed(reason: .noLink), "QR.Scan.failed"),
             (.qrCodeGenerated(changed: true), "QR.Code.generated"),
+            (.qrResultActioned(.copy), "QR.Result.actioned"),
             (.reviewPromptShown, "Review.Prompt.shown"),
             (.reviewStarsSelected(bucket: .high), "Review.Stars.selected"),
             (.reviewSystemPromptRequested, "Review.SystemPrompt.requested"),
@@ -237,6 +238,14 @@ struct AnalyticsEventTests {
         #expect(AnalyticsEvent.qrScanFailed(reason: .unreadable).parameters == ["reason": "unreadable"])
         #expect(AnalyticsEvent.qrCodeGenerated(changed: true).parameters == ["changed": "true"])
         #expect(AnalyticsEvent.qrCodeGenerated(changed: false).parameters == ["changed": "false"])
+    }
+
+    @Test func qrResultActionCarriesTheActionPath() {
+        // The QR result sheet's export leg (Copy / Share / Open), under the same
+        // `action` key as `historyEntryActioned` — a fixed enum, never a URL.
+        #expect(AnalyticsEvent.qrResultActioned(.copy).parameters == ["action": "copy"])
+        #expect(AnalyticsEvent.qrResultActioned(.share).parameters == ["action": "share"])
+        #expect(AnalyticsEvent.qrResultActioned(.open).parameters == ["action": "open"])
     }
 
     @Test func copiedCarriesOnlyChanged() {

@@ -107,9 +107,11 @@ struct QRResultView: View {
             }
             .buttonStyle(.glass)
             .accessibilityLabel(Text(.historyCellShare))
+            .simultaneousGesture(TapGesture().onEnded { viewModel.recordShare() })
 
             if let url = viewModel.cleanedURL {
                 Button {
+                    viewModel.recordOpen()
                     openURL(url)
                 } label: {
                     Image(systemName: "safari")

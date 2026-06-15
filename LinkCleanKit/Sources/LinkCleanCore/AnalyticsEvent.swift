@@ -154,6 +154,11 @@ public enum AnalyticsEvent: Equatable {
     /// the other export events (whether cleaning altered the URL). Recorded at share
     /// initiation (`ShareLink` has no completion callback), like ``homeURLShared``.
     case qrCodeGenerated(changed: Bool)
+    /// The user exported a scanned-and-cleaned link from the QR result sheet
+    /// (Copy / Share / Open) — the QR surface's realized export. Without it the
+    /// scan's downstream value is invisible while ``qrScanSucceeded`` over-counts
+    /// intent; the QR analogue of ``historyEntryActioned`` / ``homeURLCopied``.
+    case qrResultActioned(QRResultAction)
 
     // MARK: Review (§6)
 
@@ -217,6 +222,13 @@ public enum AnalyticsEvent: Equatable {
     public enum QRFailureReason: String {
         case noLink      // a QR decoded, but it held no web link
         case unreadable  // no QR code was found in the picked image
+    }
+
+    /// Which export path the user took from the QR scan-result sheet. Mirrors
+    /// ``EntryAction`` but QR-specific — the result sheet offers Copy / Share /
+    /// Open, never Markdown.
+    public enum QRResultAction: String {
+        case copy, share, open
     }
 
     /// Which App Intents surface ran a clean — the surface-mix slice (kpis §6). A
@@ -317,6 +329,7 @@ public enum AnalyticsEvent: Equatable {
         case .qrScanSucceeded: "QR.Scan.succeeded"
         case .qrScanFailed: "QR.Scan.failed"
         case .qrCodeGenerated: "QR.Code.generated"
+        case .qrResultActioned: "QR.Result.actioned"
         case .reviewPromptShown: "Review.Prompt.shown"
         case .reviewStarsSelected: "Review.Stars.selected"
         case .reviewSystemPromptRequested: "Review.SystemPrompt.requested"
@@ -428,6 +441,8 @@ public enum AnalyticsEvent: Equatable {
             return ["reason": reason.rawValue]
         case let .qrCodeGenerated(changed):
             return ["changed": Self.string(changed)]
+        case let .qrResultActioned(action):
+            return ["action": action.rawValue]
         case let .reviewStarsSelected(bucket):
             return ["bucket": bucket.rawValue]
         case let .paywallShown(trigger),
