@@ -130,7 +130,7 @@ Steps:
 3. **fastlane** moves into `apps/ios/fastlane/` (run `bundle exec fastlane` from `apps/ios/`); `Gemfile`/`Gemfile.lock`/`mise.toml` alongside. Do a **`deliver --verify_only`-style dry run** — fastlane is the likeliest to hold an implicit path assumption.
 4. **`scripts/` + `Screenshots/`:** repath any hardcoded scheme/project references (`scripts/capture-raw-screenshots.sh`, the Screenshots composer).
 5. **Docs split:** `ARCHITECTURE.md`/`AGENTS.md` → `apps/ios/`. **`CLAUDE.md`:** current iOS rules → `apps/ios/CLAUDE.md`; a slim **root `CLAUDE.md`** describes the monorepo (Claude Code reads them hierarchically, so iOS rules still apply inside `apps/ios/`, web rules inside `apps/landing/`). **`README.md`:** iOS content → `apps/ios/README.md`; new root README = monorepo overview.
-6. **Verify gates (all green before merge):** kit fast lane (`swift test` in `apps/ios/LinkCleanKit/`), app tests (`xcodebuild test -scheme LinkCleanTests` on an OS-26.4 sim), a **Release** build (the `.storekit`-in-bundle exception + signing are fragile), and the fastlane dry run.
+6. **Verify gates (all green before merge):** kit fast lane (`swift test` in `apps/ios/LinkCleanKit/`), app tests (`xcodebuild test -scheme LinkCleanTests` on an OS-26.5 sim), a **Release** build (the `.storekit`-in-bundle exception + signing are fragile), and the fastlane dry run.
 
 ---
 

@@ -168,13 +168,13 @@ Names from [analytics.md](analytics.md) §6:
 - `LinkCleanTests/ExtensionGuideViewModelTests.swift` — throwaway `UserDefaults(suiteName: "test.<UUID>")` + fixed `now`:
   idle→waiting on `tryItTapped`; no timestamp ⇒ stays waiting; **older** timestamp ⇒ stays waiting (stale guard); **newer** timestamp + `handleScenePhase(.active)` ⇒ succeeded; `.inactive`/`.background` no-op; `reset()` ⇒ idle; `isIdleOrWaiting` matrix.
 - `LinkCleanTests/OnboardingViewModelTests.swift` — initial page; `advance()` welcome→tryIt; `handleGuideSuccess()` ⇒ celebration; `skip()`/`getStarted()` persist flag + fire `onFinished`; skip works from every page.
-- Kit: `recordSuccessfulRun(at:in:)` writes the expected interval into an injected suite. Run via `xcodebuild test -scheme LinkCleanKit -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.4'` from `LinkCleanKit/` (`swift test` fails — kit imports UIKit).
+- Kit: `recordSuccessfulRun(at:in:)` writes the expected interval into an injected suite. Run via `xcodebuild test -scheme LinkCleanKit -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.5'` from `LinkCleanKit/` (`swift test` fails — kit imports UIKit).
 
 **UI:** existing `LinkCleanUITests` must pass unchanged (guaranteed by step 13). Optional later: `-uiTestingOnboarding` launch argument that clears defaults *without* setting the flag, asserting Skip lands on the TabView.
 
 ## 6. Verification (manual, simulator)
 
-1. Build & run `LinkClean` scheme (iPhone 17 / OS 26.4 sim). Delete app first → fresh launch shows Welcome; **no paste-permission banner**.
+1. Build & run `LinkClean` scheme (iPhone 17 / OS 26.5 sim). Delete app first → fresh launch shows Welcome; **no paste-permission banner**.
 2. Try it → real share sheet shows "Clean URL" + "Copy as Markdown" → tap "Clean URL" → toast → celebration auto-appears.
 3. Get started → TabView. History tab does **not** contain the demo (excluded via `OnboardingDemo`); clipboard holds the cleaned URL.
 4. Relaunch → straight to TabView.

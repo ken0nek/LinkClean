@@ -1,0 +1,6 @@
+schemaVersion: 1
+sessionDefaults:
+  simulatorName: iPhone 17
+  useLatestOS: true
+  simulatorId: 267DC050-9CDA-45E3-A504-E8099CF96AD6
+  simulatorPlatform: iOS Simulator

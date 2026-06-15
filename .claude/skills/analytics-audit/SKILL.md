@@ -95,7 +95,7 @@ This skill edits **only** the iOS event layer. For each approved iOS-layer chang
 - **Extend both switches in the same edit** — `signalName` (a `Feature.Subject.verbPast` string, ≤ 3 dotted levels, per `docs/plans/analytics.md` §5) and `parameters` (stringify everything: `Self.string(bool)`, `Bucket.xxx(int)`, `enum.rawValue`). Add a new `Bucket` helper rather than emitting a raw count.
 - **Wire the call site(s)** via `analytics.capture(.newEvent(...))` — and the extension path too if it should fire there.
 - **Add a test** to `AnalyticsEventTests.swift` asserting the new case's `signalName` and `parameters` (mirror the existing per-event assertions).
-- **Run the gates** — build, then the LinkCleanKit package tests from `LinkCleanKit/`: `xcodebuild test -scheme LinkCleanKit -destination 'platform=iOS Simulator,OS=26.4,name=iPhone 17'` (app-target tests run via the `LinkCleanTests` scheme). Update `docs/plans/analytics.md` so the plan and the code move together.
+- **Run the gates** — build, then the LinkCleanKit package tests from `LinkCleanKit/`: `xcodebuild test -scheme LinkCleanKit -destination 'platform=iOS Simulator,OS=26.5,name=iPhone 17'` (app-target tests run via the `LinkCleanTests` scheme). Update `docs/plans/analytics.md` so the plan and the code move together.
 
 For approved **ASC** changes, route — don't edit here: a listing/ASO metric → `app-store-optimization`; an install/retention/conversion number → the App Store Connect dashboard. Recommend and hand off.
 

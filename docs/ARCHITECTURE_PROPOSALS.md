@@ -31,7 +31,7 @@ The proposals target the places where the *documented* architecture and the *act
 - An SDK binding: `TelemetryDeckAnalytics` (pulls the TelemetryDeck package into everything).
 - UIKit presentation: `ActionExtensionViewController` with ~90 lines of toast layout code.
 
-Because one corner of the target needs UIKit and `Bundle.module`, the whole package sets `defaultIsolation(MainActor.self)` — and then the *majority* of declarations opt back out with explicit `nonisolated` (17+ types). The defaults are inverted: the package-wide rule serves the minority. Two further taxes: `swift test` cannot run on macOS at all (UIKit import), so even pure `URLCleaner` tests require booting an iOS 26.4 simulator; and TelemetryDeck is a transitive dependency of the URL cleaner.
+Because one corner of the target needs UIKit and `Bundle.module`, the whole package sets `defaultIsolation(MainActor.self)` — and then the *majority* of declarations opt back out with explicit `nonisolated` (17+ types). The defaults are inverted: the package-wide rule serves the minority. Two further taxes: `swift test` cannot run on macOS at all (UIKit import), so even pure `URLCleaner` tests require booting an iOS 26.5 simulator; and TelemetryDeck is a transitive dependency of the URL cleaner.
 
 **What I'd change.** One package, four targets, with compiler-enforced dependency direction:
 
@@ -325,7 +325,7 @@ owning all launch-arg branches and the fixture data; `LinkCleanApp.init` becomes
 
 ### P12 — Two-speed test architecture
 
-**Current state.** All tests require an iOS 26.4 simulator: kit tests because the package imports UIKit, app tests because they're an Xcode target. The two suites are run by two schemes with no umbrella (a known bite: a kit enum change compiles clean in the kit scheme and breaks `LinkCleanTests` — you must remember to run both). Test doubles aren't shared: `SpyAnalytics` exists only in app tests, so kit-side code that captures analytics has no spy available.
+**Current state.** All tests require an iOS 26.5 simulator: kit tests because the package imports UIKit, app tests because they're an Xcode target. The two suites are run by two schemes with no umbrella (a known bite: a kit enum change compiles clean in the kit scheme and breaks `LinkCleanTests` — you must remember to run both). Test doubles aren't shared: `SpyAnalytics` exists only in app tests, so kit-side code that captures analytics has no spy available.
 
 **What I'd change.** Falls out of P1, plus two small additions:
 
