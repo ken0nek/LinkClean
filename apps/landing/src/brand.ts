@@ -10,9 +10,16 @@ export const AUTHOR_URL = "https://ken0nek.com";
 export const AUTHOR_SAME_AS = ["https://github.com/ken0nek"];
 
 // Languages the iOS *app* ships in (UI + content). Used by Phase-3 JSON-LD
-// (MobileApplication.inLanguage); LP locales (see i18n/locales.ts) can diverge.
+// (SoftwareApplication.inLanguage); LP locales (see i18n/locales.ts) can diverge.
 export const APP_SUPPORTED_LANGUAGES = ["en", "ja", "de"];
 
-// Bump on every meaningful content change. Used in Phase-3 JSON-LD dateModified
-// and the visible footer. Phase-1 placeholder reads it for the footer only.
+// Bump on every meaningful content change. Used in JSON-LD dateModified and the
+// visible footer.
 export const LAST_UPDATED = "2026-06-16";
+
+// TelemetryDeck Web app ID for the `linkclean-landing` TD app. Empty disables
+// the shim (window.td = noop, no SDK load); a set value loads the WebSDK and
+// arms the AppStoreTapped beacon. The hostname check in pageLayout.tsx routes
+// all non-linkclean.app traffic (localhost, *.workers.dev) to TD test mode so
+// dev/preview signals don't pollute prod stats.
+export const TELEMETRY_APP_ID = "8CAFBDA1-C8D6-44D8-BB9A-1930A4F30999";

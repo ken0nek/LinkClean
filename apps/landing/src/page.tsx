@@ -1,124 +1,268 @@
-import { raw } from "hono/html";
-import { AUTHOR_NAME, AUTHOR_URL, LAST_UPDATED, SITE_NAME } from "./brand";
-import { LOCALES, type Locale, localeUrl } from "./i18n/locales";
+import {
+  APP_STORE_URL,
+  APP_SUPPORTED_LANGUAGES,
+  AUTHOR_NAME,
+  AUTHOR_SAME_AS,
+  AUTHOR_URL,
+  LAST_UPDATED,
+  SITE_NAME,
+  SITE_URL,
+} from "./brand";
+import type { Copy } from "./copy/types";
+import {
+  LOCALE_LIST,
+  LOCALES,
+  type Locale,
+  localePath,
+  localeUrl,
+} from "./i18n/locales";
+import { Layout } from "./pageLayout";
+import { trackersHubPath } from "./trackers/paths";
+import { spokesForLocale } from "./trackers/select";
 
-// Inlined in one <style> tag via raw() so the `>` child combinators and `&`
-// nesting aren't HTML-escaped. Phase 1: privacy-teal accent on a light/dark
-// surface, system fonts, no webfonts. Phase 3 will add the hero artwork.
-const css = `
-  *, *::before, *::after { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  html, body { margin: 0; }
+function buildStructuredData(copy: Copy, locale: Locale): string {
+  const author = {
+    "@type": "Person",
+    name: AUTHOR_NAME,
+    url: AUTHOR_URL,
+    sameAs: AUTHOR_SAME_AS,
+  };
+  return JSON.stringify([
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: SITE_NAME,
+      alternateName: copy.schema.alternateName,
+      description: copy.schema.description,
+      featureList: copy.schema.featureList,
+      operatingSystem: "iOS 26",
+      applicationCategory: "UtilitiesApplication",
+      url: localeUrl(locale),
+      image: `${SITE_URL}/linkclean-icon.png`,
+      downloadUrl: APP_STORE_URL,
+      installUrl: APP_STORE_URL,
+      author,
+      inLanguage: APP_SUPPORTED_LANGUAGES,
+      dateModified: LAST_UPDATED,
+      offers: [
+        {
+          "@type": "Offer",
+          name: "LinkClean (free)",
+          price: "0",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+        },
+        {
+          "@type": "Offer",
+          name: "LinkClean Pro (one-time in-app purchase)",
+          price: "4.99",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+        },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      inLanguage: LOCALES[locale].htmlLang,
+      dateModified: LAST_UPDATED,
+      mainEntity: copy.faq.map(({ q, a }) => ({
+        "@type": "Question",
+        name: q,
+        acceptedAnswer: { "@type": "Answer", text: a },
+      })),
+    },
+  ]).replace(/</g, "\\u003c");
+}
 
-  :root {
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
-    --color-bg: oklch(98% 0.005 200);
-    --color-ink: oklch(20% 0.01 220);
-    --color-muted: oklch(45% 0.012 220);
-    --color-rule: oklch(90% 0.01 210);
-    --color-accent: oklch(55% 0.10 200);
-    --color-accent-ink: oklch(99% 0.002 200);
-  }
+/** Split the dirty URL into the path + each tracking parameter so the strip
+ *  styling lines up with the demo copy. */
+function dirtyUrlParts(url: string): {
+  base: string;
+  params: ReadonlyArray<string>;
+} {
+  const q = url.indexOf("?");
+  if (q < 0) return { base: url, params: [] };
+  const base = url.slice(0, q);
+  const params = url.slice(q + 1).split("&");
+  return { base, params };
+}
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-bg: oklch(16% 0.01 220);
-      --color-ink: oklch(95% 0.005 200);
-      --color-muted: oklch(70% 0.012 210);
-      --color-rule: oklch(28% 0.01 220);
-      --color-accent: oklch(70% 0.12 200);
-      --color-accent-ink: oklch(15% 0.01 220);
-    }
-  }
+const Home = ({ locale }: { locale: Locale }) => {
+  const config = LOCALES[locale];
+  const { copy } = config;
+  const dirty = dirtyUrlParts(copy.demo.dirtyUrl);
+  const hubVisible = spokesForLocale(locale).length > 0;
 
-  body {
-    background: var(--color-bg);
-    color: var(--color-ink);
-    font-family: var(--font-sans);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
+  return (
+    <>
+      <section class="hero">
+        <div class="wrap">
+          <h1>{copy.hero.h1}</h1>
+          <p class="lede">{copy.hero.lede}</p>
+          <p class="sub">{copy.hero.sub}</p>
+          <div class="cta-row">
+            <a
+              class="cta-app-store"
+              href={copy.appStoreCampaign}
+              onclick="td && td('Landing.AppStoreTapped')"
+              rel="noopener"
+            >
+              <img
+                src={copy.appStoreBadge.file}
+                alt={copy.appStoreBadge.alt}
+                width={copy.appStoreBadge.width}
+                height={copy.appStoreBadge.height}
+              />
+            </a>
+          </div>
+        </div>
+      </section>
 
-  main {
-    max-width: 38rem;
-    margin: 0 auto;
-    padding: 6rem 1.5rem 4rem;
-  }
+      <hr class="rule" />
 
-  h1 {
-    font-size: clamp(2rem, 6vw, 3rem);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    margin: 0 0 1rem;
-  }
+      <section>
+        <div class="wrap">
+          <h2>{copy.demo.h2}</h2>
+          <p class="section-intro">{copy.demo.intro}</p>
+          <article class="demo">
+            <span class="label">{copy.demo.dirtyLabel}</span>
+            <div class="url-line dirty">
+              {dirty.base}
+              {dirty.params.length > 0 ? (
+                <>
+                  <span>?</span>
+                  {dirty.params.map((p, i) => (
+                    <>
+                      {i > 0 ? <span>&</span> : null}
+                      <span class="strip">{p}</span>
+                    </>
+                  ))}
+                </>
+              ) : null}
+            </div>
+            <span class="label">{copy.demo.cleanLabel}</span>
+            <div class="url-line clean">{copy.demo.cleanUrl}</div>
+            <span class="label">{copy.demo.strippedLabel}</span>
+            <p class="note">{copy.demo.strippedNote}</p>
+          </article>
+        </div>
+      </section>
 
-  .lede {
-    font-size: 1.125rem;
-    color: var(--color-muted);
-    margin: 0 0 2rem;
-  }
+      <hr class="rule" />
 
-  .cta {
-    display: inline-block;
-    padding: 0.875rem 1.5rem;
-    background: var(--color-accent);
-    color: var(--color-accent-ink);
-    border-radius: 0.75rem;
-    font-weight: 600;
-    text-decoration: none;
-  }
+      <section>
+        <div class="wrap-wide">
+          <h2>{copy.benefits.h2}</h2>
+          <div class="benefits">
+            {copy.benefits.items.map((item) => (
+              <div key={item.num} class="benefit">
+                <div class="num">{item.num}</div>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-  .cta:hover { filter: brightness(1.05); }
+      <hr class="rule" />
 
-  footer {
-    margin-top: 4rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-rule);
-    color: var(--color-muted);
-    font-size: 0.875rem;
-  }
+      <section>
+        <div class="wrap-wide">
+          <h2>{copy.comparison.h2}</h2>
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th scope="col" />
+                <th scope="col">{copy.comparison.linkcleanHeader}</th>
+                <th scope="col">{copy.comparison.otherHeader}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {copy.comparison.rows.map((row) => (
+                <tr key={row.feature}>
+                  <th scope="row">{row.feature}</th>
+                  <td data-label={copy.comparison.linkcleanHeader}>
+                    {row.linkclean}
+                  </td>
+                  <td data-label={copy.comparison.otherHeader}>{row.other}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-  footer a { color: inherit; }
-`;
+      <hr class="rule" />
+
+      <section>
+        <div class="wrap">
+          <h2>{copy.surfaces.h2}</h2>
+          <div class="surfaces">
+            {copy.surfaces.items.map((item) => (
+              <div key={item.title} class="surface">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {hubVisible ? (
+        <>
+          <hr class="rule" />
+          <section>
+            <div class="wrap">
+              <h2>{copy.trackersCta.h2}</h2>
+              <article class="trackers-cta">
+                <p>
+                  {copy.trackersCta.body}{" "}
+                  <a href={trackersHubPath(locale)}>
+                    {copy.trackersCta.linkLabel} →
+                  </a>
+                </p>
+              </article>
+            </div>
+          </section>
+        </>
+      ) : null}
+
+      <hr class="rule" />
+
+      <section>
+        <div class="wrap">
+          <h2>{copy.faqSection.h2}</h2>
+          <div class="faq">
+            {copy.faq.map(({ q, a }) => (
+              <div key={q} class="faq-item">
+                <h3>{q}</h3>
+                <p>{a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
 
 export function renderPage(locale: Locale): string {
   const config = LOCALES[locale];
   const { copy } = config;
-  const canonical = localeUrl(locale);
-
-  return `<!DOCTYPE html>
-<html lang="${config.htmlLang}">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>${escape(copy.meta.title)}</title>
-<meta name="description" content="${escape(copy.meta.description)}" />
-<link rel="canonical" href="${canonical}" />
-<style>${raw(css)}</style>
-</head>
-<body>
-<main>
-  <h1>${escape(copy.hero.h1)}</h1>
-  <p class="lede">${escape(copy.hero.lede)}</p>
-  <a class="cta" href="${copy.appStoreCampaign}" rel="noopener">${escape(copy.appStoreLabel)}</a>
-  <footer>
-    <p>${escape(copy.footer.tagline)}</p>
-    <p>
-      ${escape(copy.footer.bylinePrefix)}
-      <a href="${AUTHOR_URL}">${escape(AUTHOR_NAME)}</a>
-      · ${escape(copy.footer.lastUpdatedPrefix)} ${LAST_UPDATED}
-      · ${escape(SITE_NAME)}
-    </p>
-  </footer>
-</main>
-</body>
-</html>`;
-}
-
-function escape(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  const structuredData = buildStructuredData(copy, locale);
+  return `<!DOCTYPE html>${(
+    <Layout
+      locale={locale}
+      title={copy.meta.title}
+      description={copy.meta.description}
+      ogType="website"
+      structuredData={structuredData}
+      locales={LOCALE_LIST}
+      pathFor={(l) => localePath(l)}
+    >
+      <Home locale={locale} />
+    </Layout>
+  ).toString()}`;
 }

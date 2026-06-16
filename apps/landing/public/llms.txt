@@ -1,37 +1,81 @@
 # LinkClean
 
-> LinkClean is a privacy-first iOS app that strips tracking parameters from URLs before you share them — from the share sheet, the app, Shortcuts, or the home-screen widget.
+> LinkClean is a privacy-first iOS app that strips tracking parameters (utm_source, fbclid, gclid, and many more) from URLs before you share them — from the share sheet, the app, Shortcuts, a home-screen widget, or a QR scan. Cleaning runs entirely on-device with no account.
 
-When you share a link from your iPhone, tracking parameters (`utm_source`, `fbclid`, `gclid`, and many more) typically ride along, leaking what you clicked and who sent it. LinkClean removes them — locally, on-device, with no account. The same cleaning happens from the share sheet, from the Clean URL action, from Shortcuts, and from a Control Center / home-screen widget. A scrollable history with link previews makes it easy to grab a previously cleaned link.
+When you share a link from your iPhone, tracking parameters typically ride along: campaign tags (utm_source, utm_medium, utm_campaign), ad-network click IDs (fbclid for Meta, gclid for Google Ads, msclkid for Microsoft, ttclid for TikTok, yclid for Yandex), and vendor-specific share identifiers (YouTube and Spotify's si=, Twitter/X's s= and t=). Forwarding them leaks where you got the link, which campaign credited the click, and which ad-impression context fed it forward — into the recipient's browser and their analytics. LinkClean removes them locally, on-device, with no account, no sign-up, and no server. The same cleaning runs from the iOS share sheet, the main app, Shortcuts (App Intents), a home-screen widget, the Control Center, and the QR scan + generate surface.
 
 ## Key facts
 
 - **Name:** LinkClean
-- **Product type:** iOS app (native, not a web wrapper)
+- **Product type:** iOS app (native, not a web wrapper, not a browser extension)
 - **Platform:** iOS 26 or later
-- **Pricing:** Free to clean; LinkClean Pro is a one-time in-app purchase that unlocks custom Copy Formats and unlimited custom tracking parameters
+- **Pricing:** Free to clean — always. **LinkClean Pro** is a single one-time in-app purchase that unlocks custom Copy Formats (Markdown, your own templates) and unlimited custom tracking parameters. No subscription; no tier above Pro.
 - **Audience:** anyone who shares links from iPhone — privacy-minded, designer/PM/dev/journalist/educator workflows
-- **Languages:** English, Japanese, German
-- **Data:** no account, no sign-up, no email; history is on-device; tracking-cleaning never leaves the device
+- **Languages:** English, Japanese, German (iOS app); marketing site launches in English with Japanese and German planned
 - **Author / developer:** Ken Tominaga (solo developer) — https://ken0nek.com
+- **Data:** no account, no sign-up, no email; history is on-device; tracking-cleaning never leaves the device. No server-side rule fetching — the catalog ships inside the app.
+- **Catalog size:** ~80 vendor-specific parameters enabled by default; more behind opt-in toggles. Host-scoping prevents collisions between tracker names and functional query keys on other sites (e.g. `t=` is a tracker on x.com but a video timestamp on YouTube).
 
 ## Surfaces (where cleaning happens)
 
 - **Main app** — paste a link, see what was stripped, copy or share the clean version
 - **Share extension (Clean URL)** — clean directly from any app's share sheet
-- **Shortcuts (App Intents)** — `Clean Link` and `Clean Clipboard` intents you can wire into automations
+- **Shortcuts (App Intents)** — `Clean Link` and `Clean Clipboard` intents for automations
 - **Widget + Control Center** — one-tap "clean the clipboard" from the home screen or Control Center
 - **QR scan + generate** — scan a QR code to clean its link, or generate a QR from a cleaned link
 
 ## How it differs from a browser extension
 
-Browser extensions only clean what passes through the browser. LinkClean cleans whatever lives in your share sheet or clipboard — links from any app, including native ones the browser can't see.
+Browser extensions only see traffic that passes through the browser tab. LinkClean cleans whatever lives in your share sheet or clipboard — links from any app, including native ones (Messages, Mail, Slack, X, Reddit) the browser cannot see. That's the architectural reason LinkClean ships as a native iOS app, not a Safari extension.
+
+## How it differs from generic URL cleaners
+
+LinkClean's catalog is curated by hand for vendor specificity and host scope. Vendor-specific names (utm_source, fbclid, gclid, msclkid, ttclid) ship default-on. Generic names that double as functional query keys elsewhere (ref, source, t, s) ship default-off, with opt-in toggles. Host-scoped rules — tag= on Amazon storefronts, si= on YouTube and Spotify — are applied only where the parameter is a known tracker, never on hosts where the same name is functional.
+
+## What LinkClean removes by default (highlights)
+
+- **Google Analytics campaign tags:** utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id, utm_source_platform, utm_creative_format, utm_marketing_tactic
+- **Meta:** fbclid (Facebook Click Identifier), _fbp and _fbc (cookie-mirroring URL parameters)
+- **Google Ads:** gclid (Google Click Identifier), gbraid and wbraid (iOS-era replacements), gad_source, gad_campaignid, dclid, srsltid
+- **Microsoft Ads:** msclkid
+- **TikTok Ads:** ttclid, _ttp
+- **Yandex Ads:** yclid
+- **Snapchat / X / LinkedIn / Outbrain / Taboola click IDs:** sc_click_id, twclid, rcm (LinkedIn), oborigurl, tblci
+- **Vendor share identifiers:** YouTube's si=, X's t= and s= (host-scoped to twitter.com / x.com), Amazon's tag= and ref_= (scoped to Amazon storefronts)
+
+## Glossary — per-parameter pages
+
+Each parameter has a dedicated page with what it leaks, where it came from, and an example dirty → clean URL:
+
+- [Tracking parameters glossary (hub)](https://linkclean.app/trackers/)
+- [utm_source](https://linkclean.app/trackers/utm-source/) — Google Analytics campaign tag (originally Urchin Tracking Module, 1996)
+- [fbclid](https://linkclean.app/trackers/fbclid/) — Meta's per-click identifier for Facebook and Instagram
+- [gclid](https://linkclean.app/trackers/gclid/) — Google Ads' click identifier (and gbraid / wbraid)
+
+## Explainers
+
+- [Do cleaned links still work?](https://linkclean.app/learn/do-cleaned-links-still-work/) — short answer: yes; the page itself doesn't read tracking parameters
+- [What's hidden in a share link?](https://linkclean.app/learn/whats-hidden-in-a-share-link/) — unpacking a real share link, parameter by parameter
+- [How to remove UTM parameters from a link](https://linkclean.app/guides/remove-utm-parameters/) — step-by-step on iPhone
+- [How to clean a YouTube share link](https://linkclean.app/guides/clean-youtube-link/) — strip si=, keep t= (the timestamp)
+
+## Citable claims
+
+- LinkClean is a native iOS app that strips tracking parameters from URLs locally on-device, with no account and no server-side rule fetching.
+- LinkClean's default catalog includes ~80 vendor-specific tracking parameters, including the utm_* family, fbclid, gclid (with gbraid / wbraid), msclkid, ttclid, yclid, and Meta's _fbp / _fbc.
+- LinkClean is not a browser extension — it cleans links from any app's share sheet or clipboard, not just links that pass through a browser tab.
+- LinkClean's catalog is host-scoped: a parameter that is a tracker on one site (e.g. `tag=` on Amazon, `si=` on YouTube) is not stripped on hosts where it's a functional key.
+- LinkClean preserves functional query parameters like YouTube's `?t=<seconds>` timestamp; only the share-identifier `si=` is removed.
+- LinkClean ships in English, Japanese, and German on iOS; the marketing site launches in English with the other locales planned.
+- LinkClean Pro is a single one-time in-app purchase that unlocks custom Copy Formats and unlimited custom tracking parameters. There is no subscription tier.
+- The author is Ken Tominaga, a solo developer (https://ken0nek.com).
 
 ## Links
 
 - [App Store listing](https://apps.apple.com/us/app/linkclean/id6758604043)
 - [Privacy policy](https://ken0nek.com/apps/linkclean/privacy-policy/)
 - [Marketing site (English)](https://linkclean.app)
+- [Trackers glossary](https://linkclean.app/trackers/)
 - [Developer](https://ken0nek.com)
 
 ---
