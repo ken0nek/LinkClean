@@ -2,7 +2,7 @@
   "title": "LinkClean — Monetization",
   "insights": [
     {
-      "title": "Paywall impressions per day by trigger",
+      "title": "Paywall impressions per day by trigger (which gates fire)",
       "type": "customQuery",
       "displayMode": "lineChart",
       "uniqueUser": false,
@@ -31,7 +31,7 @@
       }
     },
     {
-      "title": "Paywall click-through rate (view → purchase start, unique users)",
+      "title": "Paywall click-through rate (unique users — view → purchase start)",
       "type": "customQuery",
       "displayMode": "bigNumber",
       "uniqueUser": false,
@@ -48,7 +48,7 @@
           "type": "or",
           "fields": [
             { "type": "selector", "dimension": "type", "value": "Paywall.Screen.shown" },
-            { "type": "selector", "dimension": "type", "value": "Paywall.Purchase.started" }
+            { "type": "selector", "dimension": "type", "value": "Pro.Purchase.started" }
           ]
         },
         "aggregations": [
@@ -57,7 +57,7 @@
             "filter": {
               "type": "selector",
               "dimension": "type",
-              "value": "Paywall.Purchase.started"
+              "value": "Pro.Purchase.started"
             },
             "aggregator": {
               "type": "thetaSketch",
@@ -101,7 +101,7 @@
       }
     },
     {
-      "title": "Click-through rate by trigger (unique users) — which gate drives the click",
+      "title": "Click-through rate by trigger (which gate actually sells)",
       "type": "customQuery",
       "displayMode": "barChart",
       "uniqueUser": false,
@@ -119,7 +119,7 @@
           "type": "or",
           "fields": [
             { "type": "selector", "dimension": "type", "value": "Paywall.Screen.shown" },
-            { "type": "selector", "dimension": "type", "value": "Paywall.Purchase.started" }
+            { "type": "selector", "dimension": "type", "value": "Pro.Purchase.started" }
           ]
         },
         "aggregations": [
@@ -128,7 +128,7 @@
             "filter": {
               "type": "selector",
               "dimension": "type",
-              "value": "Paywall.Purchase.started"
+              "value": "Pro.Purchase.started"
             },
             "aggregator": {
               "type": "thetaSketch",
@@ -189,7 +189,7 @@
         "filter": {
           "type": "selector",
           "dimension": "type",
-          "value": "Paywall.Purchase.started"
+          "value": "Pro.Purchase.started"
         },
         "aggregations": [
           {
@@ -201,7 +201,7 @@
       }
     },
     {
-      "title": "Paywall dismissals per day by trigger (abandonment)",
+      "title": "Immediate purchase completions per day by trigger (synchronous .completed only — Ask-to-Buy excluded, see App Store Connect for real units)",
       "type": "customQuery",
       "displayMode": "lineChart",
       "uniqueUser": false,
@@ -218,12 +218,161 @@
         "filter": {
           "type": "selector",
           "dimension": "type",
-          "value": "Paywall.Screen.dismissed"
+          "value": "Pro.Purchase.completed"
         },
         "aggregations": [
           {
             "type": "longSum",
-            "name": "dismissals",
+            "name": "completions",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Start → immediate-completion rate (captures cancel/error drop-off in the sheet; pending Ask-to-Buy lands later via Transaction.updates and is NOT counted)",
+      "type": "customQuery",
+      "displayMode": "bigNumber",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 5,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Pro.Purchase.started" },
+            { "type": "selector", "dimension": "type", "value": "Pro.Purchase.completed" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Pro.Purchase.completed"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_completions",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Pro.Purchase.started"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_starts",
+              "fieldName": "count"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "completionRate",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_completions" },
+              { "type": "fieldAccess", "fieldName": "_starts" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Purchase failure mix by reason (cancelled vs pending vs storeError)",
+      "type": "customQuery",
+      "displayMode": "pieChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 6,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["reason"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Pro.Purchase.failed"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "failures",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Failure mix by trigger (gates with the worst drop-off)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 7,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["trigger", "reason"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Pro.Purchase.failed"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "failures",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Restore attempts per day — yielded Pro vs not (`restored` bool)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 8,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["restored"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Pro.Purchase.restored"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "restores",
             "fieldName": "count"
           }
         ]
@@ -237,7 +386,7 @@
       "isExpanded": false,
       "groupBy": "week",
       "filters": {},
-      "order": 5,
+      "order": 9,
       "customQuery": {
         "queryType": "timeseries",
         "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
@@ -270,14 +419,14 @@
       }
     },
     {
-      "title": "Paid (Pro) share of WAU",
+      "title": "Paid (Pro) share of WAU (penetration)",
       "type": "customQuery",
       "displayMode": "lineChart",
       "uniqueUser": false,
       "isExpanded": false,
       "groupBy": "week",
       "filters": {},
-      "order": 6,
+      "order": 10,
       "customQuery": {
         "queryType": "timeseries",
         "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
@@ -331,49 +480,64 @@
     }
   ],
   "_exportMetadata": {
-    "version": 1,
-    "exportedAt": "2026-06-09T00:00:00.000Z",
-    "note": "1.1 IAP funnel + paid-tier template. DARK until monetization ships: the Paywall.* events and the live `tier` value (`pro`) do not fire in 1.0 — every insight here reads empty until 1.1, by design (reserved-but-unfired, iap-implementation-plan.md Phase 0). A flat zero pre-1.1 is expected, not a regression. SOURCE-OF-TRUTH SPLIT (iap-implementation-plan.md §Measurement architecture): RevenueCat — not TelemetryDeck — owns revenue, conversion *rates*, and refunds; these TelemetryDeck insights are the behavioral funnel (paywall click-through by trigger) and paid-tier penetration, joined to RevenueCat only at `tier` dimension grain, never user grain. Event names are PROVISIONAL (the two plan docs disagree — analytics.md §9 vs iap-implementation-plan.md Phase 0); finalize against the AnalyticsEvent facade when the IAP cases are added, then re-point the `type` selectors here. Companion: Dashboard-LinkClean-Core-Usage.json.",
+    "version": 2,
+    "exportedAt": "2026-06-16T00:00:00.000Z",
+    "note": "The IAP funnel — 'does it convert?' LIVE as of 1.1.0 (previously 'dark until 1.1 / RevenueCat'; rewritten v2, 2026-06-16). REWRITES FROM v1 (against the shipped AnalyticsEvent enum): event names corrected (`Paywall.Purchase.started` → `Pro.Purchase.started`, plus the NEW `Pro.Purchase.completed` / `.failed` / `.restored` cases that v1 didn't know about); the dead `Paywall.Screen.dismissed` insight removed (the event doesn't exist — the paywall sheet has only show + start); `product` parameter dropped (it's not sent — there's one SKU); `trigger` values aligned to the live PaywallTrigger enum (6 firing values + 2 reserved-unfired). SOURCE-OF-TRUTH SPLIT (now StoreKit 2, not RevenueCat — supersedes v1's plan-doc reference): App Store Connect owns real revenue, units sold, refunds, and the synced cross-device/Ask-to-Buy completion path. THESE TelemetryDeck insights are the behavioral funnel — which gate fires, which trigger drives the click, how the in-sheet outcome distributes. `Pro.Purchase.completed` here counts only synchronous `.completed` results inside the paywall — Ask-to-Buy / SCA approvals arrive later via `Transaction.updates` and are deliberately NOT re-emitted (would double-fire on cross-device or reinstall syncs; see AnalyticsEvent.swift line 199). So insight 5 is the immediate-completion rate, not the true conversion rate — read ASC for the latter. PAYWALL TRIGGERS (6 LIVE, 2 RESERVED): historyArchive · customParamHome · customParamSettings · settingsRow · advisorAccept · formatPicker — `export` and `sync` are declared in the enum for later surfaces and currently ship UNFIRED (insights here will not show those values until a gate raises one). The live tier=pro slice on insight 9/10 reads the EntitlementStore at signal-send time (flipped to `pro` the moment a purchase resolves; `tier` cannot be backfilled). Companion boards: Dashboard-LinkClean-Core-Usage.json (loop health — slice any insight by `tier` for the behavioral split), Dashboard-LinkClean-Growth-Surfaces.json (the 1.1 surface bets, including the `advisorAccept` and `formatPicker` trigger sources).",
     "dynamicFields": [
       {
         "type": "event",
         "name": "Paywall.Screen.shown",
-        "hint": "PROVISIONAL / 1.1. Paywall presented. Carries trigger. The click-through denominator (unique viewers)."
+        "hint": "Paywall presented, tagged with the gate that raised it. Carries `trigger`. The click-through denominator (insights 1/2/3)."
       },
       {
         "type": "event",
-        "name": "Paywall.Screen.dismissed",
-        "hint": "PROVISIONAL / 1.1. Paywall closed without starting a purchase. Carries trigger. Abandonment."
+        "name": "Pro.Purchase.started",
+        "hint": "Buy button tapped inside the paywall sheet. Carries `trigger`. The click-through numerator and the immediate-completion-rate denominator. (Renamed from the v1 `Paywall.Purchase.started`.)"
       },
       {
         "type": "event",
-        "name": "Paywall.Purchase.started",
-        "hint": "PROVISIONAL / 1.1. Buy button tapped (the click-through numerator). Carries trigger, product. Completion + true conversion RATE + refunds live in RevenueCat, not here."
+        "name": "Pro.Purchase.completed",
+        "hint": "A purchase resolved synchronously inside the paywall sheet with `.completed`. Carries `trigger`. Ask-to-Buy / SCA approvals come back later via `Transaction.updates` and are NOT counted here — re-emitting would double-fire on cross-device/reinstall syncs (AnalyticsEvent.swift line 199). For real units sold, read App Store Connect."
+      },
+      {
+        "type": "event",
+        "name": "Pro.Purchase.failed",
+        "hint": "A purchase attempt produced no entitlement. Carries `reason` (cancelled / pending / storeError) and `trigger`. `pending` includes Ask-to-Buy / SCA-required cases that may complete later out-of-band — a high pending share alongside a low completion rate (insight 5) means the funnel is healthier than the synchronous rate suggests."
+      },
+      {
+        "type": "event",
+        "name": "Pro.Purchase.restored",
+        "hint": "A Restore Purchases attempt finished. Carries `restored` (bool) — whether it yielded Pro. The `restored=false` count is also the 'wrong button' read (users tapping Restore when they never bought)."
       },
       {
         "type": "event",
         "name": "TelemetryDeck.Session.started",
-        "hint": "SDK-automatic session signal — carries the `tier` default parameter, so unique users where tier=pro = paid actives. Verify the live type string (renamed in SDK 2.0)."
+        "hint": "SDK-automatic session signal. Carries the `tier` default parameter, so unique users where `tier=pro` = paid actives (insights 9/10). Renamed from `newSessionBegan` in SDK 2.0 — verify the live type string."
       },
       {
         "type": "parameter",
         "name": "trigger",
-        "hint": "PROVISIONAL / 1.1. Which moment drove the paywall. Expected values (iap-strategy.md §9): historyWindow (the 14-day history loss banner), customParamAdd (locked custom-parameter add), settings (the Settings Pro row)."
+        "hint": "Which gate raised the paywall. Live values (PaywallTrigger enum, AnalyticsEvent.swift line 292): historyArchive (the 14-day history-archive lock) · customParamHome (locked add from the Home leftover pill) · customParamSettings (locked add from the Manage Parameters editor) · settingsRow (the Pro row on the Settings screen) · advisorAccept (1.1 — accepting an unknown-parameter advisor suggestion as a free user) · formatPicker (1.1 — choosing a Pro preset or saving a custom template in the Copy Formats editor). Reserved-unfired: `export`, `sync` (declared in the enum for later surfaces)."
       },
       {
         "type": "parameter",
-        "name": "product",
-        "hint": "PROVISIONAL / 1.1. The product id on a purchase start — one SKU today (linkclean_pro_lifetime)."
+        "name": "reason",
+        "hint": "On Pro.Purchase.failed: cancelled (user closed StoreKit sheet) · pending (Ask-to-Buy / SCA — completion may arrive later via Transaction.updates) · storeError (StoreKit error)."
+      },
+      {
+        "type": "parameter",
+        "name": "restored",
+        "hint": "On Pro.Purchase.restored: true (the attempt yielded Pro) / false (no prior purchase to restore)."
       },
       {
         "type": "parameter",
         "name": "tier",
-        "hint": "Entitlement default parameter on every signal: free / pro. Ships as the literal \"free\" in 1.0 (schema-compatible) and switches to the live EntitlementStore read at 1.1 — so tier=pro is empty until then. Cannot be backfilled."
+        "hint": "Entitlement default parameter on EVERY signal (free / pro). Reads the EntitlementStore at signal-send time — flips to `pro` the moment a purchase resolves. Cannot be backfilled, so historical `tier=pro` reads only fill in from 1.1's release date forward."
       },
       {
         "type": "parameter",
         "name": "clientUser",
-        "hint": "TelemetryDeck's double-hashed anonymous user id (the App Group-shared *analytics* UUID — never the RevenueCat billing id). Unique-user counts via thetaSketch."
+        "hint": "TelemetryDeck's double-hashed anonymous user id (the App Group-shared *analytics* UUID — independent of the App Store Connect billing identity). Unique-user counts via thetaSketch."
       }
     ]
   }

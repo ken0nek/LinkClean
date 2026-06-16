@@ -1,0 +1,924 @@
+{
+  "title": "LinkClean — Growth Surfaces (1.1 bets)",
+  "insights": [
+    {
+      "title": "Unwrap rate — share of cleans that peeled a redirect wrapper (E1)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 0,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Home.URL.cleaned" },
+            { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "Intent.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "QR.Scan.succeeded" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "unwrapped",
+              "value": "true"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_unwrapped",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "longSum",
+            "name": "_cleans",
+            "fieldName": "count"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "unwrapRate",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_unwrapped" },
+              { "type": "fieldAccess", "fieldName": "_cleans" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Unwraps per day by surface (where wrapper-laden links arrive)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 1,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["type"],
+        "filter": {
+          "type": "and",
+          "fields": [
+            {
+              "type": "or",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "Home.URL.cleaned" },
+                { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+                { "type": "selector", "dimension": "type", "value": "Intent.Clean.succeeded" },
+                { "type": "selector", "dimension": "type", "value": "QR.Scan.succeeded" }
+              ]
+            },
+            { "type": "selector", "dimension": "unwrapped", "value": "true" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "unwraps",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Text-fragments setting — opt-out rate (E2, default-on)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 2,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["enabled"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Settings.TextFragments.toggled"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "toggles",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "App Intents cleans per day by intent surface (S1 surface mix)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 3,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["intentSurface"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Intent.Clean.succeeded"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "intentCleans",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "App Intents share of all export-producing cleans per week (S1 north-star)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "week",
+      "filters": {},
+      "order": 4,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "week",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
+            { "type": "selector", "dimension": "type", "value": "Home.URL.shared" },
+            { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "Action.Format.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "Intent.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "QR.Result.actioned" },
+            { "type": "selector", "dimension": "type", "value": "QR.Code.generated" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Intent.Clean.succeeded"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_intentExports",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "longSum",
+            "name": "_allExports",
+            "fieldName": "count"
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "intentShare",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_intentExports" },
+              { "type": "fieldAccess", "fieldName": "_allExports" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "App Intents failures per day by intent surface (clipboard/widget annoyance read)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 5,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["intentSurface", "reason"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Intent.Clean.failed"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "failures",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "QR scans per day by outcome (success vs noLink vs unreadable)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 6,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "QR.Scan.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "QR.Scan.failed" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "QR.Scan.succeeded"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "succeeded",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "and",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "QR.Scan.failed" },
+                { "type": "selector", "dimension": "reason", "value": "noLink" }
+              ]
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "failedNoLink",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "and",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "QR.Scan.failed" },
+                { "type": "selector", "dimension": "reason", "value": "unreadable" }
+              ]
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "failedUnreadable",
+              "fieldName": "count"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "QR scan → action conversion (Scan.succeeded → Result.actioned)",
+      "type": "customQuery",
+      "displayMode": "bigNumber",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 7,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "QR.Scan.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "QR.Result.actioned" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "QR.Result.actioned"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_actions",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "QR.Scan.succeeded"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_scans",
+              "fieldName": "count"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "scanToActionRate",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_actions" },
+              { "type": "fieldAccess", "fieldName": "_scans" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "QR result action mix (copy / share / open)",
+      "type": "customQuery",
+      "displayMode": "pieChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 8,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["action"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "QR.Result.actioned"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "actions",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "QR codes generated per day (the generate half)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 9,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "QR.Code.generated"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "generated",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "QR Home-button opt-in (Settings.QRButton.toggled, default-off)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 10,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["enabled"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Settings.QRButton.toggled"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "toggles",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Stats screen shown per day — empty vs populated (V3 entry-point sanity check)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 11,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["hasData"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Stats.Screen.shown"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "views",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Privacy-card share rate per Stats screen view (V3 viral north-star)",
+      "type": "customQuery",
+      "displayMode": "bigNumber",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 12,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Stats.Screen.shown" },
+            { "type": "selector", "dimension": "type", "value": "Stats.Card.shared" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Stats.Card.shared"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_shares",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "and",
+              "fields": [
+                { "type": "selector", "dimension": "type", "value": "Stats.Screen.shown" },
+                { "type": "selector", "dimension": "hasData", "value": "true" }
+              ]
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_populatedViews",
+              "fieldName": "count"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "shareRate",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_shares" },
+              { "type": "fieldAccess", "fieldName": "_populatedViews" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Privacy-card shares by entry point (toolbar icon vs CTA button)",
+      "type": "customQuery",
+      "displayMode": "pieChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 13,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["entryPoint"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Stats.Card.shared"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "shares",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Advisor suggestions per day by tier (ai-A — deterministic floor vs model)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 14,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "dimensions": ["tier"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Parameters.Advisor.suggested"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "suggestions",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Advisor accept rate by tier (which stage actually converts)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 15,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["tier"],
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Parameters.Advisor.suggested" },
+            { "type": "selector", "dimension": "type", "value": "Parameters.Advisor.accepted" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Parameters.Advisor.accepted"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_accepts",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Parameters.Advisor.suggested"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "_suggestions",
+              "fieldName": "count"
+            }
+          }
+        ],
+        "postAggregations": [
+          {
+            "type": "arithmetic",
+            "name": "acceptRate",
+            "fn": "/",
+            "fields": [
+              { "type": "fieldAccess", "fieldName": "_accepts" },
+              { "type": "fieldAccess", "fieldName": "_suggestions" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Advisor disposition mix (accept vs dismiss, the §9-A value read)",
+      "type": "customQuery",
+      "displayMode": "pieChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 16,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["type"],
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Parameters.Advisor.accepted" },
+            { "type": "selector", "dimension": "type", "value": "Parameters.Advisor.dismissed" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "dispositions",
+            "fieldName": "count"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Copy-format vs Clean extension exports per day (does the new ext earn its keep?)",
+      "type": "customQuery",
+      "displayMode": "lineChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 17,
+      "customQuery": {
+        "queryType": "timeseries",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "day",
+        "filter": {
+          "type": "or",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
+            { "type": "selector", "dimension": "type", "value": "Action.Format.succeeded" }
+          ]
+        },
+        "aggregations": [
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Action.Clean.succeeded"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "cleanExt",
+              "fieldName": "count"
+            }
+          },
+          {
+            "type": "filtered",
+            "filter": {
+              "type": "selector",
+              "dimension": "type",
+              "value": "Action.Format.succeeded"
+            },
+            "aggregator": {
+              "type": "longSum",
+              "name": "formatExt",
+              "fieldName": "count"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Copy-format preset vs custom mix (customization-adoption — Pro signal)",
+      "type": "customQuery",
+      "displayMode": "barChart",
+      "uniqueUser": false,
+      "isExpanded": false,
+      "groupBy": "day",
+      "filters": {},
+      "order": 18,
+      "customQuery": {
+        "queryType": "groupBy",
+        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
+        "baseFilters": "thisApp",
+        "granularity": "all",
+        "dimensions": ["preset"],
+        "filter": {
+          "type": "selector",
+          "dimension": "type",
+          "value": "Action.Format.succeeded"
+        },
+        "aggregations": [
+          {
+            "type": "longSum",
+            "name": "renders",
+            "fieldName": "count"
+          }
+        ]
+      }
+    }
+  ],
+  "_exportMetadata": {
+    "version": 1,
+    "exportedAt": "2026-06-16T00:00:00.000Z",
+    "note": "The 1.1 surface board — 'did the new bets land?' One board per beat (engine-depth E1/E2, App Intents S1, QR, V3 privacy-card growth loop, ai-A advisor, Copy-as-you-want formats). All events ship in 1.1.0; insights read empty until 1.1 reaches users. SLICE BY `tier` for the Pro-vs-free behavioral read on any of these (every signal carries `tier` + `surface` defaults). Companion boards: Dashboard-LinkClean-Core-Usage.json (durable loop health, all surfaces folded in) and Dashboard-LinkClean-Monetization.json (the IAP funnel — `advisorAccept` + `formatPicker` are the two NEW 1.1 paywall gates that read THERE). KEY THRESHOLDS: unwrap rate ≥ 5% means E1 is paying for itself (else most users hand us clean links); App Intents share ≥ 10% of weekly exports means the OS-surface bet landed; QR scan→action ≥ 60% means scans yield exports (lower = scan-and-bounce, signals the result sheet is the leak); Stats.Card share rate ≥ 10% per populated view means V3 is functioning as the viral loop the roadmap predicted; advisor accept rate ≥ 30% (any tier) means it earns its sheet space; preset-vs-custom inverting (custom > preset) is the strongest signal that Pro customization will sell. OPEN QUESTIONS: (a) the heuristic tier suggests on every device but the model tier only on Apple-Intelligence hardware — split insight 14/15 by hardware availability isn't possible here (no signal); look for tier-share drift over time as iOS 26+ Apple-Intelligence adoption grows. (b) Control Center and the widget both report `intentSurface=clipboard` — if the share of clipboard intents stays high without the corresponding Settings.QRButton/widget-add behavior, we may be over-fitting one surface (defer the split until shape demands it; analytics.md §IntentSurface).",
+    "dynamicFields": [
+      {
+        "type": "event",
+        "name": "Home.URL.cleaned",
+        "hint": "App-process clean. The denominator for insight 1 (unwrap rate) carries `unwrapped`."
+      },
+      {
+        "type": "event",
+        "name": "Action.Clean.succeeded",
+        "hint": "Clean share-extension export. Carries `unwrapped` (insight 1)."
+      },
+      {
+        "type": "event",
+        "name": "Action.Format.succeeded",
+        "hint": "Copy-as-you-want share-extension export. Carries `preset` (true = shipped preset, false = user-authored custom template) and `changed`. Preset/custom mix is the customization-adoption read (insight 18); a custom-leaning mix is the strongest Pro signal."
+      },
+      {
+        "type": "event",
+        "name": "Intent.Clean.succeeded",
+        "hint": "App Intents export — surface = shortcut (CleanLinkIntent, Shortcuts/Siri/Spotlight/Action button) or clipboard (CleanClipboardIntent, including Control Center + widget). Carries `intentSurface` + `unwrapped`."
+      },
+      {
+        "type": "event",
+        "name": "Intent.Clean.failed",
+        "hint": "App Intent ran but produced no clean — clipboard tapped with nothing usable, or a Shortcuts input that wasn't a web URL. The annoyance read (insight 6). Carries `intentSurface` + `reason` (noURL / invalidInput)."
+      },
+      {
+        "type": "event",
+        "name": "QR.Scan.succeeded",
+        "hint": "A scanned QR contained a web link and was cleaned. The scan funnel base (insight 7). Carries the full clean Telemetry incl. `unwrapped` + `domain`."
+      },
+      {
+        "type": "event",
+        "name": "QR.Scan.failed",
+        "hint": "Scan produced nothing usable. Carries `reason` (noLink = decoded but not a web URL; unreadable = no QR found in the picked image)."
+      },
+      {
+        "type": "event",
+        "name": "QR.Result.actioned",
+        "hint": "An export off the QR result sheet (the funnel's payoff). Carries `action` (copy / share / open). Scan→action conversion is insight 7."
+      },
+      {
+        "type": "event",
+        "name": "QR.Code.generated",
+        "hint": "The generate-half: a QR image rendered from a cleaned link and shared. Carries `changed`."
+      },
+      {
+        "type": "event",
+        "name": "Stats.Screen.shown",
+        "hint": "Statistics dashboard appeared. Carries `hasData` — separates arrivals at a populated dashboard from the empty state. A high empty-state share means the entry point surfaces too early (V3 growth-loop roadmap §5)."
+      },
+      {
+        "type": "event",
+        "name": "Stats.Card.shared",
+        "hint": "The privacy share card was shared — the #1 organic-growth lever (memory roadmap §11). Carries `entryPoint` (toolbar / cta). Insight 12 is the viral north-star; insight 13 is the affordance split."
+      },
+      {
+        "type": "event",
+        "name": "Settings.TextFragments.toggled",
+        "hint": "The scroll-to-text fragment (`:~:`) removal setting was toggled. Default-on: heavy `enabled=false` = users want it off (E2)."
+      },
+      {
+        "type": "event",
+        "name": "Settings.QRButton.toggled",
+        "hint": "The 'Share as QR Code' Home-button setting was toggled. Default-off: heavy `enabled=true` = the QR button has Home-real-estate demand."
+      },
+      {
+        "type": "event",
+        "name": "Parameters.Advisor.suggested",
+        "hint": "The unknown-parameter advisor surfaced a leftover (at most one per clean). Carries `tier` (reference / heuristic / model) — the deterministic-floor-vs-on-device-model split that says whether the model earns its battery (ai-A)."
+      },
+      {
+        "type": "event",
+        "name": "Parameters.Advisor.accepted",
+        "hint": "User tapped Always Remove on a suggestion (the accept signal — fires whether or not the add is then gated by Pro). Carries `tier`. The funnel numerator vs `suggested` (insight 15)."
+      },
+      {
+        "type": "event",
+        "name": "Parameters.Advisor.dismissed",
+        "hint": "User tapped Not Now on a suggestion. Carries `tier`. Dispatch mix vs `accepted` = the §9-A value read (insight 16)."
+      },
+      {
+        "type": "parameter",
+        "name": "unwrapped",
+        "hint": "Bool on every clean event — `true` iff the cleaner peeled at least one redirect wrapper (E1). The unwrap-rate numerator (insight 1)."
+      },
+      {
+        "type": "parameter",
+        "name": "intentSurface",
+        "hint": "Logical App Intents surface — shortcut (CleanLinkIntent — Shortcuts/Siri/Spotlight/Action button) or clipboard (CleanClipboardIntent — incl. Control Center + widget). Distinct from the `surface` default param (process — app/action/copyAction/intent)."
+      },
+      {
+        "type": "parameter",
+        "name": "tier",
+        "hint": "On Advisor events: which stage produced the suggestion (reference = bundled-catalog hit; heuristic = name-shape rule; model = on-device Foundation Models verdict). Also the default `tier` param on every signal (free/pro) — slice any insight here by free vs pro for the behavioral read."
+      },
+      {
+        "type": "parameter",
+        "name": "hasData",
+        "hint": "Bool — did the Stats screen open onto data (true) or the empty state (false). Separates first-time-discoverers from the V3 share-card funnel base."
+      },
+      {
+        "type": "parameter",
+        "name": "entryPoint",
+        "hint": "Which V3 affordance shared the privacy card: toolbar (the nav-bar share icon) or cta (the prominent foot-of-dashboard button). Sent under `entryPoint`, never `surface` (which is the process default param)."
+      },
+      {
+        "type": "parameter",
+        "name": "preset",
+        "hint": "Bool on Action.Format.succeeded — true if a shipped preset rendered, false if a user-authored custom template. A custom-leaning mix is the strongest signal that Pro customization will sell."
+      },
+      {
+        "type": "parameter",
+        "name": "action",
+        "hint": "On QR.Result.actioned: copy / share / open — which export path the user took off the scan result sheet."
+      },
+      {
+        "type": "parameter",
+        "name": "reason",
+        "hint": "Failure detail on QR.Scan.failed (noLink / unreadable) and Intent.Clean.failed (noURL / invalidInput)."
+      },
+      {
+        "type": "parameter",
+        "name": "enabled",
+        "hint": "Toggle state when a Settings.*.toggled event fired. true / false."
+      },
+      {
+        "type": "parameter",
+        "name": "surface",
+        "hint": "Process default parameter on every signal: app / action / copyAction / intent. Set in TelemetryDeckAnalytics.start; intent-process work startIfNeeded's it because widget/control-center may run in a fresh process."
+      }
+    ]
+  }
+}
