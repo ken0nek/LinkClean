@@ -321,16 +321,18 @@ struct HomeView: View {
             .accessibilityLabel(Text(.historyCellShare))
             .accessibilityIdentifier("share-cleaned-url")
 
-            Button {
-                presentingQRCode = true
-            } label: {
-                Image(systemName: "qrcode")
-                    .font(.body.weight(.semibold))
-                    .frame(minWidth: 28)
+            if viewModel.isQRCodeButtonEnabled {
+                Button {
+                    presentingQRCode = true
+                } label: {
+                    Image(systemName: "qrcode")
+                        .font(.body.weight(.semibold))
+                        .frame(minWidth: 28)
+                }
+                .buttonStyle(.glass)
+                .accessibilityLabel(Text(.qrShareTitle))
+                .accessibilityIdentifier("show-qr")
             }
-            .buttonStyle(.glass)
-            .accessibilityLabel(Text(.qrShareTitle))
-            .accessibilityIdentifier("show-qr")
         }
         .controlSize(.large)
     }

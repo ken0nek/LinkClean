@@ -42,6 +42,14 @@ public nonisolated struct SettingsStore: Sendable {
         nonmutating set { standard.set(newValue, forKey: SettingsKeys.autoPasteEnabled) }
     }
 
+    /// Whether Home shows the "Share as QR Code" action-bar button (turn the
+    /// cleaned link into a shareable QR code). App-only (`UserDefaults.standard`);
+    /// defaults to `false` (off) so the button is opt-in.
+    public var qrCodeButtonEnabled: Bool {
+        get { standard.object(forKey: SettingsKeys.qrCodeButtonEnabled) as? Bool ?? false }
+        nonmutating set { standard.set(newValue, forKey: SettingsKeys.qrCodeButtonEnabled) }
+    }
+
     public var saveHistoryEnabled: Bool {
         get { appGroup?.object(forKey: SettingsKeys.saveHistoryEnabled) as? Bool ?? true }
         nonmutating set { appGroup?.set(newValue, forKey: SettingsKeys.saveHistoryEnabled) }

@@ -17,6 +17,7 @@
 /// | Key | Suite | Writer(s) | Reader(s) |
 /// |-----|-------|-----------|-----------|
 /// | `autoPasteEnabled` | standard | `SettingsStore` (Settings toggle, screenshot prep) | `SettingsStore` (Home/Settings) |
+/// | `qrCodeButtonEnabled` | standard | `SettingsStore` (Settings toggle) | `SettingsStore` (Home) |
 /// | `saveHistoryEnabled` | App Group | `SettingsStore` (Settings toggle, screenshot prep) | `SettingsStore` (Home/History/Settings, extensions) |
 /// | `removeTextFragmentsEnabled` | App Group | `SettingsStore` (Settings toggle) | `SettingsStore` (cleaning service: app + extensions) |
 /// | `hasCompletedOnboarding` | standard | `SettingsStore` / `@AppStorage` (onboarding finish, debug config) | `ContentView` (`@AppStorage`), `DeveloperMenu` |
@@ -42,6 +43,11 @@ public enum SettingsKeys {
     /// Whether Home auto-pastes a URL from the clipboard. App-only: stored in
     /// `UserDefaults.standard`.
     public static let autoPasteEnabled = "autoPasteEnabled"
+
+    /// Whether Home shows the "Share as QR Code" action-bar button (turning the
+    /// cleaned link into a shareable QR code). App-only: stored in
+    /// `UserDefaults.standard`. Defaults to off — the button is opt-in.
+    public static let qrCodeButtonEnabled = "qrCodeButtonEnabled"
 
     /// Whether cleaned links are recorded to History. Cross-process: written from
     /// Settings, read by the app and both action extensions. Stored in the App

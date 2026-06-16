@@ -119,6 +119,8 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 | `Settings.Screen.shown` | Settings screen opened | — | Discovery: do users reach Settings at all — the entry to the customization/premium funnel |
 | `Settings.AutoPaste.toggled` | Toggle changed | `enabled` | Default acceptance |
 | `Settings.SaveHistory.toggled` | Toggle changed | `enabled` | Privacy-sensitivity of user base; viability of history-based premium features |
+| `Settings.TextFragments.toggled` | Toggle changed | `enabled` | Whether the default-on scroll-to-text fragment cleaning is wanted |
+| `Settings.QRButton.toggled` | Toggle changed | `enabled` | Demand for the default-off "Share as QR Code" Home button; opt-in rate |
 | `Parameters.Default.toggled` | Built-in parameter toggled | `parameter: <name>`, `enabled` | Which built-ins users distrust/need; informs default set curation |
 | `Parameters.Custom.added` | Custom parameter added | `totalCount: <bucket>` — **never the name** | **Top premium candidate.** Adoption % + depth per user |
 | `Parameters.Custom.deleted` | Custom parameter removed | `totalCount: <bucket>` | Churn on the feature |

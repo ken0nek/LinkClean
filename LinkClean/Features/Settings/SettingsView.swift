@@ -43,34 +43,9 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section {
-                NavigationLink {
-                    StatsView(deps: deps)
-                } label: {
-                    Label { Text(.statsTitle) } icon: {
-                        Image(systemName: "chart.bar.fill").foregroundStyle(.tint)
-                    }
-                }
-                .accessibilityIdentifier("settings-statistics")
-            }
-
-            Section {
-                Toggle(isOn: Binding(
-                    get: { viewModel.autoPasteEnabled },
-                    set: { viewModel.setAutoPaste($0) }
-                )) {
-                    Label { Text(.settingsClipboardAutoPaste) } icon: {
-                        Image(systemName: "doc.on.clipboard").foregroundStyle(.tint)
-                    }
-                }
-                    .tint(.accentColor)
-                    .accessibilityIdentifier("settings-auto-paste-toggle")
-            } header: {
-                Text(.settingsClipboardHeader)
-            } footer: {
-                Text(.settingsClipboardFooter)
-            }
-
+            // Ordered by importance to the user: the core cleaning controls first,
+            // then the value/upgrade surfaces (Statistics, Pro), then the smaller
+            // behavior toggles (Clipboard, Home, Data), then help and meta.
             Section {
                 NavigationLink {
                     ManageParametersView(deps: deps)
@@ -113,7 +88,52 @@ struct SettingsView: View {
                 Text(.settingsCleaningTextFragmentsFooter)
             }
 
+            Section {
+                NavigationLink {
+                    StatsView(deps: deps)
+                } label: {
+                    Label { Text(.statsTitle) } icon: {
+                        Image(systemName: "chart.bar.fill").foregroundStyle(.tint)
+                    }
+                }
+                .accessibilityIdentifier("settings-statistics")
+            }
+
             proSection
+
+            Section {
+                Toggle(isOn: Binding(
+                    get: { viewModel.autoPasteEnabled },
+                    set: { viewModel.setAutoPaste($0) }
+                )) {
+                    Label { Text(.settingsClipboardAutoPaste) } icon: {
+                        Image(systemName: "doc.on.clipboard").foregroundStyle(.tint)
+                    }
+                }
+                    .tint(.accentColor)
+                    .accessibilityIdentifier("settings-auto-paste-toggle")
+            } header: {
+                Text(.settingsClipboardHeader)
+            } footer: {
+                Text(.settingsClipboardFooter)
+            }
+
+            Section {
+                Toggle(isOn: Binding(
+                    get: { viewModel.qrCodeButtonEnabled },
+                    set: { viewModel.setQRCodeButton($0) }
+                )) {
+                    Label { Text(.settingsHomeQrButton) } icon: {
+                        Image(systemName: "qrcode").foregroundStyle(.tint)
+                    }
+                }
+                    .tint(.accentColor)
+                    .accessibilityIdentifier("settings-qr-button-toggle")
+            } header: {
+                Text(.settingsHomeHeader)
+            } footer: {
+                Text(.settingsHomeQrButtonFooter)
+            }
 
             Section {
                 Toggle(isOn: Binding(

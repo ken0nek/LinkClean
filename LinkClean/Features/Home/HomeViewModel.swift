@@ -33,6 +33,11 @@ final class HomeViewModel {
     var didCopy = false
     var showClipboardToast = false
     var focusResetToken = UUID()
+    /// Whether Home shows the "Share as QR Code" action-bar button — a stored,
+    /// observed mirror of `SettingsStore.qrCodeButtonEnabled` (off by default).
+    /// Refreshed on appear since `@Observable` doesn't track UserDefaults and the
+    /// toggle lives on the Settings screen.
+    private(set) var isQRCodeButtonEnabled = false
     /// The advisor's single proactive pick for the current clean, or `nil` —
     /// drives the Home suggestion card, read through the ledger.
     var suggestion: ParameterSuggestion? { advisorSession.suggestion }
@@ -324,6 +329,10 @@ final class HomeViewModel {
 
     func onAppear() {
         isHomeVisible = true
+        // Re-read the opt-in "Share as QR Code" button setting (toggled on the
+        // Settings screen); @Observable doesn't track UserDefaults, so refresh it
+        // at this lifecycle boundary.
+        isQRCodeButtonEnabled = settings.qrCodeButtonEnabled
         reviewFlow.setVisible(true)
         // Warm the model once per session so the first suggestion after a paste
         // doesn't pay load latency; no-op on devices without Apple Intelligence.

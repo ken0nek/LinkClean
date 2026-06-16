@@ -17,6 +17,9 @@ import SwiftData
 final class SettingsViewModel {
     /// Mirrors `SettingsKeys.autoPasteEnabled` (`UserDefaults.standard`).
     private(set) var autoPasteEnabled: Bool
+    /// Mirrors `SettingsKeys.qrCodeButtonEnabled` (`UserDefaults.standard`) — the
+    /// opt-in "Share as QR Code" button on Home. Off by default.
+    private(set) var qrCodeButtonEnabled: Bool
     /// Mirrors `SettingsKeys.saveHistoryEnabled` (App Group suite; shared with
     /// the action extensions and the Home/History screens).
     private(set) var saveHistoryEnabled: Bool
@@ -58,6 +61,7 @@ final class SettingsViewModel {
         self.settings = settings
         self.history = history
         self.autoPasteEnabled = settings.autoPasteEnabled
+        self.qrCodeButtonEnabled = settings.qrCodeButtonEnabled
         self.saveHistoryEnabled = settings.saveHistoryEnabled
         self.removeTextFragmentsEnabled = settings.removeTextFragmentsEnabled
     }
@@ -67,6 +71,7 @@ final class SettingsViewModel {
     /// auto-paste path, the extensions) may have changed them.
     func onAppear() {
         autoPasteEnabled = settings.autoPasteEnabled
+        qrCodeButtonEnabled = settings.qrCodeButtonEnabled
         saveHistoryEnabled = settings.saveHistoryEnabled
         removeTextFragmentsEnabled = settings.removeTextFragmentsEnabled
         analytics.capture(.settingsScreenShown)
@@ -77,6 +82,13 @@ final class SettingsViewModel {
         autoPasteEnabled = enabled
         settings.autoPasteEnabled = enabled
         analytics.capture(.settingsAutoPasteToggled(enabled: enabled))
+    }
+
+    func setQRCodeButton(_ enabled: Bool) {
+        guard enabled != qrCodeButtonEnabled else { return }
+        qrCodeButtonEnabled = enabled
+        settings.qrCodeButtonEnabled = enabled
+        analytics.capture(.settingsQRButtonToggled(enabled: enabled))
     }
 
     func setRemoveTextFragments(_ enabled: Bool) {

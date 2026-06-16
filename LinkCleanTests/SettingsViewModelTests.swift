@@ -74,6 +74,25 @@ struct SettingsViewModelTests {
         #expect(spy.events == [.settingsTextFragmentsToggled(enabled: false)])
     }
 
+    @Test func qrCodeButtonDefaultsOffWhenUnset() {
+        let (store, _, _) = makeStore()
+        let vm = SettingsViewModel(analytics: SpyAnalytics(), settings: store)
+
+        #expect(vm.qrCodeButtonEnabled == false)
+    }
+
+    @Test func setQRCodeButtonPersistsAndSignals() {
+        let (store, std, _) = makeStore()
+        let spy = SpyAnalytics()
+        let vm = SettingsViewModel(analytics: spy, settings: store)
+
+        vm.setQRCodeButton(true)
+
+        #expect(vm.qrCodeButtonEnabled == true)
+        #expect(std.bool(forKey: SettingsKeys.qrCodeButtonEnabled) == true)   // standard suite
+        #expect(spy.events == [.settingsQRButtonToggled(enabled: true)])
+    }
+
     @Test func setAutoPasteIsNoOpWhenUnchanged() {
         let (store, _, _) = makeStore()
         let spy = SpyAnalytics()

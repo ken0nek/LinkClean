@@ -1,6 +1,78 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "settings.home.header" : {
+      "comment" : "Settings section header for Home-screen options.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホーム"
+          }
+        }
+      }
+    },
+    "settings.home.qrButton" : {
+      "comment" : "Settings toggle label: show the Share as QR Code button on Home.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als QR-Code teilen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share as QR Code"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコードで共有"
+          }
+        }
+      }
+    },
+    "settings.home.qrButton.footer" : {
+      "comment" : "Footer under the Share as QR Code toggle on the Settings screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fügt auf der Startseite eine Schaltfläche hinzu, die einen bereinigten Link in einen teilbaren QR-Code umwandelt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds a button on Home that turns a cleaned link into a shareable QR code."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーンにしたリンクを共有できるQRコードに変換するボタンをホームに追加します。"
+          }
+        }
+      }
+    },
     "qr.scan.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -289,7 +361,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share as QR"
+            "value" : "Share as QR Code"
           }
         },
         "ja" : {
