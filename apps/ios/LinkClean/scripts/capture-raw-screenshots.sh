@@ -21,8 +21,10 @@ case "$DEVICE_PROFILE" in
 esac
 
 BUNDLE_ID="com.ken0nek.LinkClean"
-REPOSITORY_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUTPUT_DIRECTORY="$REPOSITORY_ROOT/screenshots/raw/en-US/$DEVICE_FOLDER"
+# Post Phase-2 monorepo absorb: this resolves to apps/ios/LinkClean/ (the iOS
+# workspace root), not the repo root.
+IOS_WORKSPACE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+OUTPUT_DIRECTORY="$IOS_WORKSPACE_ROOT/screenshots/raw/en-US/$DEVICE_FOLDER"
 
 UDID="$(
     xcrun simctl list devices booted \

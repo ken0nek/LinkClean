@@ -4,7 +4,7 @@
 // exactly what the app would have stored after a real clean. Outputs square
 // 256px PNGs named <name>.png into Screenshots/fixtures/history/.
 //
-// Usage:
+// Usage (run from apps/ios/LinkClean/):
 //   swiftc scripts/fetch-history-thumbnails.swift -o /tmp/fetch-thumbs \
 //     -framework LinkPresentation -framework AppKit
 //   /tmp/fetch-thumbs youtube=https://www.youtube.com/watch?v=… medium=https://…
