@@ -93,6 +93,22 @@ interactions, and exposes intent (`beginInput` / `setOutcome` / `noteCopy` /
 `noteShare`) returning effects (`signalExport` / `recordHistory` / `countForReview`).
 Every invariant is a table-driven unit test in the fast lane.
 
+### Cleaning transparency (the no-undo, no-restore stance)
+
+Home renders the outcome *asymmetrically*. The **removed** side is a read-only
+proof-of-work summary (`N trackers removed`, expandable to names) with no undo
+CTA. The **leftover** side is actionable: every surviving parameter — not just
+reference-catalog trackers (`URLCleaner.leftoverParameterNames`, drawn from the
+`Display` side of `CleanOutcome`, never `Telemetry`) — is a tappable pill that,
+behind a confirm guardrail, adds the key to the user's rules
+(`addCustomParameter`) so it is stripped from then on. The missing undo is
+deliberate: inviting scrutiny on what we removed would owe the user a restore we
+don't offer, and a "trackers blocked"-style count earns trust without one.
+**Restore / a per-user allow-list is out of scope** — over-cleaning is wrong
+*for everyone*, so the fix belongs in the default catalog (driven by catalog-gap
+telemetry), not a per-user keep-list that adds a second mental model. Revisit
+only if telemetry shows over-cleaning that curation can't catch.
+
 ## History
 
 `HistoryStore` (`LinkCleanData`, `@MainActor @Observable`) is the write/enrich
