@@ -19,6 +19,13 @@ Claude Code reads CLAUDE.md hierarchically, deepest first. Don't restate per-app
 ### Toolchain
 `mise.toml` is split: root pins `node` + `pnpm` (for `apps/landing` and any future JS package); `apps/ios/LinkClean/mise.toml` pins `ruby` (for fastlane). Mise resolves hierarchically, so each surface sees the right tools without manual switching.
 
+### Skills
+Skills are pinned in `skills-lock.json` and installed into `.agents/skills/<name>/` (real dir) with a symlink at `.claude/skills/<name>` (the path Claude Code reads from). Both paths are gitignored via the allowlist block in `.gitignore`.
+
+To restore or refresh on a fresh clone, run **`bash scripts/update-skills.sh`** — not `npx skills experimental_install`. The CLI's restore command drops the lockfile `skillPath` and discovery stops at the first root-level SKILL.md it finds, so nested skills (e.g. anything under `openai/plugins/plugins/build-ios-apps/skills/<name>/`) silently fail with "No matching skills found". The wrapper script reconstructs the full repo subpath per lock entry and calls `npx skills add` with the explicit deep source — works for both flat and nested skills. Borrowed from `whyzard/scripts/update-skills.sh`; delete it once `vercel-labs/skills#1376` ships.
+
+Adding a new skill = run `npx skills add <repo> --skill <name> [-y]` (use `--full-depth` when the upstream nests skills), then mirror the two install paths into the `.gitignore` allowlist block.
+
 ### Docs
 Cross-cutting docs (strategy, product decisions, executable feature plans, ROADMAP) stay at `docs/` at the root. Pure-iOS operations docs (App Store Connect setup, release metadata, TelemetryDeck dashboards) live under `apps/ios/LinkClean/docs/`. New design or strategy work goes at the root; new App-Store-Connect-or-fastlane runbooks go in the iOS workspace.
 

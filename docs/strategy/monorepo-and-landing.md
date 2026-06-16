@@ -3,7 +3,7 @@
 > **Status: proposed — 2026-06-13; revised 2026-06-16** (descoped Phase 1 to local-only; resequenced after 1.0.0 launch + 1.1.0 submission; folded the `apps/ios/LinkClean/` container, docs subdir split, and `.gitignore` split into the structure). The **engineering** plan to (a) restructure this repository into a monorepo that absorbs the iOS app and (b) scaffold, deploy, and ship the landing page at **`linkclean.app`**. The infrastructure counterpart to [seo-content-plan.md](seo-content-plan.md) (*what pages to build*) and [growth-marketing.md](growth-marketing.md) §2 / §5 (*why an owned web home, and what the LP must say*). *This doc covers repo structure, the web stack, the migration mechanics, CI, domain/DNS, and sequencing — not content, copy, or SEO (those are the two docs above).*
 > **Builds on:** [growth-marketing.md](growth-marketing.md) §2 + §5, [seo-content-plan.md](seo-content-plan.md) §2/§6, [competitor-clean-links.md](competitor-clean-links.md).
 > **Reference implementation:** **`../whyzard/apps/landing/`** — the founder's existing, deployed Cloudflare landing site. **We mirror its stack and conventions** (Hono/JSX on Cloudflare Workers, Wrangler, TelemetryDeck Web, the per-locale + content-cluster structure). Per [CLAUDE.md](../../CLAUDE.md) "find the closest existing example and match its pattern" — that example is Whyzard. **This supersedes the abstract "Astro/Next-static" lean in seo-content-plan §6** (which should be updated to match).
-> **⚠️ Hard constraint (updated 2026-06-16):** iOS **1.0.0 is LIVE on the App Store** (since 2026-06-15) — **constraint cleared.** A new constraint takes its place: **1.1.0 was just submitted (2026-06-16) and is awaiting review**, so the same "don't break fastlane mid-review in case we need to ship a fix build" logic now applies to 1.1.0. **⇒ Phase 2 (iOS absorb) waits until 1.1.0 clears review.** Phase 1 (local monorepo scaffold, zero iOS files touched) is unblocked **right now**, and Phase 3 (public LP launch) is also unblocked since 1.0.0 is live for the LP to point at.
+> **⚠️ Hard constraint (updated 2026-06-16):** iOS **1.0.0 is LIVE on the App Store** (since 2026-06-15) — **constraint cleared.** A new constraint takes its place: **1.1.0 was just submitted (2026-06-16) and is awaiting review**, so the same "don't break fastlane mid-review in case we need to ship a fix build" logic now applies to 1.1.0. **⇒ Phase 2 (iOS absorb) waits until 1.1.0 clears review.** Phase 1 (local monorepo scaffold) and **Phase 3a (local landing build — no Cloudflare, no domain)** are both unblocked **right now**; **Phase 3b (public deploy)** is independently unblocked from iOS but gated on the decision to commit to the domain + Cloudflare account.
 
 ---
 
@@ -17,9 +17,11 @@ So **the landing page is the value; the monorepo is the vehicle.** Three separab
 |---|---|---|---|
 | Scaffold `apps/landing/` locally (Phase 1) | Foundation for #3 — gets the monorepo shape right | Low (greenfield, mirrors a working repo, nothing existing touched, no Cloudflare account / no domain) | nothing |
 | Move the iOS app into `apps/ios/LinkClean/` (Phase 2) | Tidiness + the monorepo end-state | **Real** — Xcode refs, the `LinkCleanKit` SPM relative path, fastlane, scripts, screenshot pipeline, and a release in flight | **iOS 1.1.0 clearing review** (1.0.0 already live) |
-| Ship the LP publicly (Phase 3) | **High — the whole point of #3** | Domain purchase + DNS + the Cloudflare AI-bots zone trap (§6) | nothing iOS-related (App Store listing is live to point at) |
+| Build Wave-1 content locally (Phase 3a) | Most of #3's value, no external dependencies | Low (local-only — content + JSON-LD + sitemap, runs under `wrangler dev`) | nothing |
+| Public launch — domain + Cloudflare deploy (Phase 3b) | Makes the work visible | Domain purchase + DNS + the Cloudflare AI-bots zone trap (§6) | nothing iOS-related (App Store listing is live to point at) |
+| Content cadence + ja/de locales (Phase 3c) | Compounds | Steady drip; ja/de drop in via the existing locale loop | Phase 3b live |
 
-**Therefore: do not big-bang.** Phase 1 is **local-only** — stand up the monorepo skeleton + scaffold the landing app so it runs under `wrangler dev`, *while the iOS app stays exactly where it is at the repo root.* Phase 2 absorbs the iOS app once **1.1.0** clears review. Phase 3 buys the domain and ships the LP publicly; it can run **in parallel with Phase 2** since they touch different surfaces (Phase 2 = iOS repo restructure; Phase 3 = web account/domain/content), and neither depends on the other. Identical end state; sequencing decouples the monorepo refactor from the in-flight iOS submission.
+**Therefore: do not big-bang.** Phase 1 is **local-only** — stand up the monorepo skeleton + scaffold the landing app so it runs under `wrangler dev`, *while the iOS app stays exactly where it is at the repo root.* Phase 2 absorbs the iOS app once **1.1.0** clears review. Phase 3 now splits into **3a (local content build), 3b (public launch — domain + deploy), and 3c (content cadence + locales)**, so the high-value content work is unblocked *right now* without buying a domain or touching Cloudflare. 3b is the gate to "publicly visible"; 3a accumulates everything that gets shipped the moment that gate flips. Identical end state; sequencing decouples the content build from the infra commitment.
 
 **Why a monorepo at all:** one home for the app + the web property that markets it; shared `docs/` and brand assets; atomic cross-cutting changes (a tracker added to the catalog *and* its `/trackers/<param>` page in one PR); a single base every channel points back to. **The cost** is the one-time iOS-absorb repath (§4) — paid once, deferred safely.
 
@@ -117,14 +119,61 @@ Same stack, top to bottom. Where Whyzard solved a problem, inherit the solution 
 ### Phase 2 — Absorb the iOS app into `apps/ios/LinkClean/`  *(after iOS 1.1.0 clears review — 1.0.0 is already live)*
 A single isolated PR doing only the move + the `.gitignore` split + the docs split (§4). No feature work mixed in — keep the diff reviewable and the revert trivial. The gating reason is unchanged from the original 1.0-flavored plan: if the in-flight submission (now 1.1.0) gets a rejection that needs a fix-build, fastlane/scripts must be in a known-good state. Phase 1 and Phase 3 are both unblocked **right now**; only Phase 2 waits.
 
-### Phase 3 — Public launch + content cadence  *(when ready to ship publicly)*
-Folds in what Phase 1 originally bundled (domain + Cloudflare deploy + Wave-1 content) plus the original follow-ons. Order matters: stand up domain + bare prod deploy first so each new content wave just redeploys.
+### Phase 3a — Local landing build  *(unblocked now; no Cloudflare account, no domain, runs under `wrangler dev`)*
+
+The goal: have the full Wave-1 cornerstone site rendered locally, JSON-LD valid, sitemap built, analytics wired — so that the moment Phase 3b flips the deploy switch, everything ships at once. Each step is independently mergeable; stop at any boundary and the rest stays optional.
+
+**Skills to enable first** (all four sourced from `../whyzard/skills-lock.json`; add to `skills-lock.json` + the `.gitignore` allowlist, then `npx skills experimental_install`):
+- **`hono`** (yusukebe/hono-skill) — framework reference; used during 3a.1.
+- **`ai-seo`** (coreyhaines31/marketingskills) — TL;DR/FAQ structuring, llms.txt + robots.txt mechanics; used during 3a.2 and 3a.3.
+- **`programmatic-seo`** (coreyhaines31/marketingskills) — template-driven content discipline so spokes don't read thin; used during 3a.2 and Phase 3c.
+- **`seo-audit`** (coreyhaines31/marketingskills) — pre-launch audit pass; used at the end of 3a.3.
+
+#### 3a.1 — Structural plumbing  *(no user-visible content yet)*
+
+1. Copy Apple's official badge from `../whyzard/apps/landing/public/app-store-badge-en.svg` to `apps/landing/public/`. Swap the placeholder `cta` text link in `src/page.tsx` for the badge image. Skip the ja/de/etc. badges — they wait for Phase 3c.
+2. Port `whyzard/src/qa/{types,data,select,chrome,paths}.ts` to `apps/landing/src/trackers/`, retargeted to the LinkClean parameter shape (`{ param, kind, vendor, oneLineWhat, privacyStake, exampleDirty, exampleClean, faq[] }`). Empty `data.ts` for now — entries come in 3a.2.
+3. Extract a `Layout` component from `src/page.tsx` (chrome: `<head>` builder, header, footer) so every template uses the same shell. Mirror whyzard's split between `page.tsx` / `qaLayout.tsx` / `questionPage.tsx`.
+4. Add a `routes.ts` registry — `{ path, locale, render }[]` — that `index.tsx` loops over to pre-render at boot. The sitemap builder reads from the same array (single source of truth).
+5. Add `/sitemap.xml` built from the registry at worker boot — mirror whyzard's `buildSitemap()`.
+6. **Stop gate:** `pnpm --filter @linkclean/landing typecheck` clean; `dev` still serves Home from the new Layout; `/sitemap.xml` returns Home only; `/healthz` ok.
+
+#### 3a.2 — Wave-1 cornerstones  *(one template at a time; each = one PR-sized commit)*
+
+Prove the workhorse template first (tracker spoke), then layer the rest.
+
+1. **`/trackers/utm-source`** — first spoke (template A, seo-content-plan §3). JSON-LD: `Article` + `FAQPage`. ⚠️ Verify the "Urchin Tracking Module" trivia via `deep-research` before publishing.
+2. **`/trackers/` hub** — template D. JSON-LD: `DefinedTermSet`. Lists the one spoke we have so far; grows as more land.
+3. **Home expansion** — replace placeholder with the real LP (benefit columns, comparison table per growth-marketing §5). JSON-LD: `SoftwareApplication`. Use the `copywriting` skill.
+4. **`/trackers/fbclid` + `/trackers/gclid`** — proves the `data.ts` catalog scales to N entries.
+5. **`/guides/remove-utm-parameters` + `/guides/clean-youtube-link`** — template B. JSON-LD: `HowTo`.
+6. **`/learn/do-cleaned-links-still-work`** — template E pillar; answers the #1 conversion blocker.
+7. **`/learn/whats-hidden-in-a-share-link`** — the cornerstone privacy piece; links into the whole hub; the most shareable + LLM-citable page.
+
+#### 3a.3 — SEO/LLMO finishing pass
+
+1. Author `public/llms.txt` for LinkClean — use whyzard's file as **format only** (pitch / key facts / citable claims / links) and rewrite the content via `ai-seo` + `copywriting`.
+2. Adapt `public/robots.txt` from whyzard's: keep the AI-bot allowlist verbatim, retarget the `Sitemap:` URL to `https://linkclean.app/sitemap.xml`, swap the brand-comment line.
+3. Run the `seo-audit` skill across the local site: JSON-LD validates (schema.org validator), every page has a bolded TL;DR, every spoke links **up** to its hub + **across** to 2 siblings + **out** to the App Store (§5 of seo-content-plan).
+
+#### 3a.4 — Analytics  *(optional; can defer to Phase 3b)*
+
+1. Create a separate `linkclean-landing` TelemetryDeck app in the TD dashboard. Add `TD_APP_ID` to `brand.ts`.
+2. Port whyzard's `TELEMETRY_INIT` block in `page.tsx` verbatim, including the **`text/plain` Blob CORS trick** for the `AppStoreTapped` signal and the `isTestMode` hostname check.
+
+**3a done when:** Wave-1 pages render locally from a fresh clone via `pnpm --filter @linkclean/landing dev`; `tsc --noEmit` clean; all JSON-LD validates; `seo-audit` pass clean; the landing build has *no* outstanding content TODOs blocking deploy. Analytics either wired or knowingly deferred.
+
+### Phase 3b — Public launch  *(when ready to ship publicly; iOS App Store listing already live to point at)*
 
 1. **Domain + production deploy** (§6): buy `linkclean.app`, move DNS to Cloudflare, configure the production `wrangler.jsonc` `routes` block (`{ pattern: "linkclean.app", custom_domain: true }` + `www`), then `pnpm --filter @linkclean/landing deploy:prod`. Verify HTTPS + the **Block-AI-Bots-OFF** zone check (Cloudflare Security → Bots — see §6, this is the load-bearing one).
-2. **Wave-1 cornerstones** (seo-content-plan §7): Home/LP, `/trackers` hub, "What's hidden in a share link?", `utm`/`fbclid`/`gclid` explainers, "How to remove UTM parameters", "How to clean a YouTube link", "Do cleaned links still work?". Wire `sitemap.xml`, canonical/hreflang, OG + JSON-LD (seo-content-plan §6), TelemetryDeck Web. Submit sitemap to Search Console.
-3. Migrate `/privacy-policy`, `/terms`, `/support` onto `linkclean.app` (§6); 301 the old `ken0nek.com` URLs; update `fastlane/metadata/en-US/privacy_url.txt` + in-app links in a *post-1.0* iOS build.
-4. Content Waves 2–3 (seo-content-plan §7) at a steady 2–4 pages/week; add `ja` → `de` locales.
-5. Decide on the `/clean` free web cleaner (seo-content-plan §9 / §8-3 below).
+2. Submit sitemap to Search Console.
+3. Migrate `/privacy-policy`, `/terms`, `/support` onto `linkclean.app` (§6); 301 the old `ken0nek.com` URLs; update `fastlane/metadata/en-US/privacy_url.txt` + in-app links in a *post-1.1.0* iOS build (1.2.0 or later — don't touch fastlane mid-review).
+
+### Phase 3c — Content cadence + locale expansion  *(post-launch, compounds)*
+
+1. Content Waves 2–3 (seo-content-plan §7) at a steady 2–4 pages/week — use the `programmatic-seo` skill to keep the spoke fleet template-driven without going thin.
+2. Add `ja` → `de` locales (copy modules + the matching App Store badge SVGs already in whyzard's `public/`). Whyzard's locale loop is the working reference.
+3. Decide on the `/clean` free web cleaner (seo-content-plan §9 / §8-3 below). Lean: not until there's traffic to convert.
 
 ---
 
@@ -164,9 +213,9 @@ Steps:
 
 ---
 
-## 6. Domain, DNS & privacy/legal  *(Phase 3 — not Phase 1)*
+## 6. Domain, DNS & privacy/legal  *(Phase 3b — not Phase 1 or 3a)*
 
-This whole section is deferred to Phase 3, when we ship the LP publicly. Phase 1 stays local; nothing in this section runs until then.
+This whole section is deferred to Phase 3b, when we flip the deploy switch. Phase 1 and Phase 3a both stay local; nothing here runs until then.
 
 **Your plan: buy `linkclean.app` on Squarespace, run DNS on Cloudflare.** Registration stays at Squarespace; only DNS authority moves to Cloudflare (which is all the `custom_domain` routes need). Steps:
 
@@ -185,7 +234,9 @@ This whole section is deferred to Phase 3, when we ship the LP publicly. Phase 1
 
 - **Phase 1 (local-only):** monorepo installs and the placeholder landing page renders from a fresh clone via `pnpm install && pnpm --filter @linkclean/landing dev`; the landing app typechecks (`tsc --noEmit` clean); root workspace + `.gitignore` web patterns + scaffold in place; iOS app at repo root still green (untouched). **No public deploy, no domain.**
 - **Phase 2:** iOS lives under `apps/ios/LinkClean/`; `.gitignore` split (iOS half at `apps/ios/.gitignore`, web/global half at root) verified via `git ls-files --others --ignored --exclude-standard`; all verify gates green (kit fast lane, app tests, Release build) + fastlane dry run; history preserved; root README/CLAUDE/AGENTS/CHANGELOG split done; `docs/{iap,release,dashboards}/` moved into `apps/ios/LinkClean/docs/`; root `plans/` dissolved into `docs/plans/` with all inbound references retargeted (`docs/ROADMAP.md`, both 001/002 plan files, the memory entry); the rest of `docs/` stayed at root.
-- **Phase 3 (public launch + cadence):** `linkclean.app` live over HTTPS via the `linkclean-landing` worker; Wave-1 pages published; sitemap in Search Console; AI-bots zone check passed; every CTA → App Store; TelemetryDeck Web recording; legal pages on `linkclean.app` with 301s from the old `ken0nek.com` URLs; ASC + in-app privacy URLs updated in a post-1.0 build; content Wave-2/3 cadence running.
+- **Phase 3a (local landing build):** Wave-1 pages render locally from a fresh clone (`pnpm --filter @linkclean/landing dev`); `tsc --noEmit` clean; structural plumbing in place (`Layout`, `src/trackers/`, `routes.ts`, `/sitemap.xml`); all JSON-LD validates; `seo-audit` pass clean; every spoke links up/across/out per §5 of seo-content-plan; `llms.txt` + `robots.txt` retargeted to LinkClean; analytics either wired or knowingly deferred. **No public deploy, no domain.**
+- **Phase 3b (public launch):** `linkclean.app` live over HTTPS via the `linkclean-landing` worker; sitemap in Search Console; AI-bots zone check passed; every CTA → App Store; TelemetryDeck Web recording (if not done in 3a.4); legal pages on `linkclean.app` with 301s from the old `ken0nek.com` URLs; ASC + in-app privacy URLs updated in a post-1.1.0 build.
+- **Phase 3c (content cadence + locales):** content Wave-2/3 cadence running; `ja` → `de` locales live; `/clean` decision made.
 
 ---
 
@@ -193,7 +244,7 @@ This whole section is deferred to Phase 3, when we ship the LP publicly. Phase 1
 
 1. **Hosting / stack.** **RESOLVED → Cloudflare Workers + Wrangler + Hono, mirroring `whyzard/apps/landing`.** (Supersedes the Astro/Pages/Plausible I first floated and the "Astro" line in seo-content-plan §6 — flagged there for update.)
 2. **Move iOS now vs after 1.1.0 clears review.** **Lean: after 1.1.0 review** — 1.0.0 is already live, but 1.1.0 is mid-review (submitted 2026-06-16); the submission-in-flight constraint (§0) now applies to 1.1.0 and makes deferring near-unarguable. Phase 1 (local scaffold) and Phase 3 (public launch) don't need the move, so neither is blocked by this.
-3. **Build the `/clean` free web cleaner in Phase 3?** Strong SEO/LLMO magnet + conversion pivot, but gives the core away free (seo-content-plan §9-1). **Lean: not in the initial Phase-3 public launch** — ship Wave-1 content cornerstones first; add `/clean` as a Hono island once there's traffic to convert. (Phase 1 stays local, so `/clean` was never on the table there.)
+3. **Build the `/clean` free web cleaner in Phase 3c?** Strong SEO/LLMO magnet + conversion pivot, but gives the core away free (seo-content-plan §9-1). **Lean: not in Phase 3a (Wave-1 first), not in Phase 3b (don't gate launch on it).** Add `/clean` as a Hono island during Phase 3c once there's traffic to convert.
 4. **pnpm workspace for a single JS package?** Mild overkill today, but it's **parity with whyzard** at trivial cost. **Lean: yes, mirror it.** (Keep `apps/landing` self-contained instead if you'd rather skip the root workspace files — minor.)
 5. **Launch locales.** **Lean: en-only at launch**, scaffolding ready for ja → de (growth-marketing §1.3). Whyzard already proves the multi-locale path.
 6. **`CHANGELOG.md`, `plans/`, `docs/` subdirs.** **RESOLVED:** `CHANGELOG.md` → `apps/ios/LinkClean/CHANGELOG.md` (iOS app-version history; web will grow its own when it ships). Root `plans/` **dissolves into `docs/plans/`** — no second plan home; the merged `docs/plans/` carries both the executable feature plans (SEED, 001/002) and the existing higher-level design docs (analytics, copy-as-you-want, iap-impl, onboarding, parameter-telemetry). `docs/iap/`, `docs/release/`, `docs/dashboards/` move with iOS to `apps/ios/LinkClean/docs/` (pure iOS operations); the rest of `docs/` (`strategy/`, `product/`, `plans/`, `raw/`, `archive/`, `ROADMAP.md`) stays at root.
