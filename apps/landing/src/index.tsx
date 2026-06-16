@@ -9,6 +9,20 @@ const PAGE_CACHE =
   "public, max-age=300, s-maxage=86400, stale-while-revalidate=86400";
 const REDIRECT_CACHE = "public, max-age=86400, s-maxage=604800";
 
+// Keep `*.workers.dev` (and localhost) out of search indexes — every page
+// already declares `linkclean.app` as canonical via <link rel="canonical">, but
+// belt-and-suspenders with X-Robots-Tag covers HTML, /sitemap.xml, and
+// /healthz at the HTTP layer (static assets are served by wrangler before the
+// worker runs, so robots.txt / llms.txt / images aren't touched — fine, they
+// reference linkclean.app URLs and don't hurt to leak).
+app.use("*", async (c, next) => {
+  await next();
+  const host = c.req.header("host") ?? "";
+  if (!/(?:^|\.)linkclean\.app$/i.test(host)) {
+    c.res.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+});
+
 function cachedRedirect(c: Context, target: string) {
   c.header("Cache-Control", REDIRECT_CACHE);
   return c.redirect(target, 301);
