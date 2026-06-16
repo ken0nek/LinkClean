@@ -2,7 +2,7 @@ default_platform(:ios)
 
 XCODEPROJ = "LinkClean.xcodeproj".freeze
 SCHEME = "LinkClean".freeze
-APP_TARGETS = ["LinkClean", "LinkCleanAction", "LinkCleanMarkdownAction"].freeze
+APP_TARGETS = ["LinkClean", "LinkCleanAction", "LinkCleanMarkdownAction", "LinkCleanWidgetExtension"].freeze
 EXTENSION_TARGETS = (APP_TARGETS - [SCHEME]).freeze
 
 platform :ios do
