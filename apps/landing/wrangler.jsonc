@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "linkclean-landing-dev",
+  "main": "src/index.tsx",
+  "compatibility_date": "2026-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": "./public" },
+  "dev": {
+    "port": 3001
+  },
+  "env": {
+    "development": {
+      "name": "linkclean-landing-dev",
+      "workers_dev": true,
+      "observability": {
+        "enabled": true,
+        "traces": { "enabled": true }
+      }
+    },
+    "production": {
+      "name": "linkclean-landing",
+      "workers_dev": true,
+      "observability": {
+        "enabled": true,
+        "traces": { "enabled": true }
+      },
+      "routes": [
+        { "pattern": "linkclean.app", "custom_domain": true },
+        { "pattern": "www.linkclean.app", "custom_domain": true }
+      ]
+    }
+  }
+}

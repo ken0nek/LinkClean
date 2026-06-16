@@ -120,3 +120,11 @@ Temporary Items
 /.claude/skills/swiftui-liquid-glass/
 /.claude/skills/swiftui-pro/
 /.claude/skills/improve
+
+# === Web (apps/landing) ===
+# Un-anchored so they match the iOS-at-root layout today AND apps/* tomorrow.
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+.dev.vars.*

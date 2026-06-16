@@ -1,0 +1,9 @@
+packages:
+  - "apps/landing"
+
+# Pre-approve native postinstall builds so `pnpm install` doesn't warn.
+# workerd is the Cloudflare runtime wrangler dev needs; esbuild is wrangler's
+# bundler. Mirrors whyzard.
+onlyBuiltDependencies:
+  - esbuild
+  - workerd

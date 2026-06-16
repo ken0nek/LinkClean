@@ -1,2 +1,4 @@
 [tools]
+pnpm = "10"
 ruby = "3.4.8"
+node = "25"

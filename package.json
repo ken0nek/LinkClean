@@ -1,0 +1,14 @@
+{
+  "name": "linkclean",
+  "private": true,
+  "packageManager": "pnpm@10.34.3",
+  "scripts": {
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write .",
+    "ci": "biome ci ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.16"
+  }
+}

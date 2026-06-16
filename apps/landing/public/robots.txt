@@ -1,0 +1,46 @@
+# LinkClean — https://linkclean.app
+# Default: allow all crawlers.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://linkclean.app/sitemap.xml
+
+# AI / LLM crawlers — explicit allow so a strict default-deny robots
+# parser doesn't quietly exclude us from training and answer-engines.
+# ⚠️ Cloudflare zone "Block AI Bots" must be OFF or this is meaningless;
+# the edge enforces it before the worker serves robots.txt. See
+# docs/strategy/monorepo-and-landing.md §6.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: cohere-ai
+Allow: /

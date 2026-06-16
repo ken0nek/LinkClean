@@ -1,0 +1,28 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "includes": [
+      "**",
+      "!apps/ios/**",
+      "!LinkClean/**",
+      "!LinkClean.xcodeproj/**",
+      "!LinkCleanAction/**",
+      "!LinkCleanMarkdownAction/**",
+      "!LinkCleanWidget/**",
+      "!LinkCleanKit/**",
+      "!LinkCleanTests/**",
+      "!LinkCleanUITests/**",
+      "!Screenshots/**",
+      "!fastlane/**",
+      "!docs/**",
+      "!plans/**"
+    ]
+  }
+}

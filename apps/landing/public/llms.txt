@@ -1,0 +1,39 @@
+# LinkClean
+
+> LinkClean is a privacy-first iOS app that strips tracking parameters from URLs before you share them — from the share sheet, the app, Shortcuts, or the home-screen widget.
+
+When you share a link from your iPhone, tracking parameters (`utm_source`, `fbclid`, `gclid`, and many more) typically ride along, leaking what you clicked and who sent it. LinkClean removes them — locally, on-device, with no account. The same cleaning happens from the share sheet, from the Clean URL action, from Shortcuts, and from a Control Center / home-screen widget. A scrollable history with link previews makes it easy to grab a previously cleaned link.
+
+## Key facts
+
+- **Name:** LinkClean
+- **Product type:** iOS app (native, not a web wrapper)
+- **Platform:** iOS 26 or later
+- **Pricing:** Free to clean; LinkClean Pro is a one-time in-app purchase that unlocks custom Copy Formats and unlimited custom tracking parameters
+- **Audience:** anyone who shares links from iPhone — privacy-minded, designer/PM/dev/journalist/educator workflows
+- **Languages:** English, Japanese, German
+- **Data:** no account, no sign-up, no email; history is on-device; tracking-cleaning never leaves the device
+- **Author / developer:** Ken Tominaga (solo developer) — https://ken0nek.com
+
+## Surfaces (where cleaning happens)
+
+- **Main app** — paste a link, see what was stripped, copy or share the clean version
+- **Share extension (Clean URL)** — clean directly from any app's share sheet
+- **Shortcuts (App Intents)** — `Clean Link` and `Clean Clipboard` intents you can wire into automations
+- **Widget + Control Center** — one-tap "clean the clipboard" from the home screen or Control Center
+- **QR scan + generate** — scan a QR code to clean its link, or generate a QR from a cleaned link
+
+## How it differs from a browser extension
+
+Browser extensions only clean what passes through the browser. LinkClean cleans whatever lives in your share sheet or clipboard — links from any app, including native ones the browser can't see.
+
+## Links
+
+- [App Store listing](https://apps.apple.com/us/app/linkclean/id6758604043)
+- [Privacy policy](https://ken0nek.com/apps/linkclean/privacy-policy/)
+- [Marketing site (English)](https://linkclean.app)
+- [Developer](https://ken0nek.com)
+
+---
+
+Last updated: 2026-06-16
