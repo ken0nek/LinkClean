@@ -43,11 +43,15 @@ public struct CleanClipboardIntent: AppIntent {
             }
         }
         guard patterns?.contains(.probableWebURL) == true, let raw = pasteboard.string else {
+            TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
+            TelemetryDeckAnalytics().capture(.intentCleanFailed(surface: .clipboard, reason: .noURL))
             return .result(dialog: "There's no link on your clipboard to clean.")
         }
 
         let cleaning = DefaultCleaningService(settings: settings)
         guard let outcome = try await cleaning.clean(raw) else {
+            TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
+            TelemetryDeckAnalytics().capture(.intentCleanFailed(surface: .clipboard, reason: .invalidInput))
             return .result(dialog: "There's no link on your clipboard to clean.")
         }
 
@@ -61,8 +65,11 @@ public struct CleanClipboardIntent: AppIntent {
         // widget tap runs in a short-lived process, so fire the deliverable + signal
         // before awaiting persistence.
         TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
-        TelemetryDeckAnalytics().capture(.intentCleanSucceeded(surface: .clipboard, telemetry: outcome.telemetry))
-        StatsStore().record(outcome)
+        let analytics = TelemetryDeckAnalytics()
+        analytics.capture(.intentCleanSucceeded(surface: .clipboard, telemetry: outcome.telemetry))
+        // The shared post-success tail: fan out the catalog-gap reference signals and
+        // bump lifetime Stats through the one place every clean surface shares.
+        await RealizedCleanRecorder(analytics: analytics, stats: StatsStore()).record(outcome)
         await IntentHistory.record(input: raw, output: outcome.cleaned, settings: settings)
         return .result(
             dialog: outcome.telemetry.changed

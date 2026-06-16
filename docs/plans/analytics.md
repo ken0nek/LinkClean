@@ -123,7 +123,7 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 | `Parameters.Custom.added` | Custom parameter added | `totalCount: <bucket>` — **never the name** | **Top premium candidate.** Adoption % + depth per user |
 | `Parameters.Custom.deleted` | Custom parameter removed | `totalCount: <bucket>` | Churn on the feature |
 | `Parameters.Custom.shown` | Custom-parameters screen opened | — | **Discovery vs. value for the top premium candidate.** With `Parameters.Custom.added`, view→add conversion separates "few discover it" from "discoverers don't convert" |
-| `Parameters.Reference.observed` | A known-but-not-default tracker survived a clean (one per match) | `parameter: <public reference name>` — from the bundled reference catalog, **never an arbitrary URL key** | **Catalog-gap engine.** Which trackers to promote into the default set (`parameter-telemetry.md` Tier 1) |
+| `Parameters.Reference.observed` | A known-but-not-default tracker survived a clean (one per match), fanned out from **every** realized-clean surface — Home, QR, the Clean and Copy-as-you-want extensions, and the App Intents | `parameter: <public reference name>` — from the bundled reference catalog, **never an arbitrary URL key** | **Catalog-gap engine.** Which trackers to promote into the default set (`parameter-telemetry.md` Tier 1) |
 
 ### Onboarding (ships in 1.0.0 per TODO)
 
@@ -138,13 +138,24 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 |---|---|---|---|
 | `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>`, `unwrapped: true\|false` | Extension volume — the habit metric; plus catalog-gap signals and which sites are cleaned most (§3) on the extension surface (`parameter-telemetry.md` Tier 0); whether share-sheet inputs are redirect wrappers (E1). Per-match `Parameters.Reference.observed` is emitted after this signal (§8 convergence) |
 | `Action.Clean.failed` | No URL extractable from host input | `reason: noURL\|invalidInput` | Host-app compatibility gaps (e.g. the known Google Maps issue) |
-| `Action.Markdown.succeeded` | Markdown action copied `[title](url)` | `titleSource: javascript\|linkPresentation\|urlOnly`, `changed` | Markdown adoption (premium candidate); title-extraction reliability by path |
-| `Action.Markdown.failed` | Extraction failed | `reason` | Reliability |
+| `Action.Format.succeeded` | The "Copy as you want" action copied a rendered format (Markdown / plain / a custom template) | `preset: true\|false` (shipped preset vs. user-authored custom — the customization-adoption read, never the template text or name), `changed` | Custom-format adoption (the Pro candidate); preset-vs-custom mix. Per-match `Parameters.Reference.observed` is emitted after this signal, exactly as `Action.Clean.succeeded` |
+| `Action.Format.failed` | No URL extractable from host input | `reason: noURL\|invalidInput` | Host-app compatibility gaps |
 
 Notes:
 
 - No separate `invoked` signal — `succeeded + failed = invocations`, and extension runtime is too short to waste a second network send. TelemetryDeck's default [`extensionIdentifier` parameter](https://telemetrydeck.com/docs/ingest/default-parameters/) tags every extension signal automatically, so extension traffic is separable from app traffic without extra work.
 - **Key derived metric — surface mix:** `Action.Clean.succeeded` vs `Home.URL.copied`. If extensions dominate, the main app is a configuration shell and IAP gating must live in the extension flow (and the paywall in the app must be reachable from an extension-driven moment, e.g. a post-clean history view).
+
+### App Intents — clean-from-anywhere (growth-roadmap §4 S1)
+
+`CleanLinkIntent` (Shortcuts / Siri / Spotlight / Action button) and `CleanClipboardIntent` (Control Center control / widget / "clean my clipboard") are separate short-lived binaries; both init the SDK (`surface: "intent"`) and emit through the same typed layer, then run the shared `RealizedCleanRecorder` tail — the catalog-gap reference fan-out plus the lifetime Stats bump — so the OS surfaces feed the same loops as Home/QR/extensions.
+
+| Signal | Trigger | Parameters | Answers |
+|---|---|---|---|
+| `Intent.Clean.succeeded` | An App Intent produced a cleaned link | `intentSurface: shortcut\|clipboard` (clipboard covers the Control Center control + widget), plus the same clean telemetry as `Home.URL.cleaned` (`changed`, counts, `removedKinds`, `domain`, `unwrapped`) | Surface-mix for the 1.1 distribution goal; catalog-gap + redirect signals on the OS surfaces. Per-match `Parameters.Reference.observed` follows this signal |
+| `Intent.Clean.failed` | An App Intent ran but found nothing to clean | `intentSurface: shortcut\|clipboard`, `reason: noURL\|invalidInput` | The control / widget annoyance rate — a tap that does nothing; without it `succeeded` over-counts the surfaces' value |
+
+> **Taxonomy drift (open):** the QR (`QR.*`) and Statistics (`Stats.*`) signals — and the IAP sections' "1.1.0" tense (IAP shipped in **1.0.0**) — ship in code but are not yet reconciled here. A full §6/§7/§9 sync is a separate doc pass.
 
 ## 8. How extension tracking works (research findings)
 

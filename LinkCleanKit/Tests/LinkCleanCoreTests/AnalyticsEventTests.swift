@@ -67,6 +67,7 @@ struct AnalyticsEventTests {
             (.actionFormatSucceeded(preset: true, changed: true), "Action.Format.succeeded"),
             (.actionFormatFailed(reason: .invalidInput), "Action.Format.failed"),
             (.intentCleanSucceeded(surface: .clipboard, telemetry: telemetry(removedCount: 1)), "Intent.Clean.succeeded"),
+            (.intentCleanFailed(surface: .clipboard, reason: .noURL), "Intent.Clean.failed"),
             (.qrScanSucceeded(telemetry: telemetry(removedCount: 1)), "QR.Scan.succeeded"),
             (.qrScanFailed(reason: .noLink), "QR.Scan.failed"),
             (.qrCodeGenerated(changed: true), "QR.Code.generated"),
@@ -205,6 +206,15 @@ struct AnalyticsEventTests {
             telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
         #expect(Set(params.keys) == ["intentSurface", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
+    }
+
+    @Test func intentCleanFailedCarriesSurfaceAndReason() {
+        // The failure half of the surface-mix read — a control / widget tap that found
+        // nothing to clean. Surface + reason, both finite enums, never clipboard text.
+        #expect(AnalyticsEvent.intentCleanFailed(surface: .clipboard, reason: .noURL).parameters
+            == ["intentSurface": "clipboard", "reason": "noURL"])
+        #expect(AnalyticsEvent.intentCleanFailed(surface: .shortcut, reason: .invalidInput).parameters
+            == ["intentSurface": "shortcut", "reason": "invalidInput"])
     }
 
     @Test func qrScanCarriesCleanTelemetry() {

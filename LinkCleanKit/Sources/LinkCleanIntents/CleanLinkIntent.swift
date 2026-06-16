@@ -41,12 +41,17 @@ public struct CleanLinkIntent: AppIntent {
         let settings = SettingsStore()
         let cleaning = DefaultCleaningService(settings: settings)
         guard let outcome = try await cleaning.clean(link) else {
+            TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
+            TelemetryDeckAnalytics().capture(.intentCleanFailed(surface: .shortcut, reason: .invalidInput))
             throw CleanLinkError.notALink
         }
         // Emit the signal before the slower history write (analytics §8).
         TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
-        TelemetryDeckAnalytics().capture(.intentCleanSucceeded(surface: .shortcut, telemetry: outcome.telemetry))
-        StatsStore().record(outcome)
+        let analytics = TelemetryDeckAnalytics()
+        analytics.capture(.intentCleanSucceeded(surface: .shortcut, telemetry: outcome.telemetry))
+        // The shared post-success tail: fan out the catalog-gap reference signals and
+        // bump lifetime Stats through the one place every clean surface shares.
+        await RealizedCleanRecorder(analytics: analytics, stats: StatsStore()).record(outcome)
         await IntentHistory.record(input: link, output: outcome.cleaned, settings: settings)
         return .result(
             value: outcome.cleaned,

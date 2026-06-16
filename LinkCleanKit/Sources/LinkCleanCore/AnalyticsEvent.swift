@@ -73,6 +73,9 @@ public enum AnalyticsEvent: Equatable {
     /// The scroll-to-text fragment (`:~:`) removal setting was toggled — tells us
     /// whether the default-on fragment cleaning is wanted (§6).
     case settingsTextFragmentsToggled(enabled: Bool)
+    /// The "Share as QR Code" Home-button setting was toggled — tells us whether
+    /// the default-off QR button is wanted, and how many users opt in (§6).
+    case settingsQRButtonToggled(enabled: Bool)
     /// A built-in default parameter was toggled. Its name comes from a finite,
     /// known set, so it is safe to send (§3).
     case parametersDefaultToggled(parameter: String, enabled: Bool)
@@ -138,6 +141,14 @@ public enum AnalyticsEvent: Equatable {
     /// §3), plus which ``IntentSurface`` ran it — the surface-mix read (kpis §6)
     /// for the 1.1 distribution goal.
     case intentCleanSucceeded(surface: IntentSurface, telemetry: CleanOutcome.Telemetry)
+    /// An App Intent ran but produced no cleaned link: the clipboard surface tapped
+    /// with nothing cleanable (the Control Center / widget annoyance read), or a
+    /// Shortcuts input that wasn't a web link. ``IntentSurface`` says which surface,
+    /// ``FailureReason`` why (`noURL` = nothing there, `invalidInput` = present but
+    /// not a cleanable web link). The failure half of the surface-mix read — without
+    /// it a control / widget tap that does nothing is invisible, over-counting the
+    /// surfaces' value through ``intentCleanSucceeded`` alone.
+    case intentCleanFailed(surface: IntentSurface, reason: FailureReason)
 
     // MARK: QR (scan & generate — the QR surface)
 
@@ -309,6 +320,7 @@ public enum AnalyticsEvent: Equatable {
         case .settingsAutoPasteToggled: "Settings.AutoPaste.toggled"
         case .settingsSaveHistoryToggled: "Settings.SaveHistory.toggled"
         case .settingsTextFragmentsToggled: "Settings.TextFragments.toggled"
+        case .settingsQRButtonToggled: "Settings.QRButton.toggled"
         case .parametersDefaultToggled: "Parameters.Default.toggled"
         case .parametersCustomAdded: "Parameters.Custom.added"
         case .parametersCustomDeleted: "Parameters.Custom.deleted"
@@ -326,6 +338,7 @@ public enum AnalyticsEvent: Equatable {
         case .actionFormatSucceeded: "Action.Format.succeeded"
         case .actionFormatFailed: "Action.Format.failed"
         case .intentCleanSucceeded: "Intent.Clean.succeeded"
+        case .intentCleanFailed: "Intent.Clean.failed"
         case .qrScanSucceeded: "QR.Scan.succeeded"
         case .qrScanFailed: "QR.Scan.failed"
         case .qrCodeGenerated: "QR.Code.generated"
@@ -379,6 +392,8 @@ public enum AnalyticsEvent: Equatable {
             return ["enabled": Self.string(enabled)]
         case let .settingsTextFragmentsToggled(enabled):
             return ["enabled": Self.string(enabled)]
+        case let .settingsQRButtonToggled(enabled):
+            return ["enabled": Self.string(enabled)]
         case let .parametersDefaultToggled(parameter, enabled):
             return ["parameter": parameter, "enabled": Self.string(enabled)]
         case let .parametersCustomAdded(totalCount):
@@ -427,6 +442,8 @@ public enum AnalyticsEvent: Equatable {
                 "domain": t.domain,
                 "unwrapped": Self.string(!t.wrappers.isEmpty),
             ]
+        case let .intentCleanFailed(surface, reason):
+            return ["intentSurface": surface.rawValue, "reason": reason.rawValue]
         case let .qrScanSucceeded(t):
             return [
                 "changed": Self.string(t.changed),

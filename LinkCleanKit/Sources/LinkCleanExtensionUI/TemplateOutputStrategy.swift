@@ -100,7 +100,10 @@ public struct TemplateOutputStrategy: ActionOutputStrategy {
             preset: template.isBuiltin,
             changed: outcome.telemetry.changed
         )
-        return StrategyResult(payload: PasteboardPayload(.string(text)), successEvents: [event])
+        // A formatted copy is still a realized clean: fan out the Tier-1 catalog-gap
+        // reference signals too, exactly as CleanLinkStrategy does (analytics §7).
+        let events = [event] + outcome.telemetry.referenceObservedEvents
+        return StrategyResult(payload: PasteboardPayload(.string(text)), successEvents: events)
     }
 
     /// Prefer Safari's JS-provided title; otherwise fetch LPMetadata against the
