@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+   PrivacyInfo.xcprivacy
+   LinkCleanWidget
+
+   Privacy manifest for the LinkCleanWidget extension — a separate binary, so
+   it needs its own declarations (see the NOTE in LinkClean/PrivacyInfo.xcprivacy,
+   which this file mirrors). The Control Center control / widget reaches App Group
+   defaults (group.com.ken0nek.LinkClean) through LinkCleanKit to read the user's
+   rules and settings → 1C8F.1; CA92.1 is a harmless superset kept so the payload
+   stays identical to the app target's manifest.
+-->
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+				<string>1C8F.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
