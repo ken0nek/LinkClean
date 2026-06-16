@@ -162,7 +162,7 @@ Tiers: **T1** = build first (highest intent × volume × funnel, or a cornerston
 
 - **Schema:** `SoftwareApplication` (home/`/clean`), `Article`+`FAQPage` (trackers/learn), `HowTo` (guides), `DefinedTermSet`/`DefinedTerm` (glossaries), `BreadcrumbList` (everywhere). FAQ + HowTo schema win rich results *and* are LLM-friendly.
 - **Each page:** a one-sentence bolded TL;DR near the top (snippet + LLM citation target), descriptive title/meta, OG image (the before→after visual — drives social + AI-preview cards), clean slug.
-- **Site:** fast static (Astro/Next-static), XML sitemap, `robots.txt`, canonical tags, Smart App Banner, privacy-respecting analytics (Plausible — brand-consistent, no GA).
+- **Site:** Cloudflare Workers + Hono (`hono/jsx`, server-rendered per page/locale at worker boot — static-fast, zero client JS, no build step beyond `wrangler`), XML sitemap, `robots.txt` (AI-bot allowlist), `llms.txt`, canonical + hreflang tags, Smart App Banner, privacy-respecting analytics (TelemetryDeck Web — mirrors the iOS app's analytics, no GA, no Plausible). Full stack + rationale: [monorepo-and-landing.md](monorepo-and-landing.md) §2.
 - **LLMO crossover (growth-marketing §3):** the same TL;DR + FAQ + comparison-table structure is what assistants lift; seed the pages into Reddit/HN/PH answers so they enter the retrieval corpus.
 
 ---
