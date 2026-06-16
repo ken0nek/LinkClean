@@ -6,8 +6,8 @@ Forward-looking only — what's planned, parked, or undecided. Shipped work is i
 
 ## 1.2.0 — Backlog (planned, did not make 1.1.0)
 
-- [ ] **ai-C smart titles** — on-device title generation for cleaned links; plan: [plans/001-ai-c-smart-titles.md](../plans/001-ai-c-smart-titles.md) (in-app v1; action-extension use deferred).
-- [ ] **E4 short-link expansion** — expand t.co / bit.ly and other shorteners (networked; deliberately excluded from the offline redirect unwrapper); plan: [plans/002-e4-short-link-expansion.md](../plans/002-e4-short-link-expansion.md).
+- [ ] **ai-C smart titles** — on-device title generation for cleaned links; plan: [plans/001-ai-c-smart-titles.md](plans/001-ai-c-smart-titles.md) (in-app v1; action-extension use deferred).
+- [ ] **E4 short-link expansion** — expand t.co / bit.ly and other shorteners (networked; deliberately excluded from the offline redirect unwrapper); plan: [plans/002-e4-short-link-expansion.md](plans/002-e4-short-link-expansion.md).
 
 ## Open decisions
 
@@ -19,7 +19,7 @@ Forward-looking only — what's planned, parked, or undecided. Shipped work is i
 
 ## Nice-to-have (not version-pinned)
 
-- [ ] Share-sheet "Clean Link" screenshot to enrich the App Store set; pipeline in [docs/release/app-store-metadata.md](release/app-store-metadata.md).
+- [ ] Share-sheet "Clean Link" screenshot to enrich the App Store set; pipeline in [apps/ios/LinkClean/docs/release/app-store-metadata.md](../apps/ios/LinkClean/docs/release/app-store-metadata.md).
 
 ## Background & proposal docs
 

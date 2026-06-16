@@ -96,7 +96,7 @@ v1 argued $2.99, v3 argued $4.99; v3's value-based case wins (see §10 for the d
 
 ### Regional pricing
 
-Apple's storefront model (since late 2022: ~900 price points with automatic per-storefront FX) lets you set the US base at $4.99 and manually lower individual storefronts. Don't sell at US-equivalent prices in price-sensitive markets — v3's example: India at an effective $1.99 can out-earn $4.99 by ~3× on volume. The 3-tier ladder below ($4.99 / $2.99 / $1.99, one-time) is the **operative pricing — execute it with the runbook in `../iap/regional-pricing-setup.md`** (a single non-consumable price point per storefront; no annual column, since this is not a subscription):
+Apple's storefront model (since late 2022: ~900 price points with automatic per-storefront FX) lets you set the US base at $4.99 and manually lower individual storefronts. Don't sell at US-equivalent prices in price-sensitive markets — v3's example: India at an effective $1.99 can out-earn $4.99 by ~3× on volume. The 3-tier ladder below ($4.99 / $2.99 / $1.99, one-time) is the **operative pricing — execute it with the runbook in `../../apps/ios/LinkClean/docs/iap/regional-pricing-setup.md`** (a single non-consumable price point per storefront; no annual column, since this is not a subscription):
 
 **Tier 1 — full price** ($4.99 / £4.99 / €4.99 / A$7.99 / JP ≈ ¥700–800). High-income storefronts where $4.99 is impulse-level.
 

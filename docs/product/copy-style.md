@@ -1,7 +1,7 @@
 # LinkClean Copy Style Guide
 
 > **Status: house rules — 2026-06-13.** The standard for LinkClean's user-facing words: in-app strings, CTAs, App Store listing, and (later) the landing page. Synthesizes conversion-copy craft with Apple's Human Interface Guidelines, so copy stays consistent as the app adds locales and surfaces.
-> **Grounded in:** Apple HIG [Writing](https://developer.apple.com/design/human-interface-guidelines/writing) and [Buttons](https://developer.apple.com/design/human-interface-guidelines/buttons); Apple [Localization](https://developer.apple.com/documentation/xcode/localization) (esp. [Preparing text for translation](https://developer.apple.com/documentation/xcode/preparing-your-apps-text-for-translation)); the `copywriting` skill. Aligns with [app-store-metadata.md](../release/app-store-metadata.md) (listing copy) and [string-catalog-symbols] (the identifier-key mechanism).
+> **Grounded in:** Apple HIG [Writing](https://developer.apple.com/design/human-interface-guidelines/writing) and [Buttons](https://developer.apple.com/design/human-interface-guidelines/buttons); Apple [Localization](https://developer.apple.com/documentation/xcode/localization) (esp. [Preparing text for translation](https://developer.apple.com/documentation/xcode/preparing-your-apps-text-for-translation)); the `copywriting` skill. Aligns with [app-store-metadata.md](../../apps/ios/LinkClean/docs/release/app-store-metadata.md) (listing copy) and [string-catalog-symbols] (the identifier-key mechanism).
 
 ---
 

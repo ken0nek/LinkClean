@@ -2,7 +2,7 @@
 
 > **Status: proposed — 2026-06-13.** The execution-level content + information-architecture plan behind the SEO/LLMO pillar of [growth-marketing.md](growth-marketing.md) §2–§3. *What pages to build, in what structure, targeting which searches, and in what order.*
 > **Scope:** the owned content site at **`linkclean.app`** (domain decision in growth-marketing §10) — its architecture, repeatable content templates, the full content map, internal-linking/funnel design, schema, and a build order. Not the App Store listing (that's ASO, growth-marketing §1) or the LP design (growth-marketing §5).
-> **Builds on:** [growth-marketing.md](growth-marketing.md) (§2 SEO, §3 LLMO), [competitor-clean-links.md](competitor-clean-links.md) (Clean Links already runs guide + compare pages — match and out-depth them), the literal-tracker keywords already in [app-store-metadata.md](../release/app-store-metadata.md).
+> **Builds on:** [growth-marketing.md](growth-marketing.md) (§2 SEO, §3 LLMO), [competitor-clean-links.md](competitor-clean-links.md) (Clean Links already runs guide + compare pages — match and out-depth them), the literal-tracker keywords already in [app-store-metadata.md](../../apps/ios/LinkClean/docs/release/app-store-metadata.md).
 > **Accuracy note:** content briefs below give a one-line best-understanding of each parameter; **anything tagged ⚠️verify must be fact-checked (and ideally cited) before publishing** — a privacy authority that gets a parameter wrong loses the trust that is the whole point. Run the `deep-research` skill per uncertain piece.
 
 ---

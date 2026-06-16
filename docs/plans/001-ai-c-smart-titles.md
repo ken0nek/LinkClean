@@ -3,14 +3,14 @@
 > **Executor instructions**: Follow this plan step by step. Run every verification
 > command and confirm the expected result before moving on. If anything in "STOP
 > conditions" occurs, stop and report — do not improvise. When done, update this
-> plan's status row in `plans/README.md`.
+> plan's status row in `docs/plans/README.md`.
 >
 > **Drift check (run first)**:
 > `git diff --stat 685aff6..HEAD -- LinkClean/Shared/Services/ParameterAdvisor.swift LinkClean/Features/History LinkCleanKit/Sources/LinkCleanCore/MarkdownFormatter.swift`
 > If any in-scope file changed since `685aff6`, compare the "Current state"
 > excerpts against the live code before proceeding; on a mismatch, STOP.
 >
-> **Read `plans/SEED.md` first** — the eight standing LinkClean decisions. This
+> **Read `docs/plans/SEED.md` first** — the eight standing LinkClean decisions. This
 > plan records only the ai-C-specific answers and implementation; "SEED §N"
 > points there for the shared rationale.
 
@@ -292,7 +292,7 @@ ALL must hold:
 - [ ] `grep -rn "import FoundationModels" LinkCleanKit/Sources/LinkCleanExtensionUI LinkCleanKit/Sources/LinkCleanIntents` → **no matches** (FM stayed out of the extensions).
 - [ ] New `TitleRefinerTests` + extended `HistoryViewModelTests` exist and assert the Pro-vs-free path.
 - [ ] No files outside the in-scope list are modified (`git status`).
-- [ ] `plans/README.md` status row for 001 updated.
+- [ ] `docs/plans/README.md` status row for 001 updated.
 
 ## STOP conditions
 

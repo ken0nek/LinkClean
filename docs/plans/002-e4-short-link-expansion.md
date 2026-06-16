@@ -3,14 +3,14 @@
 > **Executor instructions**: Follow this plan step by step. Run every verification
 > command and confirm the expected result before moving on. If anything in "STOP
 > conditions" occurs, stop and report — do not improvise. When done, update this
-> plan's status row in `plans/README.md`.
+> plan's status row in `docs/plans/README.md`.
 >
 > **Drift check (run first)**:
 > `git diff --stat 685aff6..HEAD -- LinkCleanKit/Sources/LinkCleanData/CleaningService.swift LinkCleanKit/Sources/LinkCleanData/SettingsStore.swift LinkCleanKit/Sources/LinkCleanCore/URLCleaner.swift`
 > If any in-scope file changed since `685aff6`, compare the "Current state"
 > excerpts against the live code before proceeding; on a mismatch, STOP.
 >
-> **Read `plans/SEED.md` first** — the eight standing LinkClean decisions. This
+> **Read `docs/plans/SEED.md` first** — the eight standing LinkClean decisions. This
 > plan records only the E4-specific answers and implementation; "SEED §N" points
 > there for the shared rationale.
 
@@ -255,7 +255,7 @@ ALL must hold:
 - [ ] `grep -rn "URLSession\|\.resolve(" LinkCleanKit/Sources/LinkCleanCore` → no network in Core.
 - [ ] Resolver is **not** injected into any extension `DefaultCleaningService`.
 - [ ] No files outside the in-scope list are modified (`git status`).
-- [ ] `plans/README.md` status row for 002 updated.
+- [ ] `docs/plans/README.md` status row for 002 updated.
 
 ## STOP conditions
 

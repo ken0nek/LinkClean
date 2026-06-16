@@ -5,7 +5,7 @@ versions ([SemVer](https://semver.org/)); the format follows
 [Keep a Changelog](https://keepachangelog.com/). User-facing store copy lives in
 `fastlane/metadata/en-US/release_notes.txt`, product-decision rationale in
 [ARCHITECTURE.md](ARCHITECTURE.md), and what's next in
-[docs/ROADMAP.md](docs/ROADMAP.md).
+[docs/ROADMAP.md](../../../docs/ROADMAP.md).
 
 ## [1.1.0] — Submitted 2026-06-16 (awaiting App Store review)
 

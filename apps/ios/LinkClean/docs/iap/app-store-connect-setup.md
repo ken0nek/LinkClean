@@ -1,6 +1,6 @@
 # LinkClean Pro — App Store Connect setup (hand-off)
 
-> What **Ken** must do in App Store Connect (and on a device) to make the LinkClean Pro in-app purchase real. Everything on the **code** side is done and verified locally — see `../plans/iap-implementation-plan.md`. There is **no RevenueCat** and **no server**: this is a single StoreKit 2 non-consumable.
+> What **Ken** must do in App Store Connect (and on a device) to make the LinkClean Pro in-app purchase real. Everything on the **code** side is done and verified locally — see `../../../../docs/plans/iap-implementation-plan.md`. There is **no RevenueCat** and **no server**: this is a single StoreKit 2 non-consumable.
 > Modelled on Whyzard's IAP go-live runbook, trimmed to a one-product, no-server, no-subscription app.
 >
 > **Status (Jun 10, 2026):** the 1.0.0 (8) submission was withdrawn before entering review, so the IAP ships in the **first public release — 1.0.0 (10)**. There is no separate 1.1 release; the ASC version record already reads 1.0.0 and needs no edit.

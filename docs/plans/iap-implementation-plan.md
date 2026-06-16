@@ -108,7 +108,7 @@ Deliberately not done: any server-side forwarding (no server) and any user-grain
 
 ## App Store Connect setup
 
-The one thing that requires the ASC UI (no RevenueCat dashboard, no fastlane IAP management): create the non-consumable, pricing, Family Sharing, the IAP review screenshot, and agreements. See **`../iap/app-store-connect-setup.md`** for the hand-off checklist.
+The one thing that requires the ASC UI (no RevenueCat dashboard, no fastlane IAP management): create the non-consumable, pricing, Family Sharing, the IAP review screenshot, and agreements. See **`../../apps/ios/LinkClean/docs/iap/app-store-connect-setup.md`** for the hand-off checklist.
 
 ## Deferred / not done
 

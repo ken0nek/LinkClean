@@ -2,7 +2,7 @@
 
 > **Status: proposed — 2026-06-13.** The go-to-market / demand-generation layer: **how people discover, choose, and recommend LinkClean** across ASO, SEO, LLMO, paid, the landing page, and the "wow" features that market themselves. Complements — does not restate — the product-growth levers in [growth-roadmap.md](../product/growth-roadmap.md) (engine/surfaces/visible-value/markets) and the measurement layer in [kpis.md](kpis.md).
 > **Scope:** acquisition + conversion + word-of-mouth. The *product* roadmap, *pricing*, and *what-we-measure* live in their own docs and are referenced, not duplicated.
-> **Builds on:** [iap-strategy.md](iap-strategy.md) §1 (positioning), [competitor-clean-links.md](competitor-clean-links.md) (the competitive read), [growth-roadmap.md](../product/growth-roadmap.md) §5/§7 (visible value + markets), [kpis.md](kpis.md) §0–§17 (funnel + north star), [app-store-metadata.md](../release/app-store-metadata.md) (current ASO copy).
+> **Builds on:** [iap-strategy.md](iap-strategy.md) §1 (positioning), [competitor-clean-links.md](competitor-clean-links.md) (the competitive read), [growth-roadmap.md](../product/growth-roadmap.md) §5/§7 (visible value + markets), [kpis.md](kpis.md) §0–§17 (funnel + north star), [app-store-metadata.md](../../apps/ios/LinkClean/docs/release/app-store-metadata.md) (current ASO copy).
 > **Frame:** indie / bootstrapped / privacy-absolute. The brand forbids the usual growth tech (no ad SDKs, no pixel retargeting, no data resale) — so the engine is **organic-compounding first** (ASO · SEO · LLMO · community), with **paid as a measured accelerant** only once conversion is proven. Cost ≈ 0 (kpis §2), so every channel is judged on **cost-per-Pro-conversion**, not cost-per-install.
 
 ---
@@ -27,7 +27,7 @@
 
 ## 1. ASO — the primary acquisition channel
 
-For an indie iOS app, ASO is the highest-leverage, lowest-cost, highest-intent channel — searchers in the App Store already want a cleaner. **Current copy** ([app-store-metadata.md](../release/app-store-metadata.md)): name **`LinkClean – URL Cleaner`**, subtitle **"Remove trackers from links"**, keywords `utm,fbclid,gclid,privacy,tracking,share,markdown,copy,paste,parameter,query,redirect,utm_source`, categories **Utilities / Productivity**.
+For an indie iOS app, ASO is the highest-leverage, lowest-cost, highest-intent channel — searchers in the App Store already want a cleaner. **Current copy** ([app-store-metadata.md](../../apps/ios/LinkClean/docs/release/app-store-metadata.md)): name **`LinkClean – URL Cleaner`**, subtitle **"Remove trackers from links"**, keywords `utm,fbclid,gclid,privacy,tracking,share,markdown,copy,paste,parameter,query,redirect,utm_source`, categories **Utilities / Productivity**.
 
 ### 1.1 Keyword strategy — target the long tail, not the head
 Don't fight Clean Links for the head term "url cleaner." Own the clusters they *don't* serve and the high-intent literals:
