@@ -122,9 +122,9 @@ struct ShareCardView: View {
     // MARK: - Proof row
 
     private var proofRow: some View {
-        (Text(.shareCardProofLinks(data.cleans))
-            + Text(verbatim: "   ·   ")
-            + Text(.shareCardProofCategories(data.categoryCount)))
+        let links = String(localized: .shareCardProofLinks(data.cleans))
+        let categories = String(localized: .shareCardProofCategories(data.categoryCount))
+        return Text(verbatim: "\(links)   ·   \(categories)")
             .font(.system(size: 16, weight: .medium, design: .rounded))
             .foregroundStyle(.white.opacity(0.9))
     }
@@ -184,13 +184,12 @@ struct ShareCardView: View {
     }
 
     /// The top category titles joined with a middot — built as one `Text` so the
-    /// localized kind titles compose (`Text + Text`).
+    /// localized kind titles render as a single run for `ImageRenderer`.
     private var labelsText: Text {
-        data.topCategories.enumerated().reduce(Text(verbatim: "")) { accumulated, pair in
-            let (index, segment) = pair
-            let title = parameterKindTitle(segment.id)
-            return index == 0 ? title : accumulated + Text(verbatim: "  ·  ") + title
-        }
+        let joined = data.topCategories
+            .map { parameterKindTitleString($0.id) }
+            .joined(separator: "  ·  ")
+        return Text(verbatim: joined)
     }
 
     private static func segmentOpacity(_ index: Int) -> Double {
