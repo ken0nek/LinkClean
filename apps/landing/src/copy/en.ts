@@ -126,8 +126,8 @@ export const en: Copy = {
   },
   trackersCta: {
     h2: "What's in a tracking link?",
-    body: "Each parameter has a story: who put it there, what it leaks, why it's safe to remove. We keep a glossary of every parameter LinkClean strips by default — start with utm_source, fbclid, gclid.",
-    linkLabel: "Browse the trackers glossary",
+    body: "Each parameter has a story: who put it there, what it leaks (or what it actually does), why it's safe to remove. Our glossary covers every parameter LinkClean strips by default — utm_source, fbclid, gclid, and more — plus functional ones like hl that everyone asks about.",
+    linkLabel: "Browse the glossary",
   },
   faqSection: {
     h2: "Frequently asked.",

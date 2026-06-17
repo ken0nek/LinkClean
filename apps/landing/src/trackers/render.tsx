@@ -6,6 +6,7 @@ import {
   SITE_NAME,
 } from "../brand";
 import { LOCALES, type Locale, localePath } from "../i18n/locales";
+import { inline } from "../markdown";
 import { Layout } from "../pageLayout";
 import { trackersChrome } from "./chrome";
 import {
@@ -105,6 +106,8 @@ export function renderTrackerSpoke(
     .map((slug) => spokeBySlug(slug))
     .filter((s): s is TrackerSpoke => !!s && !!s.content[locale]);
 
+  const isFunctional = spoke.nature === "functional";
+
   const structuredData = JSON.stringify([
     {
       "@context": "https://schema.org",
@@ -154,13 +157,12 @@ export function renderTrackerSpoke(
           </h1>
           <p class="sub">
             {chrome.kindLabel[spoke.kind]} · {spoke.vendor}
+            {isFunctional ? ` · ${chrome.functionalTag}` : ""}
           </p>
 
           <aside class="tldr">
             <span class="label">{chrome.tldrLabel}</span>
-            <p>
-              <strong>{content.tldr}</strong>
-            </p>
+            <p>{inline(content.tldr)}</p>
           </aside>
 
           <div class="prose">
@@ -168,25 +170,33 @@ export function renderTrackerSpoke(
               <section key={s.heading}>
                 <h2>{s.heading}</h2>
                 {s.paragraphs.map((p) => (
-                  <p key={p}>{p}</p>
+                  <p key={p}>{inline(p)}</p>
                 ))}
               </section>
             ))}
           </div>
 
-          <article class="example">
-            <span class="label">{chrome.exampleDirtyLabel}</span>
-            <div class="url-line dirty">{content.exampleDirty}</div>
-            <span class="label">{chrome.exampleCleanLabel}</span>
-            <div class="url-line clean">{content.exampleClean}</div>
-          </article>
+          {isFunctional ? (
+            <article class="example">
+              <span class="label">{chrome.exampleFunctionalLabel}</span>
+              <div class="url-line clean">{content.exampleDirty}</div>
+              <p class="note">{chrome.preservedNote}</p>
+            </article>
+          ) : (
+            <article class="example">
+              <span class="label">{chrome.exampleDirtyLabel}</span>
+              <div class="url-line dirty">{content.exampleDirty}</div>
+              <span class="label">{chrome.exampleCleanLabel}</span>
+              <div class="url-line clean">{content.exampleClean}</div>
+            </article>
+          )}
 
           <section class="prose">
             <h2>{chrome.faqHeading}</h2>
             {content.faq.map(({ q, a }) => (
               <div key={q} class="faq-item">
                 <h3>{q}</h3>
-                <p>{a}</p>
+                <p>{inline(a)}</p>
               </div>
             ))}
           </section>

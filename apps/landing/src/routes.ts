@@ -1,7 +1,7 @@
 import { LAST_UPDATED } from "./brand";
 import { GUIDES } from "./guides/data";
-import { renderGuide } from "./guides/render";
-import { guidePath } from "./guides/paths";
+import { renderGuide, renderGuidesHub } from "./guides/render";
+import { guidePath, guidesIndexPath } from "./guides/paths";
 import {
   DEFAULT_LOCALE,
   LOCALE_LIST,
@@ -9,8 +9,8 @@ import {
   localePath,
 } from "./i18n/locales";
 import { LEARN_ARTICLES } from "./learn/data";
-import { renderLearnArticle } from "./learn/render";
-import { learnPath } from "./learn/paths";
+import { renderLearnArticle, renderLearnHub } from "./learn/render";
+import { learnIndexPath, learnPath } from "./learn/paths";
 import { renderPage } from "./page";
 import { TRACKERS } from "./trackers/data";
 import { renderTrackerSpoke, renderTrackersHub } from "./trackers/render";
@@ -93,6 +93,21 @@ export function buildRoutes(): ReadonlyArray<RouteEntry> {
     }
   }
 
+  // ── Guides hub (locales with ≥1 guide) ───────────────────────
+  for (const locale of LOCALE_LIST.map((l) => l.locale)) {
+    if (!GUIDES.some((g) => g.content[locale])) continue;
+    routes.push({
+      path: guidesIndexPath(locale),
+      locale,
+      render: () => renderGuidesHub(locale),
+      localesPresent: LOCALE_LIST.map((l) => l.locale).filter((l) =>
+        GUIDES.some((g) => g.content[l]),
+      ),
+      pathFor: (l) => guidesIndexPath(l),
+      priority: 0.9,
+    });
+  }
+
   // ── Guides ───────────────────────────────────────────────────
   for (const guide of GUIDES) {
     const present = LOCALE_LIST.map((l) => l.locale).filter(
@@ -108,6 +123,21 @@ export function buildRoutes(): ReadonlyArray<RouteEntry> {
         priority: 0.7,
       });
     }
+  }
+
+  // ── Learn hub (locales with ≥1 article) ──────────────────────
+  for (const locale of LOCALE_LIST.map((l) => l.locale)) {
+    if (!LEARN_ARTICLES.some((a) => a.content[locale])) continue;
+    routes.push({
+      path: learnIndexPath(locale),
+      locale,
+      render: () => renderLearnHub(locale),
+      localesPresent: LOCALE_LIST.map((l) => l.locale).filter((l) =>
+        LEARN_ARTICLES.some((a) => a.content[l]),
+      ),
+      pathFor: (l) => learnIndexPath(l),
+      priority: 0.9,
+    });
   }
 
   // ── Learn ────────────────────────────────────────────────────

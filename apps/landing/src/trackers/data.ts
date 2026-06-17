@@ -1,6 +1,6 @@
 import type { TrackerSpoke } from "./types";
 
-/** Wave-1 tracker spokes. Each spoke is structured to read as a self-contained
+/** Tracker glossary spokes. Each spoke is structured to read as a self-contained
  *  explainer (TL;DR + sections + example + FAQ + related), so SEO + LLMO can
  *  cite a single page for one parameter. Cross-link via `related` slugs. */
 export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
@@ -10,7 +10,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     param: "utm_source",
     kind: "utm",
     vendor: "Google Analytics (originally Urchin)",
-    related: ["fbclid", "gclid"],
+    related: ["utm-medium", "utm-campaign", "fbclid", "gclid"],
     content: {
       en: {
         title:
@@ -84,13 +84,129 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     },
   },
 
+  // ── utm_medium ───────────────────────────────────────────────
+  {
+    slug: "utm-medium",
+    param: "utm_medium",
+    kind: "utm",
+    vendor: "Google Analytics (originally Urchin)",
+    related: ["utm-source", "utm-campaign", "fbclid"],
+    content: {
+      en: {
+        title: "utm_medium — what it names and why it's safe to strip · LinkClean",
+        description:
+          "utm_medium names the marketing channel a click came through — email, social, cpc. It pairs with utm_source on every Google Analytics campaign link. Strip it before sharing.",
+        tldr: "utm_medium names the marketing **channel** — “email”, “social”, “cpc” (paid search), “organic”. Pairs with utm_source to answer “which channel?”. Removing it never breaks the link.",
+        sections: [
+          {
+            heading: "What utm_medium adds on top of utm_source",
+            paragraphs: [
+              "utm_source names *where* the click came from (the specific publisher, list, or vendor); utm_medium names *how* — the channel class. Together they answer the analyst's first question: “did this campaign land via email, via social, via paid search, or via something else?”.",
+              "Standard utm_medium values are conventional but not enforced: email, social, cpc (cost-per-click paid search), display, affiliate, organic, referral. The values are whatever the publisher decides; Google Analytics treats them as opaque strings.",
+            ],
+          },
+          {
+            heading: "What it leaks when you forward the link",
+            paragraphs: [
+              "Same blast radius as utm_source. Forwarding a link with utm_medium=email attached tells every analytics tool downstream that the click came in via email — even if your friend clicked it from a chat app. The publisher's report counts your forward as another email-channel click.",
+              "Not personally identifying on its own. Like utm_source, utm_medium describes the *channel*, not the person. Still, the privacy-safe default is to forward the destination, not the marketing metadata.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "utm_medium ships default-on in LinkClean alongside the rest of the utm_* family. Stripped on every host; no toggle, no per-site exception. Like the other utm_* tags, it's vendor-specific enough that a legitimate URL never uses it for anything but Google Analytics attribution.",
+            ],
+          },
+        ],
+        exampleDirty:
+          "https://example.com/article?utm_source=twitter&utm_medium=social&utm_campaign=spring-launch",
+        exampleClean: "https://example.com/article",
+        faq: [
+          {
+            q: "What's the difference between utm_source and utm_medium?",
+            a: "utm_source is the specific origin (“newsletter”, “acme-blog”, “twitter”); utm_medium is the channel class (“email”, “social”, “referral”). One says “who”, the other says “how”.",
+          },
+          {
+            q: "Does removing utm_medium break the link?",
+            a: "No. Like the rest of the utm_* family, the destination page never reads it — only analytics scripts running on the page after it loads.",
+          },
+          {
+            q: "Are there standard values for utm_medium?",
+            a: "By convention: email, social, cpc, display, affiliate, organic, referral. Google Analytics treats them as opaque strings, so publishers can use anything they like — which is also why the values you see in the wild are a mess.",
+          },
+          {
+            q: "Why strip utm_medium if it doesn't identify me?",
+            a: "Because it broadcasts marketing metadata your sender embedded for their own analytics — it shouldn't ride along when you share the link onward. Same reasoning as stripping utm_source.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── utm_campaign ─────────────────────────────────────────────
+  {
+    slug: "utm-campaign",
+    param: "utm_campaign",
+    kind: "utm",
+    vendor: "Google Analytics (originally Urchin)",
+    related: ["utm-source", "utm-medium", "fbclid"],
+    content: {
+      en: {
+        title: "utm_campaign — what publishers learn from it · LinkClean",
+        description:
+          "utm_campaign labels the marketing campaign — “spring-launch”, “black-friday-2026”. It buckets clicks inside Google Analytics so publishers can compare campaigns. Safe to strip.",
+        tldr: "utm_campaign labels the marketing campaign — “spring-launch”, “black-friday-2026”. It buckets clicks inside Google Analytics so the publisher can compare campaigns. The page renders identically without it.",
+        sections: [
+          {
+            heading: "What utm_campaign actually does",
+            paragraphs: [
+              "Every utm_source + utm_medium combination can roll up under a named campaign. utm_campaign is that label — a free-form string the publisher picks, usually descriptive enough for a human to read in an analytics dashboard. “summer-sale-2026”, “onboarding-week-2”, “launch-day-tweet”.",
+              "Google Analytics groups all clicks sharing the same utm_campaign value into one bucket, regardless of source or medium. That bucket is how marketers answer “how did this campaign do?” across email + social + paid search at once.",
+            ],
+          },
+          {
+            heading: "What it leaks when you forward",
+            paragraphs: [
+              "utm_campaign tells everyone downstream which specific campaign is being measured — and sometimes the value is more revealing than the publisher intended. Internal campaign names sometimes telegraph product launches, A/B test cohorts, or strategy details the publisher would not voluntarily share with the public. Forwarding the URL with utm_campaign attached passes that label forward.",
+              "Not personally identifying. The risk is signaling-to-third-parties, not user-identification.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "utm_campaign ships default-on with the rest of the utm_* family — stripped on every host, no exceptions. The catalog also covers the less-common utm_term (paid-keyword), utm_content (creative variant), utm_id (newer Google Analytics 4 campaign ID), utm_source_platform, and a few others.",
+            ],
+          },
+        ],
+        exampleDirty:
+          "https://example.com/landing?utm_source=newsletter&utm_medium=email&utm_campaign=fall-launch-2026&utm_content=hero-cta",
+        exampleClean: "https://example.com/landing",
+        faq: [
+          {
+            q: "Can a utm_campaign value leak business info?",
+            a: "Sometimes. An internal name like “q3-pricing-test” or “competitor-x-comparison” telegraphs the publisher's marketing strategy when forwarded — usually unintentionally. Stripping the tag avoids that signal travel.",
+          },
+          {
+            q: "What about utm_term and utm_content?",
+            a: "utm_term names a paid-search keyword (rare on shared links — usually appears in paid-ad URLs). utm_content names a creative variant (which ad creative was clicked, which hero CTA on the page). LinkClean strips both.",
+          },
+          {
+            q: "Does removing utm_campaign break the link?",
+            a: "No. The page never reads it. Strip and refresh — same content loads.",
+          },
+        ],
+      },
+    },
+  },
+
   // ── fbclid ───────────────────────────────────────────────────
   {
     slug: "fbclid",
     param: "fbclid",
     kind: "ads",
     vendor: "Meta (Facebook)",
-    related: ["gclid", "utm-source"],
+    related: ["gclid", "msclkid", "ttclid", "utm-source"],
     content: {
       en: {
         title:
@@ -158,7 +274,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     param: "gclid",
     kind: "ads",
     vendor: "Google Ads",
-    related: ["fbclid", "utm-source"],
+    related: ["fbclid", "msclkid", "ttclid", "utm-source"],
     content: {
       en: {
         title:
@@ -214,6 +330,263 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
           {
             q: "Why also strip gbraid and wbraid?",
             a: "They're the iOS-era replacements Google rolled out after ATT and Safari ITP closed the loopholes the classic gclid model relied on. Same job, same default-on treatment in LinkClean.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── msclkid ──────────────────────────────────────────────────
+  {
+    slug: "msclkid",
+    param: "msclkid",
+    kind: "ads",
+    vendor: "Microsoft Advertising (Bing Ads)",
+    related: ["gclid", "fbclid", "ttclid"],
+    content: {
+      en: {
+        title: "msclkid — Microsoft Ads' click ID, explained · LinkClean",
+        description:
+          "msclkid is the Microsoft Click ID — Bing/Microsoft Ads' per-click identifier, the equivalent of Google's gclid. LinkClean strips it by default.",
+        tldr: "msclkid is the Microsoft Click ID — Bing/Microsoft Ads' equivalent of gclid. It ties the click to the ad-account that paid for it. Strip it before sharing.",
+        sections: [
+          {
+            heading: "What msclkid does",
+            paragraphs: [
+              "Click any ad on Bing search, Microsoft's content network, or LinkedIn Sponsored Content, and Microsoft's ad system appends ?msclkid=<opaque token> to the destination URL. The token encodes the advertiser account, the campaign, the ad group, and the click — same job as gclid for Google Ads.",
+              "On the destination, the Microsoft UET tag (the Microsoft equivalent of Meta Pixel) reads msclkid and reports the conversion back to Microsoft Advertising. That's how Bing Ads tracks which ad delivered the customer.",
+            ],
+          },
+          {
+            heading: "Why it shows up more often than you'd expect",
+            paragraphs: [
+              "Bing's share of US search is small (~6%) but its ads syndicate to Yahoo, DuckDuckGo (for some queries), and parts of Microsoft's content network. So msclkid lands on outbound URLs from a broader surface than just Bing.com itself.",
+              "It's also on ad-driven LinkedIn clicks. LinkedIn's ad platform shares plumbing with Microsoft Advertising, so Sponsored Content clicks frequently carry msclkid alongside LinkedIn's own rcm parameter.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "msclkid is in LinkClean's default ads catalog alongside the other vendor-specific click IDs (gclid, gbraid, wbraid, fbclid, ttclid, yclid). All stripped on every host — these names don't legitimately appear as functional keys anywhere.",
+            ],
+          },
+        ],
+        exampleDirty:
+          "https://example.com/landing?msclkid=8e2a1b3c4d5f6789a0b1c2d3e4f5a6b7",
+        exampleClean: "https://example.com/landing",
+        faq: [
+          {
+            q: "Will removing msclkid break the link?",
+            a: "No. The page loads identically. msclkid is only read by Microsoft's UET conversion-tracking script (if it's installed); the destination page server doesn't use it for anything.",
+          },
+          {
+            q: "Is msclkid the same as gclid?",
+            a: "Same role on a different ad network. gclid is Google Ads', msclkid is Microsoft Advertising's. LinkClean strips both by default.",
+          },
+          {
+            q: "Does msclkid affect prices or offers I see?",
+            a: "Not in any common case. It's an attribution token for the advertiser's bookkeeping, not a coupon or merchant-side session ID.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── ttclid ───────────────────────────────────────────────────
+  {
+    slug: "ttclid",
+    param: "ttclid",
+    kind: "ads",
+    vendor: "TikTok Ads",
+    related: ["fbclid", "gclid", "msclkid"],
+    content: {
+      en: {
+        title: "ttclid — TikTok's click ID, explained · LinkClean",
+        description:
+          "ttclid is TikTok Ads' per-click identifier — added to outbound links from TikTok ads. The TikTok equivalent of fbclid. LinkClean strips it by default.",
+        tldr: "ttclid is TikTok Ads' per-click identifier — added to outbound links from TikTok ads to credit ad spend. Forwarding it carries TikTok's attribution token into someone else's browser. Strip it.",
+        sections: [
+          {
+            heading: "What ttclid does",
+            paragraphs: [
+              "When you click a link inside TikTok or an outbound TikTok Ad, TikTok appends ?ttclid=<opaque token> to the destination URL. The token ties that click back to the ad impression, the advertiser, and (where TikTok still has a cookie / IDFA) your TikTok identity.",
+              "On the destination, the TikTok Pixel (or the server-side Events API) reads ttclid and reports the click back to TikTok for conversion attribution. Same architecture as Meta Pixel + fbclid.",
+            ],
+          },
+          {
+            heading: "Plus _ttp",
+            paragraphs: [
+              "TikTok also drops a _ttp parameter alongside ttclid in some flows — it mirrors a cookie the TikTok Pixel reads to bridge browsers that don't accept third-party cookies. LinkClean strips _ttp too.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "ttclid and _ttp both ship default-on in LinkClean's ads catalog. Same pipeline as fbclid, gclid, msclkid, yclid — vendor-specific tokens with no legitimate non-tracking use anywhere on the web.",
+            ],
+          },
+        ],
+        exampleDirty:
+          "https://example.com/product?ttclid=E.C.P.aabbccddeeff112233445566778899",
+        exampleClean: "https://example.com/product",
+        faq: [
+          {
+            q: "Does removing ttclid break the link?",
+            a: "No. The destination page never reads it — only the TikTok Pixel does, and that's TikTok's bookkeeping, not yours.",
+          },
+          {
+            q: "Is ttclid personal data?",
+            a: "It can be joined back to your TikTok session on TikTok's side, so for them, yes — they know which click it was. The URL itself doesn't name you.",
+          },
+          {
+            q: "What about _ttp?",
+            a: "_ttp is TikTok's cookie-mirroring URL parameter — it carries the Pixel's first-party cookie ID across browsers that block third-party cookies. LinkClean strips it too.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── hl (functional — preserved, not stripped) ────────────────
+  {
+    slug: "hl",
+    param: "hl",
+    kind: "regional",
+    nature: "functional",
+    vendor: "Google (Search, YouTube, Maps, Translate, …)",
+    related: ["utm-source", "fbclid"],
+    content: {
+      en: {
+        title: "hl — what Google's host-language parameter does · LinkClean",
+        description:
+          "hl is Google's host-language parameter — it sets the interface language on Search, YouTube, Maps, and other Google services. It's functional, not tracking; LinkClean preserves it.",
+        tldr: "`hl` stands for “host language” — it tells Google services which language to render the interface in (`hl=ja` → Japanese UI, `hl=fr` → French). **It's functional, not tracking.** LinkClean preserves it on every host. The page is in this glossary because everyone asks what it is, not because we strip it.",
+        sections: [
+          {
+            heading: "What hl actually does",
+            paragraphs: [
+              "hl is short for “host language” (sometimes glossed “human language”). When you visit a Google service — Search, YouTube, Maps, Translate, Image Search — the `hl=` parameter on the URL tells Google which language to render the interface in. `hl=ja` gives you Japanese UI; `hl=fr` gives you French; `hl=en` gives you English; `hl=zh-CN` Simplified Chinese, etc. The values are IETF BCP 47 language tags (close cousins of HTML's `lang` attribute).",
+              "It's the URL-equivalent of clicking the language picker in the footer of a Google page. Google sets it when you change languages, and includes it in outbound share links so the recipient sees the same UI language you did. If you don't include hl, Google falls back to your browser's Accept-Language header (or guesses from your IP region).",
+            ],
+          },
+          {
+            heading: "Where you'll see it",
+            paragraphs: [
+              "Most commonly: Google Search share links (https://www.google.com/search?q=…&hl=…), YouTube video URLs (https://www.youtube.com/watch?v=…&hl=…), and Google Maps shares. Google's apps add it on Share; manual URL bar typing usually doesn't.",
+              "Some non-Google services also use `hl` as a language indicator since the convention is well-known. Wikipedia uses `uselang`; Wikimedia projects use `lang` or `setlang`; YouTube ALSO accepts `gl` (geolocation, see below).",
+            ],
+          },
+          {
+            heading: "Why it's NOT tracking",
+            paragraphs: [
+              "hl doesn't identify you, doesn't follow your click anywhere, and isn't tied to a cookie. It's a preference (“render this page in Japanese”) that Google passes along via the URL because some users share links across language preferences. Forwarding it doesn't leak anything about who you are.",
+              "Compare to utm_source: utm_source is marketing attribution metadata that exists only to credit a campaign — stripping it changes nothing about what the page shows the user. hl is the opposite — it shapes what the page shows. Strip it and the recipient gets whatever language Google decides for their browser, which may not be what you intended when you shared the link.",
+            ],
+          },
+          {
+            heading: "How LinkClean handles it (and the rest of the language/region family)",
+            paragraphs: [
+              "LinkClean preserves hl on every host. It's in the catalog's explicit exemption set — even on hosts where similar single- or two-letter parameter names (`t` on x.com, `s` on x.com) ARE trackers, `hl` is recognized as functional and never stripped.",
+              "Same treatment for the small family of language/region parameters that frequently come up next: `gl` (Google country/geolocation — picks results relevant to that country); `lang` and `language` (generic language indicators used by many sites); `setlang` or `uselang` (Wikipedia / Wikimedia projects). LinkClean documents them in the glossary because users ask, but never removes them.",
+            ],
+          },
+        ],
+        // For a functional spoke, exampleDirty is rendered as the “Example URL”
+        // and exampleClean is unused (the renderer skips it). Set both equal
+        // to be safe.
+        exampleDirty: "https://www.google.com/search?q=hello&hl=ja",
+        exampleClean: "https://www.google.com/search?q=hello&hl=ja",
+        faq: [
+          {
+            q: "What does hl stand for?",
+            a: "“Host language” — sometimes glossed “human language”. It's a Google convention dating back to the early Google Search interface: the language the host page should render in.",
+          },
+          {
+            q: "Is hl personal data?",
+            a: "No. It's a preference (which language to render) — the same value would be sent by anyone choosing that language. It doesn't identify you, doesn't connect to a cookie, doesn't follow your click.",
+          },
+          {
+            q: "Does LinkClean strip hl?",
+            a: "No. hl is in the explicit exemption list — even on hosts where similar single- or two-letter parameter names are trackers, hl is preserved.",
+          },
+          {
+            q: "What's the difference between hl and gl?",
+            a: "hl sets the interface language (“render the page in Japanese”); gl sets the geographic region (“return results relevant to Japan”). gl can change which results come back; hl just changes the UI text around them. Both are functional, not tracking — LinkClean preserves both.",
+          },
+          {
+            q: "Why do Google share links have hl on them?",
+            a: "Google's apps add it on Share so the recipient sees the same UI language. It's a convenience for cross-language sharing — if you're showing a Japanese friend a YouTube video and the URL preserves hl=ja, they get the same Japanese UI you had.",
+          },
+          {
+            q: "Can I add hl manually to a Google URL?",
+            a: "Yes. Append `?hl=<lang>` (or `&hl=<lang>` if other params already exist). Common values: hl=en, hl=ja, hl=fr, hl=de, hl=es, hl=zh-CN, hl=zh-TW. The full list is the IETF BCP 47 language-tag registry, but Google only renders UI for languages it supports.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── mc_eid ───────────────────────────────────────────────────
+  {
+    slug: "mc-eid",
+    param: "mc_eid",
+    kind: "email",
+    vendor: "Mailchimp",
+    related: ["utm-source", "fbclid"],
+    content: {
+      en: {
+        title: "mc_eid — Mailchimp's per-recipient email ID · LinkClean",
+        description:
+          "mc_eid is Mailchimp's email recipient identifier — a per-subscriber token added to outbound newsletter links. It's tied to your email address. LinkClean strips it by default.",
+        tldr: "mc_eid is Mailchimp's per-**recipient** identifier — a token tied to the specific email address the newsletter was sent to. Forwarding it tells Mailchimp that someone else opened your email. Of all the trackers LinkClean strips, this is the one that most directly leaks identity.",
+        sections: [
+          {
+            heading: "What mc_eid actually identifies",
+            paragraphs: [
+              "Mailchimp generates a unique mc_eid per subscriber per list — it's their internal “email ID”. When that subscriber clicks a link in a Mailchimp newsletter, mc_eid rides along on every outbound URL. Mailchimp's tracking pixel then ties the click to *the exact subscriber* it was sent to.",
+              "That's different from utm_source / fbclid / gclid. utm_source identifies the campaign; mc_eid identifies *the person*. It's the subscriber's surrogate identifier — a 1-to-1 token bound to an email address.",
+            ],
+          },
+          {
+            heading: "What forwarding mc_eid actually leaks",
+            paragraphs: [
+              "If you forward a Mailchimp newsletter link to a friend with mc_eid still attached and they click, Mailchimp records a click tied to *your* subscriber ID — from your friend's browser. Now Mailchimp has noise in your engagement profile (someone-other-than-you clicked “your” email), and on their side, they may be cookied or pixel-tagged in a way that joins back to your email-address record on Mailchimp's books.",
+              "Same shape applies to mc_cid (Mailchimp's campaign ID, which is less sensitive — names the campaign, not the recipient) and the older `_mc_*` family.",
+            ],
+          },
+          {
+            heading: "Why this is more aggressive than stripping utm tags",
+            paragraphs: [
+              "utm_source broadcasts marketing context. mc_eid is a per-person token. The harm model is different and stronger: forwarding mc_eid leaks a token that joins back to your email address, which is one short step away from your real-world identity.",
+              "LinkClean strips mc_eid as default-on, same as utm_source and fbclid — but if you're forwarding newsletter links a lot, this is the parameter that's most worth knowing about.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "mc_eid + mc_cid + mc_tc (Mailchimp's tap-target ID) all ship default-on in LinkClean's email-marketing catalog. Same pipeline as the ads catalog — stripped on every host. The Drip equivalent (__s), Klaviyo's _kx, and HubSpot's _hsenc / _hsmi are also in the email-marketing catalog by default or on opt-in.",
+            ],
+          },
+        ],
+        exampleDirty:
+          "https://example.com/article?utm_source=mailchimp&utm_medium=email&mc_cid=abc123def4&mc_eid=78fa90ce21",
+        exampleClean: "https://example.com/article",
+        faq: [
+          {
+            q: "Is mc_eid personal data?",
+            a: "It's tied to your email address on Mailchimp's side — a 1-to-1 token. From their perspective, yes; it identifies the subscriber the newsletter was sent to.",
+          },
+          {
+            q: "Will the article still load?",
+            a: "Yes. The destination site doesn't read mc_eid. Only Mailchimp's tracking pixel does, and that's their analytics — not part of the page.",
+          },
+          {
+            q: "Why is mc_eid worth stripping more than utm_source?",
+            a: "utm_source describes the campaign. mc_eid identifies the specific subscriber the email was sent to. The blast radius if you forward it is bigger.",
+          },
+          {
+            q: "Does LinkClean strip other newsletter trackers too?",
+            a: "Yes — mc_cid, mc_tc (Mailchimp), __s (Drip), _kx (Klaviyo), and HubSpot's _hsenc / _hsmi are in the default or opt-in catalogs depending on how vendor-specific the name is.",
           },
         ],
       },

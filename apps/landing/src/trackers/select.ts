@@ -2,7 +2,9 @@ import { LOCALE_LIST, type Locale, type LocaleConfig } from "../i18n/locales";
 import { TRACKERS } from "./data";
 import type { TrackerKind, TrackerSpoke } from "./types";
 
-/** Sort order for hub grouping — matches the iOS catalog's `sortOrder`. */
+/** Sort order for hub grouping. Mirrors the iOS catalog's `sortOrder` for the
+ *  tracker kinds; "regional" (functional, glossary-only) sorts last so the
+ *  preserved-parameter section sits below the stripped-parameter sections. */
 export const KIND_ORDER: ReadonlyArray<TrackerKind> = [
   "utm",
   "referral",
@@ -12,6 +14,7 @@ export const KIND_ORDER: ReadonlyArray<TrackerKind> = [
   "social",
   "affiliate",
   "session",
+  "regional",
 ];
 
 export function localesForSpoke(

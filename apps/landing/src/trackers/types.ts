@@ -2,7 +2,10 @@ import type { Locale } from "../i18n/locales";
 
 /** Category — mirrors the iOS `TrackingParameterKind.id` values
  *  (LinkCleanCore/TrackingParameters.swift): "utm", "referral", "ads",
- *  "analytics", "email", "social", "affiliate". Keep these IDs in sync. */
+ *  "analytics", "email", "social", "affiliate". Keep these IDs in sync.
+ *  `"regional"` is a glossary-only category for functional language/region
+ *  parameters (hl, gl, lang) — the iOS catalog never strips these, but the
+ *  glossary documents them because users ask about them. */
 export type TrackerKind =
   | "utm"
   | "referral"
@@ -11,7 +14,13 @@ export type TrackerKind =
   | "email"
   | "social"
   | "affiliate"
-  | "session";
+  | "session"
+  | "regional";
+
+/** Whether the parameter is something LinkClean strips ("tracker") or something
+ *  the glossary documents because users ask, but LinkClean preserves
+ *  ("functional"). Default is "tracker"; set "functional" on hl, gl, etc. */
+export type ParameterNature = "tracker" | "functional";
 
 export interface TrackerSection {
   heading: string;
@@ -50,6 +59,11 @@ export interface TrackerSpoke {
   param: string;
   /** Category for hub grouping — matches `TrackingParameterKind.id` on iOS. */
   kind: TrackerKind;
+  /** Tracker (LinkClean strips) vs functional (LinkClean preserves). Defaults
+   *  to "tracker"; set to "functional" for params like hl that users ask about
+   *  but LinkClean never removes. Drives the spoke template (the example block
+   *  swaps "before / after" labels for "example URL / preserved unchanged"). */
+  nature?: ParameterNature;
   /** Vendor / origin (e.g. "Google Analytics", "Meta", "Google Ads"). */
   vendor: string;
   /** Per-locale content. A locale absent here gets no page in that locale. */

@@ -17,10 +17,17 @@ export interface TrackersChrome {
   spokeTitleSuffix: string;
   /** TL;DR callout label above the bolded summary. */
   tldrLabel: string;
-  /** Example dirty-URL section label. */
+  /** Example dirty-URL section label (used on tracker spokes). */
   exampleDirtyLabel: string;
-  /** Example clean-URL section label. */
+  /** Example clean-URL section label (used on tracker spokes). */
   exampleCleanLabel: string;
+  /** Example label on a functional-parameter spoke (replaces "Looks like this"). */
+  exampleFunctionalLabel: string;
+  /** Caption rendered next to the example on a functional-parameter spoke
+   *  (where there's no dirty→clean transformation to show). */
+  preservedNote: string;
+  /** Inline tag rendered next to the param name on a functional spoke. */
+  functionalTag: string;
   /** Heading above the FAQ. */
   faqHeading: string;
   /** Heading above the "Related trackers" list. */
@@ -34,21 +41,24 @@ export interface TrackersChrome {
 }
 
 const en: TrackersChrome = {
-  hubTitle: "Tracking parameters glossary",
+  hubTitle: "URL parameters glossary",
   hubIntro:
-    "Every parameter LinkClean strips by default, with a one-line summary of what it leaks and where it came from. Tap one for the longer explanation.",
+    "Every tracking parameter LinkClean strips by default — plus a few functional ones (like hl) everyone wonders about. One-line summary per entry; tap for the long version.",
   hubMeta:
-    "Glossary of every tracking parameter LinkClean strips by default — utm_source, fbclid, gclid, and 80+ more — grouped by category with a one-line summary.",
-  trackersLabel: "Trackers",
-  spokeTitleSuffix: " — what it leaks and how to remove it",
+    "Glossary of every tracking parameter LinkClean strips by default — utm_source, fbclid, gclid, mc_eid, and more — plus functional URL parameters like hl that everyone asks about.",
+  trackersLabel: "Glossary",
+  spokeTitleSuffix: " — what it does, in one line",
   tldrLabel: "TL;DR",
   exampleDirtyLabel: "Looks like this in a URL",
   exampleCleanLabel: "After LinkClean",
+  exampleFunctionalLabel: "Example URL",
+  preservedNote: "LinkClean preserves this parameter — no change.",
+  functionalTag: "functional — preserved",
   faqHeading: "Frequently asked",
-  relatedHeading: "Related trackers",
-  ctaHeading: "Clean it on iPhone, in one tap.",
+  relatedHeading: "Related",
+  ctaHeading: "Clean tracking on iPhone, in one tap.",
   ctaBody:
-    "LinkClean strips this parameter — and 80+ others — from any link, from any app's share sheet. No account, on-device.",
+    "LinkClean strips ~80 vendor-specific tracking parameters from any link, from any app's share sheet — and preserves functional ones like hl, t (YouTube timestamp), and q (search). No account, on-device.",
   kindLabel: {
     utm: "UTM campaign tags",
     referral: "Referral & source",
@@ -58,6 +68,7 @@ const en: TrackersChrome = {
     social: "Social",
     affiliate: "Affiliate",
     session: "Session & misc",
+    regional: "Region & language (preserved)",
   },
 };
 

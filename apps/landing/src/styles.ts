@@ -380,8 +380,9 @@ export const css = `
     margin-bottom: var(--space-2xs);
     font-weight: 600;
   }
-  .tldr p { font-size: 1.05rem; line-height: 1.5; }
-  .tldr p strong { font-weight: 700; }
+  .tldr p { font-size: 1.05rem; line-height: 1.5; font-weight: 600; color: var(--color-ink); }
+  .tldr p strong { font-weight: 800; }
+  .tldr p code { background: oklch(98% 0.005 200 / 0.6); }
 
   /* Article prose blocks (used by trackers/guides/learn) */
   .prose { margin-top: var(--space-lg); max-width: 38rem; }
@@ -398,6 +399,62 @@ export const css = `
     background: var(--color-accent-soft);
     padding: 0.12em 0.35em;
     border-radius: 4px;
+  }
+
+  /* Reference tables inside long-form prose (e.g. parameter-value tables). */
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--space-md);
+    font-size: 0.95rem;
+  }
+  .ref-table caption {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+    margin-bottom: var(--space-xs);
+  }
+  .ref-table thead th {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .ref-table thead th:first-child { padding-left: 0; color: var(--color-accent); }
+  .ref-table tbody td {
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: 1px solid var(--color-rule);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .ref-table tbody td:first-child { padding-left: 0; }
+  .ref-table tbody td:first-child code {
+    font-weight: 600;
+    background: var(--color-accent-soft);
+  }
+  .ref-table tbody tr:last-child td { border-bottom: 0; }
+  @media (max-width: 600px) {
+    .ref-table thead { display: none; }
+    .ref-table, .ref-table tbody, .ref-table tbody tr { display: block; }
+    .ref-table tbody tr {
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--color-rule);
+    }
+    .ref-table tbody tr:last-child { border-bottom: 0; }
+    .ref-table tbody td {
+      display: block;
+      padding: 0;
+      border: 0;
+    }
+    .ref-table tbody td:first-child { margin-bottom: var(--space-2xs); }
   }
 
   /* Example (dirty → clean) on tracker spokes */

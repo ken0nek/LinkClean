@@ -178,6 +178,11 @@ export const Layout = ({
               />
               {SITE_NAME}
             </a>
+            <nav class="header-nav" aria-label="Main">
+              <a href={`${localePath(locale)}trackers/`}>Glossary</a>
+              <a href={`${localePath(locale)}guides/`}>Guides</a>
+              <a href={`${localePath(locale)}learn/`}>Learn</a>
+            </nav>
             {showPicker ? (
               <nav
                 class="header-nav"

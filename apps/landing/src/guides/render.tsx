@@ -1,7 +1,9 @@
 import { AUTHOR_NAME, AUTHOR_URL, LAST_UPDATED, SITE_NAME } from "../brand";
 import { LOCALE_LIST, LOCALES, type Locale, localePath } from "../i18n/locales";
+import { inline } from "../markdown";
 import { Layout } from "../pageLayout";
-import { guidePath, guideUrl } from "./paths";
+import { GUIDES } from "./data";
+import { guidePath, guideUrl, guidesIndexPath } from "./paths";
 import type { GuideArticle } from "./types";
 
 interface CrumbLink {
@@ -33,6 +35,111 @@ const Breadcrumb = ({ crumbs }: { crumbs: ReadonlyArray<CrumbLink> }) => (
   </nav>
 );
 
+// ── /guides/ index hub ────────────────────────────────────────
+export function renderGuidesHub(locale: Locale): string {
+  const config = LOCALES[locale];
+  const { copy } = config;
+  const guides = GUIDES.filter((g) => g.content[locale]);
+
+  const crumbs: CrumbLink[] = [
+    { label: SITE_NAME, href: localePath(locale) },
+    { label: "Guides" },
+  ];
+  const selfUrl = guideUrl(guidesIndexPath(locale));
+  const localesPresent = LOCALE_LIST.filter((l) =>
+    GUIDES.some((g) => g.content[l.locale]),
+  );
+
+  const structuredData = JSON.stringify([
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Guides",
+      description:
+        "Step-by-step how-tos for cleaning tracking parameters from links on iPhone — UTM, YouTube, Amazon, X (Twitter), and more.",
+      inLanguage: LOCALES[locale].htmlLang,
+      url: selfUrl,
+      dateModified: LAST_UPDATED,
+      hasPart: guides.map((g) => ({
+        "@type": "HowTo",
+        name: g.content[locale]?.title,
+        url: guideUrl(guidePath(locale, g.slug)),
+        description: g.content[locale]?.description,
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: crumbs.map((c, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: c.label,
+        item: c.href ? guideUrl(c.href) : selfUrl,
+      })),
+    },
+  ]).replace(/</g, "\\u003c");
+
+  return `<!DOCTYPE html>${(
+    <Layout
+      locale={locale}
+      title={`Guides — step-by-step on iPhone · ${SITE_NAME}`}
+      description="Step-by-step how-tos for cleaning tracking parameters from links on iPhone — UTM, YouTube, Amazon, X (Twitter), and more."
+      ogType="website"
+      structuredData={structuredData}
+      locales={localesPresent}
+      pathFor={(l) => guidesIndexPath(l)}
+    >
+      <section class="page-hero">
+        <div class="wrap">
+          <Breadcrumb crumbs={crumbs} />
+          <h1>Guides</h1>
+          <p class="sub">
+            Step-by-step how-tos for cleaning tracking parameters from links on
+            iPhone. Each guide is short — three or four steps and you're done.
+          </p>
+
+          <ul class="tracker-list">
+            {guides.map((g) => (
+              <li key={g.slug}>
+                <a href={guidePath(locale, g.slug)}>
+                  <span class="name">{g.content[locale]?.title}</span>
+                  <span class="desc">{g.content[locale]?.description}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <section class="page-cta">
+            <h2>Skip the steps — LinkClean does it.</h2>
+            <p>
+              LinkClean strips tracking parameters from any link in one tap,
+              from any app's share sheet. No account, on-device.
+            </p>
+            <div class="cta-row">
+              <a
+                class="cta-app-store"
+                href={copy.appStoreCampaign.replace(
+                  /([?&])ct=[^&]*/,
+                  "$1ct=landing-guides-hub",
+                )}
+                onclick="td && td('Landing.AppStoreTapped')"
+                rel="noopener"
+              >
+                <img
+                  src={copy.appStoreBadge.file}
+                  alt={copy.appStoreBadge.alt}
+                  width={copy.appStoreBadge.width}
+                  height={copy.appStoreBadge.height}
+                />
+              </a>
+            </div>
+          </section>
+        </div>
+      </section>
+    </Layout>
+  ).toString()}`;
+}
+
 export function renderGuide(locale: Locale, guide: GuideArticle): string {
   const content = guide.content[locale];
   if (!content) {
@@ -43,7 +150,7 @@ export function renderGuide(locale: Locale, guide: GuideArticle): string {
 
   const crumbs: CrumbLink[] = [
     { label: SITE_NAME, href: localePath(locale) },
-    { label: "Guides" },
+    { label: "Guides", href: guidesIndexPath(locale) },
     { label: content.title },
   ];
   const selfUrl = guideUrl(guidePath(locale, guide.slug));
@@ -97,15 +204,13 @@ export function renderGuide(locale: Locale, guide: GuideArticle): string {
 
           <aside class="tldr">
             <span class="label">TL;DR</span>
-            <p>
-              <strong>{content.tldr}</strong>
-            </p>
+            <p>{inline(content.tldr)}</p>
           </aside>
 
           {content.intro && content.intro.length > 0 ? (
             <div class="prose">
               {content.intro.map((p) => (
-                <p key={p}>{p}</p>
+                <p key={p}>{inline(p)}</p>
               ))}
             </div>
           ) : null}
@@ -114,7 +219,7 @@ export function renderGuide(locale: Locale, guide: GuideArticle): string {
             {content.steps.map((s) => (
               <li key={s.title}>
                 <h3>{s.title}</h3>
-                <p>{s.body}</p>
+                <p>{inline(s.body)}</p>
               </li>
             ))}
           </ol>
@@ -122,7 +227,7 @@ export function renderGuide(locale: Locale, guide: GuideArticle): string {
           {content.outro && content.outro.length > 0 ? (
             <div class="prose">
               {content.outro.map((p) => (
-                <p key={p}>{p}</p>
+                <p key={p}>{inline(p)}</p>
               ))}
             </div>
           ) : null}

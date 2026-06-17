@@ -1,6 +1,10 @@
 import { SITE_URL } from "../brand";
 import { type Locale, localePath } from "../i18n/locales";
 
+export function learnIndexPath(locale: Locale): string {
+  return `${localePath(locale)}learn/`;
+}
+
 export function learnPath(locale: Locale, slug: string): string {
   return `${localePath(locale)}learn/${slug}/`;
 }

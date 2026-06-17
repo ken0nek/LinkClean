@@ -1,8 +1,7 @@
 import type { GuideArticle } from "./types";
 
-/** Wave-1 how-to guides. Each authored as a Template-B HowTo: TL;DR, optional
- *  intro, ordered steps (each step gets rendered as an HowToStep in JSON-LD),
- *  optional outro, related links, App Store CTA. */
+/** How-to guides — Template-B HowTo: TL;DR, optional intro, ordered steps
+ *  (rendered as HowToStep in JSON-LD), optional outro, related links, App Store CTA. */
 export const GUIDES: ReadonlyArray<GuideArticle> = [
   // ── /guides/remove-utm-parameters ────────────────────────────
   {
@@ -42,6 +41,10 @@ export const GUIDES: ReadonlyArray<GuideArticle> = [
           {
             label: "What is utm_source, and why is it safe to remove?",
             href: "/trackers/utm-source/",
+          },
+          {
+            label: "What is utm_medium?",
+            href: "/trackers/utm-medium/",
           },
           {
             label: "Do cleaned links still work? (the conversion blocker, answered)",
@@ -102,6 +105,111 @@ export const GUIDES: ReadonlyArray<GuideArticle> = [
           {
             label: "How to remove UTM parameters from a link",
             href: "/guides/remove-utm-parameters/",
+          },
+          {
+            label: "How to clean an X (Twitter) share link",
+            href: "/guides/clean-x-twitter-link/",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── /guides/clean-amazon-link ────────────────────────────────
+  {
+    slug: "clean-amazon-link",
+    content: {
+      en: {
+        title: "How to clean an Amazon product link",
+        description:
+          "Amazon product URLs carry tag=, ref_, and pf_rd_* affiliate/tracking parameters. Strip them and keep the clean /dp/<ASIN> form — LinkClean does this with host-scoped rules.",
+        tldr: "Amazon product URLs get bloated with tag= (affiliate ID), ref_ (referrer breadcrumb), and pf_rd_* (placement/recommendation tracking). The product is just /dp/<ASIN> — everything after is metadata. LinkClean's catalog is host-scoped to amazon.* TLDs so the same parameter names elsewhere are untouched.",
+        intro: [
+          "Amazon's URLs are some of the longest on the web because their internal tracking is unusually verbose. tag= identifies an affiliate (someone earns a commission when you buy), ref_ records which page sent you (the search results, a category page, a recommendation widget), and pf_rd_* annotates the specific placement (which slot on which page in which experiment cohort).",
+          "None of this is needed to load the product. The canonical product URL is just `amazon.com/dp/<ASIN>` — that ASIN (Amazon Standard Identification Number) is the only thing the server uses to identify the product.",
+        ],
+        steps: [
+          {
+            title: "Copy the product link normally",
+            body: "From the Amazon app or web, hit Share → Copy Link. You'll get a long URL with /ref=… in the path and ?tag=…&ref_=… in the query string.",
+          },
+          {
+            title: "Run it through LinkClean",
+            body: "Either use the LinkClean share-sheet action (Share → Clean URL) or paste into the app. LinkClean strips tag, ref_, pf_rd_*, and the Amazon-specific tail, leaving just the /dp/<ASIN> form (and sometimes the storefront language indicator, which is functional).",
+          },
+          {
+            title: "Verify the product still resolves",
+            body: "Open the cleaned link in a private tab. Same product page, no affiliate kicker. The price, reviews, and product details all load identically.",
+          },
+        ],
+        outro: [
+          "Why host-scoped? Because tag and ref are common functional query keys on other sites (a tag= filter on a blog's archive page, a ref= referer parameter on a forum). LinkClean's catalog limits the aggressive Amazon-cleaning rules to amazon.* hosts (`.com`, `.co.uk`, `.de`, `.co.jp`, and 14 other storefronts) — on any other site, tag= and ref= stay default-off.",
+          "If you keep an affiliate link on purpose (you want to support someone's referral), use LinkClean's app to see the cleaned vs original side-by-side and pick whichever you want before sharing.",
+        ],
+        related: [
+          {
+            label: "Do cleaned links still work?",
+            href: "/learn/do-cleaned-links-still-work/",
+          },
+          {
+            label: "What's hidden in a share link?",
+            href: "/learn/whats-hidden-in-a-share-link/",
+          },
+          {
+            label: "How to clean a YouTube share link",
+            href: "/guides/clean-youtube-link/",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── /guides/clean-x-twitter-link ─────────────────────────────
+  {
+    slug: "clean-x-twitter-link",
+    content: {
+      en: {
+        title: "How to clean an X (Twitter) share link",
+        description:
+          "X/Twitter share links carry t= and s= share-identifier tokens that tie the click back to your account. Strip them before forwarding — LinkClean does it host-scoped to x.com / twitter.com.",
+        tldr: "X (formerly Twitter) adds ?t=<token>&s=<n> to outbound share links. Both identify the sharing session. Strip them before forwarding — LinkClean does this host-scoped to x.com and twitter.com, so t= on YouTube (the timestamp) stays intact.",
+        intro: [
+          "When you hit Share on a tweet, X gives you a URL like https://x.com/handle/status/1234567890?t=AbCdEf-12345_xyz&s=20. The t= and s= parameters are X's share-identifier tokens: t encodes the sharing session, s encodes which surface the share came from (the iOS app, the web client, a third-party tool).",
+          "Critically, t= is a tracker here but it's the timestamp parameter on YouTube. That's the kind of name collision that breaks naive cleaners — strip t= everywhere and YouTube share links lose their start-at-N-seconds behavior. LinkClean handles this by host-scoping the t/s rules to x.com / twitter.com only.",
+        ],
+        steps: [
+          {
+            title: "Use the LinkClean share-sheet action",
+            body: "From the X app, hit Share → choose Clean URL. The cleaned tweet URL — just the /handle/status/<id> form, no t/s tail — is on your clipboard.",
+          },
+          {
+            title: "Or paste into the app to see what was stripped",
+            body: "Open LinkClean, paste the X share link. You'll see t and s called out, both stripped. The tweet ID and handle are preserved (they're part of the path, not the query string).",
+          },
+          {
+            title: "Confirm the tweet still loads",
+            body: "Open the cleaned URL in a private tab. Same tweet, same thread, no share token tying the view back to you.",
+          },
+        ],
+        outro: [
+          "X also occasionally adds &cn= and &refsrc= on outbound clicks — both go through the same default-on stripping path. The cleaned URL is the canonical tweet permalink, identical to what you'd get by typing the URL yourself.",
+        ],
+        related: [
+          {
+            label: "What t= and s= mean in an X share URL (deep dive, with s=46 explained)",
+            href: "/learn/x-twitter-share-url-explained/",
+          },
+          {
+            label: "What is fbclid?",
+            href: "/trackers/fbclid/",
+          },
+          {
+            label: "What's hidden in a share link?",
+            href: "/learn/whats-hidden-in-a-share-link/",
+          },
+          {
+            label: "How to clean a YouTube share link",
+            href: "/guides/clean-youtube-link/",
           },
         ],
       },
