@@ -1,0 +1,15 @@
+[
+  {
+    "date": "2026-06-16",
+    "scope": "page",
+    "page": "apps/landing/ home (en)",
+    "macrostructure": "Manifesto",
+    "theme": "custom",
+    "theme_axes": "light / classical-serif / cool",
+    "vibe": "principled · privacy-as-position · editorial-austere",
+    "enrichment": "none",
+    "nav": "shared shell (N1a — out of scope)",
+    "footer": "shared shell (Ft2 — out of scope)",
+    "brief": "LinkClean landing — privacy-first iOS URL cleaner. Manifesto wedge: 'Share clean links.' as a declaration, not a SaaS pitch. Project bans webfonts → system serif (ui-serif/New York) as deliberate theme floor."
+  }
+]

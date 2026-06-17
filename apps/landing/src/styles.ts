@@ -2,6 +2,11 @@
 // child combinators aren't escaped. Privacy-teal accent on light/dark surface,
 // system fonts, no webfonts. Shared by every template via pageLayout.tsx.
 export const css = `
+  /* Hallmark · genre: editorial · macrostructure: Manifesto · theme: custom (system-serif Almanac · paper oklch(98% 0.005 200) · accent oklch(55% 0.10 200) cool · system-serif body + display + mono fixtures) · enrichment: none · nav: shared shell (N1a — out of scope) · footer: shared shell (Ft2 — out of scope)
+   * Hallmark · pre-emit critique: P5 H5 E5 S4 R5 V5
+   * Hallmark · contrast: pass (40–41) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57)
+   * Hallmark · note: project bans webfonts — system serif is the deliberate theme floor, not a default attractor. Home-page sections only; shared chrome + /trackers/ /guides/ /learn/ selectors below are untouched. */
+
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   html, body { margin: 0; overflow-x: clip; }
@@ -9,6 +14,14 @@ export const css = `
   :root {
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    --font-serif: ui-serif, "New York", "Iowan Old Style", "Apple Garamond", Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-display: var(--font-serif);
+
+    --text-display: clamp(2.5rem, 7vw + 0.5rem, 5rem);
+    --text-display-s: clamp(1.85rem, 4vw + 0.5rem, 2.75rem);
+    --text-h2: clamp(1.85rem, 3.5vw + 0.5rem, 2.5rem);
+    --track-display: -0.025em;
+    --track-caps: 0.16em;
 
     --color-bg: oklch(98% 0.005 200);
     --color-surface: oklch(100% 0 0);
@@ -19,6 +32,9 @@ export const css = `
     --color-accent-soft: oklch(94% 0.02 200);
     --color-accent-ink: oklch(99% 0.002 200);
     --color-warn: oklch(60% 0.13 30);
+    --color-slab-bg: var(--color-ink);
+    --color-slab-fg: var(--color-bg);
+    --color-slab-muted: oklch(82% 0.012 200);
 
     --space-2xs: 0.5rem;
     --space-xs: 0.75rem;
@@ -49,6 +65,7 @@ export const css = `
       --color-accent-soft: oklch(26% 0.04 200);
       --color-accent-ink: oklch(15% 0.01 220);
       --color-warn: oklch(72% 0.13 35);
+      --color-slab-muted: oklch(35% 0.012 210);
       --shadow-card: 0 6px 24px -16px oklch(0% 0 0 / 0.55);
     }
   }
@@ -125,21 +142,41 @@ export const css = `
   hr.rule { border: 0; border-top: 1px solid var(--color-rule); margin: 0; }
   .section-intro { margin-top: var(--space-sm); color: var(--color-muted); max-width: 38rem; }
 
-  /* Hero */
-  .hero { padding: clamp(3.5rem, 9vw, 6rem) 0 clamp(2.5rem, 6vw, 4.5rem); }
-  .hero h1 { max-width: 18ch; }
-  .hero p.lede {
-    font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+  /* Hero — manifesto declaration, no card, no centred-everything.
+   * Padding pulls bottom > top (gate 44a) so the slab seats into the next section. */
+  .home-hero {
+    padding: clamp(3rem, 7vw, 4.5rem) 0 clamp(4rem, 11vw, 6.5rem);
+    border-bottom: 6px solid var(--color-ink);
+  }
+  .home-hero h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-display);
+    line-height: 1.02;
+    letter-spacing: var(--track-display);
+    max-width: 14ch;
+    color: var(--color-ink);
+    /* honest copy: Hallmark anti-pattern bans italic headers (gate 38a) — roman only */
+    font-style: normal;
+  }
+  .home-hero p.lede {
+    font-family: var(--font-serif);
+    font-size: clamp(1.2rem, 1.6vw + 0.5rem, 1.55rem);
     line-height: 1.4;
     color: var(--color-ink);
-    margin-top: var(--space-md);
-    max-width: 38rem;
+    margin-top: var(--space-lg);
+    max-width: 32rem;
   }
-  .hero p.sub {
+  .home-hero p.sub {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    line-height: 1.6;
     margin-top: var(--space-md);
     color: var(--color-muted);
-    max-width: 36rem;
+    max-width: 34rem;
   }
+
+  /* CTA row — kept simple; the App Store badge is the brand-mandated CTA */
   .cta-row {
     margin-top: var(--space-xl);
     display: flex;
@@ -155,170 +192,317 @@ export const css = `
   .cta-app-store:hover { opacity: 0.85; text-decoration: none; }
   .cta-app-store img { display: block; height: 44px; width: auto; }
 
-  /* Demo card — dirty URL → clean URL */
-  .demo {
-    margin-top: var(--space-lg);
-    background: var(--color-surface);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-lg);
-    padding: clamp(1.25rem, 3vw, 1.75rem);
-    box-shadow: var(--shadow-card);
+  /* Section rhythm — declarative heads, hairline tops, asymmetric padding */
+  section.declaration {
+    padding: clamp(3rem, 7vw, 5rem) 0;
+    border-top: 1px solid var(--color-rule);
   }
-  .demo .label {
+  section.declaration > .wrap > h2,
+  section.declaration > .wrap-wide > h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-h2);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    max-width: 22ch;
+    color: var(--color-ink);
+    font-style: normal;
+  }
+  section.declaration > .wrap > .section-intro {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    line-height: 1.55;
+    margin-top: var(--space-md);
+    color: var(--color-muted);
+    max-width: 32rem;
+  }
+
+  /* Proof — typographic URL fixtures, no card, no shadow */
+  .proof { margin-top: var(--space-xl); }
+  .proof .fixture {
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  .proof .fixture + .fixture { border-top: 1px solid var(--color-rule); }
+  .proof .fixture.clean { border-bottom: 1px solid var(--color-rule); }
+  .proof .fixture-label {
     display: block;
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: var(--track-caps);
     color: var(--color-muted);
-    margin: var(--space-md) 0 var(--space-2xs);
+    margin-bottom: var(--space-xs);
   }
-  .demo .label:first-child { margin-top: 0; }
-  .url-line {
+  .proof .fixture.clean .fixture-label { color: var(--color-accent); }
+  .proof .fixture-url {
     font-family: var(--font-mono);
-    font-size: 0.9rem;
-    line-height: 1.45;
+    font-size: clamp(0.88rem, 1vw + 0.35rem, 1rem);
+    line-height: 1.6;
     word-break: break-all;
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-rule);
   }
-  .url-line.dirty { color: var(--color-muted); }
-  .url-line.dirty .strip { color: var(--color-warn); text-decoration: line-through; }
-  .url-line.clean { color: var(--color-ink); background: var(--color-accent-soft); border-color: transparent; }
-  .demo .note { color: var(--color-muted); font-size: 0.95rem; margin-top: var(--space-2xs); }
-
-  /* Benefits grid */
-  .benefits {
-    display: grid;
-    gap: var(--space-md);
-    grid-template-columns: minmax(0, 1fr);
+  .proof .fixture.dirty .fixture-url { color: var(--color-muted); }
+  .proof .fixture.dirty .strip {
+    color: var(--color-warn);
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: var(--color-warn);
+  }
+  .proof .fixture.clean .fixture-url { color: var(--color-ink); font-weight: 500; }
+  .proof .fixture.clean .accent-dot {
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    background: var(--color-accent);
+    border-radius: 50%;
+    margin-right: 0.5em;
+    vertical-align: middle;
+  }
+  .proof .note {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--color-muted);
     margin-top: var(--space-lg);
+    max-width: 34rem;
   }
-  @media (min-width: 760px) {
-    .benefits { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .proof .note strong { color: var(--color-ink); font-weight: 600; }
+
+  /* Tenets — numbered declarations, hairline-divided, no cards.
+   * Vertical stack: num kicker above heading, same column (gate 54). */
+  .tenets {
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
   }
-  .benefit {
-    background: var(--color-surface);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
+  .tenets > li {
+    padding: var(--space-lg) 0;
+    border-top: 1px solid var(--color-rule);
   }
-  .benefit .num {
+  .tenets > li:last-child { border-bottom: 1px solid var(--color-rule); }
+  .tenets .num {
+    display: block;
     font-family: var(--font-mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.04em;
+    font-size: 0.78rem;
+    letter-spacing: var(--track-caps);
+    text-transform: uppercase;
     color: var(--color-accent);
     font-feature-settings: "tnum" 1;
     margin-bottom: var(--space-2xs);
   }
-  .benefit h3 { margin-bottom: var(--space-2xs); }
-  .benefit p { color: var(--color-muted); font-size: 0.95rem; }
-
-  /* Comparison table */
-  .comparison-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: var(--space-lg);
-  }
-  .comparison-table thead th {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-muted);
+  .tenets h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.6vw + 0.4rem, 1.6rem);
     font-weight: 600;
-    text-align: left;
-    padding: 0 var(--space-md) var(--space-sm);
-    border-bottom: 1px solid var(--color-rule);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--color-ink);
+    font-style: normal;
+    max-width: 24ch;
   }
-  .comparison-table thead th:first-child { padding-left: 0; }
-  .comparison-table thead th:nth-of-type(2) { color: var(--color-accent); }
-  .comparison-table tbody th,
-  .comparison-table tbody td {
-    text-align: left;
-    vertical-align: top;
-    padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--color-rule);
-    font-size: 0.95rem;
+  .tenets p {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+    margin-top: var(--space-sm);
+    max-width: 36rem;
+  }
+
+  /* Distinction — declarative diff (replaces the comparison table) */
+  .distinction-list {
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+  }
+  .distinction-row {
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-rule);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2xs);
+  }
+  .distinction-row:last-child { border-bottom: 1px solid var(--color-rule); }
+  .distinction-row .feature {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: var(--track-caps);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0;
+  }
+  .distinction-row dd {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1rem;
     line-height: 1.5;
   }
-  .comparison-table tbody th {
-    font-weight: 600;
-    color: var(--color-ink);
-    width: 26%;
-    padding-left: 0;
+  .distinction-row dd.linkclean { color: var(--color-ink); font-weight: 500; }
+  .distinction-row dd.other { color: var(--color-muted); }
+  .distinction-row dd::before {
+    content: attr(data-label) " — ";
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: var(--track-caps);
+    text-transform: uppercase;
+    margin-right: 0.35em;
+    display: inline-block;
+    vertical-align: 0.12em;
   }
-  .comparison-table tbody td:nth-of-type(2) { color: var(--color-muted); }
-  .comparison-table tbody tr:last-child th,
-  .comparison-table tbody tr:last-child td { border-bottom: 0; }
-  @media (max-width: 600px) {
-    .comparison-table thead { display: none; }
-    .comparison-table, .comparison-table tbody, .comparison-table tbody tr { display: block; }
-    .comparison-table tbody tr {
-      padding: var(--space-md) 0;
-      border-bottom: 1px solid var(--color-rule);
-    }
-    .comparison-table tbody tr:last-child { border-bottom: 0; padding-bottom: 0; }
-    .comparison-table tbody th,
-    .comparison-table tbody td {
-      display: block;
-      width: auto;
-      padding: 0;
-      border: 0;
-      margin: 0;
-    }
-    .comparison-table tbody th { margin-bottom: var(--space-xs); }
-    .comparison-table tbody td {
-      margin-top: var(--space-xs);
-      padding-left: var(--space-sm);
-      border-left: 2px solid var(--color-rule);
-    }
-    .comparison-table tbody td::before {
-      content: attr(data-label);
-      display: block;
+  .distinction-row dd.linkclean::before { color: var(--color-accent); }
+  .distinction-row dd.other::before { color: var(--color-muted); }
+  .distinction-heads { display: none; }
+  @media (min-width: 720px) {
+    .distinction-heads {
+      display: grid;
+      grid-template-columns: 12em minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      margin-top: var(--space-xl);
+      padding-bottom: var(--space-sm);
       font-family: var(--font-mono);
-      font-size: 0.65rem;
+      font-size: 0.7rem;
+      letter-spacing: var(--track-caps);
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--color-muted);
-      margin-bottom: var(--space-2xs);
     }
-    .comparison-table tbody td:nth-of-type(1)::before { color: var(--color-accent); }
+    .distinction-heads .hd-linkclean { color: var(--color-accent); }
+    .distinction-heads .hd-other { color: var(--color-muted); }
+    .distinction-list { margin-top: 0; }
+    .distinction-row {
+      grid-template-columns: 12em minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: baseline;
+    }
+    .distinction-row .feature { font-size: 0.75rem; }
+    .distinction-row dd::before { display: none; }
   }
 
-  /* Surfaces list */
-  .surfaces {
-    display: grid;
-    gap: var(--space-md);
-    grid-template-columns: minmax(0, 1fr);
-    margin-top: var(--space-lg);
+  /* Surfaces — enumerated 01..05, vertical-stack (gate 54), hairline-divided.
+   * Side-stripe card (was: 3px accent border-left) was a gate-fail tell — removed. */
+  .surfaces-list {
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
   }
-  @media (min-width: 760px) {
-    .surfaces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .surfaces-list > li {
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-rule);
   }
-  .surface {
-    border-left: 3px solid var(--color-accent);
-    padding: var(--space-2xs) var(--space-md);
+  .surfaces-list > li:last-child { border-bottom: 1px solid var(--color-rule); }
+  .surfaces-list .num {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: var(--track-caps);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-feature-settings: "tnum" 1;
+    margin-bottom: var(--space-2xs);
   }
-  .surface h3 { margin-bottom: var(--space-2xs); }
-  .surface p { color: var(--color-muted); font-size: 0.95rem; }
+  .surfaces-list h3 {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+    font-style: normal;
+  }
+  .surfaces-list p {
+    font-family: var(--font-serif);
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+    margin-top: var(--space-xs);
+    max-width: 38rem;
+  }
 
-  /* FAQ */
-  .faq-item { margin-top: var(--space-lg); }
-  .faq-item:first-child { margin-top: var(--space-md); }
-  .faq-item h3 { font-size: 1.1rem; line-height: 1.3; }
-  .faq-item p { margin-top: var(--space-2xs); color: var(--color-muted); }
-
-  /* Trackers CTA card */
-  .trackers-cta {
-    margin-top: var(--space-lg);
-    background: var(--color-accent-soft);
-    border-radius: var(--radius-lg);
-    padding: clamp(1.5rem, 3vw, 2rem);
+  /* Questions — hairline-divided declarations, no card-in-card */
+  .questions {
+    margin-top: var(--space-xl);
   }
-  .trackers-cta p { color: var(--color-ink); }
-  .trackers-cta a { font-weight: 600; }
+  .question {
+    padding: var(--space-lg) 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  .question:last-child { border-bottom: 1px solid var(--color-rule); }
+  .question h3 {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+    font-style: normal;
+    max-width: 38rem;
+  }
+  .question p {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+    max-width: 38rem;
+  }
+
+  /* Trackers index — declarative line, no card */
+  .trackers-index {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-rule);
+  }
+  .trackers-index p {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--color-ink);
+    max-width: 34rem;
+  }
+  .trackers-index a {
+    display: inline-block;
+    margin-top: var(--space-md);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: var(--track-caps);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .trackers-index a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.35em;
+    text-decoration-thickness: 1.5px;
+  }
+
+  /* Final call — manifesto's oversized solid block. The slab inverts ink/paper in both
+   * modes so the contrast reads as "the page's last word" regardless of scheme. */
+  .final-call {
+    padding: clamp(3.5rem, 8vw, 5.5rem) 0;
+    background: var(--color-slab-bg);
+    color: var(--color-slab-fg);
+    border-top: 6px solid var(--color-accent);
+  }
+  .final-call h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+    line-height: 1.05;
+    letter-spacing: var(--track-display);
+    color: var(--color-slab-fg);
+    max-width: 16ch;
+    font-style: normal;
+  }
+  .final-call p {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-top: var(--space-md);
+    color: var(--color-slab-muted);
+    max-width: 30rem;
+  }
+  .final-call .cta-row { margin-top: var(--space-xl); }
+  .final-call .cta-app-store:focus-visible {
+    outline-color: var(--color-slab-fg);
+  }
 
   /* Site footer */
   footer.site {
@@ -573,6 +757,6 @@ export const css = `
   .page-cta p { color: var(--color-muted); margin-bottom: var(--space-md); max-width: 36rem; }
 
   @media (prefers-reduced-motion: reduce) {
-    .cta-app-store, .demo { transition: none; }
+    .cta-app-store { transition: none; }
   }
 `;

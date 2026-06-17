@@ -96,7 +96,7 @@ const Home = ({ locale }: { locale: Locale }) => {
 
   return (
     <>
-      <section class="hero">
+      <section class="home-hero">
         <div class="wrap">
           <h1>{copy.hero.h1}</h1>
           <p class="lede">{copy.hero.lede}</p>
@@ -119,128 +119,148 @@ const Home = ({ locale }: { locale: Locale }) => {
         </div>
       </section>
 
-      <hr class="rule" />
-
-      <section>
+      <section class="declaration">
         <div class="wrap">
           <h2>{copy.demo.h2}</h2>
           <p class="section-intro">{copy.demo.intro}</p>
-          <article class="demo">
-            <span class="label">{copy.demo.dirtyLabel}</span>
-            <div class="url-line dirty">
-              {dirty.base}
-              {dirty.params.length > 0 ? (
-                <>
-                  <span>?</span>
-                  {dirty.params.map((p, i) => (
-                    <>
-                      {i > 0 ? <span>&</span> : null}
-                      <span class="strip">{p}</span>
-                    </>
-                  ))}
-                </>
-              ) : null}
+          <article class="proof">
+            <div class="fixture dirty">
+              <span class="fixture-label">{copy.demo.dirtyLabel}</span>
+              <div class="fixture-url">
+                {dirty.base}
+                {dirty.params.length > 0 ? (
+                  <>
+                    <span>?</span>
+                    {dirty.params.map((p, i) => (
+                      <>
+                        {i > 0 ? <span>&</span> : null}
+                        <span class="strip">{p}</span>
+                      </>
+                    ))}
+                  </>
+                ) : null}
+              </div>
             </div>
-            <span class="label">{copy.demo.cleanLabel}</span>
-            <div class="url-line clean">{copy.demo.cleanUrl}</div>
-            <span class="label">{copy.demo.strippedLabel}</span>
-            <p class="note">{copy.demo.strippedNote}</p>
+            <div class="fixture clean">
+              <span class="fixture-label">{copy.demo.cleanLabel}</span>
+              <div class="fixture-url">
+                <span class="accent-dot" aria-hidden="true" />
+                {copy.demo.cleanUrl}
+              </div>
+            </div>
+            <p class="note">
+              <strong>{copy.demo.strippedLabel}.</strong>{" "}
+              {copy.demo.strippedNote}
+            </p>
           </article>
         </div>
       </section>
 
-      <hr class="rule" />
-
-      <section>
-        <div class="wrap-wide">
+      <section class="declaration">
+        <div class="wrap">
           <h2>{copy.benefits.h2}</h2>
-          <div class="benefits">
+          <ol class="tenets">
             {copy.benefits.items.map((item) => (
-              <div key={item.num} class="benefit">
-                <div class="num">{item.num}</div>
+              <li key={item.num}>
+                <span class="num">{item.num}</span>
                 <h3>{item.title}</h3>
                 <p>{item.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section class="declaration">
+        <div class="wrap">
+          <h2>{copy.comparison.h2}</h2>
+          <div class="distinction-heads" aria-hidden="true">
+            <span class="hd-feature" />
+            <span class="hd-linkclean">{copy.comparison.linkcleanHeader}</span>
+            <span class="hd-other">{copy.comparison.otherHeader}</span>
+          </div>
+          <dl class="distinction-list">
+            {copy.comparison.rows.map((row) => (
+              <div key={row.feature} class="distinction-row">
+                <dt class="feature">{row.feature}</dt>
+                <dd
+                  class="linkclean"
+                  data-label={copy.comparison.linkcleanHeader}
+                >
+                  {row.linkclean}
+                </dd>
+                <dd class="other" data-label={copy.comparison.otherHeader}>
+                  {row.other}
+                </dd>
               </div>
             ))}
-          </div>
+          </dl>
         </div>
       </section>
 
-      <hr class="rule" />
-
-      <section>
-        <div class="wrap-wide">
-          <h2>{copy.comparison.h2}</h2>
-          <table class="comparison-table">
-            <thead>
-              <tr>
-                <th scope="col" />
-                <th scope="col">{copy.comparison.linkcleanHeader}</th>
-                <th scope="col">{copy.comparison.otherHeader}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {copy.comparison.rows.map((row) => (
-                <tr key={row.feature}>
-                  <th scope="row">{row.feature}</th>
-                  <td data-label={copy.comparison.linkcleanHeader}>
-                    {row.linkclean}
-                  </td>
-                  <td data-label={copy.comparison.otherHeader}>{row.other}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <hr class="rule" />
-
-      <section>
+      <section class="declaration">
         <div class="wrap">
           <h2>{copy.surfaces.h2}</h2>
-          <div class="surfaces">
-            {copy.surfaces.items.map((item) => (
-              <div key={item.title} class="surface">
+          <ol class="surfaces-list">
+            {copy.surfaces.items.map((item, i) => (
+              <li key={item.title}>
+                <span class="num">
+                  {(i + 1).toString().padStart(2, "0")}
+                </span>
                 <h3>{item.title}</h3>
                 <p>{item.body}</p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
       {hubVisible ? (
-        <>
-          <hr class="rule" />
-          <section>
-            <div class="wrap">
-              <h2>{copy.trackersCta.h2}</h2>
-              <article class="trackers-cta">
-                <p>
-                  {copy.trackersCta.body}{" "}
-                  <a href={trackersHubPath(locale)}>
-                    {copy.trackersCta.linkLabel} →
-                  </a>
-                </p>
-              </article>
+        <section class="declaration">
+          <div class="wrap">
+            <h2>{copy.trackersCta.h2}</h2>
+            <div class="trackers-index">
+              <p>{copy.trackersCta.body}</p>
+              <a href={trackersHubPath(locale)}>
+                {copy.trackersCta.linkLabel} →
+              </a>
             </div>
-          </section>
-        </>
+          </div>
+        </section>
       ) : null}
 
-      <hr class="rule" />
-
-      <section>
+      <section class="declaration">
         <div class="wrap">
           <h2>{copy.faqSection.h2}</h2>
-          <div class="faq">
+          <div class="questions">
             {copy.faq.map(({ q, a }) => (
-              <div key={q} class="faq-item">
+              <div key={q} class="question">
                 <h3>{q}</h3>
                 <p>{a}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="final-call">
+        <div class="wrap">
+          <h2>{copy.hero.h1}</h2>
+          <p>{copy.hero.lede}</p>
+          <div class="cta-row">
+            <a
+              class="cta-app-store"
+              href={copy.appStoreCampaign}
+              onclick="td && td('Landing.AppStoreTapped')"
+              rel="noopener"
+            >
+              <img
+                src={copy.appStoreBadge.file}
+                alt={copy.appStoreBadge.alt}
+                width={copy.appStoreBadge.width}
+                height={copy.appStoreBadge.height}
+              />
+            </a>
           </div>
         </div>
       </section>
