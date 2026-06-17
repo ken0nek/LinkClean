@@ -1,9 +1,42 @@
 # LinkClean — SEO Content Plan
 
-> **Status: proposed — 2026-06-13.** The execution-level content + information-architecture plan behind the SEO/LLMO pillar of [growth-marketing.md](growth-marketing.md) §2–§3. *What pages to build, in what structure, targeting which searches, and in what order.*
+> **Status: in-progress — 2026-06-16 (last sync).** Originally proposed 2026-06-13. The execution-level content + information-architecture plan behind the SEO/LLMO pillar of [growth-marketing.md](growth-marketing.md) §2–§3. *What pages to build, in what structure, targeting which searches, and in what order.*
 > **Scope:** the owned content site at **`linkclean.app`** (domain decision in growth-marketing §10) — its architecture, repeatable content templates, the full content map, internal-linking/funnel design, schema, and a build order. Not the App Store listing (that's ASO, growth-marketing §1) or the LP design (growth-marketing §5).
 > **Builds on:** [growth-marketing.md](growth-marketing.md) (§2 SEO, §3 LLMO), [competitor-clean-links.md](competitor-clean-links.md) (Clean Links already runs guide + compare pages — match and out-depth them), the literal-tracker keywords already in [app-store-metadata.md](../../apps/ios/LinkClean/docs/release/app-store-metadata.md).
 > **Accuracy note:** content briefs below give a one-line best-understanding of each parameter; **anything tagged ⚠️verify must be fact-checked (and ideally cited) before publishing** — a privacy authority that gets a parameter wrong loses the trust that is the whole point. Run the `deep-research` skill per uncertain piece.
+
+---
+
+## Status snapshot (2026-06-16)
+
+✅ marks rows shipped on `linkclean.app` (Phase 3b — public production). Items without ✅ remain forward-looking. Some rows below were **added during execution** and weren't in the 2026-06-13 plan; those are flagged inline with *(added Wave 1.5)* or *(added beyond plan)*. The doc keeps its forward-looking shape — this block is just the sync line.
+
+**Shipped (en only — ja + de still Phase 3c):**
+- ✅ Home / LP (with Hallmark Manifesto redesign on 2026-06-16)
+- ✅ `/trackers/` hub + **36 spokes** (the plan listed ~25; Wave 1.5 added the email family, the modern Google Ads params, the regional/functional kind, and a fuller utm family)
+- ✅ `/guides/` hub + **4 guides** (`remove-utm-parameters`, `clean-youtube-link`, `clean-amazon-link`, `clean-x-twitter-link`)
+- ✅ `/learn/` hub + **4 pillars** (`do-cleaned-links-still-work`, `whats-hidden-in-a-share-link`, `x-twitter-share-url-explained`, `click-ids-vs-utm-tags`)
+- ✅ Phase 3b deploy (domain + DNS + `deploy:prod`) — see [monorepo-and-landing.md](monorepo-and-landing.md) §6 for the as-executed runbook
+
+**Still outstanding (in roughly Wave-2 / Wave-3 order):**
+- The platform "clean a ___ link" guides for Instagram / TikTok / Spotify / LinkedIn / Reddit / Google Maps; the **Markdown / Obsidian / Notion** guide (the PKM wedge)
+- The privacy how-tos under `/guides/*` (Private Relay, disable ATT, Safari checklist, Stop link tracking iPhone)
+- The `/learn/*` pillars left: tracking-parameter, link-decoration, redirect/shortener, tracking-vs-functional
+- The `/url/` URL-anatomy hub + trivia link-magnets
+- The `/compare/*` commercial pages (Best URL cleaner / vs Clean Links / online-vs-app)
+- `/clean` free web cleaner (open decision; §9 #1)
+
+**Decided closed (not outstanding):** the `/privacy-policy` · `/terms` · `/support` migration is **off the table** — legal pages stay permanently on `ken0nek.com` (per [monorepo-and-landing.md](monorepo-and-landing.md) §8). Both 1.0.0 and 1.1.0 (live as of 2026-06-16) point at `ken0nek.com/apps/linkclean/{privacy-policy,terms-of-use}/`; migrating would force an iOS resubmission to repoint a URL whose contents don't change.
+
+**Added beyond the original plan (now first-class):**
+- `nature: "tracker" | "functional"` on `TrackerSpoke` — functional spokes (e.g. `hl`, `gl`, `t`, `v`, `q`, `lang`) render "LinkClean preserves this — no change" instead of dirty→clean. New `regional` kind + "Region & language (preserved)" hub category. *Honest position: the page explains the parameter and tells the reader LinkClean leaves it alone, which is a trust play.*
+- `kind: "email"` (Email marketing) as a first-class trackers-hub category, alongside `utm`/`ads`/`regional`
+- `SearchDemand` (`high | medium | low`) per spoke — ranks the glossary list and weights internal-link density
+- Inline-markdown converter (`src/markdown.ts`) — `**bold**` + backtick `code` rendered across every prose surface (TL;DR, paragraphs, bullets, FAQ, step bodies)
+- Optional `table` field on `LearnSection` — used by the X deep dive's 9-row `s=` reference table (rendered as `.ref-table`)
+- Site-wide header nav (Glossary / Guides / Learn) — wasn't called out in §2's IA tree but added when the second + third hubs landed
+- `pnpm verify-links` (`scripts/verify-links.ts`) — graph-walks the rendered route map for dead internal links; runs as a CI gate
+- Hallmark Manifesto macrostructure on the home page (2026-06-16) — replaces the original Long Document layout
 
 ---
 
@@ -71,6 +104,12 @@ Every spoke carries the same skeleton (§3), links **up** to its hub + **across*
 **E. Concept / pillar** — `/learn/<concept>`.
 > Longer-form authority piece (what is link tracking, click IDs, link decoration) that links *down* to many spokes — the topical-authority anchor.
 
+**Enhancements added during Wave 1 / Wave 1.5 (not in the 2026-06-13 templates):**
+- **Template A variant — functional spoke.** When `nature: "functional"` is set on a `TrackerSpoke` (`hl`, `gl`, `t`, `v`, `q`, `lang`), the renderer swaps the dirty→clean comparison for an "Example URL → LinkClean preserves this, no change" panel. Schema stays `Article` + `FAQPage` but the hook flips from *"safe to remove"* to *"safe to keep — here's why."*
+- **Template E variant — embedded reference table.** A `table` field on `LearnSection` renders as a `.ref-table`. First use: the 9-row `s=` reference in `/learn/x-twitter-share-url-explained/` (sourced from the Unfurl open-source URL parser).
+- **Inline markdown across prose surfaces.** Authored ``**bold**`` and `` `code` `` are converted via `src/markdown.ts` after HTML-escape; applies to TL;DR, paragraphs, bullets, FAQ answers, and step bodies — TL;DR base weight is bumped to 600 so emphasised `**text**` stays visually distinct.
+- **Hub category labels.** `trackers/chrome.ts` maps kind → human label: `utm` → "UTM tags", `ads` → "Ad click IDs", `email` → "Email marketing", `regional` → "Region & language (preserved)". Categories drive both the hub index and the per-category JSON-LD scoping.
+
 ---
 
 ## 4. The content map
@@ -80,54 +119,79 @@ Tiers: **T1** = build first (highest intent × volume × funnel, or a cornerston
 ### 4.0 Top of funnel — the pages everything links to
 | Page | Target query | Tier | Note |
 |---|---|---|---|
-| **Home / LP** | brand + "url cleaner iphone" | T1 | App intro, the benefit columns + comparison table, App Store link (growth-marketing §5) |
+| ✅ **Home / LP** | brand + "url cleaner iphone" | T1 | App intro, the benefit columns + comparison table, App Store link (growth-marketing §5). Visual redesign 2026-06-16: Hallmark Manifesto macrostructure replaced the original Long Document. |
 | **Free web cleaner** `/clean` | "url cleaner online", "remove utm from url" | T1\* | \*Open decision (growth-marketing §10): a *deliberately limited* cleaner (one link, no history/formats) that upsells the app — Clean Links Web is exactly this magnet |
-| **What's hidden in a share link?** (flagship) | "what is hidden in a link", "what do shared links track" | T1 | The cornerstone privacy-awareness piece; links to the whole `/trackers` hub; the most shareable + LLM-citable page |
+| ✅ **What's hidden in a share link?** (flagship) | "what is hidden in a link", "what do shared links track" | T1 | Shipped at `/learn/whats-hidden-in-a-share-link/`. Cornerstone privacy-awareness piece; links to the whole `/trackers` hub. |
 
 ### 4.1 Tracker explainers — `/trackers/*` (template A) — the keyword core
 | Page | Target query | Tier | One-liner (⚠️ = verify before publish) |
 |---|---|---|---|
-| **What does UTM stand for?** | "what does utm stand for", "what is utm" | T1 | **Urchin Tracking Module** — from Urchin, the analytics co. Google bought (→ Google Analytics). Strong trivia + authority hook. |
-| What is `utm_source` / `utm_medium` / `utm_campaign`? | "what is utm_source" etc. | T1 | The UTM family — campaign attribution; one page each or a family page + anchors. Matches the literal keywords. |
-| What is `fbclid`? | "what is fbclid", "remove fbclid" | T1 | **Facebook Click Identifier** — ties a click back to a Meta ad/profile. |
-| What is `gclid`? (+ `dclid`,`gbraid`,`wbraid`) | "what is gclid" | T1 | **Google Click Identifier** (+ the privacy-era variants). |
-| What is `igshid`? | "what is igshid", "instagram link tracking" | T1 | **Instagram Share ID** — added when you share from IG. |
-| What is `si` in YouTube / Spotify links? | "what is si in youtube link", "spotify si parameter" | T1 | **Share identifier** added by the Share button (per-share attribution token). *Clarify the common confusion: `si` is YouTube/Spotify, not X.* |
-| What is `s` and `t` in X / Twitter links? | "what is s in twitter link", "twitter t parameter" | T1 | `s` = source/surface code (which client the share came from); `t` = a share-tracking token (~2022+). ⚠️verify exact `s` codes are undocumented — explain the *concept*, don't invent code meanings. |
-| What is `rsc` / `_rsc` in a LinkedIn link? | "what is rsc in url", "rsc parameter linkedin" | T2 | ⚠️verify — `_rsc` is most likely **Next.js React Server Components** routing/cache (a *technical* artifact, not user tracking); LinkedIn's actual trackers are `rcm`/`trackingId`/`lipi`/`midToken`. **Great angle: "is `rsc` tracking you, or just a tech param?"** — positions LinkClean as the nuanced authority. |
-| What is `igsh` / `igshid`, `ttclid` (TikTok), `twclid`, `li_fat_id` (LinkedIn ads), `yclid` (Yandex), `epik` (Pinterest) | "what is ttclid" etc. | T2 | Per-vendor click IDs — long-tail, low competition; one spoke each. |
-| What is `mc_eid` / `mc_cid` (Mailchimp), `mkt_tok` (Marketo), `_hsenc`/`_hsmi` (HubSpot), `vero_id`, `oly_enc_id` | "what is mc_eid" etc. | T2 | Email-newsletter trackers — searched by privacy-aware readers *and* marketers. |
-| What is `ref` / `ref_src` / `ref_url`? | "what is ref in url" | T2 | Referrer params — nuance: sometimes functional. |
-| What is `srsltid` (Google Shopping), `cmpid`/`icid` (generic campaign IDs) | long-tail | T3 | Tail completeness; matches catalog/reference entries. |
+| **What does UTM stand for?** | "what does utm stand for", "what is utm" | T1 | **Urchin Tracking Module** — from Urchin, the analytics co. Google bought (→ Google Analytics). Strong trivia + authority hook. The Urchin origin currently rides inside the `utm_source` spoke's vendor block; consider promoting to a standalone page. |
+| ✅ What is `utm_source` / `utm_medium` / `utm_campaign`? | "what is utm_source" etc. | T1 | Shipped as three separate spokes. UTM family — campaign attribution. Matches the literal keywords. |
+| ✅ What is `utm_term` / `utm_content` / `utm_id`? *(added beyond plan)* | "what is utm_term" etc. | T2 | The full UTM family — `_term` (paid-search keyword), `_content` (creative variant), `_id` (GA4 campaign id). Long-tail completeness; ships UTM coverage end-to-end. |
+| ✅ What is `fbclid`? | "what is fbclid", "remove fbclid" | T1 | **Facebook Click Identifier** — ties a click back to a Meta ad/profile. |
+| ✅ What is `gclid`? (+ `dclid`, `gbraid`, `wbraid`) | "what is gclid" | T1 | **Google Click Identifier** (+ the privacy-era variants). All four shipped as separate spokes. |
+| ✅ What is `msclkid`? *(added Wave 1.5)* | "what is msclkid", "bing click id" | T2 | **Microsoft Click ID** — Bing/Microsoft Advertising. Wasn't enumerated in the original plan but is the canonical "Google has gclid, Microsoft has ___" answer. |
+| ✅ What is `gad_source` / `gad_campaignid`? *(added beyond plan)* | "what is gad_source" | T3 | The modern Google Ads URL params (post-2023). Tail completeness; surfaces in real-world dirty URLs alongside `gclid`. |
+| ✅ What is `srsltid`? | "what is srsltid", "remove google shopping tracking" | T3 | Google Shopping result-source token. Promoted from plan §4.1's tail entry to a full spoke. |
+| What is `igshid`? | "what is igshid", "instagram link tracking" | T1 | **Instagram Share ID** — added when you share from IG. *Not yet shipped — Wave 2 alongside the Instagram clean-link guide.* |
+| What is `si` in YouTube / Spotify links? | "what is si in youtube link", "spotify si parameter" | T1 | **Share identifier** added by the Share button (per-share attribution token). *Clarify the common confusion: `si` is YouTube/Spotify, not X.* *Not yet shipped — Wave 2.* |
+| What is `s` and `t` in X / Twitter links? | "what is s in twitter link", "twitter t parameter" | T1 | `s` = source/surface code; `t` = a share-tracking token (~2022+). **Shipped as a `/learn/` deep dive** rather than a tracker spoke — see §4.4's `x-twitter-share-url-explained`. The 9-row `s=` reference table is the LLM-citable artifact. |
+| What is `rsc` / `_rsc` in a LinkedIn link? | "what is rsc in url", "rsc parameter linkedin" | T2 | ⚠️verify — `_rsc` is most likely **Next.js React Server Components** routing/cache (a *technical* artifact, not user tracking); LinkedIn's actual trackers are `rcm`/`trackingId`/`lipi`/`midToken`. **Great angle: "is `rsc` tracking you, or just a tech param?"** — positions LinkClean as the nuanced authority. *Still queued for Wave 3 after verification.* |
+| ✅ Per-vendor click IDs: `ttclid` (TikTok), `twclid` (X Ads), `yclid` (Yandex), `epik` (Pinterest), `li_fat_id` (LinkedIn Ads), `sc_click_id` (Snapchat) | "what is ttclid" etc. | T2 | All six shipped as separate spokes. Long-tail, low competition. *`igshid` still pending — Wave 2.* |
+| ✅ Marketplace ad params: `spm` (Alibaba), `rdt_cid` (Reddit) *(added beyond plan)* | "what is spm parameter", "what is rdt_cid" | T2 | Asian-marketplace + Reddit-ads coverage. Shipped to broaden the catalog past the Western analytics big-four. |
+| ✅ Email-newsletter trackers: `mc_eid` / `mc_cid` / `mc_tc` (Mailchimp), `mkt_tok` (Marketo), `_hsenc` / `_hsmi` (HubSpot), `_kx` (Klaviyo) | "what is mc_eid" etc. | T2 | Seven email-marketing spokes shipped under the new `email` kind / "Email marketing" hub category (added Wave 1.5). `_kx` and `mc_tc` were not in the plan's draft list. `vero_id` and `oly_enc_id` are still pending. |
+| What is `ref` / `ref_src` / `ref_url`? | "what is ref in url" | T2 | Referrer params — nuance: sometimes functional. *Not yet shipped.* |
+| What is `cmpid` / `icid` (generic campaign IDs)? | long-tail | T3 | Tail completeness; matches catalog/reference entries. *Not yet shipped.* |
+
+### 4.1b Functional / preserved-parameter explainers — `/trackers/*` (template A variant, `nature: "functional"`) — *added Wave 1.5*
+
+Not in the original plan. Wave 1.5 introduced the `nature: "tracker" | "functional"` distinction so we can publish authoritative pages for the URL parameters readers *think* are trackers but aren't — a nuance-as-trust play. The renderer swaps the dirty→clean comparison for "Example URL → LinkClean preserves this, no change." Listed under the "Region & language (preserved)" hub category.
+
+| Page | Target query | Tier | One-liner |
+|---|---|---|---|
+| ✅ What is `hl` in Google / YouTube URLs? | "what is hl in url", "youtube hl parameter" | T2 | **Host language** — Google's UI-language hint (`hl=ja` = Japanese UI). Functional. Was the trigger for the entire `nature: "functional"` template. |
+| ✅ What is `gl` in Google URLs? | "what is gl in google url" | T3 | **Geographic location** — country hint for Google Search/Maps/Shopping. Functional. |
+| ✅ What is `t` in a YouTube link? *(timestamp, not tracking)* | "what is t in youtube link", "youtube timestamp parameter" | T2 | YouTube video timestamp — `?t=42s`. The honest "no, this is just a timestamp" piece — disambiguates from X's `t=` (a true tracking token). |
+| ✅ What is `v` in a YouTube link? | "what does v= mean in youtube" | T3 | YouTube video identifier — the actual content key, not tracking. |
+| ✅ What is `q` in a URL? *(search query)* | "what is q parameter in url", "what does q= mean" | T2 | The de-facto search-query parameter (Google, Wikipedia, GitHub, …). Functional. Surfaces in nearly every dirty URL — readers need to know LinkClean keeps it. |
+| ✅ What is `lang` in a URL? | "what is lang parameter in url" | T3 | Generic language-selection convention. Functional. |
 
 ### 4.2 Platform "clean a link" how-tos — `/guides/*` (template B) — action intent, high conversion
-| Page | Target query | Tier |
-|---|---|---|
-| How to remove **UTM** parameters from a URL | "how to remove utm parameters", "strip utm from link" | T1 |
-| How to clean a **YouTube** share link | "remove si from youtube link", "clean youtube link" | T1 |
-| How to get a clean **Amazon** product link | "clean amazon link", "remove amazon ref tag" | T1 |
-| How to clean an **X / Twitter** link | "remove tracking twitter link" | T1 |
-| How to clean an **Instagram** link | "remove igshid", "clean instagram link" | T1 |
-| How to clean a **TikTok** / **Spotify** / **LinkedIn** / **Reddit** / **Google Maps** link | per-platform | T2 |
-| How to get a clean **Markdown** link for **Obsidian / Notion** | "obsidian clean link", "markdown link without tracking" | T1 | ⭐ the PKM wedge — the audience Clean Links ignores |
+| Page | Target query | Tier | Status |
+|---|---|---|---|
+| ✅ How to remove **UTM** parameters from a URL | "how to remove utm parameters", "strip utm from link" | T1 | `/guides/remove-utm-parameters/` |
+| ✅ How to clean a **YouTube** share link | "remove si from youtube link", "clean youtube link" | T1 | `/guides/clean-youtube-link/` |
+| ✅ How to get a clean **Amazon** product link | "clean amazon link", "remove amazon ref tag" | T1 | `/guides/clean-amazon-link/` |
+| ✅ How to clean an **X / Twitter** link | "remove tracking twitter link" | T1 | `/guides/clean-x-twitter-link/` |
+| How to clean an **Instagram** link | "remove igshid", "clean instagram link" | T1 | *Wave 2 — pairs with the `igshid` spoke.* |
+| How to clean a **TikTok** / **Spotify** / **LinkedIn** / **Reddit** / **Google Maps** link | per-platform | T2 | *Wave 2 — TikTok/Reddit can lean on the shipped `ttclid`/`rdt_cid` spokes; LinkedIn pairs with the `rsc` verification.* |
+| How to get a clean **Markdown** link for **Obsidian / Notion** | "obsidian clean link", "markdown link without tracking" | T1 | ⭐ the PKM wedge — still the highest-leverage unshipped guide. |
 
 ### 4.3 Glossaries & URL trivia — hubs + link-bait (templates D/E)
-| Page | Target query | Tier |
-|---|---|---|
-| **Tracking-parameter glossary (A–Z)** `/trackers` | "tracking parameters list", "url tracking parameters" | T1 (hub) |
-| **Anatomy of a URL** (scheme/host/path/query/fragment) `/url/anatomy` | "parts of a url", "url anatomy", "what is a query string" | T2 (hub) |
-| **URL trivia**: what `?` `&` `#` `%20` mean; why links have `#`; the longest URLs | "what does %20 mean", "what is the # in a url" | T3 | shareable, LLM-citable |
-| **"The 100 most common tracking parameters"** (data/reference) | "list of tracking parameters" | T3 | link-magnet; mirrors the app's catalog (auditable-catalog asset, growth-marketing §10) |
+| Page | Target query | Tier | Status |
+|---|---|---|---|
+| ✅ **Tracking-parameter glossary (A–Z)** `/trackers/` | "tracking parameters list", "url tracking parameters" | T1 (hub) | Lists 36 spokes, grouped by `kind` → "UTM tags" / "Ad click IDs" / "Email marketing" / "Region & language (preserved)". Includes the `DefinedTermSet` schema. |
+| **Anatomy of a URL** (scheme/host/path/query/fragment) `/url/anatomy` | "parts of a url", "url anatomy", "what is a query string" | T2 (hub) | *Not yet shipped — `/url/` hub still empty.* |
+| **URL trivia**: what `?` `&` `#` `%20` mean; why links have `#`; the longest URLs | "what does %20 mean", "what is the # in a url" | T3 | *Not yet shipped — Wave 3 link-bait.* |
+| **"The 100 most common tracking parameters"** (data/reference) | "list of tracking parameters" | T3 | *Partially superseded* — the shipped `/trackers/` hub already runs 36 fully-written spokes (richer than the planned "100 entries one-liner list"); a separate "raw catalog dump" page is still optional Wave 3 link-magnet bait. |
+
+**Hubs added during execution that weren't enumerated in §2's IA tree** (silently shipped alongside §4.2/§4.4):
+- ✅ **`/guides/` hub** — `CollectionPage` schema listing every guide; breadcrumb back-link on every spoke
+- ✅ **`/learn/` hub** — same pattern for the pillar pages
+- ✅ **Site-wide header nav** — Glossary / Guides / Learn (added once the second + third hubs landed)
 
 ### 4.4 Concept / pillar pages — `/learn/*` (template E) — authority + LLMO
-| Page | Target query | Tier |
-|---|---|---|
-| What is a **tracking parameter**? | "what is a tracking parameter" | T1 (pillar) |
-| What is a **click ID**? (the fbclid/gclid family) | "what is a click id" | T2 |
-| What is **link decoration** / **bounce tracking**? | "what is link decoration", "bounce tracking" | T2 | the concept Apple/browsers fight — ties to the brand |
-| **Do cleaned links still work?** | "is it safe to remove tracking from links" | T1 | answers the #1 user worry → trust + conversion |
-| Tracking vs **functional** parameters (what's safe to strip) | "which url parameters are safe to remove" | T2 | ties to the catalog design / advisor |
-| What is a **redirect / link shortener**, and is it tracking you? | "do link shorteners track you" | T2 | ties to E1 redirect unwrapping |
+| Page | Target query | Tier | Status |
+|---|---|---|---|
+| What is a **tracking parameter**? | "what is a tracking parameter" | T1 (pillar) | *Not yet shipped — Wave 2 priority; still the canonical pillar entry point.* |
+| ✅ **Click IDs vs UTM tags** (the fbclid/gclid family vs the utm family) | "what is a click id", "click id vs utm" | T2 | `/learn/click-ids-vs-utm-tags/` — pillar reframed: not "what is a click ID?" alone but the comparison vs UTM, which captures both queries and gives the reader a mental model. |
+| What is **link decoration** / **bounce tracking**? | "what is link decoration", "bounce tracking" | T2 | The concept Apple/browsers fight — ties to the brand. *Not yet shipped.* |
+| ✅ **Do cleaned links still work?** | "is it safe to remove tracking from links" | T1 | `/learn/do-cleaned-links-still-work/` — answers the #1 user worry → trust + conversion. |
+| ✅ **What's hidden in a share link?** (flagship privacy-awareness piece — also listed in §4.0) | "what is hidden in a link", "what do shared links track" | T1 | `/learn/whats-hidden-in-a-share-link/`. |
+| ✅ **What `t=` and `s=` mean in an X (Twitter) share URL** *(added Wave 1.5)* | "what is s in twitter link", "twitter t parameter" | T1 | `/learn/x-twitter-share-url-explained/` — the X-codes deep dive promised in §4.1 and §9 #4. Anatomy + a 9-row `s=` reference table (sourced from the Unfurl open-source URL parser). First use of the `SectionTable` template feature. |
+| Tracking vs **functional** parameters (what's safe to strip) | "which url parameters are safe to remove" | T2 | Ties to the catalog design / advisor. *The functional template (4.1b) ships this idea per-parameter; a unified pillar is still due.* |
+| What is a **redirect / link shortener**, and is it tracking you? | "do link shorteners track you" | T2 | Ties to E1 redirect unwrapping. *Not yet shipped.* |
 
 ### 4.5 Privacy how-tos — `/guides/*` (template C) — adjacent top-of-funnel (your asks + more)
 | Page | Target query | Tier |
@@ -171,11 +235,12 @@ Tiers: **T1** = build first (highest intent × volume × funnel, or a cornerston
 
 **Don't write 50 pages at once — ship the cornerstones, then the long tail compounds.**
 
-| Wave | Build | Why |
-|---|---|---|
-| **Wave 1 (cornerstones)** | Home/LP · `/trackers` hub · "What's hidden in a share link?" · UTM + `fbclid` + `gclid` explainers · "How to remove UTM parameters" · "How to clean a YouTube link" · "Do cleaned links still work?" | Highest intent/volume + the hub that makes everything else discoverable |
-| **Wave 2 (wedge + breadth)** | The Markdown/Obsidian guide · `si`/`s`+`t`/`igshid` explainers · Amazon/X/Instagram clean-how-tos · Private Relay + disable-ATT guides · `/learn/tracking-parameter` pillar | The PKM wedge + the platforms with the most search demand + the privacy top-of-funnel |
-| **Wave 3 (long tail + link-bait)** | the remaining per-vendor param spokes · URL-anatomy + trivia · "100 tracking parameters" reference · the comparison/listicle pages · `rsc` (⚠️post-verify) | Compounds; low competition; the link-magnets |
+| Wave | Build | Why | Status |
+|---|---|---|---|
+| **Wave 1 (cornerstones)** | Home/LP · `/trackers` hub · "What's hidden in a share link?" · UTM + `fbclid` + `gclid` explainers · "How to remove UTM parameters" · "How to clean a YouTube link" · "Do cleaned links still work?" | Highest intent/volume + the hub that makes everything else discoverable | ✅ **Shipped** (Phase 3a → Phase 3b deploy). |
+| ✅ **Wave 1.5 (enrichment — not in original plan)** | +5 tracker spokes (`utm_medium`, `utm_campaign`, `msclkid`, `ttclid`, `mc_eid`) · +1 functional spoke (`hl`) introducing the `nature: "tracker" \| "functional"` distinction + new `regional` kind + "Email marketing" hub category · +2 guides (`clean-amazon-link`, `clean-x-twitter-link`) · +1 learn pillar (`click-ids-vs-utm-tags`) · the X (Twitter) deep dive at `/learn/x-twitter-share-url-explained/` (anatomy + 9-row `s=` reference table) · `/guides/` + `/learn/` hubs · site-wide header nav · inline-markdown converter (`src/markdown.ts`) | Filled the catalog up to credible authority depth before pushing breadth; the functional/preserved-parameter category turned a blind spot into a trust play; the X deep dive captured the bare-keyword queries (`s in twitter link`) without spawning a per-code spoke. | ✅ **Shipped** (between Phase 3a and Phase 3b; sites are live on `linkclean.app`). |
+| **Wave 2 (wedge + breadth)** | The Markdown/Obsidian guide · `si`/`igshid` explainers · Instagram/TikTok/Spotify/LinkedIn/Reddit/Google-Maps clean-how-tos · Private Relay + disable-ATT guides · `/learn/tracking-parameter` pillar · `vero_id` / `oly_enc_id` email spokes · `ref` / `ref_src` / `ref_url` | The PKM wedge + the platforms with the most search demand + the privacy top-of-funnel | Queued — `s=` + `t=` already covered by the Wave-1.5 deep dive; `X/Amazon` guides already shipped, so Wave 2's platform list shrinks accordingly. |
+| **Wave 3 (long tail + link-bait)** | The remaining per-vendor param spokes (`cmpid` / `icid` / generic) · URL-anatomy + trivia under `/url/` · the comparison/listicle pages under `/compare/` · `rsc` (⚠️post-verify) · `/clean` free web cleaner (if open-decision §9 #1 lands "yes") | Compounds; low competition; the link-magnets. **Legal pages stay on `ken0nek.com` permanently** — see status snapshot above. | Queued. |
 
 **Production model:** founder-drafted + AI-assisted from the §3 templates (consistent, fast); **`deep-research` skill to verify any ⚠️ parameter before publishing**; the `copywriting` skill for the LP/`/clean` conversion copy. Cadence: a small steady drip (e.g. 2–4 pages/week) beats a one-time dump — fresh, growing clusters signal authority.
 
@@ -191,7 +256,7 @@ Tiers: **T1** = build first (highest intent × volume × funnel, or a cornerston
 ---
 
 ## 9. Open decisions
-1. **`/clean` free web cleaner?** — strong SEO/LLMO magnet + conversion pivot, but gives the core away free (mirrors Clean Links Web). **Lean: yes, deliberately limited + app-upsell.** (Carried from growth-marketing §10.)
-2. **Publish the catalog as `/trackers` data?** — the glossary *is* a read-only, auditable view of the catalog — a trust + LLMO asset vs the competitor's un-audited "71+ services." **Lean: yes** (growth-marketing §10).
-3. **Programmatic vs hand-written tracker pages?** — templates make near-programmatic generation feasible, but thin auto-pages get penalized. **Lean: template-driven but each genuinely written** (the privacy stake + example make each non-thin).
-4. **`rsc` and the X `s`-codes** — ship only after verification; if `rsc` turns out to be a pure Next.js artifact, the *honest* "it's not actually tracking you" piece is *more* valuable than a wrong "it's a tracker" one.
+1. **`/clean` free web cleaner?** — strong SEO/LLMO magnet + conversion pivot, but gives the core away free (mirrors Clean Links Web). **Lean: yes, deliberately limited + app-upsell.** (Carried from growth-marketing §10.) ❓ **Still open.**
+2. ✅ **Publish the catalog as `/trackers` data?** — **Decided: yes.** The shipped `/trackers/` hub is a read-only, auditable view of 36 catalog entries; the per-spoke `DefinedTerm` schema makes the whole hub LLM-citable.
+3. ✅ **Programmatic vs hand-written tracker pages?** — **Decided: template-driven, each individually written.** Every shipped spoke carries hand-written copy for the privacy stake + dirty/clean example; the template (template A and the 4.1b functional variant) only enforces structure. No thin auto-pages.
+4. ✅ **`rsc` and the X `s`-codes** — *Partially decided.* The X `s=`/`t=` codes shipped as a `/learn/` deep dive after verification against the Unfurl open-source URL parser (template E + new `SectionTable` field). `rsc` is **still queued for Wave 3 post-verification** — the "is `rsc` actually tracking you, or just a tech artifact?" angle is the strongest unshipped Wave-3 piece.

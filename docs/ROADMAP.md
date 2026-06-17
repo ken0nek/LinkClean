@@ -4,6 +4,8 @@ Forward-looking only — what's planned, parked, or undecided. Shipped work is i
 [CHANGELOG.md](../CHANGELOG.md); product-decision rationale is in
 [ARCHITECTURE.md](../ARCHITECTURE.md).
 
+> **Live releases (as of 2026-06-16):** 1.0.0 (2026-06-15) and 1.1.0 (2026-06-16). 1.1.0 ended up much bigger than originally scoped — most of the planned 1.2 release pulled forward into 1.1; see [product/growth-roadmap.md](product/growth-roadmap.md) §9 "Why this collapsed".
+
 ## 1.2.0 — Backlog (planned, did not make 1.1.0)
 
 - [ ] **ai-C smart titles** — on-device title generation for cleaned links; plan: [plans/001-ai-c-smart-titles.md](plans/001-ai-c-smart-titles.md) (in-app v1; action-extension use deferred).
@@ -11,7 +13,7 @@ Forward-looking only — what's planned, parked, or undecided. Shipped work is i
 
 ## Open decisions
 
-- [ ] **Buy the `linkclean.app` domain + landing page** — not an app-binary item, so it never blocked 1.0/1.1. A dedicated `.app` domain (cf. `whyzard.app`) would give a marketing/landing front door and cleaner support + universal-link URLs, at the cost of registration + mandatory HTTPS. App Store metadata URLs are editable post-launch (today: support → `github.com/ken0nek`, privacy → `ken0nek.com/apps/linkclean`), so this can wait. Landing-first build plan: [docs/strategy/monorepo-and-landing.md](strategy/monorepo-and-landing.md). If bought, revisit the support/marketing/privacy URLs.
+- ✅ **Buy the `linkclean.app` domain + landing page** — **Decided yes 2026-06-16**: domain bought, DNS on Cloudflare, landing site LIVE at [`linkclean.app`](https://linkclean.app/). Build plan + runbook: [docs/strategy/monorepo-and-landing.md](strategy/monorepo-and-landing.md). The "revisit support/marketing/privacy URLs" follow-up: **legal pages stay on `ken0nek.com` permanently** (see monorepo-and-landing.md §8); marketing URL still empty in ASC (optional); support URL still `github.com/ken0nek`.
 
 ## Parked (won't do unless data says otherwise)
 

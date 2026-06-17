@@ -1,6 +1,6 @@
 # App Store Connect Metadata — LinkClean (decisions & constraints)
 
-The **canonical copy** lives in `fastlane/metadata/en-US/` — that's what `fastlane deliver` uploads. This file holds only the *rationale, caps, and decisions* behind each field, not a second copy of the text. en-US only for 1.0.0 (pinned in `fastlane/Deliverfile`).
+The **canonical copy** lives in `fastlane/metadata/en-US/` — that's what `fastlane deliver` uploads. This file holds only the *rationale, caps, and decisions* behind each field, not a second copy of the text. **ASC metadata pinned to en-US through 1.0.0 and 1.1.0** (`languages(["en-US"])` in `fastlane/Deliverfile`) — note this is the *marketing listing* (description / keywords / screenshots), not the binary, which started shipping ja + de strings with 1.1.0 (LIVE 2026-06-16). Adding `ja-JP/` and `de-DE/` metadata folders is the natural next ASO move and is lighter-weight than a binary release.
 
 | Field | File (canonical) | Cap | Decision / rationale |
 |---|---|---|---|

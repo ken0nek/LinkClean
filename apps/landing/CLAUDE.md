@@ -4,16 +4,16 @@ Marketing site for LinkClean — Hono on Cloudflare Workers, mirrors `../../../w
 
 ## Phase status
 
-**Phase 3a (current): local Wave-1 site.** Home + `/trackers/` glossary hub + 3 spokes (utm_source / fbclid / gclid) + 2 guides + 2 learn pillars all render under `wrangler dev`. JSON-LD, sitemap, hreflang, llms.txt, robots.txt complete. TelemetryDeck Web is structurally wired but no-ops until `TELEMETRY_APP_ID` is set in `src/brand.ts`. Still no Cloudflare account, no domain, no `deploy:*`. **Phase 3b** (public launch — domain + deploy) and **Phase 3c** (content cadence + ja/de locales) are the next gates. See `docs/strategy/monorepo-and-landing.md`.
+**Phase 3b ✅ SHIPPED 2026-06-16 — site is LIVE at `linkclean.app`.** Phases 3a (build) and 3b (deploy) complete: home + `/trackers/` glossary hub (36 spokes) + multiple guides + multiple learn pillars, JSON-LD, sitemap, hreflang, llms.txt, robots.txt, TelemetryDeck Web (`TELEMETRY_APP_ID` set in `src/brand.ts`). **Phase 3c (current)** = content cadence (Wave-2/3) + `ja` / `de` locales + `/clean` web cleaner decision. See `docs/strategy/monorepo-and-landing.md`.
 
 ## Run
 
 ```bash
 pnpm --filter @linkclean/landing dev          # wrangler dev on :3001
 pnpm --filter @linkclean/landing typecheck    # tsc --noEmit
-# Phase 3b only:
-# pnpm --filter @linkclean/landing deploy:dev
-# pnpm --filter @linkclean/landing deploy:prod
+pnpm --filter @linkclean/landing verify-links # internal-link graph gate (added with the 36-spoke scale)
+pnpm --filter @linkclean/landing deploy:dev   # Cloudflare Worker dev env
+pnpm --filter @linkclean/landing deploy:prod  # production (linkclean.app)
 ```
 
 ## Layout
@@ -25,7 +25,8 @@ src/
   pageLayout.tsx         # shared `<Layout>` shell (head + header + footer + TELEMETRY_INIT)
   styles.ts              # `css` export — inlined as one <style> block via raw()
   page.tsx               # home renderer (renderPage) — Hero + demo + benefits + comparison + surfaces + trackers CTA + FAQ
-  brand.ts               # SITE_URL, APP_STORE_ID, AUTHOR, LAST_UPDATED, TELEMETRY_APP_ID (empty until 3a.4)
+  markdown.ts            # tiny inline markdown helper used by tracker spokes / guides / learn (escape + raw())
+  brand.ts               # SITE_URL, APP_STORE_ID, AUTHOR, LAST_UPDATED, TELEMETRY_APP_ID
   copy/
     types.ts             # `Copy` interface (the source of truth for the shape)
     en.ts                # English copy (ja, de drop in here in Phase 3c)
@@ -62,19 +63,18 @@ public/
 - **A new learn pillar** — append a `LearnArticle` to `src/learn/data.ts` (slug + per-locale `LearnContent` with `tldr`, `sections[{heading, paragraphs, bullets?}]`, optional `faq` and `related`).
 - **A new locale** — add the language file to `src/copy/` and register it in `src/i18n/locales.ts`. Every content module (`trackers/data.ts`, `guides/data.ts`, `learn/data.ts`) is keyed by locale and only emits pages for locales it has content for, so a new locale won't 500 — it just won't appear until you author each page.
 
-## Phase 3b — what gets added on top
+## Phase 3b — ✅ SHIPPED 2026-06-16
 
-- Domain + Cloudflare deploy (§6 of the plan): buy `linkclean.app`, move DNS, `deploy:prod`. Hub-and-spoke pages already render — only the public surface is missing.
-- Submit `/sitemap.xml` to Search Console.
-- Migrate `/privacy-policy` / `/terms` / `/support` onto `linkclean.app`; 301 the old `ken0nek.com` URLs; update `fastlane/metadata/en-US/privacy_url.txt` + in-app links in a **post-1.1.0** iOS build.
+- ✅ Domain + Cloudflare deploy (§6 of the plan): bought `linkclean.app`, moved DNS, `deploy:prod` runs. As-executed runbook lives in `docs/strategy/monorepo-and-landing.md` §6.
+- Still to do: submit `/sitemap.xml` to Search Console.
+- **Legal pages stay on `ken0nek.com` permanently** (decided 2026-06-16, see [monorepo-and-landing.md](../../docs/strategy/monorepo-and-landing.md) §8 / §11 #4). Privacy + Terms shipped with 1.0.0 and re-shipped with 1.1.0 (both LIVE) pointing at `ken0nek.com/apps/linkclean/{privacy-policy,terms-of-use}/`; we don't migrate them to avoid forcing an iOS resubmission to repoint a URL whose contents don't change. The landing footer already links the same `ken0nek.com` paths via `src/brand.ts` (`PRIVACY_URL` / `TERMS_URL`).
 
 ## Phase 3c — what gets added on top
 
 - Content waves 2–3 (additional tracker spokes, more guides, more learn pillars).
 - `ja` + `de` locales: copy modules + `app-store-badge-{ja,de}.svg` in `public/` + each `*/data.ts` entry adopts a `ja` / `de` content key.
-- TelemetryDeck Web — create the `linkclean-landing` TD app, set `TELEMETRY_APP_ID` in `src/brand.ts`. The shim in `pageLayout.tsx` already auto-loads the SDK and dispatches `Landing.AppStoreTapped` on every badge click (via the text/plain Blob CORS trick).
 - Decide on the `/clean` free web cleaner.
 
-## Cloudflare zone trap (when Phase 3b ships)
+## Cloudflare zone trap
 
-Cloudflare's **Security → Bots → Block AI Bots** silently overrides the `robots.txt` allowlist — the edge enforces it before the worker serves anything. Verify it's OFF (and Bot Fight Mode either OFF or with the AI UAs allowlisted). This whole site's LLMO play depends on AI crawlers reaching the content.
+Cloudflare's **Security → Bots → Block AI Bots** silently overrides the `robots.txt` allowlist — the edge enforces it before the worker serves anything. It must stay OFF (and Bot Fight Mode either OFF or with the AI UAs allowlisted). Re-verify after any Cloudflare dashboard change: this whole site's LLMO play depends on AI crawlers reaching the content.

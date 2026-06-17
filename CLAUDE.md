@@ -19,6 +19,8 @@ Claude Code reads CLAUDE.md hierarchically, deepest first. Don't restate per-app
 ### Toolchain
 `mise.toml` is split: root pins `node` + `pnpm` (for `apps/landing` and any future JS package); `apps/ios/LinkClean/mise.toml` pins `ruby` (for fastlane). Mise resolves hierarchically, so each surface sees the right tools without manual switching.
 
+Cross-cutting JS lint/format runs from the root via biome: `pnpm format` (write), `pnpm lint`, `pnpm check` (write), `pnpm ci`. Config is `biome.json` at the root; applies to anything under `apps/landing/`.
+
 ### Skills
 Skills are pinned in `skills-lock.json` and installed into `.agents/skills/<name>/` (real dir) with a symlink at `.claude/skills/<name>` (the path Claude Code reads from). Both paths are gitignored via the allowlist block in `.gitignore`.
 

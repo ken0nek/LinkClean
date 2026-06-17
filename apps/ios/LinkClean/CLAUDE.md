@@ -30,6 +30,13 @@ If no precedent exists, state that explicitly before choosing an approach.
 ## Testing
 Swift Testing framework: `@Test`, `#expect`, `#require`.
 
+Three lanes — pick by what changed:
+- **Fast (LinkCleanKit/, macOS, <1s):** `cd LinkCleanKit && swift test` — runs Core + Data. ExtensionUI builds empty on macOS (UIKit-guarded).
+- **Kit sim:** `cd LinkCleanKit && xcodebuild test -scheme LinkCleanKit -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest'` — adds ExtensionUI.
+- **App:** `xcodebuild test -scheme LinkCleanTests -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest'` — ViewModel tests.
+
+Only iOS 26.5 simulator runtimes are installed; iPhone 17 family is the default sim (also pinned in `.xcodebuildmcp/config.yaml`).
+
 ## Debugging
 - **Logger** (`Log.app`/`Log.action` via `LinkCleanKit/Sources/LinkCleanCore/Log.swift`): use for permanently useful operational messages that stay in the codebase.
 - **print()**: use for one-time investigation debugging — add, build & run, read logs, remove.
@@ -51,7 +58,7 @@ Only commit staged changes. Never stage additional files unless explicitly asked
 ```
 LinkClean/
   App/                      – Entry point, root ContentView
-  Features/{FeatureName}/   – View + ViewModel pairs, feature-scoped types
+  Features/{FeatureName}/   – View + ViewModel pairs, feature-scoped types (current: Home, History, Onboarding, Stats, Settings, Paywall, QR, ExtensionGuide)
   Shared/Models/            – Domain types used across features
   Shared/Services/          – Service protocols and implementations
   Shared/UI/                – Reusable view modifiers, components
@@ -60,6 +67,7 @@ LinkCleanKit/               – Local package, one product ("LinkCleanKit"), fou
   Sources/LinkCleanData/        – persistence, →Core, MainActor default (SwiftData models + container, stores, CleaningService, HistoryStore + HistoryRecorder, LinkMetadataService, DefaultReviewService)
   Sources/LinkCleanAnalytics/   – →Core+Data, the only target linking the TelemetryDeck SDK (TelemetryDeckAnalytics)
   Sources/LinkCleanExtensionUI/ – →all, MainActor, UIKit (ActionPipeline + ActionOutputStrategy [Clean/Markdown] + URLExtraction + ActionHostViewController + toast catalog)
+  Sources/LinkCleanIntents/     – →Core+Data, App Intents (Siri/Shortcuts/widgets) — CleanLinkIntent, CleanClipboardIntent, IntentHistory; linked by app + LinkCleanWidget
   Tests/                        – LinkCleanCoreTests + LinkCleanDataTests (macOS fast lane), LinkCleanExtensionUITests (sim, UIKit-guarded), LinkCleanTestSupport (shared SpyAnalytics/Stub/fixtures)
 LinkCleanAction/            – Action extension target (a config: subclasses ActionHostViewController, picks a strategy)
 ```

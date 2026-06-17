@@ -1,8 +1,10 @@
 # LinkClean Growth Roadmap
 
-> **Status: proposed** — 2026-06-10. Nothing below is committed to a release; the sequencing in §9 is the recommendation and the open calls are collected in §10.
+> **Status: partially-shipped — 2026-06-16 (last sync).** Originally proposed 2026-06-10. Nothing below is committed to a release; the sequencing in §9 is the recommendation and the open calls are collected in §10.
 > Scope: **how the product grows after launch** — engine depth, OS surfaces, visible value, localization, and platform expansion. This doc composes with, and does not restate, the three decided strategies: [iap-strategy.md](../strategy/iap-strategy.md) ("iap §n") owns pricing/gating, [ai-features.md](ai-features.md) ("ai §n") owns the AI beats, [kpis.md](../strategy/kpis.md) owns measurement. Where this doc assigns Free/Pro, it applies iap §6's three rules; deviations are flagged, not smuggled.
 > Sources: codebase inventory 2026-06-10 (`URLCleaner.swift`, `TrackingParameters.swift`, `ProGate.swift`, extension targets, `Localizable.xcstrings`), plus the docs above and [docs/TODO.md](../TODO.md).
+
+> **⚠️ 1.1 ate 1.2.** Between proposal-time (2026-06-10) and the 1.1.0 release (LIVE 2026-06-16) the **entire originally-planned 1.2 release** got pulled forward into 1.1.0 — ai-A advisor, V2 dashboard, V3 share card, German localization, and P1 formats (the "first real Pro beat") all shipped *with* 1.1's S1/E1/E2/V1/ja set, plus **QR scan + generate** which wasn't on the roadmap at all (Ken rejected E3 multi-link in favour). §5 / §6 / §7 / §9 below still show the original "1.2" pin on those items so the planning trail stays readable; inline ✅ markers and parenthetical *(shipped 1.1.0)* notes flag what actually landed where. The next release window is **whatever-becomes-1.2** (small backlog: ai-C smart titles + E4 short-link expansion per [ROADMAP.md](../ROADMAP.md)).
 
 ---
 
@@ -92,9 +94,9 @@ Custom keyboard (permission horror for a privacy brand), watchOS (no link workfl
 
 The app does its job silently and gives users nothing to talk about. Deterministic counters fix that (real data, per ai §6's anti-option rationale — counts, not invented scores).
 
-- **V1 — Local stats counters (ship silently in 1.1).** App Group-persisted aggregates, independent of History so the 7-day free window never erases them: total cleans, total parameters removed, removals by category (`removedKindIDs` already carries this), top sites (host only — same granularity the telemetry already uses). Start accruing one release *before* the dashboard so it launches with real numbers.
-- **V2 — Stats dashboard (1.2).** "1,247 trackers removed · top site youtube.com · most common utm_source." A screen, not a tab — reachable from Settings and a Home badge tap. **Free**: this is operation visibility, and like Markdown it's a growth engine, not a power feature. Lever if needed later: per-site/per-category deep slices go Pro; the headline numbers never do.
-- **V3 — Shareable privacy card (1.2).** Rendered image of the user's stats for posting. This is the on-brand growth mechanic — explicitly **instead of** appending any "cleaned with LinkClean" suffix to shared URLs, which would be adding tracking to a tracker remover. Also: instant App Store screenshot and the marketing beat for 1.2 alongside the AI advisor.
+- ✅ **V1 — Local stats counters** *(shipped 1.1.0).* App Group-persisted aggregates, independent of History so the 7-day free window never erases them: total cleans, total parameters removed, removals by category (`removedKindIDs` already carries this), top sites (host only — same granularity the telemetry already uses).
+- ✅ **V2 — Stats dashboard** *(originally 1.2; shipped 1.1.0).* "1,247 trackers removed · top site youtube.com · most common utm_source." A screen, not a tab — reachable from Settings and a Home badge tap. **Free**: this is operation visibility, and like Markdown it's a growth engine, not a power feature. Lever if needed later: per-site/per-category deep slices go Pro; the headline numbers never do.
+- ✅ **V3 — Shareable privacy card** *(originally 1.2; shipped 1.1.0).* Rendered image of the user's stats for posting. This is the on-brand growth mechanic — explicitly **instead of** appending any "cleaned with LinkClean" suffix to shared URLs, which would be adding tracking to a tracker remover. Doubles as instant App Store screenshot. Pulled forward from 1.2 alongside V2 + ai-A to make 1.1's "What's New" the cohesive launch reel (1.0.0's release showed no notes; 1.1.0's is the first one users see).
 - **V4 — Opt-in monthly recap (1.3).** Local notification, "Your June privacy report." Local-only, opt-in from the dashboard (never a permission prompt at onboarding), one per month. One of the few re-engagement hooks a no-account utility can run without betraying itself.
 
 ---
@@ -105,13 +107,13 @@ No changes proposed to ai §5/§8; the renumbering note (§1) keeps its targets 
 
 | ai § | Feature | Free/Pro (ai §7) | Lands |
 |---|---|---|---|
-| A ⭐ | Unknown-parameter advisor (heuristic + FM tiers) | suggestion free / acting hits the custom-rule gate | **1.2** — the on-device-intelligence marketing beat, jointly with V2/V3 |
-| C | Title refinement | Pro, bundled with formats | **1.2** (with P1 formats below) if the latency spike passes; else in-app only |
+| A ⭐ | Unknown-parameter advisor (heuristic + FM tiers) | suggestion free / acting hits the custom-rule gate | ✅ **shipped 1.1.0** (originally 1.2; pulled forward with V2/V3) — the on-device-intelligence marketing beat |
+| C | Title refinement | Pro, bundled with formats | 1.2 (with the next round of formats) if the latency spike passes; else in-app only. Note: P1 formats (template engine + picker) already shipped in 1.1.0 *without* ai-C — the AI title beat is the remaining 1.2-eligible piece. |
 | B | History auto-tagging | Pro | 1.3 |
-| E | App Intents (no model) | basic free / advanced Pro | **pulled forward to 1.1** (§4 S1) — satisfies "E before D" |
+| E | App Intents (no model) | basic free / advanced Pro | ✅ **shipped 1.1.0** (§4 S1) — satisfies "E before D" |
 | D | NL history search | Pro | 1.4+ (needs B) |
 
-Synergy worth naming: the advisor (A) feeds the custom-rule funnel (kpis §9, premium candidate #1), and S1's Apple Intelligence visibility plus A's on-device story make "intelligent *and* private" one coherent 1.2 narrative.
+Synergy worth naming: the advisor (A) fed the custom-rule funnel (kpis §9, premium candidate #1), and S1's Apple Intelligence visibility plus A's on-device story made "intelligent *and* private" the coherent 1.1.0 narrative (it was originally meant to land at 1.2).
 
 ---
 
@@ -119,12 +121,12 @@ Synergy worth naming: the advisor (A) feeds the custom-rule funnel (kpis §9, pr
 
 TODO already sanctions this ("translations come later"); the identifier-key catalog infrastructure shipped ready (the kit's no-`manual`-entries constraint is solved). Order by storefront leverage:
 
-1. **Japanese (1.1).** Home market, strong utility-app culture, founder can QA the translation natively.
-2. **German (1.2).** The most privacy-sensitive major storefront — the positioning translates literally.
+1. ✅ **Japanese (1.1).** Shipped 1.1.0. Home market, strong utility-app culture, founder can QA the translation natively.
+2. ✅ **German (1.1).** Shipped 1.1.0 (originally pinned to 1.2; pulled forward — Wave-1.5 localization committed `2999f41` 2026-06-13). The most privacy-sensitive major storefront — the positioning translates literally. *Native review still pending — du/Sie tone decision standing.*
 3. **French + Spanish (1.3).** Volume.
 4. Re-evaluate from kpis §1 by-storefront data before going wider (zh-Hans, pt-BR, ko are the usual next tier).
 
-Each locale is also an **ASO multiplier**: a separate keyword field and screenshot set per storefront via the existing fastlane + composer pipeline. Standing loop regardless of locale: quarterly keyword refresh, Product Page Optimization tests on screenshots, and the post-launch share-sheet screenshot TODO already on file. The open `linkclean.app` domain decision (TODO) becomes more valuable once V3 gives people a reason to land somewhere — bundle the decision with 1.2.
+Each locale is also an **ASO multiplier**: a separate keyword field and screenshot set per storefront via the existing fastlane + composer pipeline. Standing loop regardless of locale: quarterly keyword refresh, Product Page Optimization tests on screenshots, and the post-launch share-sheet screenshot TODO already on file. ⚠️ **The app binary now ships ja+de strings as of 1.1.0, but `fastlane/Deliverfile` still pins ASC metadata to `en-US` only** — the marketing listing (description, keywords, screenshots) is en-US even on the Japanese / German storefront. Adding ja-JP and de-DE metadata folders is the natural next ASO move; it's lighter weight than another binary release. The `linkclean.app` domain decision is ✅ closed (bought 2026-06-16, LP + landing site LIVE; see [monorepo-and-landing.md](../strategy/monorepo-and-landing.md)).
 
 ---
 
@@ -134,7 +136,7 @@ iap §11 is explicit: 1.0's gates validate WTP; **conversion-squeezing waits for
 
 | Pro feature | Source | Lands |
 |---|---|---|
-| Copy as HTML / Title+URL formats (+ ai-C refinement) | iap §6 "when built" | **1.2** — the first real Pro beat |
+| ✅ Copy as you want — link-format template engine + in-extension picker | iap §6 "when built" | **shipped 1.1.0** (originally 1.2 "first real Pro beat"; pulled forward — the actual first Pro beat). ai-C smart-title refinement is the remaining 1.2 piece. |
 | iCloud sync — custom rules, toggles, history (CloudKit private DB; "your data in *your* iCloud, we never see it") | iap §6 | **1.3** — the headline Pro release |
 | History export (CSV/JSON) | iap §6 | 1.3 (small, rides along) |
 | History auto-tagging (ai-B) | ai §5 | 1.3 |
@@ -153,13 +155,13 @@ iap §11 is explicit: 1.0's gates validate WTP; **conversion-squeezing waits for
 
 | Release | Theme | Contents | The falsifiable goal |
 |---|---|---|---|
-| **1.1** | *Clean from anywhere* | S1 App Intents (intent + control + button widget), E1 unwrapping, E2 fragments, V1 silent counters, 🇯🇵 ja | Surface mix (kpis §6) shows intent/control cleans ≥ 15% of exports within 60 days; rating holds ≥ 4.7 |
-| **1.2** | *Intelligent and visible* | ai-A advisor, V2 dashboard, V3 share card, P1 formats + ai-C (first real Pro beat), 🇩🇪 de, domain/landing decision | First conversion read vs. iap §11's 5% base; card shares appear in the wild |
-| **1.3** | *Your links, everywhere, organized* | iCloud sync, export, ai-B tagging, S2 Safari v1, E3 multi-link text, V4 recap, 🇫🇷🇪🇸 | Conversion ≥ 5% sustained; D30 (kpis §8) lifts vs. 1.1 cohort |
-| **1.4+** | *Power* | ai-D NL search, advanced Shortcuts/widgets, domain rules + E5, S2 v2 auto-clean, E4 expansion | Pro-user behavior split (kpis §20) justifies continued Pro investment |
+| ✅ **1.1** *(LIVE 2026-06-16)* | *Clean from anywhere, intelligently, visibly* | S1 App Intents (intent + control + button widget), E1 unwrapping, E2 fragments, V1 counters, V2 dashboard, V3 share card, ai-A advisor, P1 Copy-as-you-want template engine + picker, **QR scan + generate** (new, not in original plan), 🇯🇵 ja + 🇩🇪 de, the `linkclean.app` domain + landing site | Surface mix (kpis §6) ≥ 15% intent/control cleans by D60; first conversion read vs. iap §11's 5% base; rating holds ≥ 4.7; card shares appear in the wild |
+| **1.2** *(scope shrunk — most originally-planned items shipped in 1.1.0)* | *Smarter titles + deeper unwrap* | ai-C title refinement (with the next Pro-formats round), E4 short-link expansion (per [ROADMAP.md](../ROADMAP.md)) | Title refinement engagement; E4 cleans-per-session lift |
+| **1.3** | *Your links, everywhere, organized* | iCloud sync, export, ai-B tagging, S2 Safari v1, V4 recap, 🇫🇷🇪🇸 | Conversion ≥ 5% sustained; D30 (kpis §8) lifts vs. 1.1 cohort |
+| **1.4+** | *Power* | ai-D NL search, advanced Shortcuts/widgets, domain rules + E5, S2 v2 auto-clean | Pro-user behavior split (kpis §20) justifies continued Pro investment |
 | **2.0** | *Platform* | Mac menu-bar app (after kit decoupling), price-headroom review | New-platform installs without new entitlement cost |
 
-Why this order: distribution before monetization-squeeze (1.1 grows the base the 1.2 paywall meets); counters accrue one release before the dashboard shows them; ai §8's beats land on their decided versions; sync — the strongest conversion driver — waits until the audience is multi-surface, which 1.1/1.2 create. Each release stays small enough to ship in weeks, keeping the catalog-update cadence (§3) as the heartbeat between them.
+Why this collapsed: with 1.0.0 holding a fix-build slot in review, the team kept shipping into the unmerged `feature/redirect-unwrapping` branch and the parallel Pro/AI/locale streams. By the time 1.0.0 went live (2026-06-15) the bundle was already 1.2-shaped, so 1.1 became "Clean from anywhere + Intelligent + Visible + First Pro beat + multi-locale" in one cut, and 1.0.0's silent What's New made 1.1.0's notes the first thing real users read. **Reading the original "1.1 grows the base the 1.2 paywall meets" sequencing now: that sequencing collapsed — the paywall (P1 formats) shipped on day one of 1.1. Net effect: faster conversion read, smaller-than-planned 1.2 backlog, sync (1.3) still the headline conversion driver.**
 
 ---
 
@@ -169,7 +171,7 @@ Why this order: distribution before monetization-squeeze (1.1 grows the base the
 2. **E4 short-link expansion: Pro, and is an opt-in network feature acceptable in the product at all?** (§3 — recommended yes/Pro, opt-in regardless.)
 3. **Safari v1 free / v2 Pro split.** (§4 S2 — recommended as stated.)
 4. **Localization order confirm** (ja → de → fr/es) and translation sourcing (founder-QA'd ja; paid translation for the rest).
-5. **`linkclean.app` domain** — decide with 1.2's V3 beat (carried from TODO).
+5. ✅ **`linkclean.app` domain** — **Decided yes 2026-06-16**: domain bought, DNS on Cloudflare, landing site LIVE at [`linkclean.app`](https://linkclean.app/) with home + `/trackers/` + `/guides/` + `/learn/` clusters. See [monorepo-and-landing.md](../strategy/monorepo-and-landing.md) and [seo-content-plan.md](../strategy/seo-content-plan.md).
 6. **Family Sharing revisit at 1.3** (carried flag, iap §5 context).
 7. Per iap §13.3: **re-verify the Feb 2026 competitive snapshot** — it predates launch; Clean Links' and Trackless Links' current state should sanity-check E1's "table stakes" claim and the price headroom note.
 
