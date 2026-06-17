@@ -19,8 +19,10 @@ import {
   localesForSpoke,
   localesWithTrackersHub,
   spokeBySlug,
-  spokesByKind,
+  spokesByKindWithVendor,
   spokesForLocale,
+  vendorInfo,
+  vendorName,
 } from "./select";
 import type { TrackerSpoke } from "./types";
 
@@ -156,9 +158,15 @@ export function renderTrackerSpoke(
             <code>{spoke.param}</code>
           </h1>
           <p class="sub">
-            {chrome.kindLabel[spoke.kind]} · {spoke.vendor}
+            {chrome.kindLabel[spoke.kind]} · {vendorName(spoke.vendor)}
+            {vendorInfo(spoke.vendor)?.year
+              ? ` · introduced ~${vendorInfo(spoke.vendor)?.year}`
+              : ""}
             {isFunctional ? ` · ${chrome.functionalTag}` : ""}
           </p>
+          {content.searchTitle ? (
+            <p class="search-title">{content.searchTitle}</p>
+          ) : null}
 
           <aside class="tldr">
             <span class="label">{chrome.tldrLabel}</span>
@@ -249,7 +257,7 @@ export function renderTrackersHub(locale: Locale): string {
   const chrome = trackersChrome(locale);
   const config = LOCALES[locale];
   const { copy } = config;
-  const groups = spokesByKind(locale);
+  const groups = spokesByKindWithVendor(locale);
   const allSpokes = spokesForLocale(locale);
 
   const crumbs: CrumbLink[] = [
@@ -294,21 +302,55 @@ export function renderTrackersHub(locale: Locale): string {
           <h1>{chrome.hubTitle}</h1>
           <p class="sub">{chrome.hubIntro}</p>
 
-          {groups.map((g) => (
-            <div key={g.kind} class="tracker-section">
-              <h2>{chrome.kindLabel[g.kind]}</h2>
-              <ul class="tracker-list">
-                {g.spokes.map((s) => (
-                  <li key={s.slug}>
-                    <a href={trackerSpokePath(locale, s.slug)}>
-                      <span class="name">{s.param}</span>
-                      <span class="desc">{s.content[locale]?.tldr}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {groups.map((g) => {
+            // Sub-group by vendor family only when the kind has ≥5 entries AND
+            // at least two distinct families; otherwise render flat.
+            const totalInKind = g.vendorGroups.reduce(
+              (n, vg) => n + vg.spokes.length,
+              0,
+            );
+            const useSubGroups =
+              totalInKind >= 5 && g.vendorGroups.length >= 2;
+            return (
+              <div key={g.kind} class="tracker-section">
+                <h2>{chrome.kindLabel[g.kind]}</h2>
+                {useSubGroups
+                  ? g.vendorGroups.map((vg) => (
+                      <div key={vg.family} class="tracker-subsection">
+                        <h3 class="vendor-family">{vg.family}</h3>
+                        <ul class="tracker-list">
+                          {vg.spokes.map((s) => (
+                            <li key={s.slug}>
+                              <a href={trackerSpokePath(locale, s.slug)}>
+                                <span class="name">{s.param}</span>
+                                <span class="desc">
+                                  {s.content[locale]?.tldr}
+                                </span>
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))
+                  : (
+                      <ul class="tracker-list">
+                        {g.vendorGroups
+                          .flatMap((vg) => vg.spokes)
+                          .map((s) => (
+                            <li key={s.slug}>
+                              <a href={trackerSpokePath(locale, s.slug)}>
+                                <span class="name">{s.param}</span>
+                                <span class="desc">
+                                  {s.content[locale]?.tldr}
+                                </span>
+                              </a>
+                            </li>
+                          ))}
+                      </ul>
+                    )}
+              </div>
+            );
+          })}
 
           <section class="page-cta">
             <h2>{chrome.ctaHeading}</h2>

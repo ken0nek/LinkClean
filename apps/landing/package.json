@@ -5,13 +5,15 @@
     "dev": "wrangler dev --env development",
     "deploy:dev": "wrangler deploy --env development",
     "deploy:prod": "wrangler deploy --env production",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify-links": "tsx scripts/verify-links.ts"
   },
   "dependencies": {
     "hono": "^4.12.23"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260607.1",
+    "tsx": "^4.20.0",
     "typescript": "^5.7.3",
     "wrangler": "^4.98.0"
   }

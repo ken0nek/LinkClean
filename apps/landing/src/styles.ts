@@ -528,6 +528,24 @@ export const css = `
   .tracker-list .name { font-family: var(--font-mono); font-weight: 600; }
   .tracker-list .desc { color: var(--color-muted); font-size: 0.95rem; }
 
+  .tracker-subsection { margin-top: var(--space-md); }
+  .tracker-subsection:first-child { margin-top: var(--space-sm); }
+  .vendor-family {
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-2xs);
+    font-weight: 600;
+  }
+  .search-title {
+    margin-top: var(--space-sm);
+    font-size: 1.05rem;
+    color: var(--color-muted);
+    font-style: italic;
+  }
+
   /* Related links list at the bottom of a spoke / learn / guide page */
   .related {
     margin-top: var(--space-xl);
