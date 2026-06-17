@@ -96,20 +96,20 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     // (utm-medium related stays compact — utm-term/utm-content/utm-id reciprocate via utm-source)
     content: {
       en: {
-        title: "utm_medium — what it names and why it's safe to strip · LinkClean",
+        title: "utm_medium — what it names and how to strip it · LinkClean",
         description:
-          "utm_medium names the marketing channel a click came through — email, social, cpc. It pairs with utm_source on every Google Analytics campaign link. Strip it before sharing.",
+          "utm_medium names the channel a click came through — email, social, cpc. It pairs with utm_source on every campaign link. Safe to strip.",
         tldr: "utm_medium names the marketing **channel** — “email”, “social”, “cpc” (paid search), “organic”. Pairs with utm_source to answer “which channel?”. Removing it never breaks the link.",
         sections: [
           {
-            heading: "What utm_medium adds on top of utm_source",
+            heading: "Pairing utm_medium with utm_source",
             paragraphs: [
               "utm_source names *where* the click came from (the specific publisher, list, or vendor); utm_medium names *how* — the channel class. Together they answer the analyst's first question: “did this campaign land via email, via social, via paid search, or via something else?”.",
               "Standard utm_medium values are conventional but not enforced: email, social, cpc (cost-per-click paid search), display, affiliate, organic, referral. The values are whatever the publisher decides; Google Analytics treats them as opaque strings.",
             ],
           },
           {
-            heading: "What it leaks when you forward the link",
+            heading: "Channel-level attribution, and what forwarding leaks",
             paragraphs: [
               "Same blast radius as utm_source. Forwarding a link with utm_medium=email attached tells every analytics tool downstream that the click came in via email — even if your friend clicked it from a chat app. The publisher's report counts your forward as another email-channel click.",
               "Not personally identifying on its own. Like utm_source, utm_medium describes the *channel*, not the person. Still, the privacy-safe default is to forward the destination, not the marketing metadata.",
@@ -159,18 +159,18 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
       en: {
         title: "utm_campaign — what publishers learn from it · LinkClean",
         description:
-          "utm_campaign labels the marketing campaign — “spring-launch”, “black-friday-2026”. It buckets clicks inside Google Analytics so publishers can compare campaigns. Safe to strip.",
+          "utm_campaign labels the campaign — “spring-launch”, “black-friday-2026”. Buckets clicks inside Google Analytics for the publisher. Safe to strip.",
         tldr: "utm_campaign labels the marketing campaign — “spring-launch”, “black-friday-2026”. It buckets clicks inside Google Analytics so the publisher can compare campaigns. The page renders identically without it.",
         sections: [
           {
-            heading: "What utm_campaign actually does",
+            heading: "Campaign labels and what they reveal",
             paragraphs: [
               "Every utm_source + utm_medium combination can roll up under a named campaign. utm_campaign is that label — a free-form string the publisher picks, usually descriptive enough for a human to read in an analytics dashboard. “summer-sale-2026”, “onboarding-week-2”, “launch-day-tweet”.",
               "Google Analytics groups all clicks sharing the same utm_campaign value into one bucket, regardless of source or medium. That bucket is how marketers answer “how did this campaign do?” across email + social + paid search at once.",
             ],
           },
           {
-            heading: "What it leaks when you forward",
+            heading: "When a campaign name leaks strategy",
             paragraphs: [
               "utm_campaign tells everyone downstream which specific campaign is being measured — and sometimes the value is more revealing than the publisher intended. Internal campaign names sometimes telegraph product launches, A/B test cohorts, or strategy details the publisher would not voluntarily share with the public. Forwarding the URL with utm_campaign attached passes that label forward.",
               "Not personally identifying. The risk is signaling-to-third-parties, not user-identification.",
@@ -473,7 +473,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         title: "gbraid — Google Ads' iOS app-attribution ID · LinkClean",
         searchTitle: "What is gbraid?",
         description:
-          "gbraid is Google Ads' iOS app-install attribution ID — rolled out 2021 after Apple's App Tracking Transparency closed the gclid loophole. Strip it before sharing.",
+          "gbraid is Google Ads' iOS app-install attribution ID — rolled out 2021 after Apple's ATT broke gclid on iOS. Strip it before sharing.",
         tldr: "gbraid is the **post-ATT replacement for gclid in iOS app-install flows**. Google Ads added it in 2021 after Apple's App Tracking Transparency made the classic cookie-based gclid unusable on iOS. It attributes ad clicks → app installs without needing a cross-app identifier.",
         sections: [
           {
@@ -599,10 +599,10 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     related: ["gclid", "gbraid", "wbraid", "fbclid", "srsltid"],
     content: {
       en: {
-        title: "dclid — DoubleClick / Display & Video 360 click ID · LinkClean",
+        title: "dclid — Google's DoubleClick / DV360 click ID · LinkClean",
         searchTitle: "What is dclid?",
         description:
-          "dclid is the DoubleClick click identifier — used by Google's display + video ad network (DV360). The display-network analog of gclid. Strip it before sharing.",
+          "dclid is the DoubleClick click identifier — used by Google's display + video ad network (DV360). The display-network analog of gclid. Strip it.",
         tldr: "dclid is Google's **display-and-video click identifier** — the DoubleClick / Display & Video 360 (DV360) analog of gclid. Where gclid is for Search Ads, dclid is for display-network and YouTube video ads.",
         sections: [
           {
@@ -664,7 +664,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         title: "srsltid — Google Shopping result-listing ID · LinkClean",
         searchTitle: "What is srsltid?",
         description:
-          "srsltid is the Google Shopping search-result listing ID — added to outbound clicks from the Shopping tab and from free product listings. Strip it before sharing.",
+          "srsltid is Google Shopping's search-result listing ID — added to clicks from the Shopping tab and free product listings. Strip it.",
         tldr: "srsltid is Google Shopping's **search-result listing ID** — added to every outbound click from the Shopping tab (paid and free Product Listings alike). Identifies which result panel was clicked, useful only for Google's conversion bookkeeping.",
         sections: [
           {
@@ -785,10 +785,10 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     related: ["gad-source", "gclid", "utm-campaign"],
     content: {
       en: {
-        title: "gad_campaignid — Google Ads' first-party campaign ID · LinkClean",
+        title: "gad_campaignid — Google Ads' campaign ID · LinkClean",
         searchTitle: "What is gad_campaignid?",
         description:
-          "gad_campaignid is Google Ads' newer first-party campaign identifier — added 2023 alongside gad_source to feed GA4's enhanced conversions reliably. Strip it.",
+          "gad_campaignid is Google Ads' newer first-party campaign identifier — added 2023 alongside gad_source for GA4's enhanced conversions. Strip it.",
         tldr: "gad_campaignid is **Google Ads' newer first-party campaign identifier**, rolled out 2023 alongside gad_source. It's a numeric campaign ID added directly to outbound URLs so GA4 can attribute clicks without relying on the cookie/referrer plumbing Universal Analytics used.",
         sections: [
           {
@@ -892,7 +892,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         title: "twclid — X (Twitter) Ads' click ID, explained · LinkClean",
         searchTitle: "What is twclid?",
         description:
-          "twclid is X (Twitter) Ads' per-click identifier — the Twitter equivalent of fbclid. Added to outbound ad clicks for conversion attribution. LinkClean strips it.",
+          "twclid is X (Twitter) Ads' per-click identifier — the X equivalent of fbclid. Added to outbound ad clicks. LinkClean strips it.",
         tldr: "twclid is **X / Twitter Ads' click identifier**, rolled out in 2021. The X equivalent of fbclid for Meta or gclid for Google Ads. Attaches to outbound clicks from sponsored tweets and Twitter Ads creatives.",
         sections: [
           {
@@ -1054,7 +1054,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         title: "li_fat_id — LinkedIn Ads' email-based click ID · LinkClean",
         searchTitle: "What is li_fat_id?",
         description:
-          "li_fat_id is LinkedIn's First-Party Ad Tracking identifier — used to attribute LinkedIn Ad clicks via the member's email address. Strip it before forwarding.",
+          "li_fat_id is LinkedIn's First-party Ad Tracking ID — joins LinkedIn ad clicks to the member's email-keyed identity. Strip it.",
         tldr: "li_fat_id is **LinkedIn's First-party Ad Tracking identifier** — “fat” = First-party Ad Tracking. Tied to the LinkedIn member who clicked, via the email address they registered with. Higher privacy stakes than most ad-click IDs.",
         sections: [
           {
@@ -1205,7 +1205,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         title: "mc_cid — Mailchimp's campaign identifier · LinkClean",
         searchTitle: "What is mc_cid?",
         description:
-          "mc_cid is Mailchimp's campaign identifier — names which Mailchimp campaign the link belongs to. Companion to the per-subscriber mc_eid. LinkClean strips both.",
+          "mc_cid is Mailchimp's campaign identifier — names which campaign the link belongs to. Companion to mc_eid (per-recipient). Strip both.",
         tldr: "mc_cid is **Mailchimp's campaign identifier** — names which Mailchimp campaign the link belongs to (the campaign-level identifier; mc_eid is the per-recipient one). Stripping mc_cid is less sensitive than mc_eid but pairs with it on every Mailchimp link.",
         sections: [
           {
@@ -1262,7 +1262,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         title: "mkt_tok — Marketo's per-recipient email token · LinkClean",
         searchTitle: "What is mkt_tok?",
         description:
-          "mkt_tok is Marketo's per-recipient email tracking token — a base64-encoded identifier that ties an email click to a specific lead record. Strip it before forwarding.",
+          "mkt_tok is Marketo's per-recipient email token — base64-encoded, tied to a specific lead record in Marketo's CRM. Strip it before forwarding.",
         tldr: "mkt_tok is **Marketo's per-recipient email tracking token** — a long base64 string that joins an email click to a specific lead record in Marketo's CRM. Behaves like Mailchimp's mc_eid but in the B2B / enterprise-marketing world. High-stakes when forwarded.",
         sections: [
           {
@@ -1505,13 +1505,13 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     kind: "regional",
     nature: "functional",
     searchDemand: "high",
-    vendor: { name: "Google (Search, YouTube, Maps, Translate, …)", family: "Google" },
+    vendor: { name: "Google (Search, YouTube, Maps, Translate, …)", family: "Google (Search & YouTube)" },
     related: ["gl", "lang", "q", "t-youtube", "v-youtube"],
     content: {
       en: {
         title: "hl — what Google's host-language parameter does · LinkClean",
         description:
-          "hl is Google's host-language parameter — it sets the interface language on Search, YouTube, Maps, and other Google services. It's functional, not tracking; LinkClean preserves it.",
+          "hl is Google's host-language parameter — sets the interface language on Search, YouTube, Maps. Functional, not tracking; LinkClean preserves it.",
         tldr: "`hl` stands for “host language” — it tells Google services which language to render the interface in (`hl=ja` → Japanese UI, `hl=fr` → French). **It's functional, not tracking.** LinkClean preserves it on every host. The page is in this glossary because everyone asks what it is, not because we strip it.",
         sections: [
           {
@@ -1591,18 +1591,18 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         title: "utm_term — the paid-keyword UTM tag · LinkClean",
         searchTitle: "What is utm_term?",
         description:
-          "utm_term is a Google Analytics campaign tag that names the paid keyword behind a click — only appears on paid-search URLs. Safe to strip; the destination page never reads it.",
+          "utm_term names the paid-search keyword behind a click — appears almost exclusively on paid-search ads. Safe to strip; the page never reads it.",
         tldr: "utm_term names the **paid-search keyword** that triggered an ad click — “running shoes”, “privacy app ios”, etc. Only appears on paid-search URLs (Google Ads, Bing Ads). LinkClean strips it everywhere; the destination page never reads it.",
         sections: [
           {
-            heading: "What utm_term actually does",
+            heading: "Paid-search attribution explained",
             paragraphs: [
               "utm_term is the fourth of Google's five UTM campaign tags. It's almost exclusively used on paid-search ads — the value is the keyword the searcher typed that matched the ad's targeting. `utm_term=privacy+ios+app` says the click came from someone searching that exact phrase.",
               "On organic clicks (a click from an unpaid Google search result), utm_term is virtually never present — Google has stripped the referring keyword from organic referrer data since 2011. The tag is therefore a strong signal that the click was paid.",
             ],
           },
           {
-            heading: "What forwarding it leaks",
+            heading: "When keyword data is more revealing than utm_source",
             paragraphs: [
               "Forwarding a link with utm_term still attached tells anyone downstream which keyword the advertiser was bidding on. That can be revealing — the keyword is often a competitor's name, a specific product configuration the publisher is targeting, or an internal A/B-test cohort label.",
               "Like the rest of the UTM family it's not personally identifying — it identifies the *campaign*, not the visitor. But it does telegraph the advertiser's paid-search playbook to whoever receives the forwarded URL.",
@@ -1657,7 +1657,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         tldr: "utm_content names the **creative variant or CTA** that was clicked — “hero-button”, “v2-banner”, “footer-link”. Publishers use it to A/B-test which version of an ad or email works. The destination page never reads it.",
         sections: [
           {
-            heading: "What utm_content actually does",
+            heading: "Creative-variant tracking and A/B testing",
             paragraphs: [
               "utm_content is the fifth UTM tag, and the one publishers reach for when they want to split-test elements *inside* a single ad or email. utm_source/medium/campaign locate the click in the campaign hierarchy; utm_content tells the publisher which specific variant or button was clicked.",
               "Common values look like `hero-cta`, `v2-button`, `image-top`, `text-link-1`, or arbitrary cohort IDs from an A/B-test platform. The value is meaningful only to the publisher's analytics dashboard.",
@@ -1711,11 +1711,11 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
         title: "utm_id — GA4's campaign-ID UTM tag · LinkClean",
         searchTitle: "What is utm_id?",
         description:
-          "utm_id is Google Analytics 4's newer campaign identifier — a numeric ID that joins clicks to a specific campaign row in GA4's bookkeeping. Safe to strip.",
+          "utm_id is GA4's numeric campaign identifier — joins a click to a specific campaign row in Google Analytics 4. Safe to strip.",
         tldr: "utm_id is **GA4's campaign-ID UTM tag** — a numeric identifier added by Google Analytics 4 to join clicks to a specific campaign row. Newer than utm_source / utm_medium / utm_campaign; same safe-to-strip property.",
         sections: [
           {
-            heading: "What changed in GA4",
+            heading: "Universal Analytics → GA4 transition",
             paragraphs: [
               "Google Analytics 4 (rolled out 2020–2023 as a Universal Analytics replacement) added utm_id as a way to bind a click to a campaign entity inside GA4 without depending on the free-form utm_campaign string. utm_campaign=“spring-launch” is human-readable but easily duplicated; utm_id=`8421` is a stable numeric ID that GA4 generates and tracks against its internal campaign table.",
               "Both are added together: `utm_campaign=spring-launch&utm_id=8421` is the common pattern in GA4-driven campaigns. Older Universal Analytics campaigns rarely had utm_id; you'll see it most on links generated by GA4's Campaign URL Builder or by marketing tools updated for the GA4 era.",
@@ -1757,7 +1757,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     kind: "regional",
     nature: "functional",
     searchDemand: "high",
-    vendor: { name: "Google (Search, Maps, Shopping)", family: "Google" },
+    vendor: { name: "Google (Search, Maps, Shopping)", family: "Google (Search & YouTube)" },
     related: ["hl", "lang", "q"],
     content: {
       en: {
@@ -1818,7 +1818,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     kind: "regional",
     nature: "functional",
     searchDemand: "high",
-    vendor: { name: "YouTube", platform: "video timestamp (not a tracker)", family: "Google" },
+    vendor: { name: "YouTube", platform: "video timestamp (not a tracker)", family: "Google (Search & YouTube)" },
     related: ["hl", "v-youtube", "q"],
     content: {
       en: {
@@ -1877,7 +1877,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     kind: "regional",
     nature: "functional",
     searchDemand: "medium",
-    vendor: { name: "YouTube", platform: "video identifier (not a tracker)", family: "Google" },
+    vendor: { name: "YouTube", platform: "video identifier (not a tracker)", family: "Google (Search & YouTube)" },
     related: ["t-youtube", "hl", "q"],
     content: {
       en: {
@@ -2048,7 +2048,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
       en: {
         title: "mc_eid — Mailchimp's per-recipient email ID · LinkClean",
         description:
-          "mc_eid is Mailchimp's email recipient identifier — a per-subscriber token added to outbound newsletter links. It's tied to your email address. LinkClean strips it by default.",
+          "mc_eid is Mailchimp's per-subscriber email identifier — tied to your email address. Forwarding it leaks an identity-bound token. LinkClean strips it.",
         tldr: "mc_eid is Mailchimp's per-**recipient** identifier — a token tied to the specific email address the newsletter was sent to. Forwarding it tells Mailchimp that someone else opened your email. Of all the trackers LinkClean strips, this is the one that most directly leaks identity.",
         sections: [
           {

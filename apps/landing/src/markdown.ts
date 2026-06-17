@@ -9,8 +9,9 @@ function escape(s: string): string {
 
 /** Render the inline-markdown subset we author in content:
  *
- *  - `code`   → <code>code</code>
- *  - **bold** → <strong>bold</strong>
+ *  - `code`        → <code>code</code>
+ *  - **bold**      → <strong>bold</strong>
+ *  - [text](url)   → <a href="url">text</a>   (root-relative URLs only — drops external)
  *
  *  HTML metacharacters in the input are escaped first, so it's safe to use on
  *  any authored string. Returns an HtmlEscapedString suitable for JSX child
@@ -19,6 +20,11 @@ function escape(s: string): string {
 export function inline(text: string) {
   return raw(
     escape(text)
+      // Links FIRST so the URL doesn't get **/`` mangled
+      .replace(
+        /\[([^\]]+)\]\((\/[^)\s]*)\)/g,
+        '<a href="$2">$1</a>',
+      )
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
       .replace(/`([^`]+)`/g, "<code>$1</code>"),
   );
