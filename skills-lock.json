@@ -19,6 +19,12 @@
       "skillPath": "skills/copywriting/SKILL.md",
       "computedHash": "d3191c3ad90610e0cacecf638d927418852264fabbd6e81c045094dad7d96f11"
     },
+    "hallmark": {
+      "source": "nutlope/hallmark",
+      "sourceType": "github",
+      "skillPath": "skills/hallmark/SKILL.md",
+      "computedHash": "8a8ecafd613f09e701330b5aa4a591ac539abb2605596df4a2394f03628d1d76"
+    },
     "hono": {
       "source": "yusukebe/hono-skill",
       "sourceType": "github",

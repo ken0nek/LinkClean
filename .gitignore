@@ -43,6 +43,7 @@ Temporary Items
 /.agents/skills/ai-seo/
 /.agents/skills/app-store-optimization/
 /.agents/skills/copywriting/
+/.agents/skills/hallmark/
 /.agents/skills/hono/
 /.agents/skills/programmatic-seo/
 /.agents/skills/seo-audit/
@@ -55,6 +56,7 @@ Temporary Items
 /.claude/skills/ai-seo
 /.claude/skills/app-store-optimization
 /.claude/skills/copywriting
+/.claude/skills/hallmark
 /.claude/skills/hono
 /.claude/skills/programmatic-seo
 /.claude/skills/seo-audit
