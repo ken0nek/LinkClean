@@ -13,8 +13,8 @@ The **canonical copy** lives in `fastlane/metadata/en-US/` — that's what `fast
 
 ## Root-level fastlane fields
 - **Categories** (`primary_category.txt` / `secondary_category.txt`): **Utilities** / **Productivity**.
-- **URLs:** Support → `support_url.txt` (currently `https://github.com/ken0nek` — replace with a real support page when one exists). Privacy Policy → `privacy_url.txt` → `https://ken0nek.com/apps/linkclean/privacy-policy/` (must be live before submit).
-- **Marketing URL** intentionally omitted (optional in ASC). Open decision: buy `linkclean.app`? — tracked in `docs/TODO.md`.
+- **URLs:** Support → `support_url.txt` → `https://linkclean.app` (the live marketing site; no dedicated `/support` route yet, so it lands on the home page — the footer carries the contact email `linkclean@ken0nek.com`). Privacy Policy → `privacy_url.txt` → `https://ken0nek.com/apps/linkclean/privacy-policy/` (must be live before submit).
+- **Marketing URL** → `marketing_url.txt` → `https://linkclean.app` (set 2026-06-17; the "buy `linkclean.app`?" decision is resolved — the site is LIVE since 2026-06-16). Both URLs use the bare canonical form (no trailing slash) to match `apps/landing/src/brand.ts` `SITE_URL`.
 
 ## Age rating
 **4+.** Questionnaire: "Unrestricted Web Access" = **No** (opens links in the system browser and reads page titles, but embeds no in-app browser). No other descriptors apply.
