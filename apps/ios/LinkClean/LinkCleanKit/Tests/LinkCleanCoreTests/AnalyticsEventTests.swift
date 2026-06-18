@@ -50,6 +50,7 @@ struct AnalyticsEventTests {
             (.settingsSaveHistoryToggled(enabled: true), "Settings.SaveHistory.toggled"),
             (.settingsTextFragmentsToggled(enabled: true), "Settings.TextFragments.toggled"),
             (.settingsQRButtonToggled(enabled: true), "Settings.QRButton.toggled"),
+            (.settingsExpandShortLinksToggled(enabled: true), "Settings.ExpandShortLinks.toggled"),
             (.settingsScreenShown, "Settings.Screen.shown"),
             (.parametersDefaultToggled(parameter: "utm_source", enabled: false), "Parameters.Default.toggled"),
             (.parametersCustomAdded(totalCount: 1), "Parameters.Custom.added"),
@@ -299,6 +300,11 @@ struct AnalyticsEventTests {
     @Test func defaultToggledPassesBuiltInNameThrough() {
         let params = AnalyticsEvent.parametersDefaultToggled(parameter: "fbclid", enabled: false).parameters
         #expect(params == ["parameter": "fbclid", "enabled": "false"])
+    }
+
+    @Test func expandShortLinksToggledCarriesEnabledFlag() {
+        #expect(AnalyticsEvent.settingsExpandShortLinksToggled(enabled: true).parameters == ["enabled": "true"])
+        #expect(AnalyticsEvent.settingsExpandShortLinksToggled(enabled: false).parameters == ["enabled": "false"])
     }
 
     @Test func entryActionedCarriesActionRawValue() {

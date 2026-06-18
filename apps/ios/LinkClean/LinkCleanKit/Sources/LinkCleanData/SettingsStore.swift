@@ -63,6 +63,30 @@ public nonisolated struct SettingsStore: Sendable {
         nonmutating set { appGroup?.set(newValue, forKey: SettingsKeys.removeTextFragmentsEnabled) }
     }
 
+    /// Whether short links (`t.co`, `bit.ly`, …) are resolved to their destination
+    /// over the network before cleaning. Defaults to `false`: this is the app's only
+    /// network egress, so it is strictly opt-in for every tier. Cross-process: read
+    /// by the cleaning service in the app (which always wires a resolver) and, in
+    /// DEBUG builds behind ``expandShortLinksOutOfAppDebugEnabled``, the extensions
+    /// and App Intents.
+    public var expandShortLinksEnabled: Bool {
+        get { appGroup?.object(forKey: SettingsKeys.expandShortLinksEnabled) as? Bool ?? false }
+        nonmutating set { appGroup?.set(newValue, forKey: SettingsKeys.expandShortLinksEnabled) }
+    }
+
+    #if DEBUG
+    /// Developer flag (Developer menu): also inject the network resolver into the
+    /// **App Intents** (Shortcuts/Siri, Control Center, the Home widget), so the
+    /// short-link path can be exercised there before its measured rollout. The action
+    /// extension already expands in Release (gated only by the user opt-in). App Group
+    /// suite so those processes read what the app writes. Defaults to `false`.
+    /// DEBUG-only — Release never reads it (the intent injection sites are `#if DEBUG`).
+    public var expandShortLinksOutOfAppDebugEnabled: Bool {
+        get { appGroup?.object(forKey: SettingsKeys.expandShortLinksOutOfApp) as? Bool ?? false }
+        nonmutating set { appGroup?.set(newValue, forKey: SettingsKeys.expandShortLinksOutOfApp) }
+    }
+    #endif
+
     /// Whether first-launch onboarding is complete. Defaults to `false` when
     /// unset, matching `ContentView`'s `@AppStorage` read of the same key.
     public var hasCompletedOnboarding: Bool {

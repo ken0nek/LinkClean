@@ -45,6 +45,20 @@ struct DeveloperMenuView: View {
             }
 
             Section {
+                Toggle(isOn: Binding(
+                    get: { viewModel.expandShortLinksOutOfApp },
+                    set: { viewModel.setExpandShortLinksOutOfApp($0) }
+                )) {
+                    Text(verbatim: "Expand in App Intents")
+                }
+                .tint(.accentColor)
+            } header: {
+                Text(verbatim: "Short-link expansion (DEBUG)")
+            } footer: {
+                Text(verbatim: "Wires the resolver into the App Intents (widget, Control Center, Shortcuts). The action extension already expands in release. Settings → Expand Short Links must also be on. Note: the widget/Control-Center button runs in a time-budgeted process, so a network resolve may not complete there.")
+            }
+
+            Section {
                 ForEach([AnalyticsEvent.PaywallTrigger.settingsRow, .historyArchive, .customParamHome], id: \.rawValue) { trigger in
                     Button {
                         previewTrigger = trigger

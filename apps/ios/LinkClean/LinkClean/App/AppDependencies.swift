@@ -46,7 +46,15 @@ struct AppDependencies {
         let parameters = TrackingParameterStore()
         let settings = SettingsStore()
         return AppDependencies(
-            cleaning: DefaultCleaningService(store: parameters, settings: settings),
+            // The app is the one surface that always carries the network resolver:
+            // short-link expansion is reachable here for every tier (gated by the
+            // user's `expandShortLinksEnabled` opt-in, default off). The extensions
+            // and intents wire a resolver only in DEBUG (`OutOfAppShortLinkExpansion`).
+            cleaning: DefaultCleaningService(
+                store: parameters,
+                settings: settings,
+                resolver: URLSessionShortLinkResolver()
+            ),
             analytics: analytics,
             settings: settings,
             parameters: parameters,

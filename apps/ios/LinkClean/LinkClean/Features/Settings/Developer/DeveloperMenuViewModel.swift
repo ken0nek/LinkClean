@@ -25,8 +25,13 @@ final class DeveloperMenuViewModel {
     private(set) var disabledParameters = "—"
     private(set) var customParameters = "—"
     private(set) var historyCount = "—"
+    /// DEBUG-only mirror of ``SettingsStore/expandShortLinksOutOfAppDebugEnabled`` —
+    /// the developer switch that wires the network resolver into the App Intents
+    /// (the action extension already expands in release).
+    private(set) var expandShortLinksOutOfApp = false
 
     @ObservationIgnored private let parameterStore = TrackingParameterStore()
+    @ObservationIgnored private let settings = SettingsStore()
     @ObservationIgnored private var modelContext: ModelContext?
 
     private var standard: UserDefaults { .standard }
@@ -45,6 +50,15 @@ final class DeveloperMenuViewModel {
         disabledParameters = "\(parameterStore.disabledParameterNames().count) disabled"
         customParameters = "\(parameterStore.customParameters().count) custom"
         historyCount = "\(fetchHistoryCount()) entries"
+        expandShortLinksOutOfApp = settings.expandShortLinksOutOfAppDebugEnabled
+    }
+
+    /// Toggles whether the App Intents also wire the network short-link resolver
+    /// (DEBUG-only; the Settings → Expand Short Links opt-in must also be on for an
+    /// actual expand to happen).
+    func setExpandShortLinksOutOfApp(_ enabled: Bool) {
+        settings.expandShortLinksOutOfAppDebugEnabled = enabled
+        expandShortLinksOutOfApp = enabled
     }
 
     // MARK: - Per-value resets
@@ -91,6 +105,7 @@ final class DeveloperMenuViewModel {
         resetDefaultParameters()
         clearCustomParameters()
         clearHistory()
+        setExpandShortLinksOutOfApp(false)
         // Reset onboarding last — clearing it flips ContentView to the
         // onboarding flow, which tears this screen down.
         resetOnboarding()

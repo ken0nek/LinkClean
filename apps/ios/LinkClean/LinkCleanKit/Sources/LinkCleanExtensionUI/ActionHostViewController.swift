@@ -39,7 +39,15 @@ open class ActionHostViewController: UIViewController {
         hasStarted = true
         let items = (extensionContext?.inputItems as? [NSExtensionItem]) ?? []
         let hasAttachments = items.contains { !($0.attachments ?? []).isEmpty }
-        let pipeline = ActionPipeline(strategy: strategy)
+        // Short-link expansion ships here: the share extension is a full foreground
+        // process that can complete the network resolve, so it carries a live
+        // resolver — gated only by the user's `expandShortLinksEnabled` opt-in inside
+        // `clean`. (The App Intents stay DEBUG-only, `OutOfAppShortLinkExpansion`,
+        // because their widget / Control-Center button runs in a time-budgeted process.)
+        let pipeline = ActionPipeline(
+            strategy: strategy,
+            cleaning: DefaultCleaningService(resolver: URLSessionShortLinkResolver())
+        )
         Task {
             // Clean first, then decide: a strategy that offers two or more choices
             // (the Copy action with several *active* formats) gets a picker; anything

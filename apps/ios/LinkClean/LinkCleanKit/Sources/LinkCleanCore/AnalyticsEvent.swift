@@ -76,6 +76,10 @@ public enum AnalyticsEvent: Equatable {
     /// The "Share as QR Code" Home-button setting was toggled — tells us whether
     /// the default-off QR button is wanted, and how many users opt in (§6).
     case settingsQRButtonToggled(enabled: Bool)
+    /// The short-link expansion setting was toggled — the app's *only* network
+    /// egress, so its opt-in rate is the signal for whether the default-off,
+    /// privacy-first stance matches demand (§6). Free for every tier; no paywall.
+    case settingsExpandShortLinksToggled(enabled: Bool)
     /// A built-in default parameter was toggled. Its name comes from a finite,
     /// known set, so it is safe to send (§3).
     case parametersDefaultToggled(parameter: String, enabled: Bool)
@@ -321,6 +325,7 @@ public enum AnalyticsEvent: Equatable {
         case .settingsSaveHistoryToggled: "Settings.SaveHistory.toggled"
         case .settingsTextFragmentsToggled: "Settings.TextFragments.toggled"
         case .settingsQRButtonToggled: "Settings.QRButton.toggled"
+        case .settingsExpandShortLinksToggled: "Settings.ExpandShortLinks.toggled"
         case .parametersDefaultToggled: "Parameters.Default.toggled"
         case .parametersCustomAdded: "Parameters.Custom.added"
         case .parametersCustomDeleted: "Parameters.Custom.deleted"
@@ -393,6 +398,8 @@ public enum AnalyticsEvent: Equatable {
         case let .settingsTextFragmentsToggled(enabled):
             return ["enabled": Self.string(enabled)]
         case let .settingsQRButtonToggled(enabled):
+            return ["enabled": Self.string(enabled)]
+        case let .settingsExpandShortLinksToggled(enabled):
             return ["enabled": Self.string(enabled)]
         case let .parametersDefaultToggled(parameter, enabled):
             return ["parameter": parameter, "enabled": Self.string(enabled)]

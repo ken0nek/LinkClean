@@ -26,6 +26,9 @@ final class SettingsViewModel {
     /// Mirrors `SettingsKeys.removeTextFragmentsEnabled` (App Group suite; shared
     /// with the cleaning service in the app and both extensions).
     private(set) var removeTextFragmentsEnabled: Bool
+    /// Mirrors `SettingsKeys.expandShortLinksEnabled` (App Group suite; the app's
+    /// only network egress, default off). Free for every tier — no Pro gate.
+    private(set) var expandShortLinksEnabled: Bool
     private(set) var isRestoring = false
 
     // MARK: - Support links
@@ -64,6 +67,7 @@ final class SettingsViewModel {
         self.qrCodeButtonEnabled = settings.qrCodeButtonEnabled
         self.saveHistoryEnabled = settings.saveHistoryEnabled
         self.removeTextFragmentsEnabled = settings.removeTextFragmentsEnabled
+        self.expandShortLinksEnabled = settings.expandShortLinksEnabled
     }
 
     /// `@Observable` doesn't track external `UserDefaults`, so re-read the stored
@@ -74,6 +78,7 @@ final class SettingsViewModel {
         qrCodeButtonEnabled = settings.qrCodeButtonEnabled
         saveHistoryEnabled = settings.saveHistoryEnabled
         removeTextFragmentsEnabled = settings.removeTextFragmentsEnabled
+        expandShortLinksEnabled = settings.expandShortLinksEnabled
         analytics.capture(.settingsScreenShown)
     }
 
@@ -96,6 +101,16 @@ final class SettingsViewModel {
         removeTextFragmentsEnabled = enabled
         settings.removeTextFragmentsEnabled = enabled
         analytics.capture(.settingsTextFragmentsToggled(enabled: enabled))
+    }
+
+    /// Toggles short-link expansion. No Pro gate — available to every tier; the
+    /// setting itself defaults off because it is the app's only network egress, so
+    /// turning it on is always an explicit opt-in.
+    func setExpandShortLinks(_ enabled: Bool) {
+        guard enabled != expandShortLinksEnabled else { return }
+        expandShortLinksEnabled = enabled
+        settings.expandShortLinksEnabled = enabled
+        analytics.capture(.settingsExpandShortLinksToggled(enabled: enabled))
     }
 
     func enableSaveHistory() {

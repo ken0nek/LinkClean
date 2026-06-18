@@ -78,4 +78,103 @@ struct DefaultCleaningServiceTests {
         let outcome = try #require(await service.clean("https://example.com/page#:~:text=hello"))
         #expect(outcome.cleaned == "https://example.com/page#:~:text=hello")
     }
+
+    // MARK: - Short-link expansion (E4)
+
+    /// A short-link host with the toggle **off**: the resolver is wired but must
+    /// never be consulted, and the original link is cleaned as-is.
+    @Test func doesNotExpandWhenTheToggleIsOff() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let settings = SettingsStore(appGroupSuiteName: suiteName)        // unset → off
+        let resolver = StubShortLinkResolver(destination: URL(string: "https://example.com/real?utm_source=x"))
+        let service = DefaultCleaningService(
+            store: TrackingParameterStore(suiteName: suiteName),
+            settings: settings,
+            resolver: resolver
+        )
+
+        let outcome = try #require(await service.clean("https://bit.ly/abc"))
+        #expect(await resolver.resolveCallCount == 0)
+        #expect(outcome.cleaned == "https://bit.ly/abc")
+    }
+
+    /// Toggle on + a known shortener host: the resolver's destination is what gets
+    /// cleaned (its trackers stripped), not the short link.
+    @Test func expandsAShortLinkThenCleansTheDestination() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let settings = SettingsStore(appGroupSuiteName: suiteName)
+        settings.expandShortLinksEnabled = true
+        let resolver = StubShortLinkResolver(destination: URL(string: "https://example.com/article?utm_source=newsletter&id=5"))
+        let service = DefaultCleaningService(
+            store: TrackingParameterStore(suiteName: suiteName),
+            settings: settings,
+            resolver: resolver
+        )
+
+        let outcome = try #require(await service.clean("https://bit.ly/abc"))
+        #expect(await resolver.resolveCallCount == 1)
+        #expect(outcome.cleaned == "https://example.com/article?id=5")
+    }
+
+    /// A failed resolve (`nil`) falls back to cleaning the original short link and
+    /// never throws — expansion is additive, so it can't break a clean.
+    @Test func fallsBackToTheOriginalWhenTheResolverReturnsNil() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let settings = SettingsStore(appGroupSuiteName: suiteName)
+        settings.expandShortLinksEnabled = true
+        let resolver = StubShortLinkResolver(destination: nil)
+        let service = DefaultCleaningService(
+            store: TrackingParameterStore(suiteName: suiteName),
+            settings: settings,
+            resolver: resolver
+        )
+
+        let outcome = try #require(await service.clean("https://bit.ly/abc?utm_source=x"))
+        #expect(await resolver.resolveCallCount == 1)
+        #expect(outcome.cleaned == "https://bit.ly/abc")
+    }
+
+    /// Toggle on but the host is **not** a shortener: the resolver is left untouched
+    /// (no needless network call) and the link cleans offline as usual.
+    @Test func doesNotExpandANonShortenerHostEvenWhenEnabled() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let settings = SettingsStore(appGroupSuiteName: suiteName)
+        settings.expandShortLinksEnabled = true
+        let resolver = StubShortLinkResolver(destination: URL(string: "https://evil.example/phish"))
+        let service = DefaultCleaningService(
+            store: TrackingParameterStore(suiteName: suiteName),
+            settings: settings,
+            resolver: resolver
+        )
+
+        let outcome = try #require(await service.clean("https://example.com/page?utm_source=x"))
+        #expect(await resolver.resolveCallCount == 0)
+        #expect(outcome.cleaned == "https://example.com/page")
+    }
+}
+
+/// A ``ShortLinkResolving`` double: returns a canned destination and records whether
+/// it was consulted, so a test can assert expansion happens (or doesn't) with no
+/// network. An `actor` so its call counter is race-free under Swift Testing's
+/// parallelism.
+private actor StubShortLinkResolver: ShortLinkResolving {
+    let destination: URL?
+    private(set) var resolveCallCount = 0
+
+    init(destination: URL?) {
+        self.destination = destination
+    }
+
+    func resolve(_ url: URL) async -> URL? {
+        resolveCallCount += 1
+        return destination
+    }
 }

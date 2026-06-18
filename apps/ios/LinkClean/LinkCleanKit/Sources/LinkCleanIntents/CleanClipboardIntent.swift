@@ -48,7 +48,12 @@ public struct CleanClipboardIntent: AppIntent {
             return .result(dialog: "There's no link on your clipboard to clean.")
         }
 
-        let cleaning = DefaultCleaningService(settings: settings)
+        // Out-of-app surface: a short-link resolver is wired only in DEBUG behind the
+        // developer flag (`nil` in Release), so production intents stay offline.
+        let cleaning = DefaultCleaningService(
+            settings: settings,
+            resolver: OutOfAppShortLinkExpansion.resolver(settings: settings)
+        )
         guard let outcome = try await cleaning.clean(raw) else {
             TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
             TelemetryDeckAnalytics().capture(.intentCleanFailed(surface: .clipboard, reason: .invalidInput))

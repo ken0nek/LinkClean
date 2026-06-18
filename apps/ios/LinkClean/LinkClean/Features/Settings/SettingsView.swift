@@ -72,20 +72,29 @@ struct SettingsView: View {
                 }
                 .accessibilityIdentifier("settings-copy-formats")
 
-                Toggle(isOn: Binding(
-                    get: { viewModel.removeTextFragmentsEnabled },
-                    set: { viewModel.setRemoveTextFragments($0) }
-                )) {
-                    Label { Text(.settingsCleaningTextFragments) } icon: {
-                        Image(systemName: "highlighter").foregroundStyle(.tint)
-                    }
-                }
-                    .tint(.accentColor)
-                    .accessibilityIdentifier("settings-text-fragments-toggle")
+                settingToggle(
+                    title: .settingsCleaningTextFragments,
+                    subtitle: .settingsCleaningTextFragmentsSubtitle,
+                    systemImage: "highlighter",
+                    isOn: Binding(
+                        get: { viewModel.removeTextFragmentsEnabled },
+                        set: { viewModel.setRemoveTextFragments($0) }
+                    ),
+                    accessibilityID: "settings-text-fragments-toggle"
+                )
+
+                settingToggle(
+                    title: .settingsCleaningExpandShortLinks,
+                    subtitle: .settingsCleaningExpandShortLinksSubtitle,
+                    systemImage: "arrow.up.right.square",
+                    isOn: Binding(
+                        get: { viewModel.expandShortLinksEnabled },
+                        set: { viewModel.setExpandShortLinks($0) }
+                    ),
+                    accessibilityID: "settings-expand-short-links-toggle"
+                )
             } header: {
                 Text(.settingsCleaningHeader)
-            } footer: {
-                Text(.settingsCleaningTextFragmentsFooter)
             }
 
             Section {
@@ -102,37 +111,33 @@ struct SettingsView: View {
             proSection
 
             Section {
-                Toggle(isOn: Binding(
-                    get: { viewModel.autoPasteEnabled },
-                    set: { viewModel.setAutoPaste($0) }
-                )) {
-                    Label { Text(.settingsClipboardAutoPaste) } icon: {
-                        Image(systemName: "doc.on.clipboard").foregroundStyle(.tint)
-                    }
-                }
-                    .tint(.accentColor)
-                    .accessibilityIdentifier("settings-auto-paste-toggle")
+                settingToggle(
+                    title: .settingsClipboardAutoPaste,
+                    subtitle: .settingsClipboardAutoPasteSubtitle,
+                    systemImage: "doc.on.clipboard",
+                    isOn: Binding(
+                        get: { viewModel.autoPasteEnabled },
+                        set: { viewModel.setAutoPaste($0) }
+                    ),
+                    accessibilityID: "settings-auto-paste-toggle"
+                )
             } header: {
                 Text(.settingsClipboardHeader)
-            } footer: {
-                Text(.settingsClipboardFooter)
             }
 
             Section {
-                Toggle(isOn: Binding(
-                    get: { viewModel.qrCodeButtonEnabled },
-                    set: { viewModel.setQRCodeButton($0) }
-                )) {
-                    Label { Text(.settingsHomeQrButton) } icon: {
-                        Image(systemName: "qrcode").foregroundStyle(.tint)
-                    }
-                }
-                    .tint(.accentColor)
-                    .accessibilityIdentifier("settings-qr-button-toggle")
+                settingToggle(
+                    title: .settingsHomeQrButton,
+                    subtitle: .settingsHomeQrButtonSubtitle,
+                    systemImage: "qrcode",
+                    isOn: Binding(
+                        get: { viewModel.qrCodeButtonEnabled },
+                        set: { viewModel.setQRCodeButton($0) }
+                    ),
+                    accessibilityID: "settings-qr-button-toggle"
+                )
             } header: {
                 Text(.settingsHomeHeader)
-            } footer: {
-                Text(.settingsHomeQrButtonFooter)
             }
 
             Section {
@@ -257,6 +262,33 @@ struct SettingsView: View {
         } message: {
             restoreAlertMessage
         }
+    }
+
+    /// A settings toggle that describes itself in-row: icon · title · a secondary
+    /// caption beneath the title. Replaces the per-toggle Section footer so each
+    /// explanation lives in the row it governs (and several toggles can share one
+    /// section).
+    private func settingToggle(
+        title: LocalizedStringResource,
+        subtitle: LocalizedStringResource,
+        systemImage: String,
+        isOn: Binding<Bool>,
+        accessibilityID: String
+    ) -> some View {
+        Toggle(isOn: isOn) {
+            Label {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } icon: {
+                Image(systemName: systemImage).foregroundStyle(.tint)
+            }
+        }
+        .tint(.accentColor)
+        .accessibilityIdentifier(accessibilityID)
     }
 
     // MARK: - Pro (T4)

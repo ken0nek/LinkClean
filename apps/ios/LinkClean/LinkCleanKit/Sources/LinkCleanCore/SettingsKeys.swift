@@ -20,6 +20,7 @@
 /// | `qrCodeButtonEnabled` | standard | `SettingsStore` (Settings toggle) | `SettingsStore` (Home) |
 /// | `saveHistoryEnabled` | App Group | `SettingsStore` (Settings toggle, screenshot prep) | `SettingsStore` (Home/History/Settings, extensions) |
 /// | `removeTextFragmentsEnabled` | App Group | `SettingsStore` (Settings toggle) | `SettingsStore` (cleaning service: app + extensions) |
+/// | `expandShortLinksEnabled` | App Group | `SettingsStore` (Settings toggle) | `SettingsStore` (cleaning service: app always; extensions/intents only in DEBUG) |
 /// | `hasCompletedOnboarding` | standard | `SettingsStore` / `@AppStorage` (onboarding finish, debug config) | `ContentView` (`@AppStorage`), `DeveloperMenu` |
 /// | `lastActionExtensionRunAt` | App Group | `SettingsStore` (extensions, on success) | `SettingsStore` (`ExtensionGuideViewModel`), `DeveloperMenu` |
 /// | `analyticsUserIdentifier` | App Group | `TelemetryDeckAnalytics` | `TelemetryDeckAnalytics` |
@@ -36,6 +37,7 @@
 /// | `review.debug.forceShow` (DEBUG) | App Group | `DefaultReviewService`, debug config | `DefaultReviewService` |
 /// | `debug.entitlementOverride` (DEBUG) | standard | `DebugEntitlementOverrideStore` | `DebugEntitlementOverrideStore` (StoreKit service, `EntitlementsModel`) |
 /// | `screenshotFixtures` (DEBUG) | standard | external (capture-script launch arg) | `SettingsStore` (`DebugLaunchConfigurator`) |
+/// | `debug.expandShortLinksOutOfApp` (DEBUG) | App Group | `SettingsStore` (Developer menu) | `SettingsStore` (extension + intent cleaning) |
 public enum SettingsKeys {
 
     // MARK: App settings
@@ -58,6 +60,14 @@ public enum SettingsKeys {
     /// (default on). Cross-process: written from Settings, read by the cleaning
     /// service in the app and both action extensions. Stored in the App Group suite.
     public static let removeTextFragmentsEnabled = "removeTextFragmentsEnabled"
+
+    /// Whether short links (`t.co`, `bit.ly`, …) are expanded to their destination
+    /// over the network before cleaning — the app's *only* network egress, so it
+    /// defaults off (opt-in) for every tier. Cross-process: written from Settings,
+    /// read by the cleaning service in the app (always) and — only in DEBUG builds,
+    /// behind ``expandShortLinksOutOfApp`` — the action extensions and App Intents.
+    /// Stored in the App Group suite.
+    public static let expandShortLinksEnabled = "expandShortLinksEnabled"
 
     /// Whether the user has finished (or skipped) the first-launch onboarding.
     /// App-only: stored in `UserDefaults.standard`.
@@ -138,5 +148,14 @@ public enum SettingsKeys {
     /// Directory of pre-fetched History thumbnail fixtures, passed by the
     /// screenshot capture script as a launch arg. App-only. DEBUG-only.
     public static let screenshotFixtures = "screenshotFixtures"
+
+    /// Developer switch (Developer menu) that injects the network short-link resolver
+    /// into the **App Intents** (Shortcuts/Siri, Control Center, the Home widget). The
+    /// app and the action extension always expand (gated by ``expandShortLinksEnabled``);
+    /// this opts the intents in for on-device testing, since their widget /
+    /// Control-Center process has an unproven network budget. App Group suite so those
+    /// processes read what the app writes. DEBUG-only: the intent injection sites are
+    /// `#if DEBUG`, so Release never expands from an intent.
+    public static let expandShortLinksOutOfApp = "debug.expandShortLinksOutOfApp"
     #endif
 }

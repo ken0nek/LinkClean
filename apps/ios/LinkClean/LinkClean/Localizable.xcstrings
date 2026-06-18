@@ -1,377 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "settings.home.header" : {
-      "comment" : "Settings section header for Home-screen options.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Home"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホーム"
-          }
-        }
-      }
-    },
-    "settings.home.qrButton" : {
-      "comment" : "Settings toggle label: show the Share as QR Code button on Home.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Als QR-Code teilen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Share as QR Code"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QRコードで共有"
-          }
-        }
-      }
-    },
-    "settings.home.qrButton.footer" : {
-      "comment" : "Footer under the Share as QR Code toggle on the Settings screen.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fügt auf der Startseite eine Schaltfläche hinzu, die einen bereinigten Link in einen teilbaren QR-Code umwandelt."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adds a button on Home that turns a cleaned link into a shareable QR code."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "クリーンにしたリンクを共有できるQRコードに変換するボタンをホームに追加します。"
-          }
-        }
-      }
-    },
-    "qr.scan.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QR-Code scannen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan QR Code"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QRコードをスキャン"
-          }
-        }
-      }
-    },
-    "qr.scan.instruction" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Richte die Kamera auf einen QR-Code, um seinen Link zu bereinigen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Point your camera at a QR code to clean its link."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QRコードにカメラを向けると、そのリンクをクリーンにします。"
-          }
-        }
-      }
-    },
-    "qr.scan.photos" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aus Fotos scannen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan from Photos"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "写真からスキャン"
-          }
-        }
-      }
-    },
-    "qr.scan.settings" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen öffnen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open Settings"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定を開く"
-          }
-        }
-      }
-    },
-    "qr.scan.unavailableTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kamera nicht verfügbar"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Camera Unavailable"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "カメラを使用できません"
-          }
-        }
-      }
-    },
-    "qr.scan.unavailableMessage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zum QR-Scannen wird eine Kamera benötigt. Du kannst aber einen in deinen Fotos gespeicherten Code scannen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QR scanning needs a camera. You can still scan a code saved in your photos."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QRスキャンにはカメラが必要です。写真に保存したコードならスキャンできます。"
-          }
-        }
-      }
-    },
-    "qr.scan.deniedTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kamerazugriff deaktiviert"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Camera Access Off"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "カメラへのアクセスがオフです"
-          }
-        }
-      }
-    },
-    "qr.scan.deniedMessage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erlaube den Kamerazugriff in den Einstellungen, um QR-Codes zu scannen – oder wähle einen aus deinen Fotos."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allow camera access in Settings to scan QR codes — or pick one from your photos."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QRコードをスキャンするには、設定でカメラへのアクセスを許可してください。写真から選ぶこともできます。"
-          }
-        }
-      }
-    },
-    "qr.result.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bereinigter Link"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cleaned Link"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "クリーンにしたリンク"
-          }
-        }
-      }
-    },
-    "qr.result.open" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öffnen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "開く"
-          }
-        }
-      }
-    },
-    "qr.error.noLink" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieser QR-Code enthält keinen Link."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "That QR code doesn’t contain a link."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このQRコードにはリンクが含まれていません。"
-          }
-        }
-      }
-    },
-    "qr.error.unreadable" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In diesem Bild wurde kein QR-Code gefunden."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No QR code found in that image."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "画像内にQRコードが見つかりませんでした。"
-          }
-        }
-      }
-    },
-    "qr.share.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Als QR-Code teilen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Share as QR Code"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "QRコードで共有"
-          }
-        }
-      }
-    },
     "common.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -528,7 +157,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "形式を編集"
+            "value" : "フォーマットを編集"
           }
         }
       }
@@ -551,7 +180,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "形式"
+            "value" : "フォーマット"
           }
         }
       }
@@ -598,7 +227,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "形式の名前"
+            "value" : "フォーマットの名前"
           }
         }
       }
@@ -621,7 +250,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しい形式"
+            "value" : "新しいフォーマット"
           }
         }
       }
@@ -739,7 +368,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カスタム形式はまだありません。"
+            "value" : "カスタムフォーマットはまだありません。"
           }
         }
       }
@@ -762,7 +391,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたの形式"
+            "value" : "あなたのフォーマット"
           }
         }
       }
@@ -809,7 +438,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "形式を削除しますか？"
+            "value" : "フォーマットを削除しますか？"
           }
         }
       }
@@ -857,7 +486,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しい形式"
+            "value" : "新しいフォーマット"
           }
         }
       }
@@ -1073,7 +702,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アクティブな形式は「リンクをコピー」したときに表示されます。1つだけアクティブにすると即コピー、複数アクティブにすると毎回選べます。クリーンリンクと Markdown は無料です。Pro でその他とカスタム形式が使えます。"
+            "value" : "アクティブなフォーマットは「リンクをコピー」したときに表示されます。1つだけアクティブにすると即コピー、複数アクティブにすると毎回選べます。クリーンリンクとMarkdownは無料です。Proでその他とカスタムフォーマットが使えます。"
           }
         }
       }
@@ -1096,7 +725,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "形式"
+            "value" : "フォーマット"
           }
         }
       }
@@ -1120,7 +749,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コピー形式"
+            "value" : "コピーフォーマット"
           }
         }
       }
@@ -1281,7 +910,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ を削除"
+            "value" : "%@を削除"
           }
         }
       }
@@ -1350,7 +979,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無料のカスタムルール：%lld / %lld・Pro で無制限"
+            "value" : "無料のカスタムルール：%lld / %lld・Proで無制限"
           }
         }
       }
@@ -1443,7 +1072,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ でのみ"
+            "value" : "%@でのみ"
           }
         }
       }
@@ -1489,7 +1118,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean は、Safari やリンクを共有できるあらゆるアプリの共有シートに 2 つのアクションを追加します。"
+            "value" : "LinkCleanは、Safariやリンクを共有できるあらゆるアプリの共有シートに2つのアクションを追加します。"
           }
         }
       }
@@ -1581,7 +1210,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "トラッカーのないリンクは「Clean URL」、タイトル付きの Markdown リンクは「Copy as Markdown」をタップします。"
+            "value" : "トラッカーのないリンクは「Clean URL」、タイトル付きのMarkdownリンクは「Copy as Markdown」をタップします。"
           }
         }
       }
@@ -1604,7 +1233,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "見つかりませんか？　一番下の「アクションを編集…」をタップし、緑色の + で両方をお気に入りに追加します。"
+            "value" : "見つかりませんか？一番下の「アクションを編集…」をタップし、緑色の + で両方をお気に入りに追加します。"
           }
         }
       }
@@ -1696,7 +1325,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "できました！　クリーンなリンクがクリップボードにコピーされました。"
+            "value" : "できました！クリーンなリンクがクリップボードにコピーされました。"
           }
         }
       }
@@ -1742,7 +1371,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このデバイスに保存され、削除されることはありません。Pro ですべての履歴を表示できます。"
+            "value" : "このデバイスに保存され、削除されることはありません。Proですべての履歴を表示できます。"
           }
         }
       }
@@ -2033,7 +1662,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Markdown でコピー"
+            "value" : "Markdownでコピー"
           }
         }
       }
@@ -2264,7 +1893,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "クリック追跡用の ID のようです。"
+            "value" : "クリック追跡用のIDのようです。"
           }
         }
       }
@@ -2381,7 +2010,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ からリダイレクトを展開しました"
+            "value" : "%@からリダイレクトを展開しました"
           }
         }
       }
@@ -2683,7 +2312,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ を削除"
+            "value" : "%@を削除"
           }
         }
       }
@@ -3054,7 +2683,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean はあらゆるリンクから追跡用の不要な情報を取り除き、誰が送ったかではなく本当のリンク先を共有できるようにします。"
+            "value" : "LinkCleanはあらゆるリンクから追跡用の不要な情報を取り除き、誰が送ったかではなく本当のリンク先を共有できるようにします。"
           }
         }
       }
@@ -3243,7 +2872,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTM パラメータ"
+            "value" : "UTMパラメータ"
           }
         }
       }
@@ -3337,7 +2966,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今後のすべての Pro 機能"
+            "value" : "今後のすべてのPro機能"
           }
         }
       }
@@ -3360,7 +2989,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "クリーンにしたすべてのリンクを保存・検索できます。直近 7 日間だけではありません。"
+            "value" : "クリーンにしたすべてのリンクを保存・検索できます。直近7日間だけではありません。"
           }
         }
       }
@@ -3591,7 +3220,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean Pro が有効になる前に、購入の承認が必要です。"
+            "value" : "LinkClean Proが有効になる前に、購入の承認が必要です。"
           }
         }
       }
@@ -3637,7 +3266,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完全な履歴、無制限のカスタムルール、そして今後登場するすべての Pro 機能。一度の購入で、ずっとあなたのものです。"
+            "value" : "完全な履歴、無制限のカスタムルール、そして今後登場するすべてのPro機能。一度の購入で、ずっとあなたのものです。"
           }
         }
       }
@@ -3730,7 +3359,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この Apple アカウントでは以前の購入が見つかりませんでした。"
+            "value" : "このAppleアカウントでは以前の購入が見つかりませんでした。"
           }
         }
       }
@@ -3845,7 +3474,306 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pro をアンロック — %@"
+            "value" : "Proをアンロック — %@"
+          }
+        }
+      }
+    },
+    "qr.error.noLink" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser QR-Code enthält keinen Link."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That QR code doesn’t contain a link."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このQRコードにはリンクが含まれていません。"
+          }
+        }
+      }
+    },
+    "qr.error.unreadable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In diesem Bild wurde kein QR-Code gefunden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No QR code found in that image."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像内にQRコードが見つかりませんでした。"
+          }
+        }
+      }
+    },
+    "qr.result.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開く"
+          }
+        }
+      }
+    },
+    "qr.result.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereinigter Link"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleaned Link"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーンにしたリンク"
+          }
+        }
+      }
+    },
+    "qr.scan.deniedMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube den Kamerazugriff in den Einstellungen, um QR-Codes zu scannen – oder wähle einen aus deinen Fotos."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow camera access in Settings to scan QR codes — or pick one from your photos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコードをスキャンするには、設定でカメラへのアクセスを許可してください。写真から選ぶこともできます。"
+          }
+        }
+      }
+    },
+    "qr.scan.deniedTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamerazugriff deaktiviert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera Access Off"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カメラへのアクセスがオフです"
+          }
+        }
+      }
+    },
+    "qr.scan.instruction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richte die Kamera auf einen QR-Code, um seinen Link zu bereinigen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Point your camera at a QR code to clean its link."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコードにカメラを向けると、そのリンクをクリーンにします。"
+          }
+        }
+      }
+    },
+    "qr.scan.photos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus Fotos scannen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan from Photos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真からスキャン"
+          }
+        }
+      }
+    },
+    "qr.scan.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen öffnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定を開く"
+          }
+        }
+      }
+    },
+    "qr.scan.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QR-Code scannen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan QR Code"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコードをスキャン"
+          }
+        }
+      }
+    },
+    "qr.scan.unavailableMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zum QR-Scannen wird eine Kamera benötigt. Du kannst aber einen in deinen Fotos gespeicherten Code scannen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QR scanning needs a camera. You can still scan a code saved in your photos."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRスキャンにはカメラが必要です。写真に保存したコードならスキャンできます。"
+          }
+        }
+      }
+    },
+    "qr.scan.unavailableTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamera nicht verfügbar"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera Unavailable"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カメラを使用できません"
+          }
+        }
+      }
+    },
+    "qr.share.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als QR-Code teilen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share as QR Code"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコードで共有"
           }
         }
       }
@@ -3892,7 +3820,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5 段階中 %lld を評価"
+            "value" : "5段階中%lldを評価"
           }
         }
       }
@@ -3961,7 +3889,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean はお気に入りですか？"
+            "value" : "LinkCleanはお気に入りですか？"
           }
         }
       }
@@ -4031,7 +3959,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コピー形式"
+            "value" : "コピーフォーマット"
           }
         }
       }
@@ -4082,6 +4010,52 @@
         }
       }
     },
+    "settings.cleaning.expandShortLinks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurzlinks auflösen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expand Short Links"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "短縮リンクを展開"
+          }
+        }
+      }
+    },
+    "settings.cleaning.expandShortLinks.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löst einen Kurzlink zu seiner echten Adresse auf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resolves a short link to its real address."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "短縮リンクを実際のアドレスに解決します。"
+          }
+        }
+      }
+    },
     "settings.cleaning.header" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4128,25 +4102,25 @@
         }
       }
     },
-    "settings.cleaning.textFragments.footer" : {
+    "settings.cleaning.textFragments.subtitle" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manche Browser und Suchergebnisse hängen einen Link zu einer markierten Stelle auf der Seite an. Lass dies aktiviert, um ihn für einen saubereren Link zu entfernen."
+            "value" : "Entfernt den von manchen Browsern angehängten Link zur markierten Stelle."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Some browsers and search results append a link to a highlighted passage on the page. Keep this on to strip it for a cleaner link."
+            "value" : "Strips the link to a highlighted passage some browsers add."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一部のブラウザや検索結果では、ページ内の強調箇所へのリンクが追加されます。これをオンにすると、よりクリーンなリンクにするために削除します。"
+            "value" : "一部のブラウザが付ける強調箇所へのリンクを削除します。"
           }
         }
       }
@@ -4220,25 +4194,25 @@
         }
       }
     },
-    "settings.clipboard.footer" : {
+    "settings.clipboard.autoPaste.subtitle" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fügt einen Link aus deiner Zwischenablage ein, sobald du LinkClean öffnest oder dorthin zurückkehrst."
+            "value" : "Fügt einen kopierten Link ein, wenn du LinkClean öffnest."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pastes a link from your clipboard whenever you open or return to LinkClean."
+            "value" : "Pastes a copied link when you open LinkClean."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean を開いたり戻ったりするたびに、クリップボードのリンクを貼り付けます。"
+            "value" : "LinkCleanを開いたときにコピーしたリンクを貼り付けます。"
           }
         }
       }
@@ -4404,6 +4378,78 @@
         }
       }
     },
+    "settings.home.header" : {
+      "comment" : "Settings section header for Home-screen options.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホーム"
+          }
+        }
+      }
+    },
+    "settings.home.qrButton" : {
+      "comment" : "Settings toggle label: show the Share as QR Code button on Home.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als QR-Code teilen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share as QR Code"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコードで共有"
+          }
+        }
+      }
+    },
+    "settings.home.qrButton.subtitle" : {
+      "comment" : "Footer under the Share as QR Code toggle on the Settings screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fügt auf Home eine Schaltfläche zum Teilen eines bereinigten Links als QR-Code hinzu."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds a Home button to share a cleaned link as a QR code."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーンにしたリンクをQRコードで共有するボタンをホームに追加します。"
+          }
+        }
+      }
+    },
     "settings.howToUse.header" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4445,7 +4491,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pro 有効"
+            "value" : "Pro有効"
           }
         }
       }
@@ -4514,7 +4560,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pro をご利用いただきありがとうございます。すべての機能をずっとお使いいただけます。"
+            "value" : "Proをご利用いただきありがとうございます。すべての機能をずっとお使いいただけます。"
           }
         }
       }
@@ -4537,7 +4583,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pro をアンロック"
+            "value" : "Proをアンロック"
           }
         }
       }
@@ -4583,7 +4629,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この Apple アカウントでは以前の購入が見つかりませんでした。"
+            "value" : "このAppleアカウントでは以前の購入が見つかりませんでした。"
           }
         }
       }
@@ -4606,7 +4652,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean Pro が有効になりました。"
+            "value" : "LinkClean Proが有効になりました。"
           }
         }
       }
@@ -4675,7 +4721,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LinkClean を評価"
+            "value" : "LinkCleanを評価"
           }
         }
       }
@@ -4744,7 +4790,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "私の LinkClean プライバシーカード"
+            "value" : "私のLinkCleanプライバシーカード"
           }
         }
       }
@@ -4874,7 +4920,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プライベート。デバイス内で。"
+            "value" : "プライベート。オンデバイス。"
           }
         }
       }

@@ -14,7 +14,7 @@ before starting, honor its STOP conditions, and update your status row when done
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
 | 001  | ai-C: on-device Smart Title refinement (in-app v1) | P1 | M | — | TODO |
-| 002  | E4: opt-in short-link expansion | P2 | M | — | TODO |
+| 002  | E4: opt-in short-link expansion | P2 | M | — | **DONE** — shipped **free for all tiers** (no Pro gate); app expands, action extensions + App Intents behind a DEBUG developer flag |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (reason) | REJECTED (rationale)
 

@@ -39,7 +39,12 @@ public struct CleanLinkIntent: AppIntent {
 
     public func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
         let settings = SettingsStore()
-        let cleaning = DefaultCleaningService(settings: settings)
+        // Out-of-app surface: a short-link resolver is wired only in DEBUG behind the
+        // developer flag (`nil` in Release), so production intents stay offline.
+        let cleaning = DefaultCleaningService(
+            settings: settings,
+            resolver: OutOfAppShortLinkExpansion.resolver(settings: settings)
+        )
         guard let outcome = try await cleaning.clean(link) else {
             TelemetryDeckAnalytics.startIfNeeded(surface: "intent")
             TelemetryDeckAnalytics().capture(.intentCleanFailed(surface: .shortcut, reason: .invalidInput))
