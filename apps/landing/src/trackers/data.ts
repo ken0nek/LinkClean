@@ -211,7 +211,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     kind: "ads",
     searchDemand: "high",
     vendor: { name: "Meta (Facebook)", year: 2018, family: "Meta" },
-    related: ["gclid", "gbraid", "wbraid", "dclid", "msclkid", "ttclid", "twclid", "yclid", "li-fat-id", "epik", "sc-click-id", "rdt-cid", "spm", "utm-source", "utm-medium", "utm-campaign"],
+    related: ["gclid", "gbraid", "wbraid", "dclid", "msclkid", "ttclid", "twclid", "yclid", "li-fat-id", "epik", "sc-click-id", "rdt-cid", "spm", "utm-source", "utm-medium", "utm-campaign", "mibextid", "igshid"],
     content: {
       en: {
         title:
@@ -886,7 +886,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
     kind: "ads",
     searchDemand: "high",
     vendor: { name: "X Ads (formerly Twitter Ads)", year: 2021, family: "X (Twitter)" },
-    related: ["fbclid", "gclid", "ttclid", "msclkid", "epik", "sc-click-id", "li-fat-id", "rdt-cid"],
+    related: ["fbclid", "gclid", "ttclid", "msclkid", "epik", "sc-click-id", "li-fat-id", "rdt-cid", "s-twitter"],
     content: {
       en: {
         title: "twclid — X (Twitter) Ads' click ID, explained · LinkClean",
@@ -2098,6 +2098,291 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
           {
             q: "Does LinkClean strip other newsletter trackers too?",
             a: "Yes — mc_cid, mc_tc (Mailchimp), __s (Drip), _kx (Klaviyo), and HubSpot's _hsenc / _hsmi are in the default or opt-in catalogs depending on how vendor-specific the name is.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── igshid ───────────────────────────────────────────────────
+  {
+    slug: "igshid",
+    param: "igshid",
+    kind: "social",
+    searchDemand: "high",
+    vendor: {
+      name: "Instagram",
+      year: 2019,
+      platform: "share-link attribution",
+      family: "Meta",
+    },
+    related: ["mibextid", "si", "s-twitter", "fbclid"],
+    content: {
+      en: {
+        title: "igshid — Instagram's share-link tracking ID · LinkClean",
+        searchTitle: "What is igshid?",
+        description:
+          "igshid is Instagram's share-link identifier — Meta appends it to every link copied from the Instagram app. Strip it before forwarding.",
+        tldr: "igshid is the share-link identifier Instagram appends when you copy a link from the app — it ties the click back to your Instagram session for Meta's first-party analytics. Stripping it preserves the destination perfectly while breaking the attribution chain back to your account.",
+        sections: [
+          {
+            heading: "What igshid does",
+            paragraphs: [
+              "Instagram's Share → Copy Link adds ?igshid=<token> to every outbound URL — Reels, Stories, posts, profiles, and even the external links you tap through from someone's bio. The token encodes the sharing session; Meta joins it back to your Instagram account server-side when the recipient clicks.",
+              "Same architecture as Facebook's mibextid, X's t / s, YouTube's si: a per-share token used for Meta's first-party analytics, never for routing the page.",
+            ],
+          },
+          {
+            heading: "Where you'll see it",
+            paragraphs: [
+              "Any link copied from Instagram, on any device. Often paired with utm_source=ig_web_copy_link (or a similar source UTM) when Meta's web client did the copying. The pair travels together — strip both.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "igshid ships default-on in LinkClean's social catalog. No legitimate non-tracking use anywhere on the web — the destination URL never reads it. The companion utm_source / utm_medium tail is stripped by the standard UTM rules.",
+            ],
+          },
+          {
+            heading: "Why it's worth knowing about",
+            paragraphs: [
+              "Instagram links are some of the most-forwarded URLs on the modern web. Every share you don't clean carries an attribution token onward to whoever you sent it to. They click → Meta records the click against your sharing session, then against theirs when they re-share.",
+            ],
+          },
+        ],
+        exampleDirty:
+          "https://example.com/article?igshid=YmMyMTA2M2Y%3D&utm_source=ig_web_copy_link",
+        exampleClean: "https://example.com/article",
+        faq: [
+          {
+            q: "Does removing igshid break the link?",
+            a: "No. The destination only routes on the path; igshid lives in the query string and is read by Meta's analytics, not by the page you're visiting.",
+          },
+          {
+            q: "Is igshid personal data?",
+            a: "On Meta's side, yes — it ties back to your Instagram session and from there to your account. The URL itself doesn't name you.",
+          },
+          {
+            q: "Why does Instagram add it to every shared link?",
+            a: "Attribution. Meta wants to know which shares produce clicks and downstream conversions on partner sites — share is the channel they can't measure server-side otherwise.",
+          },
+          {
+            q: "What if I want to share an Instagram post itself?",
+            a: "The clean form `instagram.com/p/<shortcode>/` or `instagram.com/reel/<shortcode>/` survives stripping. Same post, same content, no share token attached.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── mibextid ─────────────────────────────────────────────────
+  {
+    slug: "mibextid",
+    param: "mibextid",
+    kind: "social",
+    searchDemand: "high",
+    vendor: {
+      name: "Meta (Facebook)",
+      year: 2022,
+      platform: "mobile-app share attribution",
+      family: "Meta",
+    },
+    related: ["igshid", "si", "fbclid", "s-twitter"],
+    content: {
+      en: {
+        title: "mibextid — Facebook's mobile-share tracker · LinkClean",
+        searchTitle: "What is mibextid?",
+        description:
+          "mibextid is Meta's mobile-app share identifier — added when you tap Share on Facebook's mobile apps or Messenger. Strip it before forwarding.",
+        tldr: "mibextid is the share-identifier Facebook's mobile apps add to every link you share — separate from fbclid (which is for paid-ad clicks). It identifies the *sharing* session, not an ad click. Strip it before forwarding.",
+        sections: [
+          {
+            heading: "What mibextid does",
+            paragraphs: [
+              "When you Share a link from the Facebook app (or Messenger, sometimes WhatsApp depending on the version), Meta appends ?mibextid=<token>. The token encodes which app, which session, and is joined server-side to your Meta account.",
+            ],
+          },
+          {
+            heading: "mibextid vs fbclid",
+            paragraphs: [
+              "Two tokens, two pipelines, both safe to strip: fbclid lands on links *clicked from Facebook ads* (paid-attribution; the destination's Meta Pixel reads it). mibextid lands on links *shared via Meta apps* (share-attribution; Meta reports the click back from the share-graph).",
+              "The same destination URL can carry both — fbclid because someone clicked an ad, mibextid because they re-shared it. Strip both as a pair.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "Default-on in LinkClean's social catalog. Same vendor-specific-token-no-functional-use logic as fbclid / ttclid / yclid.",
+            ],
+          },
+          {
+            heading: "Why it shows up everywhere",
+            paragraphs: [
+              "Anyone sharing news, recipes, products, or videos via Facebook or Messenger adds mibextid to the link without knowing. Most people forwarding “look at this” links via Messenger or SMS are unknowingly amplifying Meta's measurement graph.",
+            ],
+          },
+        ],
+        exampleDirty: "https://example.com/article?mibextid=Zbwa3y",
+        exampleClean: "https://example.com/article",
+        faq: [
+          {
+            q: "What does mibextid stand for?",
+            a: "Best guess from Meta's app code: a “Mobile Internal Browser EXTension ID” or similar internal abbreviation; Meta has never published an official expansion. The behavior is the documented part.",
+          },
+          {
+            q: "Does removing it break anything?",
+            a: "No. The destination doesn't read it — only Meta's analytics infrastructure does, after the page has loaded.",
+          },
+          {
+            q: "Why is mibextid different from fbclid?",
+            a: "They serve different purposes. Per-click identifiers (fbclid, gclid) credit ad spend. Per-share identifiers (mibextid, igshid) measure organic sharing. Meta cares about both — strip both.",
+          },
+          {
+            q: "Does any destination site ever use mibextid?",
+            a: "No (verified across every site in our catalog). It exists for Meta's measurement only.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── si (YouTube + Spotify) ───────────────────────────────────
+  {
+    slug: "si",
+    param: "si",
+    kind: "referral",
+    searchDemand: "high",
+    vendor: {
+      name: "YouTube + Spotify",
+      year: 2020,
+      platform: "share-link attribution (host-scoped)",
+      family: "Google (Search & YouTube)",
+    },
+    related: ["igshid", "mibextid", "s-twitter"],
+    content: {
+      en: {
+        title: "si — YouTube and Spotify's share-identifier · LinkClean",
+        searchTitle: "What is si in a YouTube or Spotify link?",
+        description:
+          "si is the share-identifier YouTube and Spotify append to copied links. Strip it before forwarding — LinkClean does this host-scoped so si elsewhere isn't affected.",
+        tldr: "si is a share-identifier token both YouTube and Spotify add to links copied from their apps. It ties the click back to the sharing session. LinkClean strips it host-scoped to youtube.com / youtu.be / spotify.com so a parameter called si on an unrelated site is left alone.",
+        sections: [
+          {
+            heading: "Where you'll see it",
+            paragraphs: [
+              "YouTube: every share from the iOS or Android app adds ?si=AbCdEf12345. Spotify: same parameter name, same behavior — every Spotify share carries it. The two platforms happened to pick the same letter; the tokens themselves are completely separate (YouTube's is Google's; Spotify's is Spotify's).",
+            ],
+          },
+          {
+            heading: "Why it's host-scoped",
+            paragraphs: [
+              "`si` is a short, generic-looking parameter name. Some sites use it functionally (sort indicator, session indicator, store ID). LinkClean's catalog scopes the strip rule to youtube.com / youtu.be / open.spotify.com / spotify.link — so the same parameter on an unrelated site isn't touched.",
+            ],
+          },
+          {
+            heading: "What gets preserved",
+            paragraphs: [
+              "Critically, YouTube's t= (start-at-N-seconds timestamp) is functional and preserved on every host. The youtu.be cleaning rule strips si but leaves t, so a shared video starts at the moment you intended.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "Host-scoped default in LinkClean's referral catalog. Mirrors the t / s X rule (host-scoped strip on x.com / twitter.com).",
+            ],
+          },
+        ],
+        exampleDirty:
+          "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=43&si=AbCdEf12345",
+        exampleClean: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=43",
+        faq: [
+          {
+            q: "Are YouTube's si and Spotify's si the same token?",
+            a: "No. Same parameter name, different tokens. They're separate attribution systems that happen to use the same letter.",
+          },
+          {
+            q: "Does removing si break the video or track?",
+            a: "No. The destination only reads the path and the v= / track ID. si is purely Google's / Spotify's bookkeeping.",
+          },
+          {
+            q: "What about si on Reddit or Twitch?",
+            a: "LinkClean's si rule is host-scoped to youtube.com / youtu.be / open.spotify.com / spotify.link. Reddit and Twitch use si= for different purposes — LinkClean leaves them alone.",
+          },
+          {
+            q: "Why is si different from t= on YouTube?",
+            a: "Both are added by YouTube, but t= is functional (the start timestamp). The catalog preserves t= and strips si= — exactly the distinction this site is built around.",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── s-twitter (X share-source) ───────────────────────────────
+  {
+    slug: "s-twitter",
+    param: "s",
+    kind: "referral",
+    searchDemand: "medium",
+    vendor: {
+      name: "X (formerly Twitter)",
+      year: 2018,
+      platform: "share-source identifier (host-scoped)",
+      family: "X",
+    },
+    related: ["si", "igshid", "mibextid", "twclid"],
+    content: {
+      en: {
+        title: "s= on X (Twitter) — the share-source identifier · LinkClean",
+        searchTitle: "What is s in an X / Twitter share link?",
+        description:
+          "On X (formerly Twitter), s= is the share-source identifier — paired with t= (the per-share session). Strip both before forwarding — LinkClean does it host-scoped.",
+        tldr: "X (formerly Twitter) adds two share-tracking parameters to outbound links: t= (the per-share session token) and s= (which surface the share came from — iOS app = 20, web client = 19, third-party = 46, etc). Both are host-scoped to x.com / twitter.com in LinkClean and stripped by default.",
+        sections: [
+          {
+            heading: "What s= encodes",
+            paragraphs: [
+              "A numeric code identifying *where* the share originated. Known values include s=20 (iOS app), s=19 (web client), s=46 (third-party / API context). X uses it to slice share volume by surface in their internal dashboards. It doesn't identify you directly, but it narrows the cohort.",
+            ],
+          },
+          {
+            heading: "s= vs t=",
+            paragraphs: [
+              "t= is the per-share session token — closer to a unique fingerprint of the share. s= is the categorical surface code. Together they say “this share, from this surface.” LinkClean strips both as a pair; one without the other still leaks attribution.",
+            ],
+          },
+          {
+            heading: "Why host-scoped",
+            paragraphs: [
+              "`s` is a very short, generic parameter name. A blog might use ?s= for search. LinkClean's catalog scopes the strip to x.com / twitter.com — s= elsewhere is preserved.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes it",
+            paragraphs: [
+              "Default-on in the referral catalog, paired with the same host-scoped t rule. Same architecture as the YouTube si cleanup.",
+            ],
+          },
+        ],
+        exampleDirty:
+          "https://x.com/handle/status/1234567890?t=AbCdEf-12345_xyz&s=20",
+        exampleClean: "https://x.com/handle/status/1234567890",
+        faq: [
+          {
+            q: "Does removing s= break the tweet?",
+            a: "No. The path (/handle/status/<id>) is the only part X needs to resolve the tweet.",
+          },
+          {
+            q: "What's the difference between t= and s= on X?",
+            a: "t= is per-share (a session-bound token, ~20 characters). s= is per-surface (which app or surface initiated the share, a small integer). Strip both.",
+          },
+          {
+            q: "Why is this host-scoped?",
+            a: "Because s= is a common functional parameter name on other sites (search queries on many blogs). LinkClean limits the X strip rule to x.com / twitter.com only.",
+          },
+          {
+            q: "Does X use s= elsewhere on its site?",
+            a: "No — it only appears on outbound share URLs. Internal X navigation doesn't carry it.",
           },
         ],
       },

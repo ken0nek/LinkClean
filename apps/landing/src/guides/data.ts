@@ -215,4 +215,116 @@ export const GUIDES: ReadonlyArray<GuideArticle> = [
       },
     },
   },
+
+  // ── /guides/clean-instagram-link ─────────────────────────────
+  {
+    slug: "clean-instagram-link",
+    content: {
+      en: {
+        title: "How to clean an Instagram share link",
+        description:
+          "Instagram share links carry an igshid= attribution token and often a utm_source=ig_web_copy_link tail. Strip them before forwarding — LinkClean does it in one tap.",
+        tldr: "Instagram appends ?igshid=<token> to every link copied from its app — it identifies the sharing session back to Meta. Strip igshid before forwarding. LinkClean does this by default, and also strips the companion utm_source=ig_web_copy_link tail Instagram's web client adds.",
+        intro: [
+          "When you tap Share → Copy Link from Instagram — a Reel, a Story, a profile, even an external link from a bio — Meta appends ?igshid=<token> to the URL. The token ties the click back to your Instagram session for Meta's first-party analytics.",
+          "Often igshid travels with utm_source=ig_web_copy_link or a similar attribution UTM. Both are tracking; both safely strippable.",
+        ],
+        steps: [
+          {
+            title: "Use the LinkClean share-sheet action",
+            body: "From the Instagram app — or anywhere — tap Share, scroll the actions row, and pick Clean URL. The cleaned link replaces the original on your clipboard. The destination is identical; the attribution token is gone.",
+          },
+          {
+            title: "Or paste into the app to see what was stripped",
+            body: "Open LinkClean, paste the Instagram link. The display shows igshid called out as “stripped” and any utm_* tail next to it. Copy the cleaned form.",
+          },
+          {
+            title: "Or run Clean Clipboard from the widget",
+            body: "Copy the link the usual way, then tap LinkClean's home-screen widget (or the Control Center toggle). The cleaned link replaces what's on your clipboard.",
+          },
+          {
+            title: "Confirm the post still loads",
+            body: "Open the cleaned link in a private tab. Same Reel, same Story, same profile — Instagram routes purely on the path (`/p/<shortcode>/`, `/reel/<shortcode>/`, `/<handle>/`). The query string was Meta's bookkeeping.",
+          },
+        ],
+        outro: [
+          "Why this matters more than the utm_*: igshid carries the *sharing-session identity* back to your Instagram account; utm_* carries channel attribution. Strip both, but if you only knew one, igshid is the one to know — every Instagram share you forward broadcasts who you are.",
+        ],
+        related: [
+          {
+            label: "What is igshid?",
+            href: "/trackers/igshid/",
+          },
+          {
+            label: "What is mibextid (Facebook's mobile-share token)?",
+            href: "/trackers/mibextid/",
+          },
+          {
+            label: "What's hidden in a share link?",
+            href: "/learn/whats-hidden-in-a-share-link/",
+          },
+          {
+            label: "How to clean a YouTube share link",
+            href: "/guides/clean-youtube-link/",
+          },
+        ],
+      },
+    },
+  },
+
+  // ── /guides/clean-tiktok-link ────────────────────────────────
+  {
+    slug: "clean-tiktok-link",
+    content: {
+      en: {
+        title: "How to clean a TikTok share link",
+        description:
+          "TikTok share links carry tt_medium, _r, _t, and (from ads) ttclid + _ttp, plus utm_*. Strip them before forwarding — LinkClean does it in one tap.",
+        tldr: "TikTok's Share → Copy Link adds a tail of tt_*, _r, _t, ttclid (on links from ads), and utm_* — all attribution. Strip them. The cleaned path (vm.tiktok.com/<id>/ or tiktok.com/@user/video/<id>) is the canonical form.",
+        intro: [
+          "TikTok's share dialog gives you links that look like https://vm.tiktok.com/ZMabc123/?_r=1&_t=AbC&tt_medium=ios_native or https://www.tiktok.com/@creator/video/7100000000000000000?_r=1&_t=… with a long tail of tracking. Some of it is share-session attribution (tt_*, _t, _r); some is the canonical TikTok Ads tail (ttclid + _ttp); some is utm_*.",
+          "None of it routes the destination. The canonical path is the video / profile URL; everything after the ? is metadata.",
+        ],
+        steps: [
+          {
+            title: "Use the LinkClean share-sheet action",
+            body: "From the TikTok app, tap Share → Clean URL. The cleaned link is on your clipboard. Same video, no share token.",
+          },
+          {
+            title: "Or paste into the app to audit what was stripped",
+            body: "Open LinkClean, paste the TikTok URL. You'll see tt_medium, _r, _t (and ttclid if present) listed as stripped. The path is preserved.",
+          },
+          {
+            title: "If the link is a vm.tiktok.com short link",
+            body: "LinkClean's E1 redirect-unwrapping resolves vm.tiktok.com locally to the full tiktok.com/@user/video/<id> form, then cleans the destination. One step, no third-party fetch.",
+          },
+          {
+            title: "Confirm the video still plays",
+            body: "Open the cleaned URL in a private tab. Same video, same creator. TikTok routes purely on the video ID.",
+          },
+        ],
+        outro: [
+          "The TikTok parameters worth recognizing: ttclid is the ad-click identifier (only on outbound TikTok Ads, paired with _ttp); tt_medium / _r / _t are the share-session triplet (on every organic share). LinkClean strips all four by default.",
+        ],
+        related: [
+          {
+            label: "What is ttclid?",
+            href: "/trackers/ttclid/",
+          },
+          {
+            label: "How to clean an X (Twitter) share link",
+            href: "/guides/clean-x-twitter-link/",
+          },
+          {
+            label: "What's hidden in a share link?",
+            href: "/learn/whats-hidden-in-a-share-link/",
+          },
+          {
+            label: "Do cleaned links still work?",
+            href: "/learn/do-cleaned-links-still-work/",
+          },
+        ],
+      },
+    },
+  },
 ];

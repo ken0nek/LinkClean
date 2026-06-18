@@ -478,4 +478,113 @@ export const LEARN_ARTICLES: ReadonlyArray<LearnArticle> = [
       },
     },
   },
+
+  // ── /learn/how-to-share-a-clean-link ─────────────────────────
+  {
+    slug: "how-to-share-a-clean-link",
+    content: {
+      en: {
+        title: "How to share a clean link — the practice, by platform",
+        description:
+          "Why cleaning a link before sharing matters, and the per-platform workflow for X, Instagram, YouTube, TikTok, Spotify, Amazon, and email.",
+        tldr: "Every modern share link from a major app carries an attribution token — Instagram's igshid, X's t / s, YouTube's si, TikTok's _r / _t, Facebook's mibextid. Stripping them before forwarding preserves the destination perfectly while breaking the attribution chain back to your account. The practice is the same across platforms; only the parameter names change.",
+        sections: [
+          {
+            heading: "Why it matters",
+            paragraphs: [
+              "Share links are uniquely high-leverage data. They travel: you send one to a friend, they re-share to a group chat, the group chat re-shares to a feed. Every leg of that journey carries the attribution token forward unless someone strips it.",
+              "Unlike a tracker on a page you visit (which only sees you), a tracker on a link you share sees everyone the link reaches. Cleaning before sharing is the one moment where one action helps many.",
+            ],
+          },
+          {
+            heading: "The pattern, abstracted",
+            paragraphs: [
+              "Every major platform uses the same architecture: the path identifies the content; the query string carries attribution. Strip the query string (or the known-tracker subset of it) and the destination loads identically.",
+              "The few exceptions are functional parameters — timestamps, search queries, sort orders. A well-curated catalog (host-scoped, with explicit functional preservation) is what separates a usable cleaner from a naive one.",
+            ],
+          },
+          {
+            heading: "By platform — what to strip, what to keep",
+            paragraphs: [
+              "A reference table for the share links you'll actually encounter. Strip column = what LinkClean removes by default; keep column = what's preserved as functional or as the destination's canonical form.",
+            ],
+            table: {
+              headers: ["Platform", "Share-link tracker(s)", "Preserved"],
+              rows: [
+                ["X (formerly Twitter)", "t=, s=", "/handle/status/<id> (path)"],
+                ["Instagram", "igshid, utm_source=ig_web_copy_link", "/p/<shortcode>/ or /reel/<shortcode>/"],
+                ["YouTube", "si=", "v=, t= (timestamp)"],
+                ["Spotify", "si=", "/track/<id>, /album/<id>, /playlist/<id>"],
+                ["TikTok", "tt_medium, _r, _t, ttclid (ads)", "/@user/video/<id>"],
+                ["Facebook / Messenger", "mibextid, fbclid (ads)", "/<post-id>"],
+                ["Amazon", "tag, ref_, pf_rd_*", "/dp/<ASIN>"],
+                ["Email blast (Mailchimp, HubSpot, …)", "mc_eid, mc_cid, mkt_tok, _hsenc, _hsmi, utm_*", "the article URL"],
+              ],
+            },
+          },
+          {
+            heading: "The three workflows",
+            paragraphs: [
+              "How you actually do this on a phone, fastest to slowest:",
+            ],
+            bullets: [
+              "**Share-sheet action.** The fastest: tap Share, pick Clean URL, the cleaned link is on your clipboard before the sheet closes. Works from any app.",
+              "**Widget / Control Center.** Copy the link, tap LinkClean's home-screen widget or the Control Center toggle, the clipboard updates in place. Useful for batches.",
+              "**Paste into the app.** Open LinkClean, paste, see what was stripped (the educational mode — useful before sharing something sensitive).",
+            ],
+          },
+          {
+            heading: "When you specifically want to keep the tracker",
+            paragraphs: [
+              "Two cases: (1) a creator sharing their own affiliate link on purpose; (2) a marketer sharing a UTM'd link to measure a campaign.",
+              "For (1), LinkClean's paste-into-app workflow shows the cleaned vs original side-by-side — pick whichever you want before sharing. For (2), the original is one undo away; the cleaning is reversible at the input.",
+            ],
+          },
+          {
+            heading: "The compounding effect",
+            paragraphs: [
+              "Per share, the saving is small — one attribution token doesn't change the world. But shares compound: a link cleaned once stays clean as it forwards. Over a year of group-chat sharing, that's hundreds of attribution tokens not propagated.",
+              "The cleaning practice is one of the few privacy-hygiene habits where the per-action cost is near-zero and the downstream effect is meaningful.",
+            ],
+          },
+        ],
+        faq: [
+          {
+            q: "Why does every platform do this?",
+            a: "Attribution. Knowing which shares produce clicks (and downstream conversions) is the most valued analytics signal a platform can collect. They all build it into share links because share is the channel they can't measure server-side otherwise.",
+          },
+          {
+            q: "Are share-link trackers worse than ad-click trackers?",
+            a: "Different. fbclid / gclid / ttclid attribute ad spend (the platform tracks back to whoever paid for the click). igshid / mibextid / si / t attribute organic shares (the platform tracks back to whoever shared the link). Both are attribution; both are safely strippable; share-link tokens propagate further because they're forwarded by hand.",
+          },
+          {
+            q: "What about WhatsApp / Telegram / Signal?",
+            a: "Those messengers don't add their own attribution tokens to forwarded links — they're message clients, not analytics platforms. But links forwarded *through* them carry the originating platform's tokens (the IG / X / YT tail). Clean once at the source; the recipient gets a clean link regardless of how many messengers it bounces through.",
+          },
+          {
+            q: "Does cleaning prevent the destination site from tracking me?",
+            a: "No. The destination's own analytics (its first-party cookie, its server logs, its IP-based geolocation) still operate. Cleaning a share link strips the *attribution back to the sharing platform*, not the destination's own measurement.",
+          },
+        ],
+        related: [
+          {
+            label: "What's hidden in a share link?",
+            href: "/learn/whats-hidden-in-a-share-link/",
+          },
+          {
+            label: "Do cleaned links still work?",
+            href: "/learn/do-cleaned-links-still-work/",
+          },
+          {
+            label: "What is igshid (Instagram's share token)?",
+            href: "/trackers/igshid/",
+          },
+          {
+            label: "How to clean an Instagram share link",
+            href: "/guides/clean-instagram-link/",
+          },
+        ],
+      },
+    },
+  },
 ];
