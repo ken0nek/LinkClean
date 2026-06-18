@@ -66,8 +66,12 @@ public nonisolated struct DefaultCleaningService: CleaningService {
         // E4: when the user opts in *and* this surface wired a network resolver,
         // resolve a short link (t.co, bit.ly, …) to its real destination before any
         // offline work, so the rest of the pipeline cleans the true URL. Fail-soft:
-        // a failed or declined expand falls back to the original link.
-        let working = await expandedShortLink(from: trimmed) ?? trimmed
+        // a failed or declined expand falls back to the original link. A non-nil
+        // result means a network resolve actually fired — recorded as the outcome's
+        // `expanded` telemetry so we can measure whether this (the app's only
+        // network egress) earns its keep.
+        let expansion = await expandedShortLink(from: trimmed)
+        let working = expansion ?? trimmed
 
         // Peel known redirect wrappers first, then resolve rules against the
         // *destination's* host — not the wrapper's (a google.com/url?q=… link
@@ -80,7 +84,8 @@ public nonisolated struct DefaultCleaningService: CleaningService {
             for: unwrap.destination,
             removing: enabled,
             wrappers: unwrap.wrappers,
-            stripTextFragment: settings.removeTextFragmentsEnabled
+            stripTextFragment: settings.removeTextFragmentsEnabled,
+            expanded: expansion != nil
         )
     }
 

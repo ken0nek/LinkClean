@@ -1,8 +1,8 @@
 # Analytics Plan
 
-Status: Draft
-Scope: TelemetryDeck analytics for 1.0.0 (TODO: "Add analytics using TelemetryDeck"), feeding the 1.1.0 IAP strategy (TODO: "IAP using RevenueCat", "IAP strategy")
-Targets: `LinkClean` (main app), `LinkCleanAction`, `LinkCleanMarkdownAction`
+Status: Live — reconciled to the shipped taxonomy through **1.2.0** (2026-06-18). The original plan text below is preserved; §6–§9 now match `AnalyticsEvent.swift` (the source of truth) verbatim, including the surfaces added after 1.0.0 (QR, App Intents / Control Center / widget, Statistics share card, the unknown-parameter advisor, leftover-pill removal, in-app Review prompt, StoreKit-2 monetization) and the 1.2.0 short-link-expansion signal.
+Scope: TelemetryDeck analytics, on-device. Monetization shipped on **StoreKit 2** (not RevenueCat — see §9); revenue/conversion *truth* lives in App Store Connect, the client only emits the funnel.
+Targets: `LinkClean` (main app), `LinkCleanAction`, `LinkCleanMarkdownAction`, `LinkCleanWidget`, and the App Intents in `LinkCleanIntents` — every realized-clean surface emits through the one typed `AnalyticsEvent` layer.
 
 ---
 
@@ -53,11 +53,12 @@ LinkClean's entire value proposition is stripping tracking from URLs. The analyt
 - Names of *built-in* default parameters being toggled (finite, known set — `utm_source`, `fbclid`, …)
 - Catalog-gap counts (how many parameters a clean left behind; how many matched the bundled reference list) and which built-in *categories* fired (`utm`, `ads`, …) — see [parameter-telemetry.md](parameter-telemetry.md) Tier 0
 - Names from the bundled **reference catalog** of known trackers (`ReferenceParameterCatalog`) — finite and public, the same risk class as built-in default names (Tier 1)
+- Two URL-*derived* booleans on the clean events: `unwrapped` (an offline redirect wrapper was peeled — E1) and `expanded` (a short link was resolved over the network — E4, added 1.2.0). Each is a single bit, never the wrapper or destination URL, and exists to measure whether those features fire and pay off (§6).
 - TelemetryDeck's default parameters (app version, OS, device model, locale, `extensionIdentifier`)
 
 **Collected, with disclosure (added 2026-06-09):**
 
-- The **site domain** (host) of a cleaned link — e.g. `youtube.com` — on `Home.URL.cleaned` and `Action.Clean.succeeded` only. Lowercased with a leading `www.` stripped (`URLCleaner.analyticsDomain`); other subdomains preserved. A deliberate, product-approved exception to the host rule above: it answers *which sites are cleaned most* (site-popularity → per-site-rule prioritization). Only the host — never the path, query keys, or values.
+- The **site domain** (host) of a cleaned link — e.g. `youtube.com` — on the clean events only (`Home.URL.cleaned`, `Action.Clean.succeeded`, `Intent.Clean.succeeded`, `QR.Scan.succeeded`). Lowercased with a leading `www.` stripped (`URLCleaner.analyticsDomain`); other subdomains preserved. After an E4 expansion this is the *destination* host, not the shortener. A deliberate, product-approved exception to the host rule above: it answers *which sites are cleaned most* (site-popularity → per-site-rule prioritization). Only the host — never the path, query keys, or values.
 - **Ship gate.** Because this is URL-derived, it is browsing-adjacent data. Before it reaches production it **requires** (a) the App Store privacy **nutrition label** updated to disclose browsing-history-type collection, and (b) a line in the public **privacy policy** stating site domains (never full URLs or values) are collected. "We never see your URLs" still holds; "we never see which sites" does not — keep public wording precise.
 
 **Other commitments:**
@@ -91,8 +92,9 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Home.URL.cleaned` | Valid URL produced a cleaned result (once per distinct input) | `source: autoPaste\|manualPaste\|typed`, `changed: true\|false`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>`, `unwrapped: true\|false` | Volume; how URLs arrive; how often cleaning changes anything; catalog-gap size and which categories fire (`parameter-telemetry.md` Tier 0); which sites are cleaned most (§3); how often inputs are redirect wrappers (E1 offline unwrapping) → whether to expand the wrapper catalog |
-| `Home.URL.copied` | Copy button tapped | `changed` | Home-flow conversion (cleaned → exported) |
+| `Home.URL.cleaned` | Valid URL produced a cleaned result (once per distinct input) | `source: autoPaste\|manualPaste\|typed`, `changed: true\|false`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>`, `unwrapped: true\|false`, `expanded: true\|false` | Volume; how URLs arrive; how often cleaning changes anything; catalog-gap size and which categories fire (`parameter-telemetry.md` Tier 0); which sites are cleaned most (§3); how often inputs are redirect wrappers (E1 offline unwrapping) → whether to expand the wrapper catalog; and (E4, 1.2.0) how often opt-in short links are network-expanded and whether the resulting clean then removes anything — i.e. whether the app's only network egress earns its keep |
+| `Home.URL.copied` | Copy button tapped | `changed` | Home-flow conversion (cleaned → exported) — the in-app north-star export; deduped per distinct cleaned output |
+| `Home.URL.shared` | Cleaned URL shared via the system share sheet | `changed` | The other half of the in-app export north-star; deduped per distinct cleaned output, recorded at share initiation |
 | `Home.Clipboard.invalidPasted` | Auto-paste found non-URL (toast shown) | — | Auto-paste annoyance rate; whether it should stay default-on |
 
 ### History
@@ -121,11 +123,16 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 | `Settings.SaveHistory.toggled` | Toggle changed | `enabled` | Privacy-sensitivity of user base; viability of history-based premium features |
 | `Settings.TextFragments.toggled` | Toggle changed | `enabled` | Whether the default-on scroll-to-text fragment cleaning is wanted |
 | `Settings.QRButton.toggled` | Toggle changed | `enabled` | Demand for the default-off "Share as QR Code" Home button; opt-in rate |
+| `Settings.ExpandShortLinks.toggled` | Toggle changed | `enabled` | Opt-in rate for short-link expansion (E4, 1.2.0) — the app's *only* network egress. The demand half of the E4 read; the usage half is the `expanded` param on the clean events |
 | `Parameters.Default.toggled` | Built-in parameter toggled | `parameter: <name>`, `enabled` | Which built-ins users distrust/need; informs default set curation |
 | `Parameters.Custom.added` | Custom parameter added | `totalCount: <bucket>` — **never the name** | **Top premium candidate.** Adoption % + depth per user |
 | `Parameters.Custom.deleted` | Custom parameter removed | `totalCount: <bucket>` | Churn on the feature |
 | `Parameters.Custom.shown` | Custom-parameters screen opened | — | **Discovery vs. value for the top premium candidate.** With `Parameters.Custom.added`, view→add conversion separates "few discover it" from "discoverers don't convert" |
 | `Parameters.Reference.observed` | A known-but-not-default tracker survived a clean (one per match), fanned out from **every** realized-clean surface — Home, QR, the Clean and Copy-as-you-want extensions, and the App Intents | `parameter: <public reference name>` — from the bundled reference catalog, **never an arbitrary URL key** | **Catalog-gap engine.** Which trackers to promote into the default set (`parameter-telemetry.md` Tier 1) |
+| `Parameters.Leftover.removedOnce` | A leftover pill was stripped from the current link only (one-time; nothing persisted) | — (parameterless: the leftover name is a raw URL key, §3) | Which removals the one-time pill flow satisfies vs. the persistent "always" path (`Parameters.Custom.added`) — discovery of the pill affordance |
+| `Parameters.Advisor.suggested` | The unknown-parameter advisor surfaced a likely tracker (≤ 1 per clean) | `tier: reference\|heuristic\|model` | How often the advisor fires, and which stage produces it — does the deterministic floor suffice or is the on-device model needed (ai-features §9-A) |
+| `Parameters.Advisor.accepted` | User tapped "Always Remove" on a suggestion | `tier: reference\|heuristic\|model` | The advisor's value (accept rate by tier); pairs with `Paywall.Screen.shown(trigger=advisorAccept)` for gated free users and `Parameters.Custom.added` when it lands |
+| `Parameters.Advisor.dismissed` | User tapped "Not now" on a suggestion | `tier: reference\|heuristic\|model` | The dismiss-vs-accept split, sliced by tier — the advisor's quality read |
 
 ### Onboarding (ships in 1.0.0 per TODO)
 
@@ -134,11 +141,29 @@ The north-star action is a **clean**: a URL cleaned *and* exported (copied/share
 | `Onboarding.Flow.completed` / `Onboarding.Flow.skipped` | End of onboarding | — | Onboarding effectiveness |
 | `Onboarding.ExtensionGuide.shown` | "How to enable the action extension" instructions viewed (onboarding or Settings) | `source: onboarding\|settings` | Reach of the single most important activation step |
 
+### QR (scan & generate — the QR surface)
+
+| Signal | Trigger | Parameters | Answers |
+|---|---|---|---|
+| `QR.Scan.succeeded` | A scanned QR (camera or picked image) held a link that was cleaned | the same clean telemetry as `Home.URL.cleaned` (incl. `domain`, `unwrapped`, `expanded`) | The QR surface's realized-clean volume + catalog-gap signals; History + Stats are recorded here, as with the App Intents |
+| `QR.Scan.failed` | A scan produced no cleanable link | `reason: noLink\|unreadable` | QR annoyance rate (`noLink` = the QR had no web URL; `unreadable` = no QR found in the picked image) |
+| `QR.Code.generated` | A QR image was generated from a cleaned link and shared | `changed` | Demand for the generate direction; recorded at share initiation (`ShareLink` has no completion callback) |
+| `QR.Result.actioned` | User exported from the scan-result sheet | `action: copy\|share\|open` | The QR surface's realized export — without it `QR.Scan.succeeded` over-counts intent (the QR analogue of `History.Entry.actioned`) |
+
+### Review (in-app rating prompt)
+
+| Signal | Trigger | Parameters | Answers |
+|---|---|---|---|
+| `Review.Prompt.shown` | The in-app star prompt appeared | — | How often the rating gate fires |
+| `Review.Stars.selected` | User picked a rating | `bucket: high\|low` (≥ 4 → `high`, ≤ 3 → `low` — never the exact star count, §3) | Sentiment split at the gate; `high` routes to Apple's system prompt, `low` is thanked privately |
+| `Review.SystemPrompt.requested` | A high rating invoked Apple's `requestReview()` | — | How often we route to the public App Store prompt |
+| `Review.Prompt.dismissed` | User dismissed with "Not now" | — | Gate friction |
+
 ## 7. Event taxonomy — action extensions
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>`, `unwrapped: true\|false` | Extension volume — the habit metric; plus catalog-gap signals and which sites are cleaned most (§3) on the extension surface (`parameter-telemetry.md` Tier 0); whether share-sheet inputs are redirect wrappers (E1). Per-match `Parameters.Reference.observed` is emitted after this signal (§8 convergence) |
+| `Action.Clean.succeeded` | LinkCleanAction copied a cleaned URL | `changed`, `removedCount: <bucket>`, `leftoverCount: <bucket>`, `referenceMatchCount: <bucket>`, `removedKinds: <ids>\|none`, `domain: <host>`, `unwrapped: true\|false`, `expanded: true\|false` | Extension volume — the habit metric; plus catalog-gap signals and which sites are cleaned most (§3) on the extension surface (`parameter-telemetry.md` Tier 0); whether share-sheet inputs are redirect wrappers (E1) or network-expanded short links (E4 — the extension wires a resolver, so `expanded` fires here too). Per-match `Parameters.Reference.observed` is emitted after this signal (§8 convergence) |
 | `Action.Clean.failed` | No URL extractable from host input | `reason: noURL\|invalidInput` | Host-app compatibility gaps (e.g. the known Google Maps issue) |
 | `Action.Format.succeeded` | The "Copy as you want" action copied a rendered format (Markdown / plain / a custom template) | `preset: true\|false` (shipped preset vs. user-authored custom — the customization-adoption read, never the template text or name), `changed` | Custom-format adoption (the Pro candidate); preset-vs-custom mix. Per-match `Parameters.Reference.observed` is emitted after this signal, exactly as `Action.Clean.succeeded` |
 | `Action.Format.failed` | No URL extractable from host input | `reason: noURL\|invalidInput` | Host-app compatibility gaps |
@@ -154,10 +179,10 @@ Notes:
 
 | Signal | Trigger | Parameters | Answers |
 |---|---|---|---|
-| `Intent.Clean.succeeded` | An App Intent produced a cleaned link | `intentSurface: shortcut\|clipboard` (clipboard covers the Control Center control + widget), plus the same clean telemetry as `Home.URL.cleaned` (`changed`, counts, `removedKinds`, `domain`, `unwrapped`) | Surface-mix for the 1.1 distribution goal; catalog-gap + redirect signals on the OS surfaces. Per-match `Parameters.Reference.observed` follows this signal |
+| `Intent.Clean.succeeded` | An App Intent produced a cleaned link | `intentSurface: shortcut\|clipboard` (clipboard covers the Control Center control + widget), plus the same clean telemetry as `Home.URL.cleaned` (`changed`, counts, `removedKinds`, `domain`, `unwrapped`, `expanded`) | Surface-mix for the 1.1 distribution goal; catalog-gap + redirect signals on the OS surfaces. (`expanded` is on the wire but ~always `false` here: the intents/widget wire the network resolver under a DEBUG flag only.) Per-match `Parameters.Reference.observed` follows this signal |
 | `Intent.Clean.failed` | An App Intent ran but found nothing to clean | `intentSurface: shortcut\|clipboard`, `reason: noURL\|invalidInput` | The control / widget annoyance rate — a tap that does nothing; without it `succeeded` over-counts the surfaces' value |
 
-> **Taxonomy drift (open):** the QR (`QR.*`) and Statistics (`Stats.*`) signals — and the IAP sections' "1.1.0" tense (IAP shipped in **1.0.0**) — ship in code but are not yet reconciled here. A full §6/§7/§9 sync is a separate doc pass.
+> **Reconciled 2026-06-18 (1.2.0).** §6/§7 now match `AnalyticsEvent.swift` verbatim — QR (`QR.*`), the in-app Review prompt (`Review.*`), the unknown-parameter advisor (`Parameters.Advisor.*`), leftover-pill removal (`Parameters.Leftover.removedOnce`), `Home.URL.shared`, and the 1.2.0 `expanded` short-link signal are all listed; Statistics (`Stats.*`) was already covered. §9 is updated to the as-shipped StoreKit-2 names (IAP shipped in **1.0.0**, not 1.1.0). `AnalyticsEvent.swift` stays the source of truth — when the two disagree, fix the doc.
 
 ## 8. How extension tracking works (research findings)
 
@@ -199,15 +224,17 @@ Sources:
 - https://telemetrydeck.com/docs/integrations/revenuecat/
 - https://www.revenuecat.com/docs/integrations/third-party-integrations/telemetrydeck
 
-Client-side funnel events (thin layer on top of server truth):
+Client-side funnel events (the **as-shipped StoreKit-2 layer**, all count-only — no amount; revenue / refund / conversion *truth* is App Store Connect):
 
 | Signal | Trigger | Parameters |
 |---|---|---|
-| `Paywall.screen.shown` | Paywall presented | `trigger: <placement id>` (e.g. `customParamAdd`, `historyCap`, `nthClean`) |
-| `Paywall.screen.dismissed` | Closed without purchase | `trigger` |
-| `Paywall.Purchase.started` | Purchase button tapped | `trigger`, `product` |
+| `Paywall.Screen.shown` | Paywall presented | `trigger: <gate>` |
+| `Pro.Purchase.started` | Purchase button tapped | `trigger: <gate>` |
+| `Pro.Purchase.completed` | Purchase completed synchronously (`purchase()` → `.completed`) | `trigger: <gate>` |
+| `Pro.Purchase.failed` | Attempt yielded no entitlement | `reason: cancelled\|pending\|storeError`, `trigger: <gate>` |
+| `Pro.Purchase.restored` | Restore Purchases finished (paywall or Settings row) | `restored: true\|false` (gate-less) |
 
-Completion/failure/restore arrive server-side via RevenueCat; client events exist only to compute view→start conversion per placement.
+`<gate>` is the `PaywallTrigger` enum — `historyArchive`, `customParamHome`, `customParamSettings`, `settingsRow`, `advisorAccept`, `formatPicker` (live), plus `export` / `sync` (reserved, ship unfired). `started`/`completed`/`failed` carry the **same `trigger`** as the impression, so paywall→purchase conversion is sliceable per gate. An Ask-to-Buy / SCA approval that lands later via `Transaction.updates` is deliberately **not** re-counted (it would double-fire on cross-device / reinstall syncs) — real units sold come from App Store Connect.
 
 ## 10. Metrics → decisions
 
@@ -215,7 +242,8 @@ Completion/failure/restore arrive server-side via RevenueCat; client events exis
 |---|---|---|
 | Gate custom parameters? | Adoption % of WAU; depth (`totalCount` buckets); overlap with heavy cleaners | `Parameters.Custom.added` |
 | Gate / cap history? | History size distribution; entry-action rate; % with history disabled | `History.Screen.shown`, `History.Entry.actioned`, `Settings.SaveHistory.toggled` |
-| Gate Markdown? | Markdown share of extension volume + in-app markdown copies | `Action.Markdown.succeeded`, `History.Entry.actioned(action=markdown)` |
+| Gate custom formats? | Preset-vs-custom mix of the format action + in-app markdown copies from History | `Action.Format.succeeded(preset)`, `History.Entry.actioned(action=markdown)` |
+| Keep / default-on / cut short-link expansion (E4)? | Opt-in rate, then *does it fire and pay off* — `expanded=true` rate per surface, and `changed`/`removedCount` within those cleans | `Settings.ExpandShortLinks.toggled`, plus `expanded` × `changed`/`removedCount` on the clean events |
 | Free-tier clean cap (and its value N)? | Cleans/user/week distribution — need a distinct power-user tail | `Home.URL.copied` + `Action.*.succeeded` |
 | Subscription vs one-time | D7/D30 retention curve shape | Automatic session signals |
 | Paywall placement | Conversion per `trigger` once live; pre-launch: which high-intent moments are frequent | `Paywall.*`, §6–7 volumes |

@@ -98,6 +98,7 @@ struct DefaultCleaningServiceTests {
         let outcome = try #require(await service.clean("https://bit.ly/abc"))
         #expect(await resolver.resolveCallCount == 0)
         #expect(outcome.cleaned == "https://bit.ly/abc")
+        #expect(!outcome.telemetry.expanded)   // no resolve fired → no expansion signal
     }
 
     /// Toggle on + a known shortener host: the resolver's destination is what gets
@@ -118,6 +119,7 @@ struct DefaultCleaningServiceTests {
         let outcome = try #require(await service.clean("https://bit.ly/abc"))
         #expect(await resolver.resolveCallCount == 1)
         #expect(outcome.cleaned == "https://example.com/article?id=5")
+        #expect(outcome.telemetry.expanded)   // a network resolve fired → the E4 signal
     }
 
     /// A failed resolve (`nil`) falls back to cleaning the original short link and
@@ -138,6 +140,7 @@ struct DefaultCleaningServiceTests {
         let outcome = try #require(await service.clean("https://bit.ly/abc?utm_source=x"))
         #expect(await resolver.resolveCallCount == 1)
         #expect(outcome.cleaned == "https://bit.ly/abc")
+        #expect(!outcome.telemetry.expanded)   // resolve returned nil → not counted as expanded
     }
 
     /// Toggle on but the host is **not** a shortener: the resolver is left untouched
@@ -158,6 +161,7 @@ struct DefaultCleaningServiceTests {
         let outcome = try #require(await service.clean("https://example.com/page?utm_source=x"))
         #expect(await resolver.resolveCallCount == 0)
         #expect(outcome.cleaned == "https://example.com/page")
+        #expect(!outcome.telemetry.expanded)   // non-shortener host → resolver untouched, no expansion
     }
 }
 

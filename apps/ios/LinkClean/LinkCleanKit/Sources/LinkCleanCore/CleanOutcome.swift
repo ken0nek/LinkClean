@@ -53,8 +53,18 @@ public struct CleanOutcome: Sendable, Equatable {
         /// `["google.com"]` for a `google.com/url?q=…` link (see
         /// ``URLCleaner/unwrap(_:maxDepth:)``). Canonical public wrapper domains,
         /// the same risk class as `domain` and safe to send; empty when the input
-        /// was not a wrapper.
+        /// was not a wrapper. This is the *offline* (E1) signal — set independently
+        /// of ``expanded``.
         public let wrappers: [String]
+        /// Whether a short link (`bit.ly`, `t.co`, …) was resolved over the network
+        /// to its destination before this clean (E4). The app's only network egress,
+        /// so this is the load-bearing signal for whether that opt-in cost earns its
+        /// keep: paired with `changed` / `removedCount` it answers *when expansion
+        /// fires, does the clean then find trackers?* — value the `domain` alone
+        /// can't show, since after expansion `domain` is the destination host, not
+        /// the shortener. A bool, never the resolved URL (§3); `false` unless a
+        /// network resolve actually yielded a destination.
+        public let expanded: Bool
 
         public init(
             changed: Bool,
@@ -63,7 +73,8 @@ public struct CleanOutcome: Sendable, Equatable {
             removedKindIDs: Set<String>,
             referenceMatches: [String],
             domain: String,
-            wrappers: [String] = []
+            wrappers: [String] = [],
+            expanded: Bool = false
         ) {
             self.changed = changed
             self.removedCount = removedCount
@@ -72,6 +83,7 @@ public struct CleanOutcome: Sendable, Equatable {
             self.referenceMatches = referenceMatches
             self.domain = domain
             self.wrappers = wrappers
+            self.expanded = expanded
         }
     }
     public let telemetry: Telemetry

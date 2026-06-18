@@ -18,7 +18,8 @@ struct AnalyticsEventTests {
         referenceMatches: [String] = [],
         removedKindIDs: Set<String> = [],
         domain: String = "example.com",
-        wrappers: [String] = []
+        wrappers: [String] = [],
+        expanded: Bool = false
     ) -> CleanOutcome.Telemetry {
         .init(
             changed: changed,
@@ -27,7 +28,8 @@ struct AnalyticsEventTests {
             removedKindIDs: removedKindIDs,
             referenceMatches: referenceMatches,
             domain: domain,
-            wrappers: wrappers
+            wrappers: wrappers,
+            expanded: expanded
         )
     }
 
@@ -108,6 +110,7 @@ struct AnalyticsEventTests {
             "removedKinds": "ads,utm",
             "domain": "youtube.com",
             "unwrapped": "false",
+            "expanded": "false",
         ])
     }
 
@@ -157,6 +160,25 @@ struct AnalyticsEventTests {
         #expect(direct["unwrapped"] == "false")
     }
 
+    @Test func cleanEventsReportWhetherAShortLinkWasExpanded() {
+        // Decision: E4 is the app's only network egress — does it earn its keep?
+        // `expanded` is how we tell an expanded-then-cleaned short link apart from a
+        // direct paste (after expansion `domain` is the destination, not the
+        // shortener). A bool, never the resolved URL (§3). Fires on every clean
+        // surface that wires a resolver — Home and the action extensions.
+        let expanded = AnalyticsEvent.homeURLCleaned(
+            source: .autoPaste, telemetry: telemetry(removedCount: 2, domain: "youtube.com", expanded: true)
+        ).parameters
+        let offline = AnalyticsEvent.actionCleanSucceeded(
+            telemetry: telemetry(removedCount: 1)
+        ).parameters
+        #expect(expanded["expanded"] == "true")
+        #expect(offline["expanded"] == "false")
+        // Independent of `unwrapped` (E1 offline): an expanded short link that is
+        // not itself a redirect wrapper reports expansion without unwrapping.
+        #expect(expanded["unwrapped"] == "false")
+    }
+
     @Test func referenceObservedCarriesTheName() {
         // Tier 1: the name is a public reference-catalog entry, so it is sent.
         #expect(AnalyticsEvent.parametersReferenceObserved(parameter: "gbraid").parameters == ["parameter": "gbraid"])
@@ -174,7 +196,7 @@ struct AnalyticsEventTests {
             source: .typed,
             telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
-        #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
+        #expect(Set(home.keys) == ["source", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped", "expanded"])
     }
 
     @Test func intentCleanCarriesSurfaceAndCleanTelemetry() {
@@ -193,6 +215,7 @@ struct AnalyticsEventTests {
             "removedKinds": "none",
             "domain": "youtube.com",
             "unwrapped": "true",
+            "expanded": "false",
         ])
         // The control and widget both run the clipboard intent → report `clipboard`.
         #expect(AnalyticsEvent.intentCleanSucceeded(
@@ -207,7 +230,7 @@ struct AnalyticsEventTests {
             surface: .clipboard,
             telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
-        #expect(Set(params.keys) == ["intentSurface", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
+        #expect(Set(params.keys) == ["intentSurface", "changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped", "expanded"])
     }
 
     @Test func intentCleanFailedCarriesSurfaceAndReason() {
@@ -233,6 +256,7 @@ struct AnalyticsEventTests {
             "removedKinds": "none",
             "domain": "youtube.com",
             "unwrapped": "true",
+            "expanded": "false",
         ])
     }
 
@@ -242,7 +266,7 @@ struct AnalyticsEventTests {
         let params = AnalyticsEvent.qrScanSucceeded(
             telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
-        #expect(Set(params.keys) == ["changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped"])
+        #expect(Set(params.keys) == ["changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped", "expanded"])
     }
 
     @Test func qrScanFailedAndGeneratedCarryFixedFields() {

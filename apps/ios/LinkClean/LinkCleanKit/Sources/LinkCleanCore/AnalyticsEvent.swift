@@ -376,6 +376,7 @@ public enum AnalyticsEvent: Equatable {
                 "removedKinds": Self.kinds(t.removedKindIDs),
                 "domain": t.domain,
                 "unwrapped": Self.string(!t.wrappers.isEmpty),
+                "expanded": Self.string(t.expanded),
             ]
         case let .homeURLCopied(changed),
              let .homeURLShared(changed):
@@ -424,6 +425,7 @@ public enum AnalyticsEvent: Equatable {
                 "removedKinds": Self.kinds(t.removedKindIDs),
                 "domain": t.domain,
                 "unwrapped": Self.string(!t.wrappers.isEmpty),
+                "expanded": Self.string(t.expanded),
             ]
         case let .actionCleanFailed(reason):
             return ["reason": reason.rawValue]
@@ -448,6 +450,7 @@ public enum AnalyticsEvent: Equatable {
                 "removedKinds": Self.kinds(t.removedKindIDs),
                 "domain": t.domain,
                 "unwrapped": Self.string(!t.wrappers.isEmpty),
+                "expanded": Self.string(t.expanded),
             ]
         case let .intentCleanFailed(surface, reason):
             return ["intentSurface": surface.rawValue, "reason": reason.rawValue]
@@ -460,6 +463,7 @@ public enum AnalyticsEvent: Equatable {
                 "removedKinds": Self.kinds(t.removedKindIDs),
                 "domain": t.domain,
                 "unwrapped": Self.string(!t.wrappers.isEmpty),
+                "expanded": Self.string(t.expanded),
             ]
         case let .qrScanFailed(reason):
             return ["reason": reason.rawValue]
