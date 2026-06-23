@@ -38,6 +38,7 @@
 /// | `debug.entitlementOverride` (DEBUG) | standard | `DebugEntitlementOverrideStore` | `DebugEntitlementOverrideStore` (StoreKit service, `EntitlementsModel`) |
 /// | `screenshotFixtures` (DEBUG) | standard | external (capture-script launch arg) | `SettingsStore` (`DebugLaunchConfigurator`) |
 /// | `debug.expandShortLinksOutOfApp` (DEBUG) | App Group | `SettingsStore` (Developer menu) | `SettingsStore` (extension + intent cleaning) |
+/// | `debug.parameterAdvisorEnabled` (DEBUG) | standard | `SettingsStore` (Developer menu) | `AppDependencies.live` (composition root) |
 public enum SettingsKeys {
 
     // MARK: App settings
@@ -157,5 +158,14 @@ public enum SettingsKeys {
     /// processes read what the app writes. DEBUG-only: the intent injection sites are
     /// `#if DEBUG`, so Release never expands from an intent.
     public static let expandShortLinksOutOfApp = "debug.expandShortLinksOutOfApp"
+
+    /// Developer switch (Developer menu) that surfaces the on-device
+    /// parameter-removal suggestion card on Home — the Foundation Models "ai-A"
+    /// advisor. Hidden from users: Release never wires the real advisor (the
+    /// composition root injects the no-op advisor), so the card never appears in a
+    /// shipped build; this opts a DEBUG build back in for on-device testing.
+    /// App-only: stored in `UserDefaults.standard`. Defaults to `false`. DEBUG-only:
+    /// the wiring site (`AppDependencies.live`) only reads it under `#if DEBUG`.
+    public static let parameterAdvisorEnabled = "debug.parameterAdvisorEnabled"
     #endif
 }

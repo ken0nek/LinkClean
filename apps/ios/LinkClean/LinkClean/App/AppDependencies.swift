@@ -59,7 +59,7 @@ struct AppDependencies {
             settings: settings,
             parameters: parameters,
             review: DefaultReviewService(),
-            advisor: FoundationModelsParameterAdvisor(),
+            advisor: liveAdvisor(settings: settings),
             history: HistoryStore(container: container, metadata: DefaultLinkMetadataService(), settings: settings),
             stats: StatsStore(),
             templates: TemplateStore(),
@@ -68,6 +68,22 @@ struct AppDependencies {
                 analytics: analytics
             )
         )
+    }
+
+    /// The Home parameter advisor — the Foundation Models "ai-A" suggestion card.
+    /// Hidden from users: a shipped (Release) build always gets the no-op advisor,
+    /// so the card never surfaces. In DEBUG the Developer-menu switch
+    /// (``SettingsStore/parameterAdvisorDebugEnabled``) opts a build back in for
+    /// on-device testing. The graph is wired once here, so a toggle takes effect on
+    /// the next launch.
+    private static func liveAdvisor(settings: SettingsStore) -> ParameterAdvising {
+        #if DEBUG
+        return settings.parameterAdvisorDebugEnabled
+            ? FoundationModelsParameterAdvisor()
+            : DisabledParameterAdvisor()
+        #else
+        return DisabledParameterAdvisor()
+        #endif
     }
 
     /// Offline dependencies for `#Preview`: no analytics network (the instance is

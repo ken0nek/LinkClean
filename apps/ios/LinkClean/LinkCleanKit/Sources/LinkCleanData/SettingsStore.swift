@@ -85,6 +85,16 @@ public nonisolated struct SettingsStore: Sendable {
         get { appGroup?.object(forKey: SettingsKeys.expandShortLinksOutOfApp) as? Bool ?? false }
         nonmutating set { appGroup?.set(newValue, forKey: SettingsKeys.expandShortLinksOutOfApp) }
     }
+
+    /// Developer flag (Developer menu): wire the real Foundation Models parameter
+    /// advisor so the on-device suggestion card surfaces on Home. Hidden from
+    /// users — Release never reads this (the composition root hard-wires the no-op
+    /// advisor), so the card never ships. App-only (`UserDefaults.standard`).
+    /// Defaults to `false`. DEBUG-only.
+    public var parameterAdvisorDebugEnabled: Bool {
+        get { standard.object(forKey: SettingsKeys.parameterAdvisorEnabled) as? Bool ?? false }
+        nonmutating set { standard.set(newValue, forKey: SettingsKeys.parameterAdvisorEnabled) }
+    }
     #endif
 
     /// Whether first-launch onboarding is complete. Defaults to `false` when

@@ -59,6 +59,20 @@ struct DeveloperMenuView: View {
             }
 
             Section {
+                Toggle(isOn: Binding(
+                    get: { viewModel.parameterAdvisorEnabled },
+                    set: { viewModel.setParameterAdvisorEnabled($0) }
+                )) {
+                    Text(verbatim: "Show Parameter Advisor")
+                }
+                .tint(.accentColor)
+            } header: {
+                Text(verbatim: "Foundation Models (DEBUG)")
+            } footer: {
+                Text(verbatim: "Surfaces the on-device parameter-removal suggestion card on Home (the \"ai-A\" advisor). Hidden from users — a shipped build never wires it. Relaunch the app after toggling; the advisor is built once at launch.")
+            }
+
+            Section {
                 ForEach([AnalyticsEvent.PaywallTrigger.settingsRow, .historyArchive, .customParamHome], id: \.rawValue) { trigger in
                     Button {
                         previewTrigger = trigger

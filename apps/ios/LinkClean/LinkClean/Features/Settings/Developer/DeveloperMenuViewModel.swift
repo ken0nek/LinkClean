@@ -29,6 +29,10 @@ final class DeveloperMenuViewModel {
     /// the developer switch that wires the network resolver into the App Intents
     /// (the action extension already expands in release).
     private(set) var expandShortLinksOutOfApp = false
+    /// DEBUG-only mirror of ``SettingsStore/parameterAdvisorDebugEnabled`` — the
+    /// developer switch that wires the Foundation Models parameter advisor so the
+    /// Home suggestion card surfaces (hidden from users; Release never shows it).
+    private(set) var parameterAdvisorEnabled = false
 
     @ObservationIgnored private let parameterStore = TrackingParameterStore()
     @ObservationIgnored private let settings = SettingsStore()
@@ -51,6 +55,7 @@ final class DeveloperMenuViewModel {
         customParameters = "\(parameterStore.customParameters().count) custom"
         historyCount = "\(fetchHistoryCount()) entries"
         expandShortLinksOutOfApp = settings.expandShortLinksOutOfAppDebugEnabled
+        parameterAdvisorEnabled = settings.parameterAdvisorDebugEnabled
     }
 
     /// Toggles whether the App Intents also wire the network short-link resolver
@@ -59,6 +64,15 @@ final class DeveloperMenuViewModel {
     func setExpandShortLinksOutOfApp(_ enabled: Bool) {
         settings.expandShortLinksOutOfAppDebugEnabled = enabled
         expandShortLinksOutOfApp = enabled
+    }
+
+    /// Toggles whether the Foundation Models parameter advisor is wired so the Home
+    /// suggestion card surfaces (DEBUG-only; the card is hidden from users in a
+    /// shipped build). Takes effect on the next launch, since the advisor is built
+    /// once at the composition root.
+    func setParameterAdvisorEnabled(_ enabled: Bool) {
+        settings.parameterAdvisorDebugEnabled = enabled
+        parameterAdvisorEnabled = enabled
     }
 
     // MARK: - Per-value resets
@@ -106,6 +120,7 @@ final class DeveloperMenuViewModel {
         clearCustomParameters()
         clearHistory()
         setExpandShortLinksOutOfApp(false)
+        setParameterAdvisorEnabled(false)
         // Reset onboarding last — clearing it flips ContentView to the
         // onboarding flow, which tears this screen down.
         resetOnboarding()
