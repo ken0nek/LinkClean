@@ -9,10 +9,10 @@ import SwiftUI
 
 /// An illustrative, non-interactive replica of the iOS share-sheet action
 /// list, used by the extension guide to show users where LinkClean's actions
-/// appear. The two LinkClean rows ("Clean URL", "Copy as Markdown") are
+/// appear. The two LinkClean rows ("Clean URL", "Copy link as…") are
 /// highlighted and gently pulse to draw the eye.
 ///
-/// Row titles are intentionally `verbatim`: "Clean URL" and "Copy as Markdown"
+/// Row titles are intentionally `verbatim`: "Clean URL" and "Copy link as…"
 /// must match the extensions' `CFBundleDisplayName`s exactly, and the system
 /// rows match what iOS itself renders, so the mock stays truthful regardless
 /// of app localization.
@@ -31,7 +31,7 @@ struct ShareSheetMockView: View {
     private let rows: [Row] = [
         .plain(title: "Copy", systemImage: "doc.on.doc"),
         .linkClean(title: "Clean URL", systemImage: "scissors"),
-        .linkClean(title: "Copy as Markdown", systemImage: "curlybraces"),
+        .linkClean(title: "Copy link as…", systemImage: "curlybraces"),
         .plain(title: "Add to Reading List", systemImage: "eyeglasses"),
         .edit(title: "Edit Actions…", systemImage: "slider.horizontal.3")
     ]

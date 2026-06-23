@@ -1129,19 +1129,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aktionsliste im Teilen-Menü mit hervorgehobenem „Clean URL“ und „Copy as Markdown“"
+            "value" : "Aktionsliste im Teilen-Menü mit hervorgehobenem „Clean URL“ und „Copy link as…“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share sheet actions list with Clean URL and Copy as Markdown highlighted"
+            "value" : "Share sheet actions list with Clean URL and Copy link as… highlighted"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「Clean URL」と「Copy as Markdown」が強調表示された共有シートのアクション一覧"
+            "value" : "「Clean URL」と「Copy link as…」が強調表示された共有シートのアクション一覧"
           }
         }
       }
@@ -1152,13 +1152,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tippe bei einem Link oder einer Seite auf die Teilen-Taste."
+            "value" : "Tippe bei einem Link oder einer Seite auf Teilen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap the Share button on a link or page."
+            "value" : "Tap Share on any link or page."
           }
         },
         "ja" : {
@@ -1175,19 +1175,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scrolle zur Aktionsliste unterhalb der App-Reihe."
+            "value" : "Finde LinkCleans Aktionen unter der App-Reihe – oder füge sie über „Aktionen bearbeiten…“ hinzu."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scroll down to the list of actions below the app row."
+            "value" : "Find LinkClean's actions below the app row — or tap Edit Actions… to add them."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリの行の下にあるアクション一覧までスクロールします。"
+            "value" : "下までスクロールしてLinkCleanのアクションを探します。なければ「アクションを編集…」で追加します。"
           }
         }
       }
@@ -1198,42 +1198,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tippe auf „Clean URL“ für einen tracker-freien Link oder auf „Copy as Markdown“ für einen Markdown-Link mit Titel."
+            "value" : "Tippe auf „Clean URL“ für einen sauberen Link oder auf „Copy link as…“, um ein Format zu wählen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap Clean URL for a tracker-free link, or Copy as Markdown for a titled Markdown link."
+            "value" : "Tap Clean URL for a clean link, or Copy link as… to pick a format."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "トラッカーのないリンクは「Clean URL」、タイトル付きのMarkdownリンクは「Copy as Markdown」をタップします。"
-          }
-        }
-      }
-    },
-    "guide.step4" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nicht zu finden? Tippe ganz unten auf „Aktionen bearbeiten…“ und dann auf das grüne +, um beide zu den Favoriten hinzuzufügen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Can't find them? Tap Edit Actions… at the bottom, then the green + to pin both to Favorites."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "見つかりませんか？一番下の「アクションを編集…」をタップし、緑色の + で両方をお気に入りに追加します。"
+            "value" : "クリーンなリンクは「Clean URL」、形式を選ぶなら「Copy link as…」をタップします。"
           }
         }
       }
@@ -1280,29 +1257,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "サンプルリンクを共有"
-          }
-        }
-      }
-    },
-    "guide.tryItHeader" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jetzt ausprobieren"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Try It Now"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "試してみる"
           }
         }
       }
@@ -2502,6 +2456,30 @@
         }
       }
     },
+    "onboarding.pro.notNow" : {
+      "comment" : "Button on the first-launch Pro onboarding step that declines the purchase for now and continues to the next step. Distinct from the top-right Skip, which exits onboarding entirely.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt nicht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今はしない"
+          }
+        }
+      }
+    },
     "onboarding.skip" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2521,29 +2499,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "スキップ"
-          }
-        }
-      }
-    },
-    "onboarding.tryIt.maybeLater" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vielleicht später"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Maybe Later"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "後で"
           }
         }
       }
@@ -2706,7 +2661,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "リンクを瞬時にクリーンに"
+            "value" : "リンクを\n一瞬でクリーンに"
           }
         }
       }

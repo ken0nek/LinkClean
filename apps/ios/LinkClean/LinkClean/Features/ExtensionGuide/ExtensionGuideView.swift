@@ -40,11 +40,12 @@ struct ExtensionGuideView: View {
                 ShareSheetMockView(pulseActive: viewModel.isIdleOrWaiting)
 
                 stepsCard
-
-                tryItCard
             }
             .padding(20)
         }
+        // Pin the primary action so it's always reachable — the guide content is
+        // tall and the CTA would otherwise sit below the fold during onboarding.
+        .safeAreaInset(edge: .bottom) { tryItBar }
         .screenBackground()
         .onAppear { viewModel.onAppear(source: source) }
         .onDisappear { viewModel.reset() }
@@ -62,18 +63,14 @@ struct ExtensionGuideView: View {
             GuideStep(number: 1, text: .guideStep1)
             GuideStep(number: 2, text: .guideStep2)
             GuideStep(number: 3, text: .guideStep3)
-            GuideStep(number: 4, text: .guideStep4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
         .glassCard()
     }
 
-    private var tryItCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(.guideTryItHeader)
-                .font(.headline)
-
+    private var tryItBar: some View {
+        VStack(spacing: 8) {
             ShareLink(item: viewModel.demoURL) {
                 Label { Text(.guideTryItButton) } icon: { Image(systemName: "square.and.arrow.up") }
                     .primaryButtonLabel()
@@ -85,9 +82,11 @@ struct ExtensionGuideView: View {
 
             statusLine
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(20)
-        .glassCard()
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 20)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+        .background(.bar)
     }
 
     @ViewBuilder

@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-/// Onboarding page 2: the hands-on step. Embeds the shared extension guide so
+/// Onboarding page 3: the hands-on step. Embeds the shared extension guide so
 /// the user opens the real share sheet and runs "Clean URL" for real; a
-/// detected run advances to the celebration page.
+/// detected run advances to the celebration page. Skippable via the top-right
+/// Skip in ``OnboardingView`` — no separate bottom escape hatch.
 struct OnboardingTryItPage: View {
     let deps: AppDependencies
     let onSuccess: () -> Void
-    let onMaybeLater: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,20 +24,11 @@ struct OnboardingTryItPage: View {
                 .padding(.horizontal, 24)
 
             ExtensionGuideView(deps: deps, source: .onboarding, onSuccess: onSuccess)
-
-            Button(action: onMaybeLater) {
-                Text(.onboardingTryItMaybeLater)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .padding(.vertical, 12)
-            }
-            .padding(.bottom, 8)
-            .accessibilityIdentifier("onboarding-maybe-later")
         }
     }
 }
 
 #Preview {
-    OnboardingTryItPage(deps: .preview(), onSuccess: {}, onMaybeLater: {})
+    OnboardingTryItPage(deps: .preview(), onSuccess: {})
         .screenBackground()
 }

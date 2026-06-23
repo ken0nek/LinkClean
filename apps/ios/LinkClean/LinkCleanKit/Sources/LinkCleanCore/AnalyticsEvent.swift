@@ -292,7 +292,9 @@ public enum AnalyticsEvent: Equatable {
     /// or parameter name (privacy rule, §9). Mirrors the §9 trigger inventory.
     /// `formatPicker` fires from the Copy-formats editor (a Pro preset or a custom
     /// template chosen as the action default — `copy-as-you-want` §4.3);
-    /// `export`/`sync` stay reserved for later surfaces and ship unfired.
+    /// `onboarding` fires from the first-launch Pro step (the inline paywall shown
+    /// after the welcome page); `export`/`sync` stay reserved for later surfaces
+    /// and ship unfired.
     public enum PaywallTrigger: String {
         case historyArchive
         case customParamHome
@@ -300,6 +302,7 @@ public enum AnalyticsEvent: Equatable {
         case settingsRow
         case advisorAccept
         case formatPicker
+        case onboarding
         case export
         case sync
     }

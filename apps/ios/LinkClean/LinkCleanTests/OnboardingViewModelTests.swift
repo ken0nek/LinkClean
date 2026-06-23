@@ -21,10 +21,19 @@ struct OnboardingViewModelTests {
         #expect(vm.page == .welcome)
     }
 
-    @Test func advanceGoesWelcomeToTryIt() {
+    @Test func advanceGoesWelcomeToPro() {
         let vm = OnboardingViewModel(defaults: makeSuite())
 
         vm.advance()
+
+        #expect(vm.page == .pro)
+    }
+
+    @Test func advanceGoesProToTryIt() {
+        let vm = OnboardingViewModel(defaults: makeSuite())
+
+        vm.advance() // welcome -> pro
+        vm.advance() // pro -> tryIt
 
         #expect(vm.page == .tryIt)
     }
@@ -32,7 +41,8 @@ struct OnboardingViewModelTests {
     @Test func advanceFromTryItDoesNotReachCelebration() {
         let vm = OnboardingViewModel(defaults: makeSuite())
 
-        vm.advance() // welcome -> tryIt
+        vm.advance() // welcome -> pro
+        vm.advance() // pro -> tryIt
         vm.advance() // tryIt -> stays (celebration only via success)
 
         #expect(vm.page == .tryIt)
@@ -41,7 +51,8 @@ struct OnboardingViewModelTests {
     @Test func guideSuccessAdvancesToCelebration() {
         let vm = OnboardingViewModel(defaults: makeSuite())
 
-        vm.advance()
+        vm.advance() // welcome -> pro
+        vm.advance() // pro -> tryIt
         vm.handleGuideSuccess()
 
         #expect(vm.page == .celebration)

@@ -15,6 +15,7 @@ import Observation
 final class OnboardingViewModel {
     enum Page: Int {
         case welcome
+        case pro
         case tryIt
         case celebration
     }
@@ -36,13 +37,15 @@ final class OnboardingViewModel {
         self.analytics = analytics
     }
 
-    /// Manual forward navigation. Only the welcome → try-it step advances this
-    /// way; the celebration page is reachable solely through a detected
-    /// extension success (`handleGuideSuccess`), so we never congratulate a
-    /// user who didn't actually run the extension.
+    /// Manual forward navigation through the lead-in pages
+    /// (welcome → pro → try-it). The celebration page is reachable solely through
+    /// a detected extension success (`handleGuideSuccess`), so we never
+    /// congratulate a user who didn't actually run the extension.
     func advance() {
         switch page {
         case .welcome:
+            page = .pro
+        case .pro:
             page = .tryIt
         case .tryIt, .celebration:
             break

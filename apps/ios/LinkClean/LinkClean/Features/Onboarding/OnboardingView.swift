@@ -8,9 +8,12 @@
 import SwiftUI
 
 /// First-launch flow that teaches the share-sheet extension — the app's core,
-/// otherwise-invisible feature. Skippable at every step except the celebration,
-/// which is only reached after a real extension run is detected.
+/// otherwise-invisible feature. The welcome and Pro steps advance via their own
+/// primary actions (Continue / Not now); a top-right Skip is offered only on the
+/// hands-on Try-It step, the one place a user might want out without acting. The
+/// celebration is reached only after a real extension run is detected.
 struct OnboardingView: View {
+    @Environment(EntitlementsModel.self) private var entitlements
     @State private var viewModel: OnboardingViewModel
     private let deps: AppDependencies
 
@@ -25,7 +28,7 @@ struct OnboardingView: View {
         ZStack(alignment: .topTrailing) {
             content
 
-            if viewModel.page != .celebration {
+            if viewModel.page == .tryIt {
                 Button { viewModel.skip() } label: {
                     Text(.onboardingSkip)
                         .font(.subheadline.weight(.semibold))
@@ -47,11 +50,13 @@ struct OnboardingView: View {
         case .welcome:
             OnboardingWelcomePage(onContinue: viewModel.advance)
                 .transition(.opacity)
+        case .pro:
+            OnboardingProPage(entitlements: entitlements, onContinue: viewModel.advance)
+                .transition(.opacity)
         case .tryIt:
             OnboardingTryItPage(
                 deps: deps,
-                onSuccess: viewModel.handleGuideSuccess,
-                onMaybeLater: viewModel.skip
+                onSuccess: viewModel.handleGuideSuccess
             )
             .transition(.opacity)
         case .celebration:
@@ -63,4 +68,5 @@ struct OnboardingView: View {
 
 #Preview {
     OnboardingView(deps: .preview(), onFinished: {})
+        .environment(EntitlementsModel.preview)
 }
