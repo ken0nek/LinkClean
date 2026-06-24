@@ -84,7 +84,6 @@
 		E92F20F32FDCAA0D00827C68 /* LinkCleanWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LinkCleanWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E92F20F42FDCAA0D00827C68 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		E92F20F62FDCAA0D00827C68 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		E92F21092FDCAA4A00827C68 /* LinkCleanWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LinkCleanWidgetExtension.entitlements; sourceTree = "<group>"; };
 		E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LinkCleanMarkdownAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA2000012F50000100A1A4A1 /* LinkCleanScreenshots */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = text; path = LinkCleanScreenshots; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -235,7 +234,6 @@
 		E90AAB502F2F4ED20021A4A1 = {
 			isa = PBXGroup;
 			children = (
-				E92F21092FDCAA4A00827C68 /* LinkCleanWidgetExtension.entitlements */,
 				E90AAB5B2F2F4ED30021A4A1 /* LinkClean */,
 				E90AAB6B2F2F4ED30021A4A1 /* LinkCleanTests */,
 				E90AAB752F2F4ED30021A4A1 /* LinkCleanUITests */,
@@ -984,7 +982,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = LinkCleanWidgetExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = LinkCleanWidget/LinkCleanWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = G4F57UX422;
@@ -1016,7 +1014,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = LinkCleanWidgetExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = LinkCleanWidget/LinkCleanWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = G4F57UX422;
