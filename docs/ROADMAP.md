@@ -4,12 +4,12 @@ Forward-looking only — what's planned, parked, or undecided. Shipped work is i
 [CHANGELOG.md](../CHANGELOG.md); product-decision rationale is in
 [ARCHITECTURE.md](../ARCHITECTURE.md).
 
-> **Live releases (as of 2026-06-16):** 1.0.0 (2026-06-15) and 1.1.0 (2026-06-16). 1.1.0 ended up much bigger than originally scoped — most of the planned 1.2 release pulled forward into 1.1; see [product/growth-roadmap.md](product/growth-roadmap.md) §9 "Why this collapsed".
+> **Live releases (as of 2026-06-25):** 1.0.0 (2026-06-15), 1.1.0 (2026-06-16), 1.2.0 (2026-06-18 — E4 short-link expansion), and 1.2.1 (2026-06-23 — onboarding Pro step; the ai-A parameter advisor hidden behind a DEBUG flag). 1.1.0 ended up much bigger than originally scoped — most of the planned 1.2 release pulled forward into 1.1; see [product/growth-roadmap.md](product/growth-roadmap.md) §9 "Why this collapsed".
 
-## 1.2.0 — Backlog (planned, did not make 1.1.0)
+## Backlog (planned, not yet shipped)
 
-- [ ] **ai-C smart titles** — on-device title generation for cleaned links; plan: [plans/001-ai-c-smart-titles.md](plans/001-ai-c-smart-titles.md) (in-app v1; action-extension use deferred).
-- [ ] **E4 short-link expansion** — expand t.co / bit.ly and other shorteners (networked; deliberately excluded from the offline redirect unwrapper); plan: [plans/002-e4-short-link-expansion.md](plans/002-e4-short-link-expansion.md).
+- [ ] **ai-C smart titles** — on-device title generation for cleaned links; plan: [plans/001-ai-c-smart-titles.md](plans/001-ai-c-smart-titles.md) (in-app v1; action-extension use deferred). Did not make 1.2.0/1.2.1; **deferred pending a Foundation Models appetite call** — the ai-A parameter advisor was hidden behind a DEBUG flag in 1.2.1, so the next visible FM bet is not committed.
+- [x] ~~**E4 short-link expansion**~~ — **shipped in 1.2.0** (2026-06-18): opt-in expansion of t.co / bit.ly and other shorteners (networked; deliberately excluded from the offline redirect unwrapper), **free for all tiers**, default off. Plan: [plans/002-e4-short-link-expansion.md](plans/002-e4-short-link-expansion.md).
 
 ## Open decisions
 

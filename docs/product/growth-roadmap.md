@@ -1,6 +1,6 @@
 # LinkClean Growth Roadmap
 
-> **Status: partially-shipped — 2026-06-16 (last sync).** Originally proposed 2026-06-10. Nothing below is committed to a release; the sequencing in §9 is the recommendation and the open calls are collected in §10.
+> **Status: partially-shipped — 2026-06-25 (last sync).** Originally proposed 2026-06-10. **Update 2026-06-25:** 1.2.0 (2026-06-18) and 1.2.1 (2026-06-23) are now LIVE — **E4 short-link expansion shipped** (free for all tiers), **ai-C title refinement slipped** (deferred pending an FM-appetite call; the ai-A advisor was hidden behind a DEBUG flag in 1.2.1). §9 and §10 are reconciled to this; the inline "1.2" pins in §1/§5/§6/§7 predate it and the §9 table is the source of truth. Nothing below is committed to a release; the sequencing in §9 is the recommendation and the open calls are collected in §10.
 > Scope: **how the product grows after launch** — engine depth, OS surfaces, visible value, localization, and platform expansion. This doc composes with, and does not restate, the three decided strategies: [iap-strategy.md](../strategy/iap-strategy.md) ("iap §n") owns pricing/gating, [ai-features.md](ai-features.md) ("ai §n") owns the AI beats, [kpis.md](../strategy/kpis.md) owns measurement. Where this doc assigns Free/Pro, it applies iap §6's three rules; deviations are flagged, not smuggled.
 > Sources: codebase inventory 2026-06-10 (`URLCleaner.swift`, `TrackingParameters.swift`, `ProGate.swift`, extension targets, `Localizable.xcstrings`), plus the docs above and [docs/TODO.md](../TODO.md).
 
@@ -156,7 +156,7 @@ iap §11 is explicit: 1.0's gates validate WTP; **conversion-squeezing waits for
 | Release | Theme | Contents | The falsifiable goal |
 |---|---|---|---|
 | ✅ **1.1** *(LIVE 2026-06-16)* | *Clean from anywhere, intelligently, visibly* | S1 App Intents (intent + control + button widget), E1 unwrapping, E2 fragments, V1 counters, V2 dashboard, V3 share card, ai-A advisor, P1 Copy-as-you-want template engine + picker, **QR scan + generate** (new, not in original plan), 🇯🇵 ja + 🇩🇪 de, the `linkclean.app` domain + landing site | Surface mix (kpis §6) ≥ 15% intent/control cleans by D60; first conversion read vs. iap §11's 5% base; rating holds ≥ 4.7; card shares appear in the wild |
-| **1.2** *(scope shrunk — most originally-planned items shipped in 1.1.0)* | *Smarter titles + deeper unwrap* | ai-C title refinement (with the next Pro-formats round), E4 short-link expansion (per [ROADMAP.md](../ROADMAP.md)) | Title refinement engagement; E4 cleans-per-session lift |
+| ✅ **1.2** *(LIVE: 1.2.0 2026-06-18, 1.2.1 2026-06-23)* | *Deeper unwrap (shipped); smarter titles (slipped)* | ✅ **E4 short-link expansion** (1.2.0, free for all tiers, opt-in); **ai-C title refinement deferred** — did not ship, pending an FM-appetite call after the ai-A advisor was hidden behind a DEBUG flag in 1.2.1 | E4 cleans-per-session lift (ai-C unmeasured — not shipped) |
 | **1.3** | *Your links, everywhere, organized* | iCloud sync, export, ai-B tagging, S2 Safari v1, V4 recap, 🇫🇷🇪🇸 | Conversion ≥ 5% sustained; D30 (kpis §8) lifts vs. 1.1 cohort |
 | **1.4+** | *Power* | ai-D NL search, advanced Shortcuts/widgets, domain rules + E5, S2 v2 auto-clean | Pro-user behavior split (kpis §20) justifies continued Pro investment |
 | **2.0** | *Platform* | Mac menu-bar app (after kit decoupling), price-headroom review | New-platform installs without new entitlement cost |
@@ -168,12 +168,12 @@ Why this collapsed: with 1.0.0 holding a fix-build slot in review, the team kept
 ## 10. Open decisions (ratify before 1.1 scoping)
 
 1. **Control Center control + single-button widget: free?** (§4 S1 — recommended yes; deviation from a literal reading of iap §6's "widgets → Pro".)
-2. **E4 short-link expansion: Pro, and is an opt-in network feature acceptable in the product at all?** (§3 — recommended yes/Pro, opt-in regardless.)
+2. ✅ **E4 short-link expansion** — **Decided & shipped (1.2.0, 2026-06-18): free for all tiers** (not Pro), opt-in, default off — the one feature that reaches the network. The "is an opt-in network feature acceptable at all?" question resolved **yes**, with honest in-Settings copy. (Note: this is the one §3 deviation — E4 was pinned ❌ Pro there; the ship decision overrode it to free, judging expansion table-stakes rather than an add-on.)
 3. **Safari v1 free / v2 Pro split.** (§4 S2 — recommended as stated.)
 4. **Localization order confirm** (ja → de → fr/es) and translation sourcing (founder-QA'd ja; paid translation for the rest).
 5. ✅ **`linkclean.app` domain** — **Decided yes 2026-06-16**: domain bought, DNS on Cloudflare, landing site LIVE at [`linkclean.app`](https://linkclean.app/) with home + `/trackers/` + `/guides/` + `/learn/` clusters. See [monorepo-and-landing.md](../strategy/monorepo-and-landing.md) and [seo-content-plan.md](../strategy/seo-content-plan.md).
 6. **Family Sharing revisit at 1.3** (carried flag, iap §5 context).
-7. Per iap §13.3: **re-verify the Feb 2026 competitive snapshot** — it predates launch; Clean Links' and Trackless Links' current state should sanity-check E1's "table stakes" claim and the price headroom note.
+7. Per iap §13.3: **re-verify the Feb 2026 competitive snapshot** — ⚠️ **still outstanding as of 2026-06-25 (now ~4 months stale)**; it predates launch; Clean Links' and Trackless Links' current state should sanity-check E1's "table stakes" claim and the price headroom note.
 
 ## 11. Measurement note
 
