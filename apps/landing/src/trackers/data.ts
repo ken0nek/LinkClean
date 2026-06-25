@@ -732,7 +732,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
           {
             heading: "What gad_source encodes",
             paragraphs: [
-              "Google's auto-tagging system gained a series of `gad_*` parameters in 2023 as part of the GA4 migration. gad_source is a small numeric code — typically a single digit — that identifies which Google Ads surface generated the click. Community-observed values include 1 (Search Ads), 2 (Display Network), 3 (YouTube), 4 (Discovery / Performance Max), 5 (Shopping).",
+              "Google's auto-tagging system gained a series of `gad_*` parameters in 2023 as part of the GA4 migration. gad_source is a small numeric code — typically a single digit — that identifies which Google Ads surface generated the click. Google doesn't publish the mapping; community observation pins the common low values as 1 (Search Ads), 2 (Display Network), 3 (YouTube), 5 (Shopping), while higher values like 4, 6 and 7 have no public consensus.",
               "On its own gad_source carries less attribution power than gclid — but it's used in combination with gad_campaignid and the older gclid to disambiguate where a click came from when Google's downstream analytics joins the data.",
             ],
           },
@@ -759,7 +759,7 @@ export const TRACKERS: ReadonlyArray<TrackerSpoke> = [
           },
           {
             q: "What do the gad_source numeric values mean?",
-            a: "Community observation: 1 = Search Ads, 2 = Display Network, 3 = YouTube, 4 = Discovery / Performance Max, 5 = Shopping. Google has not formally documented the mapping.",
+            a: "Google doesn't publish the mapping. Community observation pins the common values as 1 = Search Ads, 2 = Display Network, 3 = YouTube, 5 = Shopping; values like 4, 6 and 7 aren't reliably documented. The [Google ad-click parameters](/learn/google-ad-click-parameters/) overview covers the whole gad_* / gclid family.",
           },
           {
             q: "Will removing gad_source affect what I see?",

@@ -327,4 +327,61 @@ export const GUIDES: ReadonlyArray<GuideArticle> = [
       },
     },
   },
+
+  // ── /guides/clean-markdown-link ──────────────────────────────
+  {
+    slug: "clean-markdown-link",
+    content: {
+      en: {
+        title: "How to save a clean Markdown link in Obsidian or Notion (iPhone)",
+        description:
+          "Save web links into Obsidian, Notion, Bear or Logseq as clean `[Title](URL)` Markdown — with the trackers stripped first — in one tap from the iPhone share sheet.",
+        tldr: "When you clip a web link into a notes app, the share link usually drags trackers (`utm_*`, `si`, `fbclid`) straight into your permanent notes — and pastes as a naked URL with no title. LinkClean's **Copy link as… → Markdown** action cleans the link *and* formats it as `[Page Title](clean-url)` in one tap, so what lands in Obsidian or Notion is tidy and tracker-free.",
+        intro: [
+          "Personal-knowledge-management apps — Obsidian, Notion, Bear, Logseq, Craft — keep links forever. That makes them the worst place for a dirty link: a tracker you'd shrug off in a group chat becomes a permanent record in your notes, and it travels every time you re-share or publish that note.",
+          "Raw links also look bad in Markdown. A YouTube or news share link dropped into a note renders as a long naked URL with a `?si=…` or `?utm_source=…` tail — no title, no context. The fix is to clean the link and wrap it in Markdown (`[Title](URL)`) at the same time. Here's the one-tap way on iPhone, plus the manual fallback.",
+        ],
+        steps: [
+          {
+            title: "Copy the link as clean Markdown from the share sheet",
+            body: "On any page or link, tap Share → \"Copy link as…\" and pick Markdown (it's a free format). LinkClean strips the trackers, then formats the result as `[Page Title](https://clean-url)`. Switch to Obsidian or Notion and paste — you get a titled, tracker-free Markdown link, not a naked URL.",
+          },
+          {
+            title: "Paste straight into your note",
+            body: "In Obsidian, paste where you want the link — it renders the clickable title immediately because it's already Markdown. In Notion, pasting `[Title](URL)` converts to Notion's own link inline. No editing, no typing the title by hand.",
+          },
+          {
+            title: "Prefer your own format? Make a template (Pro)",
+            body: "If you want something other than `[Title](URL)` — a callout, a quote block, or `- [ ] Title — URL` for a task — LinkClean Pro's Copy Formats editor lets you define the template once. The cleaned link and the page title slot into your format every time.",
+          },
+          {
+            title: "Manual fallback (without LinkClean)",
+            body: "Clean the link first (delete everything from the `?` onward, refresh to confirm the page still loads), then in your note type `[`, paste the title, `](`, paste the URL, `)`. It works — but it's four fiddly steps per link, and you have to recognize the trackers yourself.",
+          },
+        ],
+        outro: [
+          "Two things make the one-tap flow worth it for note-taking specifically. First, the title: LinkClean fetches the real page title, so you don't paste a naked URL or type the title by hand. Second, the catalog: a link you clip might carry utm_*, fbclid, si, mc_eid or any of dozens of trackers — LinkClean knows the whole set and strips them in one pass, so your vault stays clean without you auditing each link.",
+          "If you clip a lot from shortened links (t.co, bit.ly), turn on Short-Link Expansion in Settings — LinkClean follows the short link to the real page, then cleans and formats that, so you never archive a shortener that could rot or redirect later.",
+        ],
+        related: [
+          {
+            label: "What's hidden in a share link?",
+            href: "/learn/whats-hidden-in-a-share-link/",
+          },
+          {
+            label: "What is utm_source, and why is it safe to remove?",
+            href: "/trackers/utm-source/",
+          },
+          {
+            label: "How to remove UTM parameters from a link",
+            href: "/guides/remove-utm-parameters/",
+          },
+          {
+            label: "Do cleaned links still work?",
+            href: "/learn/do-cleaned-links-still-work/",
+          },
+        ],
+      },
+    },
+  },
 ];

@@ -587,4 +587,156 @@ export const LEARN_ARTICLES: ReadonlyArray<LearnArticle> = [
       },
     },
   },
+
+  // ── /learn/google-ad-click-parameters ────────────────────────
+  {
+    slug: "google-ad-click-parameters",
+    content: {
+      en: {
+        title: "Google's ad-click URL parameters, explained (gclid, gad_source, gbraid…)",
+        description:
+          "Google Ads auto-tags clicks with gclid, gbraid, wbraid, dclid, gad_source and gad_campaignid. Here's what each one is, what the gad_source numbers mean, and why every one is safe to strip.",
+        tldr: "Click a Google ad and Google's **auto-tagging** appends one or more parameters to the destination URL — **`gclid`** (the original click ID), **`gbraid`/`wbraid`** (the iOS-privacy-era click IDs), **`dclid`** (display), and since 2023 **`gad_source`** and **`gad_campaignid`**. None are read by the page you land on; they're attribution signals for Google Ads and GA4. All are safe to remove, and LinkClean strips the whole family by default. The one people ask about most — `gad_source` — is a numeric code for the ad surface (`=1` Search, `=2` Display, `=3` YouTube, `=5` Shopping), but Google publishes no official mapping, so higher values like `=7` aren't reliably documented.",
+        sections: [
+          {
+            heading: "The family at a glance",
+            paragraphs: [
+              "A single Google ad click can land you on a URL with three or four of these stacked together — `?gclid=…&gad_source=1&gad_campaignid=…`. Each is added automatically by Google Ads' auto-tagging; you don't have to be the advertiser for them to appear. Here's the whole family:",
+            ],
+            table: {
+              caption: "Google Ads auto-tagged URL parameters",
+              headers: ["Parameter", "What it is", "Added since", "Read by"],
+              rows: [
+                ["gclid", "Google Click Identifier — the original; binds a click to its ad and conversion", "~2010s", "Google Ads + GA4"],
+                ["gbraid", "Click ID for app→web journeys on iOS (the App Tracking Transparency era)", "2021", "Google Ads (aggregated)"],
+                ["wbraid", "Click ID for web→web on iOS Safari (the Intelligent Tracking Prevention era)", "2021", "Google Ads (aggregated)"],
+                ["dclid", "Display click ID — Display & Video 360 / Campaign Manager", "display stack", "Google's display tools"],
+                ["gad_source", "Numeric code for which ad surface produced the click", "2023", "Google Ads + GA4"],
+                ["gad_campaignid", "Numeric identifier for the campaign that drove the click", "2023", "Google Ads + GA4"],
+                ["srsltid", "Shopping / Merchant Center product-listing token", "Shopping", "Merchant Center + GA4"],
+              ],
+            },
+          },
+          {
+            heading: "gclid — the click ID everything else orbits",
+            paragraphs: [
+              "`gclid` (Google Click Identifier) is the oldest and most important member of the family. With auto-tagging on (the default for almost every Google Ads account), every paid click gets a unique `gclid` appended to the landing-page URL. Google Ads and GA4 read it back to credit the conversion: this exact click, from this ad, in this campaign, led to this purchase.",
+              "Because it's per-click and unique, `gclid` is the most identifying parameter in the set — it ties your visit to a specific ad impression Google served you. It's also the hardest term to rank for and the one people most want gone. Full detail on its own page: [What is gclid?](/trackers/gclid/).",
+            ],
+          },
+          {
+            heading: "gbraid and wbraid — the privacy-era twins",
+            paragraphs: [
+              "When Apple's App Tracking Transparency (iOS 14.5, 2021) and Safari's Intelligent Tracking Prevention made the cookie-and-`gclid` plumbing unreliable on iPhones, Google introduced two replacements designed to measure conversions in aggregate rather than per person:",
+            ],
+            bullets: [
+              "**`gbraid`** rides **app→web** journeys — you tap an ad inside an iOS app and land on a website.",
+              "**`wbraid`** rides **web→web** journeys on iOS Safari — you click an ad on one page and land on another.",
+            ],
+          },
+          {
+            heading: "Why gbraid and wbraid are different from gclid",
+            paragraphs: [
+              "Both are engineered to be more privacy-preserving than `gclid` — they're meant to be joined in aggregate, not used to single you out — but they're still attribution tokens the destination page never reads, so LinkClean strips them too. Their own pages: [gbraid](/trackers/gbraid/) · [wbraid](/trackers/wbraid/).",
+            ],
+          },
+          {
+            heading: "gad_source — the source code Google won't explain",
+            paragraphs: [
+              "`gad_source` is the parameter people search for most in this family, because it shows up as a bare number — `gad_source=1`, `gad_source=2`, `gad_source=7` — with no obvious meaning. Google's own help page is blunt: the parameter \"is used to identify the source of ads URLs\" and \"isn't customizable,\" but Google **does not publish what the individual numbers mean**.",
+              "Analysts have reverse-engineered the common values by correlating them with campaign types. The mapping below is community-observed and stable over time, but it is **not official** — treat it as a strong hint, not a guarantee:",
+            ],
+            table: {
+              caption: "Community-observed gad_source values — reverse-engineered, not officially documented by Google",
+              headers: ["Value", "Observed source"],
+              rows: [
+                ["gad_source=1", "Google Search ads"],
+                ["gad_source=2", "Display Network"],
+                ["gad_source=3", "YouTube"],
+                ["gad_source=5", "Shopping"],
+                ["gad_source=4, 6, 7, …", "Not reliably documented — no public consensus"],
+              ],
+            },
+          },
+          {
+            heading: "So what does gad_source=7 mean?",
+            paragraphs: [
+              "If you landed here searching exactly that: the honest answer is that no one outside Google has confirmed it. The low values (1, 2, 3, 5) line up with Search, Display, YouTube and Shopping; everything above that is guesswork. Either way, the number is metadata for Google's analytics — the page you're visiting doesn't read it, and removing it changes nothing about what loads. Its own page: [What is gad_source?](/trackers/gad-source/).",
+            ],
+          },
+          {
+            heading: "gad_campaignid — the numeric campaign tag",
+            paragraphs: [
+              "`gad_campaignid` arrived in 2023 alongside `gad_source`. It's the numeric ID of the Google Ads campaign that produced the click — a machine-readable companion to the human-readable `utm_campaign` a marketer types. A single ad URL often carries all three campaign signals at once: `utm_campaign` for the GA4 dashboard, `gad_campaignid` for Google's first-party attribution, and `gclid` for the Ads conversion record. [What is gad_campaignid?](/trackers/gad-campaignid/)",
+            ],
+          },
+          {
+            heading: "Why Google needs so many",
+            paragraphs: [
+              "It looks redundant — why four or five tags for one click? The answer is the privacy transition. Universal Analytics leaned on third-party cookies and referrer headers to attribute traffic. Safari's ITP, Firefox's Total Cookie Protection and Chrome's Privacy Sandbox have eroded both. GA4's design moved the attribution signal **into the URL itself** as durable first-party tags — which is exactly why the `gad_*` family appeared in 2023 and why `gbraid`/`wbraid` appeared in 2021. They're the cookie's replacement, stapled to the link.",
+              "For the difference between these click IDs and the `utm_*` tags marketers add by hand, see [Click IDs vs UTM tags](/learn/click-ids-vs-utm-tags/).",
+            ],
+          },
+          {
+            heading: "Are any of them safe to keep?",
+            paragraphs: [
+              "Functionally, none of them matter to you. Every parameter in this family is read by Google's ad and analytics systems, never by the destination server — strip them and the page loads byte-for-byte the same. (The general principle: [Do cleaned links still work?](/learn/do-cleaned-links-still-work/))",
+              "The only party with a reason to keep them is the advertiser measuring their own campaign. If that's you, paste the link into LinkClean rather than cleaning blind — you'll see the original and cleaned versions side by side and can keep whichever you intend to share.",
+            ],
+          },
+          {
+            heading: "How LinkClean removes the whole family",
+            paragraphs: [
+              "All seven parameters ship in LinkClean's catalog as default-on, host-independent rules — there's no legitimate non-tracking use of `gclid`, `gad_source` and the rest, so they're stripped wherever they appear, on every surface (Share Sheet, widget, Shortcuts, the app, QR). A messy Google-ad URL like `https://shop.example.com/p?gad_source=1&gad_campaignid=12345678&gclid=Cj0KCQ&utm_campaign=spring` comes out as `https://shop.example.com/p`.",
+              "Because these rules aren't host-scoped (unlike X's `t=`/`s=`, which only apply on `x.com`), you don't have to think about it — the family is gone the moment you clean.",
+            ],
+          },
+        ],
+        faq: [
+          {
+            q: "What does gad_source=7 mean?",
+            a: "Google doesn't say. Its help documentation confirms gad_source identifies the ad source but never publishes the value mapping. Community observation has pinned the low values — 1 = Search, 2 = Display, 3 = YouTube, 5 = Shopping — but 7 (and 4, 6) have no public consensus. It's an internal source code either way; removing it changes nothing about the page.",
+          },
+          {
+            q: "Is gad_source the same as gclid?",
+            a: "No. gclid is a unique per-click token that identifies your specific click; gad_source is a small shared code for the type of ad surface (Search, Display, …). Many clicks share the same gad_source; every click has its own gclid. They travel together but do different jobs.",
+          },
+          {
+            q: "Will removing these break the Google ad's destination?",
+            a: "No. They're attribution metadata for Google Ads and GA4, not routing information. The destination URL works identically without them — the advertiser just loses the granular attribution for that one visit.",
+          },
+          {
+            q: "I'm an advertiser — will cleaning my own links hurt my reporting?",
+            a: "Only for links you clean and then share; your ads keep auto-tagging normally. If you specifically want to preserve a tagged link, paste it into LinkClean and copy the original side — cleaning is opt-in per link, never forced.",
+          },
+          {
+            q: "Why did gbraid and wbraid suddenly appear on my iPhone?",
+            a: "They're Google's answer to iOS privacy. After App Tracking Transparency (2021), Google could no longer rely on cookies and gclid to measure iPhone conversions, so it added gbraid (app→web) and wbraid (web→web) as aggregated, privacy-era click IDs. They only show up on iOS journeys.",
+          },
+        ],
+        related: [
+          {
+            label: "What is gad_source?",
+            href: "/trackers/gad-source/",
+          },
+          {
+            label: "What is gclid?",
+            href: "/trackers/gclid/",
+          },
+          {
+            label: "Click IDs vs UTM tags — what's the difference?",
+            href: "/learn/click-ids-vs-utm-tags/",
+          },
+          {
+            label: "Do cleaned links still work?",
+            href: "/learn/do-cleaned-links-still-work/",
+          },
+          {
+            label: "What is gad_campaignid?",
+            href: "/trackers/gad-campaignid/",
+          },
+        ],
+      },
+    },
+  },
 ];
