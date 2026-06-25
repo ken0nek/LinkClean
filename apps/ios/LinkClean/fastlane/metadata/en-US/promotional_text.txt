@@ -1,1 +1,1 @@
-Strip utm_source, fbclid, and dozens more tracking tags from any link — right in your Share Sheet. See what's removed. Pro is a single purchase — never a subscription.
+Strip trackers from any link — in the Share Sheet, Shortcuts, or Control Center. Unwrap redirects, expand short links, scan QR codes. One-time Pro, no subscription.

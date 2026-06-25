@@ -1,14 +1,26 @@
 LinkClean strips tracking junk from any link, so what you share is the clean destination — not a trail of who shared it, from where, and when.
 
-Paste a link and LinkClean instantly removes tracking parameters like utm_source, fbclid, and dozens more. You see exactly what was taken out and what's left, then copy a clean link with a single tap.
+Paste a link and LinkClean instantly removes tracking parameters like utm_source, fbclid, gclid, and dozens more. You see exactly what was taken out and what's left, then copy a clean link with a single tap.
 
-CLEAN AS YOU SHARE
-Add LinkClean to your Share Sheet and clean a link without leaving the app you're in:
-• Clean URL — copies the tidied link, ready to paste
-• Copy as Markdown — copies the link as a Markdown [title](url), with the page title filled in for you
+CLEAN FROM ANYWHERE
+You don't have to open the app to clean a link:
+• Share Sheet — tap Share in any app, pick Clean URL, and the tidied link is on your clipboard
+• Shortcuts & Siri — clean links inside your own automations, hands-free
+• Control Center & Home Screen widget — one tap cleans whatever you've copied
+• Copy link as… — plain, Markdown [title](url) with the page title filled in, or your own format
 
-SEE WHAT YOU'RE REMOVING
-Every clean shows a calm summary of how many trackers were removed — tap to see exactly which ones. Anything left behind is shown too, and you can tap a leftover parameter to strip it from now on.
+CLEANING THAT GOES DEEPER
+LinkClean does more than trim the obvious tags:
+• Unwraps redirect links to find and clean the real destination
+• Strips trackers hiding after the # in a link
+• Expands short links too — turn on Short-Link Expansion and LinkClean follows bit.ly, t.co, and the like to the real page before cleaning it (free, off by default, and the one feature that reaches the web — always your choice)
+
+SCAN & MAKE QR CODES
+• Scan a QR code to clean the link hidden inside it
+• Turn any clean link into a fresh QR code to share
+
+SEE YOUR IMPACT
+Every clean shows a calm summary of how many trackers were removed — tap to see exactly which ones, and tap a leftover to strip it from now on. The Statistics dashboard adds it all up over time, with a privacy card you can share.
 
 MAKE IT YOURS
 • Turn the built-in tracker list on or off
@@ -16,10 +28,10 @@ MAKE IT YOURS
 • Keep a searchable History of everything you've cleaned — ready to copy, share, re-clean, or reopen
 
 ONE PURCHASE, YOURS FOREVER
-LinkClean is free to use: unlimited cleaning, both Share Sheet actions, one custom rule of your own, and your last 7 days of History. LinkClean Pro unlocks unlimited custom rules and your full History archive with a single one-time purchase. No subscription, no account, nothing recurring.
+LinkClean is free to use: unlimited cleaning, the Share Sheet and Shortcuts actions, one custom rule of your own, and your last 7 days of History. LinkClean Pro unlocks your own copy formats, unlimited custom rules, and your full History archive — a single one-time purchase. No subscription, no account, nothing recurring.
 
 PRIVATE BY DESIGN
-Cleaning happens entirely on your device, and the full links you clean never leave it — not the path, the parameters, or any values. LinkClean uses only anonymous, aggregate analytics to learn which features matter; the one thing it notes about a cleaned link is its site domain (like youtube.com), never the full link. See the privacy policy for the full picture.
+Cleaning happens entirely on your device, and the full links you clean never leave it — not the path, the parameters, or any values. The one exception is Short-Link Expansion, which reaches the web only when you switch it on. LinkClean uses only anonymous, aggregate analytics to learn which features matter; the one thing it notes about a cleaned link is its site domain (like youtube.com), never the full link. See the privacy policy for the full picture.
 
 Built for iOS 26 with a fast, native, Liquid Glass interface.
 

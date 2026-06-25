@@ -1,0 +1,40 @@
+LinkClean entfernt Tracking-Ballast aus jedem Link – was du teilst, ist das saubere Ziel, nicht eine Spur davon, wer wann von wo geteilt hat.
+
+Füge einen Link ein, und LinkClean entfernt sofort Tracking-Parameter wie utm_source, fbclid, gclid und dutzende mehr. Du siehst genau, was entfernt wurde und was bleibt, und kopierst den sauberen Link mit einem Tippen.
+
+VON ÜBERALL BEREINIGEN
+Du musst die App nicht öffnen, um einen Link zu bereinigen:
+• Teilen-Menü – tippe in jeder App auf „Teilen", wähle Clean URL, und der saubere Link liegt in der Zwischenablage
+• Kurzbefehle & Siri – bereinige Links in deinen eigenen Automationen, ganz ohne Hände
+• Kontrollzentrum & Home-Bildschirm-Widget – ein Tippen bereinigt, was du kopiert hast
+• Link kopieren als … – schlicht, Markdown [title](url) mit eingesetztem Seitentitel oder dein eigenes Format
+
+BEREINIGEN, DAS TIEFER GEHT
+LinkClean kürzt nicht nur die offensichtlichen Tags:
+• Löst Weiterleitungs-Links auf, um das echte Ziel zu finden und zu bereinigen
+• Entfernt Tracker, die sich hinter dem # im Link verstecken
+• Löst auch Kurzlinks auf – schalte „Kurzlinks auflösen" ein, und LinkClean folgt bit.ly, t.co und Co. bis zur echten Seite, bevor es sie bereinigt (kostenlos, standardmäßig aus und die einzige Funktion, die ins Netz geht – immer deine Wahl)
+
+QR-CODES SCANNEN & ERSTELLEN
+• Scanne einen QR-Code, um den darin versteckten Link zu bereinigen
+• Mach aus jedem sauberen Link einen neuen QR-Code zum Teilen
+
+DEINE WIRKUNG SEHEN
+Jede Bereinigung zeigt ruhig, wie viele Tracker entfernt wurden – tippe, um genau zu sehen, welche, und tippe auf einen Rest, um ihn ab sofort zu entfernen. Die Statistik zählt alles über die Zeit zusammen, mit einer Datenschutz-Karte, die du teilen kannst.
+
+MACH SIE ZU DEINER
+• Schalte die eingebaute Tracker-Liste ein oder aus
+• Füge eigene Parameter hinzu, die immer entfernt werden
+• Behalte einen durchsuchbaren Verlauf von allem, was du bereinigt hast – bereit zum Kopieren, Teilen, erneuten Bereinigen oder Öffnen
+
+EINMAL KAUFEN, FÜR IMMER DEINS
+LinkClean ist kostenlos: unbegrenztes Bereinigen, die Aktionen im Teilen-Menü und in Kurzbefehlen, eine eigene Regel und dein Verlauf der letzten 7 Tage. LinkClean Pro schaltet deine eigenen Kopierformate, unbegrenzte eigene Regeln und dein vollständiges Verlaufsarchiv frei – mit einem einmaligen Kauf. Kein Abo, kein Konto, nichts Wiederkehrendes.
+
+DATENSCHUTZ VON GRUND AUF
+Das Bereinigen passiert vollständig auf deinem Gerät, und die vollständigen Links, die du bereinigst, verlassen es nie – weder Pfad noch Parameter noch Werte. Die einzige Ausnahme ist „Kurzlinks auflösen", das nur ins Netz geht, wenn du es einschaltest. LinkClean nutzt ausschließlich anonyme, aggregierte Analysen, um zu lernen, welche Funktionen wichtig sind; das Einzige, was es zu einem bereinigten Link notiert, ist dessen Domain (wie youtube.com), nie der vollständige Link. Alle Details findest du in der Datenschutzrichtlinie.
+
+Für iOS 26 gebaut, mit einer schnellen, nativen Liquid-Glass-Oberfläche.
+
+—
+
+Datenschutzrichtlinie: https://ken0nek.com/apps/linkclean/privacy-policy/

@@ -2,6 +2,9 @@
 # For more information, check out the docs
 # https://docs.fastlane.tools/actions/deliver/
 
-# LinkClean ships unlocalized for 1.0.0 — English (en-US) only.
-# Screenshots upload separately from fastlane/screenshots/en-US/.
-languages(["en-US"])
+# Listing localized to ja-JP + de-DE (2026-06-25); the binary has shipped ja/de
+# strings since 1.1.0. release_notes ("What's New") is en-US only so far — the
+# release-notes skill owns per-version localization; ja/de What's New is needed
+# before the next versioned upload (or use --skip... for a metadata-only push).
+# Screenshots are still en-US only (fastlane/screenshots/en-US/).
+languages(["en-US", "ja-JP", "de-DE"])
