@@ -4,47 +4,47 @@
         "description": "The display name for the extension."
     },
     "extension_description": {
-        "message": "Clean tracking parameters out of the current page's link, right from the Safari toolbar.",
+        "message": "Entferne Tracking-Parameter aus dem Link der aktuellen Seite – direkt über die Safari-Symbolleiste.",
         "description": "Description of what the extension does."
     },
     "popup_status_cleaning": {
-        "message": "Cleaning this page's link…",
+        "message": "Link dieser Seite wird bereinigt …",
         "description": "Shown briefly while the current tab's link is being cleaned."
     },
     "popup_status_cleaned": {
-        "message": "Cleaned link",
+        "message": "Bereinigter Link",
         "description": "Label above the cleaned result."
     },
     "popup_status_already_clean": {
-        "message": "Already clean — nothing to remove.",
+        "message": "Bereits bereinigt – nichts zu entfernen.",
         "description": "Shown when the link had no tracking parameters to remove."
     },
     "popup_status_no_link": {
-        "message": "No link to clean on this page.",
+        "message": "Auf dieser Seite gibt es keinen Link zum Bereinigen.",
         "description": "Shown when the active tab has no web link."
     },
     "popup_status_not_web": {
-        "message": "This isn't a web link.",
+        "message": "Das ist kein Web-Link.",
         "description": "Shown when the active tab's URL isn't an http(s) link."
     },
     "popup_status_error": {
-        "message": "Something went wrong.",
+        "message": "Etwas ist schiefgelaufen.",
         "description": "Generic failure message."
     },
     "popup_action_copy": {
-        "message": "Copy",
+        "message": "Kopieren",
         "description": "Button: copy the cleaned link."
     },
     "popup_action_markdown": {
-        "message": "Copy as Markdown",
+        "message": "Als Markdown kopieren",
         "description": "Button: copy the cleaned link as a Markdown link."
     },
     "popup_action_share": {
-        "message": "Share",
+        "message": "Teilen",
         "description": "Button: share the cleaned link."
     },
     "popup_feedback_copied": {
-        "message": "Copied",
+        "message": "Kopiert",
         "description": "Transient confirmation shown on a button after copying."
     }
 }

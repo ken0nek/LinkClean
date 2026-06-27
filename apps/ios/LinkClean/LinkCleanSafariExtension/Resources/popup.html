@@ -7,7 +7,14 @@
     <script type="module" src="popup.js"></script>
 </head>
 <body>
-    <p id="status">Cleaning this page's link…</p>
-    <p id="result"></p>
+    <main class="card">
+        <p id="status" class="status">…</p>
+        <p id="result" class="result" hidden></p>
+        <div id="actions" class="actions" hidden>
+            <button id="copy" class="btn btn-primary" type="button">Copy</button>
+            <button id="markdown" class="btn" type="button">Copy as Markdown</button>
+            <button id="share" class="btn" type="button">Share</button>
+        </div>
+    </main>
 </body>
 </html>

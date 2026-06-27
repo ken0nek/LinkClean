@@ -179,6 +179,22 @@ struct SettingsView: View {
                 }
 
                 Button {
+                    openURL(viewModel.appSettingsURL)
+                } label: {
+                    Label {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(.settingsSafariExtension)
+                            Text(.settingsSafariExtensionSubtitle)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } icon: {
+                        Image(systemName: "safari").foregroundStyle(.tint)
+                    }
+                }
+                .accessibilityIdentifier("settings-safari-extension")
+
+                Button {
                     openURL(viewModel.contactURL)
                 } label: {
                     Label { Text(.settingsSupportContact) } icon: { Image(systemName: "envelope") }

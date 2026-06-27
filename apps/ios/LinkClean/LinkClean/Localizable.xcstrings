@@ -4780,6 +4780,54 @@
         }
       }
     },
+    "settings.safariExtension" : {
+      "comment" : "Settings row title: a pointer to turn on the Safari toolbar extension.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Safari-Erweiterung aktivieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn On Safari Extension"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Safari拡張機能をオンにする"
+          }
+        }
+      }
+    },
+    "settings.safariExtension.subtitle" : {
+      "comment" : "Settings row subtitle: the path to enable the Safari extension (iOS has no deep link to it).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffne in den Einstellungen Apps → Safari → Erweiterungen und aktiviere LinkClean."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Settings, open Apps → Safari → Extensions and switch on LinkClean."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「設定」→「App」→「Safari」→「拡張機能」で LinkClean をオンにします。"
+          }
+        }
+      }
+    },
     "settings.support.contact" : {
       "extractionState" : "manual",
       "localizations" : {

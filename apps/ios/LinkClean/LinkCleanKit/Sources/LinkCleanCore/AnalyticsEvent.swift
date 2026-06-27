@@ -175,6 +175,19 @@ public enum AnalyticsEvent: Equatable {
     /// intent; the QR analogue of ``historyEntryActioned`` / ``homeURLCopied``.
     case qrResultActioned(QRResultAction)
 
+    // MARK: Safari Web Extension (toolbar clean — plan 004)
+
+    /// A clean produced in the Safari toolbar popup (plan 004) — the Safari
+    /// surface's realized clean. Carries the same analytics-safe
+    /// ``CleanOutcome/Telemetry`` as the other clean surfaces (catalog-gap params +
+    /// the `domain` host signal, §3). **Live emission is a deferred v1 follow-up:**
+    /// the extension's native handler is a per-message `NSExtension` with no
+    /// analytics SDK linked (kept a minimal, dependency-light adapter that returns
+    /// immediately, so a batched signal wouldn't flush before teardown), so nothing
+    /// fires this yet. The typed case + test ship now so the taxonomy is ready when
+    /// in-process emission is wired (analytics-audit).
+    case safariCleanSucceeded(telemetry: CleanOutcome.Telemetry)
+
     // MARK: Review (§6)
 
     /// The in-app star prompt (`ReviewGateSheet`) appeared.
@@ -354,6 +367,7 @@ public enum AnalyticsEvent: Equatable {
         case .qrScanFailed: "QR.Scan.failed"
         case .qrCodeGenerated: "QR.Code.generated"
         case .qrResultActioned: "QR.Result.actioned"
+        case .safariCleanSucceeded: "Safari.Clean.succeeded"
         case .reviewPromptShown: "Review.Prompt.shown"
         case .reviewStarsSelected: "Review.Stars.selected"
         case .reviewSystemPromptRequested: "Review.SystemPrompt.requested"
@@ -477,6 +491,17 @@ public enum AnalyticsEvent: Equatable {
             return ["changed": Self.string(changed)]
         case let .qrResultActioned(action):
             return ["action": action.rawValue]
+        case let .safariCleanSucceeded(t):
+            return [
+                "changed": Self.string(t.changed),
+                "removedCount": Bucket.removedCount(t.removedCount),
+                "leftoverCount": Bucket.leftoverCount(t.leftoverCount),
+                "referenceMatchCount": Bucket.leftoverCount(t.referenceMatches.count),
+                "removedKinds": Self.kinds(t.removedKindIDs),
+                "domain": t.domain,
+                "unwrapped": Self.string(!t.wrappers.isEmpty),
+                "expanded": Self.string(t.expanded),
+            ]
         case let .reviewStarsSelected(bucket):
             return ["bucket": bucket.rawValue]
         case let .paywallShown(trigger),

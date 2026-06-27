@@ -20,16 +20,24 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             message = request?.userInfo?["message"]
         }
 
-        // The popup sends { "url": "<active tab URL>" }. Clean it with the same
-        // engine the app and the other extensions use, then return
-        // { "cleaned": "<clean URL>" } — or { "error": ... } when there's no web
-        // link to clean. The URL is never logged: this handler mirrors the
+        // The popup sends { "url": "<active tab URL>", "title"?: "<page title>" }.
+        // Clean it with the same engine the app and the other extensions use, then
+        // return { "cleaned": "<clean URL>", "markdown": "[title](link)" } — or
+        // { "error": ... } when there's no web link to clean. The Markdown link text
+        // falls back to the host when the page has no title, so it is never a broken
+        // `[](url)` (plan 004). The URL is never logged: this handler mirrors the
         // engine's no-logging posture (plan 004, decision 5).
         let payload: [String: Any]
         if let dict = message as? [String: Any], let url = dict["url"] as? String {
-            payload = URLCleaner.isValidURL(url)
-                ? ["cleaned": URLCleaner.clean(url)]
-                : ["error": "invalidInput"]
+            if URLCleaner.isValidURL(url) {
+                let cleaned = URLCleaner.clean(url)
+                let host = URLComponents(string: cleaned)?.host
+                let pageTitle = (dict["title"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+                let markdown = MarkdownFormatter.markdownLink(title: pageTitle ?? host, url: cleaned)
+                payload = ["cleaned": cleaned, "markdown": markdown]
+            } else {
+                payload = ["error": "invalidInput"]
+            }
         } else {
             payload = ["error": "invalidMessage"]
         }

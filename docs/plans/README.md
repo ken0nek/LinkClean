@@ -18,7 +18,7 @@ honor its STOP conditions, and update your status row when done.
 | 001  | ai-C: on-device Smart Title refinement (in-app v1) | P1 | M | — | **DEFERRED** — Foundation Models appetite pending (the ai-A advisor was hidden behind a DEBUG flag in 1.2.1); see ROADMAP backlog |
 | 002  | E4: opt-in short-link expansion | P2 | M | — | **DONE** — shipped **free for all tiers** (no Pro gate); app expands, action extensions + App Intents behind a DEBUG developer flag |
 | 003  | History before→after: surface the original link + search it | P1 | S–M | — | **DONE** (2026-06-25) — Core `HistoryDiff` + detail sheet + search-the-original + analytics; free, no schema change; fast lane (290) + `build-for-testing` green. **Staged unpushed as 1.2.2** (`07d8027`); version still 1.2.1(13) — bump + ship pending |
-| 004  | Safari Web Extension v1: clean the current page's link from the toolbar | P2 | M (+ spike) | — | **IN PROGRESS** — **Phase 0 DONE + device-confirmed** (2026-06-27): handler runs the real `URLCleaner` via native messaging, `activeTab`+`nativeMessaging` only (never `<all_urls>`), branding off the app mark (name "LinkClean" + icons + link/sparkle glyph). Free, new acquisition surface, no catalog port. **Phase 1 remaining**: popup Copy/Share/Markdown, `safariCleanSucceeded` analytics + test, ja/de, Settings enable-pointer |
+| 004  | Safari Web Extension v1: clean the current page's link from the toolbar | P2 | M (+ spike) | — | **BUILT — device-verified, pending final QA + ship** (2026-06-27, commits `86c0d61`+`3d998be`): Phase 0 seam + Phase 1 (popup Copy / Copy-as-Markdown / Share + "already clean", `safariCleanSucceeded` analytics + test, en/ja/de, in-app Settings enable-pointer). `activeTab`+`nativeMessaging` only (never `<all_urls>`), cleaning stays in Swift, free. Gates: fast lane 298, `build-for-testing` EXIT 0, popup actions device-verified. Remaining: full QA-matrix tail (already-clean / language-switch) + ship in the next release |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (reason) | REJECTED (rationale)
 
@@ -32,9 +32,11 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (reason) | REJECTED (rational
   real `URLCleaner` clean over `browser.runtime.sendNativeMessage`, proven on a physical
   device (sim Safari-extension behavior is unreliable). One finding: `nativeMessaging` is
   required in `permissions` (Apple's native-messaging doc) — it is the talk-to-own-container
-  channel, not host access, so the `activeTab`-only privacy line still holds. **Phase 1**
-  (popup Copy/Share/Markdown, the `safariCleanSucceeded` analytics case + test, ja/de popup
-  localization, an in-app "enable the extension" pointer) is the remaining build.
+  channel, not host access, so the `activeTab`-only privacy line still holds. **Phase 1 is now
+  built and device-verified** (popup Copy / Copy-as-Markdown / Share + "already clean", the
+  `safariCleanSucceeded` analytics case + test, en/ja/de popup localization, an in-app Settings
+  "Turn On Safari Extension" pointer). Remaining is the full manual QA-matrix tail and shipping
+  it in the next release.
 - **001 ships the in-app surface only.** The high-value **action-extension** surface
   is deliberately deferred behind a latency/process-lifetime spike (a human
   measurement task, not executor work) — see 001 §"Surfaces" and "Maintenance notes".

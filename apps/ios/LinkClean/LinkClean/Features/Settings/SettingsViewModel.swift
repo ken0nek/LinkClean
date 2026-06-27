@@ -11,6 +11,7 @@ import LinkCleanAnalytics
 import LinkCleanData
 import Observation
 import SwiftData
+import UIKit
 
 @MainActor
 @Observable
@@ -43,6 +44,11 @@ final class SettingsViewModel {
     /// `requestReview()` — which backs the automatic Home review gate and can
     /// silently no-op on demand. `6758604043` is LinkClean's App Store ID.
     let reviewURL = URL(string: "https://apps.apple.com/app/id6758604043?action=write-review")!
+
+    /// Opens the Settings app for the Safari-extension pointer row. iOS exposes no
+    /// deep link to Safari → Extensions, so this lands the user in Settings and the
+    /// row's subtitle carries the path — "give a button, not a location".
+    let appSettingsURL = URL(string: UIApplication.openSettingsURLString)!
 
     @ObservationIgnored private let analytics: AnalyticsService
     @ObservationIgnored private let settings: SettingsStore

@@ -76,6 +76,7 @@ struct AnalyticsEventTests {
             (.qrScanFailed(reason: .noLink), "QR.Scan.failed"),
             (.qrCodeGenerated(changed: true), "QR.Code.generated"),
             (.qrResultActioned(.copy), "QR.Result.actioned"),
+            (.safariCleanSucceeded(telemetry: telemetry(removedCount: 1)), "Safari.Clean.succeeded"),
             (.reviewPromptShown, "Review.Prompt.shown"),
             (.reviewStarsSelected(bucket: .high), "Review.Stars.selected"),
             (.reviewSystemPromptRequested, "Review.SystemPrompt.requested"),
@@ -264,6 +265,33 @@ struct AnalyticsEventTests {
         // Same privacy pin as the other clean events: counts + the one disclosed
         // domain, never the decoded payload or a leftover key name.
         let params = AnalyticsEvent.qrScanSucceeded(
+            telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
+        ).parameters
+        #expect(Set(params.keys) == ["changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped", "expanded"])
+    }
+
+    @Test func safariCleanCarriesCleanTelemetry() {
+        // The Safari toolbar surface's clean rides the same analytics-safe telemetry
+        // as the other clean surfaces — counts + the one disclosed domain, no key names.
+        let params = AnalyticsEvent.safariCleanSucceeded(
+            telemetry: telemetry(changed: true, removedCount: 2, domain: "youtube.com", wrappers: ["t.co"])
+        ).parameters
+        #expect(params == [
+            "changed": "true",
+            "removedCount": "2",
+            "leftoverCount": "0",
+            "referenceMatchCount": "0",
+            "removedKinds": "none",
+            "domain": "youtube.com",
+            "unwrapped": "true",
+            "expanded": "false",
+        ])
+    }
+
+    @Test func safariCleanParameterSurfaceIsCountsAndEnumsOnly() {
+        // Same privacy pin as the other clean events: counts + the one disclosed
+        // domain, never the page URL or a leftover key name.
+        let params = AnalyticsEvent.safariCleanSucceeded(
             telemetry: telemetry(changed: false, leftoverCount: 3, referenceMatches: ["epik", "yclid"])
         ).parameters
         #expect(Set(params.keys) == ["changed", "removedCount", "leftoverCount", "referenceMatchCount", "removedKinds", "domain", "unwrapped", "expanded"])

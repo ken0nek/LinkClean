@@ -1,23 +1,95 @@
 :root {
     color-scheme: light dark;
+    --accent: #0a7d6e;
+    --label: #1c1c1e;
+    --secondary-label: rgba(60, 60, 67, 0.6);
+    --fill: rgba(118, 118, 128, 0.12);
+    --fill-strong: rgba(118, 118, 128, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --accent: #2bb3a1;
+        --label: #ffffff;
+        --secondary-label: rgba(235, 235, 245, 0.6);
+        --fill: rgba(118, 118, 128, 0.24);
+        --fill-strong: rgba(118, 118, 128, 0.36);
+    }
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
-    width: 280px;
     margin: 0;
-    padding: 12px 14px;
-    font-family: system-ui;
-    font-size: 13px;
-    line-height: 1.45;
+    font-family: -apple-system, system-ui, sans-serif;
+    color: var(--label);
 }
 
-#status {
-    margin: 0 0 6px;
+.card {
+    width: 300px;
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.status {
+    margin: 0;
+    font-size: 13px;
+    color: var(--secondary-label);
+}
+
+.result {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 600;
+    word-break: break-all;
+    -webkit-user-select: all;
+    user-select: all;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.btn {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    border-radius: 11px;
+    padding: 11px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--accent);
+    background: var(--fill);
+    cursor: pointer;
+}
+
+.btn:active {
+    background: var(--fill-strong);
+}
+
+.btn:disabled {
     opacity: 0.6;
 }
 
-#result {
-    margin: 0;
-    font-weight: 600;
-    word-break: break-all;
+.btn-primary {
+    color: #fff;
+    background: var(--accent);
+}
+
+.btn-primary:active {
+    filter: brightness(0.92);
+    background: var(--accent);
+}
+
+[hidden] {
+    display: none !important;
 }
