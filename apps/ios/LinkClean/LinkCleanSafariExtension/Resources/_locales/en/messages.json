@@ -1,0 +1,10 @@
+{
+    "extension_name": {
+        "message": "LinkClean",
+        "description": "The display name for the extension."
+    },
+    "extension_description": {
+        "message": "Clean tracking parameters out of the current page's link, right from the Safari toolbar.",
+        "description": "Description of what the extension does."
+    }
+}

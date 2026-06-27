@@ -13,6 +13,8 @@
 		E92F20F72FDCAA0D00827C68 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E92F20F62FDCAA0D00827C68 /* SwiftUI.framework */; };
 		E92F21042FDCAA0E00827C68 /* LinkCleanWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E92F20F32FDCAA0D00827C68 /* LinkCleanWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E92F210B2FDCAC4800827C68 /* LinkCleanKit in Frameworks */ = {isa = PBXBuildFile; productRef = E92F210A2FDCAC4800827C68 /* LinkCleanKit */; };
+		E96AE9822FEFAA7E0005BD45 /* LinkCleanSafariExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E96AE96A2FEFAA7E0005BD45 /* LinkCleanSafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E96AE9892FEFAAC40005BD45 /* LinkCleanKit in Frameworks */ = {isa = PBXBuildFile; productRef = E96AE9882FEFAAC40005BD45 /* LinkCleanKit */; };
 		E9D4BFFE2F36AD6B00B2D6EC /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90AAB8B2F3058F40021A4A1 /* UniformTypeIdentifiers.framework */; };
 		E9D4C0092F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EA1000012F40000100A1A4A1 /* LinkCleanKit in Frameworks */ = {isa = PBXBuildFile; productRef = EA1000062F40000100A1A4A1 /* LinkCleanKit */; };
@@ -50,6 +52,13 @@
 			remoteGlobalIDString = E92F20F22FDCAA0D00827C68;
 			remoteInfo = LinkCleanWidgetExtension;
 		};
+		E96AE9802FEFAA7E0005BD45 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E90AAB512F2F4ED20021A4A1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E96AE9692FEFAA7E0005BD45;
+			remoteInfo = LinkCleanSafariExtension;
+		};
 		E9D4C0072F36AD6B00B2D6EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E90AAB512F2F4ED20021A4A1 /* Project object */;
@@ -68,6 +77,7 @@
 			files = (
 				E92F21042FDCAA0E00827C68 /* LinkCleanWidgetExtension.appex in Embed Foundation Extensions */,
 				E90AAB972F3058F40021A4A1 /* LinkCleanAction.appex in Embed Foundation Extensions */,
+				E96AE9822FEFAA7E0005BD45 /* LinkCleanSafariExtension.appex in Embed Foundation Extensions */,
 				E9D4C0092F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -84,6 +94,7 @@
 		E92F20F32FDCAA0D00827C68 /* LinkCleanWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LinkCleanWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E92F20F42FDCAA0D00827C68 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		E92F20F62FDCAA0D00827C68 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		E96AE96A2FEFAA7E0005BD45 /* LinkCleanSafariExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LinkCleanSafariExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LinkCleanMarkdownAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA2000012F50000100A1A4A1 /* LinkCleanScreenshots */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = text; path = LinkCleanScreenshots; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -109,6 +120,13 @@
 				Info.plist,
 			);
 			target = E92F20F22FDCAA0D00827C68 /* LinkCleanWidgetExtension */;
+		};
+		E96AE9862FEFAA7E0005BD45 /* Exceptions for "LinkCleanSafariExtension" folder in "LinkCleanSafariExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E96AE9692FEFAA7E0005BD45 /* LinkCleanSafariExtension */;
 		};
 		E9D4C00C2F36AD6B00B2D6EC /* Exceptions for "LinkCleanMarkdownAction" folder in "LinkCleanMarkdownAction" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -152,6 +170,18 @@
 				E92F21082FDCAA0E00827C68 /* Exceptions for "LinkCleanWidget" folder in "LinkCleanWidgetExtension" target */,
 			);
 			path = LinkCleanWidget;
+			sourceTree = "<group>";
+		};
+		E96AE96B2FEFAA7E0005BD45 /* LinkCleanSafariExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E96AE9862FEFAA7E0005BD45 /* Exceptions for "LinkCleanSafariExtension" folder in "LinkCleanSafariExtension" target */,
+			);
+			explicitFolders = (
+				Resources/_locales,
+				Resources/images,
+			);
+			path = LinkCleanSafariExtension;
 			sourceTree = "<group>";
 		};
 		E9D4BFFF2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */ = {
@@ -212,6 +242,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E96AE9672FEFAA7E0005BD45 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E96AE9892FEFAAC40005BD45 /* LinkCleanKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E9D4BFFA2F36AD6B00B2D6EC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -241,6 +279,7 @@
 				E9D4BFFF2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */,
 				EA2000022F50000100A1A4A1 /* Screenshots */,
 				E92F20F82FDCAA0D00827C68 /* LinkCleanWidget */,
+				E96AE96B2FEFAA7E0005BD45 /* LinkCleanSafariExtension */,
 				E90AAB8A2F3058F40021A4A1 /* Frameworks */,
 				E90AAB5A2F2F4ED30021A4A1 /* Products */,
 			);
@@ -256,6 +295,7 @@
 				E9D4BFFD2F36AD6B00B2D6EC /* LinkCleanMarkdownAction.appex */,
 				EA2000012F50000100A1A4A1 /* LinkCleanScreenshots */,
 				E92F20F32FDCAA0D00827C68 /* LinkCleanWidgetExtension.appex */,
+				E96AE96A2FEFAA7E0005BD45 /* LinkCleanSafariExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -288,6 +328,7 @@
 				E90AAB962F3058F40021A4A1 /* PBXTargetDependency */,
 				E9D4C0082F36AD6B00B2D6EC /* PBXTargetDependency */,
 				E92F21032FDCAA0E00827C68 /* PBXTargetDependency */,
+				E96AE9812FEFAA7E0005BD45 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E90AAB5B2F2F4ED30021A4A1 /* LinkClean */,
@@ -391,6 +432,29 @@
 			productReference = E92F20F32FDCAA0D00827C68 /* LinkCleanWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		E96AE9692FEFAA7E0005BD45 /* LinkCleanSafariExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E96AE9852FEFAA7E0005BD45 /* Build configuration list for PBXNativeTarget "LinkCleanSafariExtension" */;
+			buildPhases = (
+				E96AE9662FEFAA7E0005BD45 /* Sources */,
+				E96AE9672FEFAA7E0005BD45 /* Frameworks */,
+				E96AE9682FEFAA7E0005BD45 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E96AE96B2FEFAA7E0005BD45 /* LinkCleanSafariExtension */,
+			);
+			name = LinkCleanSafariExtension;
+			packageProductDependencies = (
+				E96AE9882FEFAAC40005BD45 /* LinkCleanKit */,
+			);
+			productName = LinkCleanSafariExtension;
+			productReference = E96AE96A2FEFAA7E0005BD45 /* LinkCleanSafariExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		E9D4BFFC2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E9D4C00D2F36AD6B00B2D6EC /* Build configuration list for PBXNativeTarget "LinkCleanMarkdownAction" */;
@@ -441,7 +505,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2640;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					E90AAB582F2F4ED30021A4A1 = {
@@ -460,6 +524,9 @@
 					};
 					E92F20F22FDCAA0D00827C68 = {
 						CreatedOnToolsVersion = 26.4;
+					};
+					E96AE9692FEFAA7E0005BD45 = {
+						CreatedOnToolsVersion = 26.5;
 					};
 					E9D4BFFC2F36AD6B00B2D6EC = {
 						CreatedOnToolsVersion = 26.2;
@@ -495,6 +562,7 @@
 				E9D4BFFC2F36AD6B00B2D6EC /* LinkCleanMarkdownAction */,
 				EA2000072F50000100A1A4A1 /* LinkCleanScreenshots */,
 				E92F20F22FDCAA0D00827C68 /* LinkCleanWidgetExtension */,
+				E96AE9692FEFAA7E0005BD45 /* LinkCleanSafariExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -529,6 +597,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E92F20F12FDCAA0D00827C68 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E96AE9682FEFAA7E0005BD45 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -587,6 +662,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E96AE9662FEFAA7E0005BD45 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E9D4BFF92F36AD6B00B2D6EC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -623,6 +705,11 @@
 			isa = PBXTargetDependency;
 			target = E92F20F22FDCAA0D00827C68 /* LinkCleanWidgetExtension */;
 			targetProxy = E92F21022FDCAA0E00827C68 /* PBXContainerItemProxy */;
+		};
+		E96AE9812FEFAA7E0005BD45 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E96AE9692FEFAA7E0005BD45 /* LinkCleanSafariExtension */;
+			targetProxy = E96AE9802FEFAA7E0005BD45 /* PBXContainerItemProxy */;
 		};
 		E9D4C0082F36AD6B00B2D6EC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1041,6 +1128,73 @@
 			};
 			name = Release;
 		};
+		E96AE9832FEFAA7E0005BD45 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = G4F57UX422;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LinkCleanSafariExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LinkCleanSafariExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ken0nek.LinkClean.LinkCleanSafariExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E96AE9842FEFAA7E0005BD45 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = LinkCleanSafariExtension/LinkCleanSafariExtensionRelease.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = G4F57UX422;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LinkCleanSafariExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LinkCleanSafariExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ken0nek.LinkClean.LinkCleanSafariExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		E9D4C00A2F36AD6B00B2D6EC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1206,6 +1360,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		E96AE9852FEFAA7E0005BD45 /* Build configuration list for PBXNativeTarget "LinkCleanSafariExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E96AE9832FEFAA7E0005BD45 /* Debug */,
+				E96AE9842FEFAA7E0005BD45 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E9D4C00D2F36AD6B00B2D6EC /* Build configuration list for PBXNativeTarget "LinkCleanMarkdownAction" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1235,6 +1398,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		E92F210A2FDCAC4800827C68 /* LinkCleanKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EA1000052F40000100A1A4A1 /* XCLocalSwiftPackageReference "LinkCleanKit" */;
+			productName = LinkCleanKit;
+		};
+		E96AE9882FEFAAC40005BD45 /* LinkCleanKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = EA1000052F40000100A1A4A1 /* XCLocalSwiftPackageReference "LinkCleanKit" */;
 			productName = LinkCleanKit;

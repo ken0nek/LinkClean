@@ -1,0 +1,23 @@
+:root {
+    color-scheme: light dark;
+}
+
+body {
+    width: 280px;
+    margin: 0;
+    padding: 12px 14px;
+    font-family: system-ui;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+#status {
+    margin: 0 0 6px;
+    opacity: 0.6;
+}
+
+#result {
+    margin: 0;
+    font-weight: 600;
+    word-break: break-all;
+}
