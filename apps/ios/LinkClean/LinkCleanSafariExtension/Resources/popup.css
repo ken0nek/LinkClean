@@ -28,7 +28,9 @@ body {
 }
 
 .card {
-    width: 300px;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
     padding: 14px 16px 16px;
     display: flex;
     flex-direction: column;
