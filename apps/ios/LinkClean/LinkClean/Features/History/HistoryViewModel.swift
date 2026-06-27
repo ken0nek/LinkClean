@@ -19,6 +19,8 @@ final class HistoryViewModel {
         didSet { handleSearchTextChange() }
     }
     var copiedEntryID: UUID?
+    /// The entry whose before→after detail sheet is presented, if any.
+    var detailEntry: HistoryEntry?
     @ObservationIgnored private var copyTask: Task<Void, Never>?
     @ObservationIgnored private let history: HistoryStore
     @ObservationIgnored private let analytics: AnalyticsService
@@ -83,6 +85,8 @@ final class HistoryViewModel {
         return entries.filter { entry in
             (entry.pageTitle?.localizedStandardContains(searchText) ?? false)
                 || entry.output.localizedStandardContains(searchText)
+                || entry.input.localizedStandardContains(searchText)
+                || (entry.arrivedFromHost?.localizedStandardContains(searchText) ?? false)
         }
     }
 
@@ -135,6 +139,13 @@ final class HistoryViewModel {
         UIPasteboard.general.string = MarkdownFormatter.markdownLink(title: entry.pageTitle, url: entry.output)
         analytics.capture(.historyEntryActioned(.markdown))
         showCopiedFeedback(for: entry)
+    }
+
+    /// Presents the before→after detail for an entry and records the inspection
+    /// (`.viewedBeforeAfter`, distinct from the copy/share/open export actions).
+    func showBeforeAfter(for entry: HistoryEntry) {
+        detailEntry = entry
+        analytics.capture(.historyEntryActioned(.viewedBeforeAfter))
     }
 
     /// Records a share *initiation*. `ShareLink` exposes no completion callback,

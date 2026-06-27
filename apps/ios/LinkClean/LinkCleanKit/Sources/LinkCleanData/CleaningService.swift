@@ -80,12 +80,25 @@ public nonisolated struct DefaultCleaningService: CleaningService {
         let unwrap = URLCleaner.unwrap(working)
         let enabled = store.enabledParameters(forHost: URLCleaner.ruleHost(of: unwrap.destination))
             .union(extraParameters.map { $0.lowercased() })
+
+        // The host the user actually pasted, surfaced when the real destination
+        // lives elsewhere — a short link expanded (E4) or a redirect unwrapped (E1).
+        // Compared on the normalized display host so casing / `www.` don't read as a
+        // change; `nil` when the destination shares the arrival host. On-device only
+        // (rides the outcome to History), never analytics.
+        let arrivalHost = URLCleaner.analyticsDomain(from: trimmed)
+        let destinationHost = URLCleaner.analyticsDomain(from: unwrap.destination)
+        let arrivedFromHost = (arrivalHost != "unknown" && destinationHost != "unknown" && arrivalHost != destinationHost)
+            ? arrivalHost
+            : nil
+
         return URLCleaner.outcome(
             for: unwrap.destination,
             removing: enabled,
             wrappers: unwrap.wrappers,
             stripTextFragment: settings.removeTextFragmentsEnabled,
-            expanded: expansion != nil
+            expanded: expansion != nil,
+            arrivedFromHost: arrivedFromHost
         )
     }
 

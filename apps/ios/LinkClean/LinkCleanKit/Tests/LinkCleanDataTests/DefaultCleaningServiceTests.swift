@@ -163,6 +163,50 @@ struct DefaultCleaningServiceTests {
         #expect(outcome.cleaned == "https://example.com/page")
         #expect(!outcome.telemetry.expanded)   // non-shortener host → resolver untouched, no expansion
     }
+
+    // MARK: - Arrival host (History's "Expanded from …" banner)
+
+    @Test func recordsTheWrapperHostAsArrivalForARedirect() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let service = DefaultCleaningService(store: TrackingParameterStore(suiteName: suiteName))
+
+        // A google.com redirect to a shop.example.com destination: the arrival host
+        // is the normalized wrapper host, surfaced on the outcome so History can show
+        // "Expanded from google.com" for an in-app clean.
+        let wrapped = "https://www.google.com/url?q=https%3A%2F%2Fshop.example.com%2Fsneakers%3Futm_source%3Dx&sa=D"
+        let outcome = try #require(await service.clean(wrapped))
+        #expect(outcome.arrivedFromHost == "google.com")
+    }
+
+    @Test func recordsTheShortenerHostAsArrivalForAnExpansion() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let settings = SettingsStore(appGroupSuiteName: suiteName)
+        settings.expandShortLinksEnabled = true
+        let resolver = StubShortLinkResolver(destination: URL(string: "https://example.com/article?id=5"))
+        let service = DefaultCleaningService(
+            store: TrackingParameterStore(suiteName: suiteName),
+            settings: settings,
+            resolver: resolver
+        )
+
+        let outcome = try #require(await service.clean("https://bit.ly/abc"))
+        #expect(outcome.arrivedFromHost == "bit.ly")
+    }
+
+    @Test func noArrivalHostForAnOrdinaryLink() async throws {
+        let suiteName = "LinkCleanKitTests.cleaning.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defer { defaults?.removePersistentDomain(forName: suiteName) }
+        let service = DefaultCleaningService(store: TrackingParameterStore(suiteName: suiteName))
+
+        // Same host in and out → no "Expanded from …".
+        let outcome = try #require(await service.clean("https://example.com/article?utm_source=x&id=5"))
+        #expect(outcome.arrivedFromHost == nil)
+    }
 }
 
 /// A ``ShortLinkResolving`` double: returns a canned destination and records whether

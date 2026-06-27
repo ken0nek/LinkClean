@@ -217,9 +217,12 @@ public enum AnalyticsEvent: Equatable {
         case autoPaste, manualPaste, typed
     }
 
-    /// Which History export path a user took.
+    /// Which action a user took on a History entry — an export (`copy` / `share` /
+    /// `markdown` / `openInBrowser`) or inspecting the before→after detail
+    /// (`viewedBeforeAfter`). The values are distinguishable, so export-rate
+    /// analysis filters the inspect action out.
     public enum EntryAction: String {
-        case copy, share, markdown, openInBrowser
+        case copy, share, markdown, openInBrowser, viewedBeforeAfter
     }
 
     /// Where the extension guide was shown from.

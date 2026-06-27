@@ -328,105 +328,6 @@
       }
     },
     {
-      "title": "Surface mix — exports per day by surface (app / Clean ext / Copy-format ext / App Intents / QR)",
-      "type": "customQuery",
-      "displayMode": "lineChart",
-      "uniqueUser": false,
-      "isExpanded": false,
-      "groupBy": "day",
-      "filters": {},
-      "order": 7,
-      "customQuery": {
-        "queryType": "timeseries",
-        "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
-        "baseFilters": "thisApp",
-        "granularity": "day",
-        "filter": {
-          "type": "or",
-          "fields": [
-            { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
-            { "type": "selector", "dimension": "type", "value": "Home.URL.shared" },
-            { "type": "selector", "dimension": "type", "value": "Action.Clean.succeeded" },
-            { "type": "selector", "dimension": "type", "value": "Action.Format.succeeded" },
-            { "type": "selector", "dimension": "type", "value": "Intent.Clean.succeeded" },
-            { "type": "selector", "dimension": "type", "value": "QR.Result.actioned" },
-            { "type": "selector", "dimension": "type", "value": "QR.Code.generated" }
-          ]
-        },
-        "aggregations": [
-          {
-            "type": "filtered",
-            "filter": {
-              "type": "or",
-              "fields": [
-                { "type": "selector", "dimension": "type", "value": "Home.URL.copied" },
-                { "type": "selector", "dimension": "type", "value": "Home.URL.shared" }
-              ]
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "appExports",
-              "fieldName": "count"
-            }
-          },
-          {
-            "type": "filtered",
-            "filter": {
-              "type": "selector",
-              "dimension": "type",
-              "value": "Action.Clean.succeeded"
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "cleanExtExports",
-              "fieldName": "count"
-            }
-          },
-          {
-            "type": "filtered",
-            "filter": {
-              "type": "selector",
-              "dimension": "type",
-              "value": "Action.Format.succeeded"
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "formatExtExports",
-              "fieldName": "count"
-            }
-          },
-          {
-            "type": "filtered",
-            "filter": {
-              "type": "selector",
-              "dimension": "type",
-              "value": "Intent.Clean.succeeded"
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "intentExports",
-              "fieldName": "count"
-            }
-          },
-          {
-            "type": "filtered",
-            "filter": {
-              "type": "or",
-              "fields": [
-                { "type": "selector", "dimension": "type", "value": "QR.Result.actioned" },
-                { "type": "selector", "dimension": "type", "value": "QR.Code.generated" }
-              ]
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "qrExports",
-              "fieldName": "count"
-            }
-          }
-        ]
-      }
-    },
-    {
       "title": "Exports per active user per week (north-star, healthy ≥3, all surfaces)",
       "type": "customQuery",
       "displayMode": "lineChart",
@@ -1010,9 +911,11 @@
         "granularity": "all",
         "dimensions": ["action"],
         "filter": {
-          "type": "selector",
-          "dimension": "type",
-          "value": "History.Entry.actioned"
+          "type": "and",
+          "fields": [
+            { "type": "selector", "dimension": "type", "value": "History.Entry.actioned" },
+            { "type": "not", "field": { "type": "selector", "dimension": "action", "value": "viewedBeforeAfter" } }
+          ]
         },
         "aggregations": [
           {
@@ -1083,9 +986,9 @@
     }
   ],
   "_exportMetadata": {
-    "version": 2,
-    "exportedAt": "2026-06-16T00:00:00.000Z",
-    "note": "Core product-usage health — 'is the loop working?' Acquisition, activation, the clean→export north-star, surface mix, catalog-gap quality, the custom-parameter IAP-calibration funnel, history, and the review gate. Durable across phases. REWRITTEN for the shipped 1.1.0 taxonomy (v2, 2026-06-16): the dead `Action.Markdown.succeeded` event is gone (the Markdown extension folded into Copy-as-you-want → `Action.Format.succeeded`), and the north-star export set now spans ALL five surfaces. The 1.1 new-surface, growth-loop, AI-advisor and engine-depth insights live in the companion Dashboard-LinkClean-Growth-Surfaces.json; the IAP funnel in Dashboard-LinkClean-Monetization.json (both now LIVE, not dark). Import-only via the TelemetryDeck UI; the JSON is the source of truth. NORTH-STAR EXPORT SET (a clean *delivered*, deduped per distinct output): Home.URL.copied + Home.URL.shared (app) · Action.Clean.succeeded (Clean ext) · Action.Format.succeeded (Copy-format ext) · Intent.Clean.succeeded (App Intents — the clipboard/return IS the delivery) · QR.Result.actioned + QR.Code.generated (QR). Deliberately EXCLUDED: Home.URL.cleaned and QR.Scan.succeeded are *cleans*, not exports (curiosity until acted on); History.Entry.actioned is a re-export of a past clean (tracked separately, insight 23, to avoid double-counting). DAU/installs read TelemetryDeck's built-in signals — verify the exact `type` strings in your instance (renamed in the SDK 2.0 'Grand Rename'). Every signal also carries two default parameters: `tier` (free/pro) and `surface` (app/action/copyAction/intent) — slice any insight by `tier` for the Pro-vs-free behavioral read. Companion KPI doc: docs/strategy/kpis.md (⚠️ predates 1.1 — this dashboard set is the live taxonomy; see docs/dashboards/README.md).",
+    "version": 3,
+    "exportedAt": "2026-06-23T00:00:00.000Z",
+    "note": "Core product-usage health — 'is the loop working?' Acquisition, activation, the clean→export north-star, surface mix, catalog-gap quality, the custom-parameter IAP-calibration funnel, history, and the review gate. Durable across phases. v3 (2026-06-23): removed the broken 'Surface mix' insight (was order 7) — it was a multi-aggregation `timeseries` line chart, a shape the imported-insight renderer plots as a single series, so it read empty even with data underneath. The per-event breakdown in insight 6 ('exports per day by event', a `groupBy` over `type`) already conveys the same surface mix and renders; insight orders intentionally skip 7. REWRITTEN for the shipped 1.1.0 taxonomy (v2, 2026-06-16): the dead `Action.Markdown.succeeded` event is gone (the Markdown extension folded into Copy-as-you-want → `Action.Format.succeeded`), and the north-star export set now spans ALL five surfaces. The 1.1 new-surface, growth-loop, AI-advisor and engine-depth insights live in the companion Dashboard-LinkClean-Growth-Surfaces.json; the IAP funnel in Dashboard-LinkClean-Monetization.json (both now LIVE, not dark). Import-only via the TelemetryDeck UI; the JSON is the source of truth. NORTH-STAR EXPORT SET (a clean *delivered*, deduped per distinct output): Home.URL.copied + Home.URL.shared (app) · Action.Clean.succeeded (Clean ext) · Action.Format.succeeded (Copy-format ext) · Intent.Clean.succeeded (App Intents — the clipboard/return IS the delivery) · QR.Result.actioned + QR.Code.generated (QR). Deliberately EXCLUDED: Home.URL.cleaned and QR.Scan.succeeded are *cleans*, not exports (curiosity until acted on); History.Entry.actioned is a re-export of a past clean (tracked separately, insight 23, to avoid double-counting). DAU/installs read TelemetryDeck's built-in signals — verify the exact `type` strings in your instance (renamed in the SDK 2.0 'Grand Rename'). Every signal also carries two default parameters: `tier` (free/pro) and `surface` (app/action/copyAction/intent) — slice any insight by `tier` for the Pro-vs-free behavioral read. Companion KPI doc: docs/strategy/kpis.md (⚠️ predates 1.1 — this dashboard set is the live taxonomy; see docs/dashboards/README.md).",
     "dynamicFields": [
       {
         "type": "event",
@@ -1180,7 +1083,7 @@
       {
         "type": "event",
         "name": "History.Entry.actioned",
-        "hint": "A per-entry re-export from History (re-export of a past clean — counted here, NOT in the north-star). Carries action (copy / share / markdown / openInBrowser)."
+        "hint": "A per-entry action from History. Export actions (copy / share / markdown / openInBrowser) are re-exports of a past clean — counted here, NOT in the north-star. Also carries the non-export action viewedBeforeAfter (opening the before→after detail), which insight 23 excludes so the export-path mix stays clean."
       },
       {
         "type": "event",
@@ -1240,7 +1143,7 @@
       {
         "type": "parameter",
         "name": "action",
-        "hint": "History export path: copy / share / markdown / openInBrowser."
+        "hint": "History entry action: export paths copy / share / markdown / openInBrowser, plus viewedBeforeAfter (a non-export inspection, excluded from the insight-23 export-path mix)."
       },
       {
         "type": "parameter",
@@ -1270,7 +1173,7 @@
       {
         "type": "parameter",
         "name": "surface",
-        "hint": "Process default parameter on every signal: app / action / copyAction / intent. The bulletproof headline surface mix is computed from event names (insight 7); `surface` separates the two share extensions and the intent process when needed."
+        "hint": "Process default parameter on every signal: app / action / copyAction / intent. The bulletproof headline surface mix is computed from event names (insight 6); `surface` separates the two share extensions and the intent process when needed."
       },
       {
         "type": "parameter",

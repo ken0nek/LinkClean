@@ -17,8 +17,13 @@ public final class HistoryEntry {
     public var pageTitle: String?
     public var thumbnailData: Data?
     public var metadataFetchAttempted: Bool = false
+    /// The host the link arrived as when the real destination sits elsewhere — a
+    /// short link expanded or a redirect unwrapped (e.g. `"bit.ly"`); `nil` when the
+    /// pasted link and its cleaned destination share a host. Optional with a `nil`
+    /// default, so it is a lightweight SwiftData migration. On-device only.
+    public var arrivedFromHost: String?
 
-    public init(id: UUID = UUID(), input: String, output: String, createdAt: Date = .now, pageTitle: String? = nil, thumbnailData: Data? = nil, metadataFetchAttempted: Bool = false) {
+    public init(id: UUID = UUID(), input: String, output: String, createdAt: Date = .now, pageTitle: String? = nil, thumbnailData: Data? = nil, metadataFetchAttempted: Bool = false, arrivedFromHost: String? = nil) {
         self.id = id
         self.input = input
         self.output = output
@@ -26,5 +31,6 @@ public final class HistoryEntry {
         self.pageTitle = pageTitle
         self.thumbnailData = thumbnailData
         self.metadataFetchAttempted = metadataFetchAttempted
+        self.arrivedFromHost = arrivedFromHost
     }
 }

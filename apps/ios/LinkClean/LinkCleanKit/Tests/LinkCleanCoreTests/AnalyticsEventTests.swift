@@ -284,6 +284,12 @@ struct AnalyticsEventTests {
         #expect(AnalyticsEvent.qrResultActioned(.open).parameters == ["action": "open"])
     }
 
+    @Test func historyEntryBeforeAfterCarriesTheActionPath() {
+        // Inspecting the before→after detail rides the same `History.Entry.actioned`
+        // signal as the exports, distinguished by the `action` value.
+        #expect(AnalyticsEvent.historyEntryActioned(.viewedBeforeAfter).parameters == ["action": "viewedBeforeAfter"])
+    }
+
     @Test func referenceObservedEventsFanOutOnePerMatch() {
         // The shared catalog-gap fan-out: one `parametersReferenceObserved` per
         // match, in order, and nothing when there are no matches.

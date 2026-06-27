@@ -26,6 +26,15 @@ public struct CleanOutcome: Sendable, Equatable {
     /// The cleaned URL string (equal to `input` when nothing was removed).
     public let cleaned: String
 
+    /// The host the link *arrived* as when the real destination sits elsewhere — a
+    /// short link expanded (E4) or a redirect unwrapped (E1), e.g. `"bit.ly"`.
+    /// Already normalized for display (lowercased, `www.`-stripped, via
+    /// ``URLCleaner/analyticsDomain(from:)-(String)``). `nil` when the input and
+    /// destination share a host. On-device only — it rides to History and, like
+    /// ``input``/``cleaned``, is never part of ``Telemetry``, so it cannot reach
+    /// analytics.
+    public let arrivedFromHost: String?
+
     /// The analytics-safe view of a clean — the only part an ``AnalyticsEvent``
     /// can accept. No raw query-key names, by construction.
     public struct Telemetry: Sendable, Equatable {
@@ -105,10 +114,11 @@ public struct CleanOutcome: Sendable, Equatable {
     }
     public let display: Display
 
-    public init(input: String, cleaned: String, telemetry: Telemetry, display: Display) {
+    public init(input: String, cleaned: String, telemetry: Telemetry, display: Display, arrivedFromHost: String? = nil) {
         self.input = input
         self.cleaned = cleaned
         self.telemetry = telemetry
         self.display = display
+        self.arrivedFromHost = arrivedFromHost
     }
 }

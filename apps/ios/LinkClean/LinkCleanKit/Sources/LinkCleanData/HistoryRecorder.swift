@@ -9,9 +9,9 @@ import Foundation
 import SwiftData
 
 public enum HistoryRecorder {
-    public static func save(input: String, output: String, in container: ModelContainer) throws {
+    public static func save(input: String, output: String, arrivedFromHost: String? = nil, in container: ModelContainer) throws {
         let context = ModelContext(container)
-        let entry = HistoryEntry(input: input, output: output)
+        let entry = HistoryEntry(input: input, output: output, arrivedFromHost: arrivedFromHost)
         context.insert(entry)
         try context.save()
     }

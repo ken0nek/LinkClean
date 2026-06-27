@@ -18,19 +18,29 @@ import LinkCleanData
 /// must not fail just because persistence did.
 enum IntentHistory {
     /// `@MainActor` because the shared SwiftData write
-    /// (``HistoryRecorder/save(input:output:in:)`` + ``HistoryContainer/makeShared()``)
-    /// is MainActor-isolated in `LinkCleanData`; an intent's `perform()` awaits
-    /// this, hopping over for the brief write.
+    /// (``HistoryRecorder/save(input:output:arrivedFromHost:in:)`` +
+    /// ``HistoryContainer/makeShared()``) is MainActor-isolated in `LinkCleanData`;
+    /// an intent's `perform()` awaits this, hopping over for the brief write.
+    ///
+    /// `original` is the link the user supplied (used only for the onboarding-demo
+    /// guard); the row stores the cleaned-from *destination* (`outcome.input`) and
+    /// the arrival host separately, so the before→after view diffs the destination's
+    /// own params and still shows "Expanded from …".
     @MainActor
-    static func record(input: String, output: String, settings: SettingsStore) {
+    static func record(original: String, outcome: CleanOutcome, settings: SettingsStore) {
         // Never persist the onboarding "Try it" practice link — parity with
         // `ActionPipeline.saveHistory`.
-        guard !OnboardingDemo.matches(urlString: input) else { return }
+        guard !OnboardingDemo.matches(urlString: original) else { return }
         guard settings.saveHistoryEnabled, let container = HistoryContainer.makeShared() else {
             return
         }
         do {
-            try HistoryRecorder.save(input: input, output: output, in: container)
+            try HistoryRecorder.save(
+                input: outcome.input,
+                output: outcome.cleaned,
+                arrivedFromHost: outcome.arrivedFromHost,
+                in: container
+            )
         } catch {
             Log.intent.debug("history save failed: \(error.localizedDescription, privacy: .public)")
         }

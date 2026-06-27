@@ -258,4 +258,46 @@ struct HistoryViewModelTests {
 
         #expect(spy.events == [.historySearchUsed])
     }
+
+    // MARK: - Before → After
+
+    @Test func filteredMatchesOriginalInput() {
+        let vm = HistoryViewModel()
+        let entries = makeEntries()
+
+        // "utm_source" appears only in entry 0's original input — not its output
+        // or title — so search must reach `input` to find it.
+        vm.searchText = "utm_source"
+        let result = vm.filteredEntries(from: entries)
+
+        #expect(result.count == 1)
+        #expect(result.first?.input.contains("utm_source") == true)
+    }
+
+    @Test func filteredMatchesArrivedFromHost() {
+        let vm = HistoryViewModel()
+        // After expansion the destination is stored as input/output; the short link
+        // the user pasted survives only in `arrivedFromHost`, so search must reach it.
+        let entry = HistoryEntry(
+            input: "https://youtube.com/watch?v=x",
+            output: "https://youtube.com/watch?v=x",
+            arrivedFromHost: "bit.ly"
+        )
+
+        vm.searchText = "bit.ly"
+        let result = vm.filteredEntries(from: [entry])
+
+        #expect(result.count == 1)
+    }
+
+    @Test func showBeforeAfterPresentsAndEmits() {
+        let spy = SpyAnalytics()
+        let vm = HistoryViewModel(analytics: spy)
+        let entry = makeEntry()
+
+        vm.showBeforeAfter(for: entry)
+
+        #expect(vm.detailEntry?.id == entry.id)
+        #expect(spy.events == [.historyEntryActioned(.viewedBeforeAfter)])
+    }
 }

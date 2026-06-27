@@ -1482,6 +1482,150 @@
         }
       }
     },
+    "history.detail.cleaned" : {
+      "comment" : "Section header: the cleaned link.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereinigt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleaned"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーン後"
+          }
+        }
+      }
+    },
+    "history.detail.expandedFrom" : {
+      "comment" : "Shown when a redirect / short link was expanded. %@ is the host the link arrived as, e.g. bit.ly.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufgelöst von %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expanded from %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ から展開"
+          }
+        }
+      }
+    },
+    "history.detail.nothingRemoved" : {
+      "comment" : "Shown in the detail when the link was already clean (nothing was removed).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts zu entfernen – dieser Link war bereits sauber."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing needed removing — this link was already clean."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除する項目はありませんでした。このリンクは元からクリーンです。"
+          }
+        }
+      }
+    },
+    "history.detail.original" : {
+      "comment" : "Section header: the original, uncleaned link.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーン前"
+          }
+        }
+      }
+    },
+    "history.detail.removed" : {
+      "comment" : "Section header: the tracking parameters that were removed.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfernt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removed"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除した項目"
+          }
+        }
+      }
+    },
+    "history.detail.title" : {
+      "comment" : "Title of the History before/after detail sheet.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorher → Nachher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Before → After"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーン前後"
+          }
+        }
+      }
+    },
     "history.disabled.enable" : {
       "comment" : "Button in the History empty/disabled state that turns History on.",
       "extractionState" : "manual",
@@ -1594,6 +1738,30 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "履歴なし"
+          }
+        }
+      }
+    },
+    "history.menu.beforeAfter" : {
+      "comment" : "Context-menu item that opens the before/after detail.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorher → Nachher anzeigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Before → After"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーン前後を表示"
           }
         }
       }

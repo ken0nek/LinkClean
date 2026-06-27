@@ -57,7 +57,7 @@ public struct CleanLinkIntent: AppIntent {
         // The shared post-success tail: fan out the catalog-gap reference signals and
         // bump lifetime Stats through the one place every clean surface shares.
         await RealizedCleanRecorder(analytics: analytics, stats: StatsStore()).record(outcome)
-        await IntentHistory.record(input: link, output: outcome.cleaned, settings: settings)
+        await IntentHistory.record(original: link, outcome: outcome, settings: settings)
         return .result(
             value: outcome.cleaned,
             dialog: outcome.telemetry.changed

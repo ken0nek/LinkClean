@@ -252,10 +252,11 @@
       "filters": {},
       "order": 6,
       "customQuery": {
-        "queryType": "timeseries",
+        "queryType": "groupBy",
         "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
         "baseFilters": "thisApp",
         "granularity": "day",
+        "dimensions": ["type", "reason"],
         "filter": {
           "type": "or",
           "fields": [
@@ -265,47 +266,9 @@
         },
         "aggregations": [
           {
-            "type": "filtered",
-            "filter": {
-              "type": "selector",
-              "dimension": "type",
-              "value": "QR.Scan.succeeded"
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "succeeded",
-              "fieldName": "count"
-            }
-          },
-          {
-            "type": "filtered",
-            "filter": {
-              "type": "and",
-              "fields": [
-                { "type": "selector", "dimension": "type", "value": "QR.Scan.failed" },
-                { "type": "selector", "dimension": "reason", "value": "noLink" }
-              ]
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "failedNoLink",
-              "fieldName": "count"
-            }
-          },
-          {
-            "type": "filtered",
-            "filter": {
-              "type": "and",
-              "fields": [
-                { "type": "selector", "dimension": "type", "value": "QR.Scan.failed" },
-                { "type": "selector", "dimension": "reason", "value": "unreadable" }
-              ]
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "failedUnreadable",
-              "fieldName": "count"
-            }
+            "type": "longSum",
+            "name": "scans",
+            "fieldName": "count"
           }
         ]
       }
@@ -713,10 +676,11 @@
       "filters": {},
       "order": 17,
       "customQuery": {
-        "queryType": "timeseries",
+        "queryType": "groupBy",
         "appID": "8A2AC88D-2092-43DC-BC71-CF675C33D01C",
         "baseFilters": "thisApp",
         "granularity": "day",
+        "dimensions": ["type"],
         "filter": {
           "type": "or",
           "fields": [
@@ -726,30 +690,9 @@
         },
         "aggregations": [
           {
-            "type": "filtered",
-            "filter": {
-              "type": "selector",
-              "dimension": "type",
-              "value": "Action.Clean.succeeded"
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "cleanExt",
-              "fieldName": "count"
-            }
-          },
-          {
-            "type": "filtered",
-            "filter": {
-              "type": "selector",
-              "dimension": "type",
-              "value": "Action.Format.succeeded"
-            },
-            "aggregator": {
-              "type": "longSum",
-              "name": "formatExt",
-              "fieldName": "count"
-            }
+            "type": "longSum",
+            "name": "exports",
+            "fieldName": "count"
           }
         ]
       }
@@ -785,9 +728,9 @@
     }
   ],
   "_exportMetadata": {
-    "version": 1,
-    "exportedAt": "2026-06-16T00:00:00.000Z",
-    "note": "The 1.1 surface board — 'did the new bets land?' One board per beat (engine-depth E1/E2, App Intents S1, QR, V3 privacy-card growth loop, ai-A advisor, Copy-as-you-want formats). All events ship in 1.1.0; insights read empty until 1.1 reaches users. SLICE BY `tier` for the Pro-vs-free behavioral read on any of these (every signal carries `tier` + `surface` defaults). Companion boards: Dashboard-LinkClean-Core-Usage.json (durable loop health, all surfaces folded in) and Dashboard-LinkClean-Monetization.json (the IAP funnel — `advisorAccept` + `formatPicker` are the two NEW 1.1 paywall gates that read THERE). KEY THRESHOLDS: unwrap rate ≥ 5% means E1 is paying for itself (else most users hand us clean links); App Intents share ≥ 10% of weekly exports means the OS-surface bet landed; QR scan→action ≥ 60% means scans yield exports (lower = scan-and-bounce, signals the result sheet is the leak); Stats.Card share rate ≥ 10% per populated view means V3 is functioning as the viral loop the roadmap predicted; advisor accept rate ≥ 30% (any tier) means it earns its sheet space; preset-vs-custom inverting (custom > preset) is the strongest signal that Pro customization will sell. OPEN QUESTIONS: (a) the heuristic tier suggests on every device but the model tier only on Apple-Intelligence hardware — split insight 14/15 by hardware availability isn't possible here (no signal); look for tier-share drift over time as iOS 26+ Apple-Intelligence adoption grows. (b) Control Center and the widget both report `intentSurface=clipboard` — if the share of clipboard intents stays high without the corresponding Settings.QRButton/widget-add behavior, we may be over-fitting one surface (defer the split until shape demands it; analytics.md §IntentSurface).",
+    "version": 2,
+    "exportedAt": "2026-06-23T00:00:00.000Z",
+    "note": "v2 (2026-06-23): fixed insights 6 (QR scans by outcome) and 17 (Copy-format vs Clean exports) — both were multi-aggregation `timeseries` line charts, a shape the imported-insight renderer plots as a single series (so they showed only one outcome/extension, or read empty); both are now `groupBy` over the distinguishing dimension(s) (`type`+`reason` and `type`), the same shape every working multi-line chart here uses. No taxonomy change. The 1.1 surface board — 'did the new bets land?' One board per beat (engine-depth E1/E2, App Intents S1, QR, V3 privacy-card growth loop, ai-A advisor, Copy-as-you-want formats). All events ship in 1.1.0; insights read empty until 1.1 reaches users. SLICE BY `tier` for the Pro-vs-free behavioral read on any of these (every signal carries `tier` + `surface` defaults). Companion boards: Dashboard-LinkClean-Core-Usage.json (durable loop health, all surfaces folded in) and Dashboard-LinkClean-Monetization.json (the IAP funnel — `advisorAccept` + `formatPicker` are the two NEW 1.1 paywall gates that read THERE). KEY THRESHOLDS: unwrap rate ≥ 5% means E1 is paying for itself (else most users hand us clean links); App Intents share ≥ 10% of weekly exports means the OS-surface bet landed; QR scan→action ≥ 60% means scans yield exports (lower = scan-and-bounce, signals the result sheet is the leak); Stats.Card share rate ≥ 10% per populated view means V3 is functioning as the viral loop the roadmap predicted; advisor accept rate ≥ 30% (any tier) means it earns its sheet space; preset-vs-custom inverting (custom > preset) is the strongest signal that Pro customization will sell. OPEN QUESTIONS: (a) the heuristic tier suggests on every device but the model tier only on Apple-Intelligence hardware — split insight 14/15 by hardware availability isn't possible here (no signal); look for tier-share drift over time as iOS 26+ Apple-Intelligence adoption grows. (b) Control Center and the widget both report `intentSurface=clipboard` — if the share of clipboard intents stays high without the corresponding Settings.QRButton/widget-add behavior, we may be over-fitting one surface (defer the split until shape demands it; analytics.md §IntentSurface).",
     "dynamicFields": [
       {
         "type": "event",

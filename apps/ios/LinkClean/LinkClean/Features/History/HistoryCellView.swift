@@ -36,40 +36,47 @@ struct HistoryCellView: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            thumbnail
+            // The leading content (everything but the trailing button cluster) opens
+            // the before→after detail. Scoped here, not on the whole row, so taps in
+            // the borderless Copy/Share buttons' padding don't fall through to it.
+            HStack(spacing: 14) {
+                thumbnail
 
-            VStack(alignment: .leading, spacing: 4) {
-                if let title = entry.pageTitle {
-                    Text(title)
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                        .lineLimit(2)
-                } else {
-                    Text(entry.output)
-                        .font(.body)
-                        .foregroundStyle(.tint)
-                        .lineLimit(2)
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 4) {
-                        Text(domain)
-                            .foregroundStyle(.secondary)
-
-                        if isFetching {
-                            ProgressView()
-                                .controlSize(.mini)
-                        }
+                VStack(alignment: .leading, spacing: 4) {
+                    if let title = entry.pageTitle {
+                        Text(title)
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                            .lineLimit(2)
+                    } else {
+                        Text(entry.output)
+                            .font(.body)
+                            .foregroundStyle(.tint)
+                            .lineLimit(2)
                     }
 
-                    Text(entry.createdAt, format: .relative(presentation: .named))
-                        .foregroundStyle(.tertiary)
-                }
-                .font(.footnote)
-                .lineLimit(1)
-            }
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 4) {
+                            Text(domain)
+                                .foregroundStyle(.secondary)
 
-            Spacer(minLength: 0)
+                            if isFetching {
+                                ProgressView()
+                                    .controlSize(.mini)
+                            }
+                        }
+
+                        Text(entry.createdAt, format: .relative(presentation: .named))
+                            .foregroundStyle(.tertiary)
+                    }
+                    .font(.footnote)
+                    .lineLimit(1)
+                }
+
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture { viewModel.showBeforeAfter(for: entry) }
 
             GlassEffectContainer(spacing: 6) {
                 HStack(spacing: 6) {
@@ -109,6 +116,12 @@ struct HistoryCellView: View {
             viewModel.fetchMetadataIfNeeded(for: entry)
         }
         .contextMenu {
+            Button {
+                viewModel.showBeforeAfter(for: entry)
+            } label: {
+                Label { Text(.historyMenuBeforeAfter) } icon: { Image(systemName: "arrow.left.arrow.right") }
+            }
+
             Button {
                 viewModel.copyURL(for: entry)
             } label: {

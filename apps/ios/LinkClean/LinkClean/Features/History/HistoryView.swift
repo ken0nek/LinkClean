@@ -90,6 +90,9 @@ struct HistoryView: View {
                 ContentUnavailableView.search
             }
         }
+        .sheet(item: $viewModel.detailEntry) { entry in
+            HistoryDetailView(entry: entry, viewModel: viewModel)
+        }
     }
 
     // MARK: - Earlier archive (T1)

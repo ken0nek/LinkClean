@@ -78,7 +78,8 @@ public enum URLCleaner {
         referenceNames: Set<String> = ReferenceParameterCatalog.names,
         wrappers: [String] = [],
         stripTextFragment: Bool = true,
-        expanded: Bool = false
+        expanded: Bool = false,
+        arrivedFromHost: String? = nil
     ) -> CleanOutcome {
         let domain = analyticsDomain(from: input)
         let normalized = Set(parameters.map { $0.lowercased() })
@@ -97,7 +98,8 @@ public enum URLCleaner {
                     wrappers: wrappers,
                     expanded: expanded
                 ),
-                display: .init(removedNames: [], leftoverNames: [])
+                display: .init(removedNames: [], leftoverNames: []),
+                arrivedFromHost: arrivedFromHost
             )
         }
 
@@ -178,7 +180,8 @@ public enum URLCleaner {
                 wrappers: wrappers,
                 expanded: expanded
             ),
-            display: .init(removedNames: removedNames, leftoverNames: leftoverNames)
+            display: .init(removedNames: removedNames, leftoverNames: leftoverNames),
+            arrivedFromHost: arrivedFromHost
         )
     }
 

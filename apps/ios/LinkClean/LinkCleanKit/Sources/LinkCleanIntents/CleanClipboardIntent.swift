@@ -75,7 +75,7 @@ public struct CleanClipboardIntent: AppIntent {
         // The shared post-success tail: fan out the catalog-gap reference signals and
         // bump lifetime Stats through the one place every clean surface shares.
         await RealizedCleanRecorder(analytics: analytics, stats: StatsStore()).record(outcome)
-        await IntentHistory.record(input: raw, output: outcome.cleaned, settings: settings)
+        await IntentHistory.record(original: raw, outcome: outcome, settings: settings)
         return .result(
             dialog: outcome.telemetry.changed
                 ? "Cleaned your link."

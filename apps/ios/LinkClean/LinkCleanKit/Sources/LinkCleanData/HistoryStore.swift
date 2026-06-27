@@ -42,7 +42,7 @@ public final class HistoryStore {
     /// Writes a history row for `outcome` when history saving is enabled.
     public func record(_ outcome: CleanOutcome) {
         guard settings.saveHistoryEnabled else { return }
-        context.insert(HistoryEntry(input: outcome.input, output: outcome.cleaned))
+        context.insert(HistoryEntry(input: outcome.input, output: outcome.cleaned, arrivedFromHost: outcome.arrivedFromHost))
         save("record")
     }
 

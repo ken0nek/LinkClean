@@ -222,23 +222,31 @@ public struct ActionPipeline {
             analytics.capture(event)
         }
         stats.record(prepared.outcome)
-        saveHistory(input: prepared.extracted.url.absoluteString, output: prepared.outcome.cleaned)
+        saveHistory(original: prepared.extracted.url.absoluteString, outcome: prepared.outcome)
         recordSuccessfulRun()
         return ActionPresentation(payload: result.payload, toast: .copied, haptic: .success)
     }
 
     // MARK: - History + onboarding success signal
 
-    private func saveHistory(input: String, output: String) {
+    private func saveHistory(original: String, outcome: CleanOutcome) {
         // The onboarding "Try it" run is a practice clean, not a real one — never
         // persist it. `recordSuccessfulRun` still fires so the guide detects it.
-        guard !OnboardingDemo.matches(urlString: input) else {
+        guard !OnboardingDemo.matches(urlString: original) else {
             Log.action.debug("saveHistory: skipping onboarding demo link")
             return
         }
+        // Store the cleaned-from *destination* (`outcome.input`) and the arrival host
+        // separately, so the before→after diffs the destination's own params and the
+        // "Expanded from …" banner still renders for extension cleans.
         if settings.saveHistoryEnabled, let container = HistoryContainer.makeShared() {
             do {
-                try HistoryRecorder.save(input: input, output: output, in: container)
+                try HistoryRecorder.save(
+                    input: outcome.input,
+                    output: outcome.cleaned,
+                    arrivedFromHost: outcome.arrivedFromHost,
+                    in: container
+                )
             } catch {
                 Log.action.debug("saveHistory failed: \(error.localizedDescription, privacy: .public)")
             }
