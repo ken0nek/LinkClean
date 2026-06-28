@@ -5,7 +5,7 @@
 # Read it, don't skim it — the call-site list + the coverage tally usually tell you
 # 80% of the story.
 #
-# Usage:  bash .claude/skills/analytics-audit/scripts/gather-analytics-signals.sh
+# Usage:  bash .claude/skills/analytics-audit-linkclean/scripts/gather-analytics-signals.sh
 # No args. Reads current working-tree state (an audit, not a since-baseline diff).
 set -uo pipefail
 
