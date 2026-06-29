@@ -7,4 +7,4 @@
 # release-notes skill owns per-version localization; ja/de What's New is needed
 # before the next versioned upload (or use --skip... for a metadata-only push).
 # Screenshots are still en-US only (fastlane/screenshots/en-US/).
-languages(["en-US", "ja-JP", "de-DE"])
+languages(["en-US", "ja", "de-DE"])
