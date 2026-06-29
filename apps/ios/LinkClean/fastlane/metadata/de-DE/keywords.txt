@@ -1,1 +1,1 @@
-utm,fbclid,gclid,tracking,datenschutz,kurzlink,weiterleitung,markdown,parameter,qr,kopieren,teilen
+utm,fbclid,gclid,tracking,datenschutz,kurzlink,weiterleitung,markdown,parameter,qr,teilen,safari

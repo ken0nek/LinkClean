@@ -5,6 +5,7 @@ Füge einen Link ein, und LinkClean entfernt sofort Tracking-Parameter wie utm_s
 VON ÜBERALL BEREINIGEN
 Du musst die App nicht öffnen, um einen Link zu bereinigen:
 • Teilen-Menü – tippe in jeder App auf „Teilen", wähle Clean URL, und der saubere Link liegt in der Zwischenablage
+• Safari – bereinige den Link der Seite, auf der du bist, direkt aus der Symbolleiste und kopiere, teile ihn oder kopiere ihn als Markdown
 • Kurzbefehle & Siri – bereinige Links in deinen eigenen Automationen, ganz ohne Hände
 • Kontrollzentrum & Home-Bildschirm-Widget – ein Tippen bereinigt, was du kopiert hast
 • Link kopieren als … – schlicht, Markdown [title](url) mit eingesetztem Seitentitel oder dein eigenes Format
@@ -25,7 +26,7 @@ Jede Bereinigung zeigt ruhig, wie viele Tracker entfernt wurden – tippe, um ge
 MACH SIE ZU DEINER
 • Schalte die eingebaute Tracker-Liste ein oder aus
 • Füge eigene Parameter hinzu, die immer entfernt werden
-• Behalte einen durchsuchbaren Verlauf von allem, was du bereinigt hast – bereit zum Kopieren, Teilen, erneuten Bereinigen oder Öffnen
+• Behalte einen durchsuchbaren Verlauf von allem, was du bereinigt hast – kopieren, teilen, erneut bereinigen, öffnen und mit einem Tippen genau sehen, was sich verändert hat: vorher und nachher
 
 EINMAL KAUFEN, FÜR IMMER DEINS
 LinkClean ist kostenlos: unbegrenztes Bereinigen, die Aktionen im Teilen-Menü und in Kurzbefehlen, eine eigene Regel und dein Verlauf der letzten 7 Tage. LinkClean Pro schaltet deine eigenen Kopierformate, unbegrenzte eigene Regeln und dein vollständiges Verlaufsarchiv frei – mit einem einmaligen Kauf. Kein Abo, kein Konto, nichts Wiederkehrendes.

@@ -1,0 +1,13 @@
+LinkClean entfernt Tracker aus deinen Links – hier ist alles, was es kann, mit zwei neuen Möglichkeiten.
+
+• Neu – bereinige Links direkt in Safari: Tippe in der Symbolleiste auf LinkClean, um die Seite zu säubern, auf der du gerade bist, und kopiere sie, kopiere sie als Markdown oder teile sie
+• Neu – jeden Link vorher & nachher sehen: Tippe auf einen Verlaufseintrag und sieh das Original neben dem sauberen Ergebnis, was genau entfernt wurde und ob eine Weiterleitung oder ein Kurzlink aufgelöst wurde
+• Jeden Link mit einem Tippen bereinigen – füge ihn ein oder erreiche LinkClean über das Teilen-Menü, Kurzbefehle, Siri, das Kontrollzentrum oder ein Home-Bildschirm-Widget
+• Bereinigen, das tiefer geht – es löst Weiterleitungen bis zum echten Ziel auf, entfernt Tracker hinter dem # und kann Kurzlinks wie bit.ly und t.co auflösen (kostenlos, optional, der einzige Schritt, der ins Netz geht)
+• QR-Codes scannen und erstellen, in der Statistik genau sehen, was entfernt wurde, und eine Datenschutz-Karte deiner Wirkung teilen
+• Kopiere Links, wie du willst – schlicht, Markdown oder eigene Vorlagen – und finde sie alle in einem durchsuchbaren Verlauf wieder
+• Jetzt auf Deutsch, Englisch und Japanisch
+
+LinkClean Pro schaltet eigene Formate, eigene Regeln und dein vollständiges Verlaufsarchiv frei – einmal kaufen, kein Abo.
+
+Standardmäßig läuft das Bereinigen vollständig auf deinem Gerät und deine Links verlassen es nie – „Kurzlinks auflösen“ ist die einzige Funktion, die ins Netz geht, und nur wenn du sie einschaltest. Danke, dass du mit LinkClean bereinigst.

@@ -1,10 +1,10 @@
-LinkClean strips trackers from your links — and here's everything it can do now.
+LinkClean strips trackers from your links — and here's everything it can do, with two new ways to use it.
 
+• New — clean links right inside Safari: tap LinkClean in the toolbar to tidy the page you're on, then copy it, copy as Markdown, or share it
+• New — see every link's before & after: tap a History entry for the original beside the clean result, exactly what came off, and whether a redirect or short link was expanded
 • Clean any link in a tap — paste it in, or reach LinkClean from the Share Sheet, Shortcuts, Siri, Control Center, or a Home Screen widget
-• Scan and create QR codes — clean the link hidden inside a QR, or turn a clean link into one to share
-• Cleaning that goes deeper — it unwraps redirect links to the real destination and strips trackers hiding after the #
-• New — expand short links, too: turn on Short-Link Expansion in Settings and LinkClean follows bit.ly, t.co, and the like to the real page before cleaning it. It's free, off by default, and the one step that reaches the network — the choice is always yours
-• See exactly what came off each link, tap a leftover to remove it for good, and watch your impact add up on the new Statistics dashboard — with a privacy card you can share
+• Cleaning that goes deeper — it unwraps redirects to the real destination, strips trackers hiding after the #, and can expand short links like bit.ly and t.co (free, opt-in, the one step that reaches the network)
+• Scan and create QR codes, see exactly what came off each link on the Statistics dashboard, and share a privacy card of your impact
 • Copy links your way — plain, Markdown, or your own templates — and find them all again in a searchable History
 • Now in English, Japanese, and German
 

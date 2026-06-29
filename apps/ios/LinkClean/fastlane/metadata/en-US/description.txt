@@ -5,6 +5,7 @@ Paste a link and LinkClean instantly removes tracking parameters like utm_source
 CLEAN FROM ANYWHERE
 You don't have to open the app to clean a link:
 • Share Sheet — tap Share in any app, pick Clean URL, and the tidied link is on your clipboard
+• Safari — clean the link of the page you're on right from the toolbar, then copy it, copy as Markdown, or share
 • Shortcuts & Siri — clean links inside your own automations, hands-free
 • Control Center & Home Screen widget — one tap cleans whatever you've copied
 • Copy link as… — plain, Markdown [title](url) with the page title filled in, or your own format
@@ -25,7 +26,7 @@ Every clean shows a calm summary of how many trackers were removed — tap to se
 MAKE IT YOURS
 • Turn the built-in tracker list on or off
 • Add your own parameters to always remove
-• Keep a searchable History of everything you've cleaned — ready to copy, share, re-clean, or reopen
+• Keep a searchable History of everything you've cleaned — copy, share, re-clean, or reopen any link, and tap one to see exactly what changed, before and after
 
 ONE PURCHASE, YOURS FOREVER
 LinkClean is free to use: unlimited cleaning, the Share Sheet and Shortcuts actions, one custom rule of your own, and your last 7 days of History. LinkClean Pro unlocks your own copy formats, unlimited custom rules, and your full History archive — a single one-time purchase. No subscription, no account, nothing recurring.
