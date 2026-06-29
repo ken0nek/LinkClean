@@ -4,6 +4,9 @@ set -euo pipefail
 
 DEVICE_PROFILE="${DEVICE_PROFILE:-iphone69}"
 FRAMES="${FRAMES:-01 02 03}"
+# App Store locale code (matches Screenshots/captions.json, fastlane/metadata/,
+# and the Deliverfile ship list): en-US | ja | de-DE.
+LOCALE="${LOCALE:-en-US}"
 
 case "$DEVICE_PROFILE" in
     iphone69)
@@ -20,11 +23,32 @@ case "$DEVICE_PROFILE" in
         ;;
 esac
 
+# Map the App Store locale code to the runtime language/locale the app launches
+# with. (The store code stays ja/de-DE; iOS still wants ja_JP/de_DE at runtime.)
+case "$LOCALE" in
+    en-US)
+        APPLE_LANGUAGES="(en)"
+        APPLE_LOCALE="en_US"
+        ;;
+    ja)
+        APPLE_LANGUAGES="(ja)"
+        APPLE_LOCALE="ja_JP"
+        ;;
+    de-DE)
+        APPLE_LANGUAGES="(de)"
+        APPLE_LOCALE="de_DE"
+        ;;
+    *)
+        echo "unknown LOCALE='$LOCALE' (expected en-US, ja, or de-DE)" >&2
+        exit 1
+        ;;
+esac
+
 BUNDLE_ID="com.ken0nek.LinkClean"
 # Post Phase-2 monorepo absorb: this resolves to apps/ios/LinkClean/ (the iOS
 # workspace root), not the repo root.
 IOS_WORKSPACE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUTPUT_DIRECTORY="$IOS_WORKSPACE_ROOT/screenshots/raw/en-US/$DEVICE_FOLDER"
+OUTPUT_DIRECTORY="$IOS_WORKSPACE_ROOT/screenshots/raw/$LOCALE/$DEVICE_FOLDER"
 
 UDID="$(
     xcrun simctl list devices booted \
@@ -73,9 +97,9 @@ capture() {
     xcrun simctl terminate "$UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true
     xcrun simctl launch "$UDID" "$BUNDLE_ID" \
         -screenshotMode \
-        -AppleLanguages "(en)" \
-        -AppleLocale "en_US" \
-        -screenshotFixtures "$REPOSITORY_ROOT/Screenshots/fixtures/history" \
+        -AppleLanguages "$APPLE_LANGUAGES" \
+        -AppleLocale "$APPLE_LOCALE" \
+        -screenshotFixtures "$IOS_WORKSPACE_ROOT/Screenshots/fixtures/history" \
         "$@" >/dev/null
     # 5s rather than 3: the first launch right after a fresh install can take
     # >3s to render, which captures the blank launch screen.
@@ -96,4 +120,4 @@ if frame_enabled "03"; then
     capture "03_parameters.png" -tab-settings -push-parameters
 fi
 
-echo "raw English screenshots captured for $DEVICE_PROFILE"
+echo "raw screenshots captured for $DEVICE_PROFILE / $LOCALE"

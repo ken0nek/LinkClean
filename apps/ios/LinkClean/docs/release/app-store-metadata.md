@@ -21,7 +21,7 @@ The **canonical copy** lives in `fastlane/metadata/en-US/` — that's what `fast
 
 ## Screenshots
 
-The English-only pipeline has three states across the two required device sizes. Raw simulator captures are committed under `screenshots/raw/en-US/`; the `LinkCleanScreenshots` macOS target composites the teal caption frame and writes App Store-ready PNGs to `fastlane/screenshots/en-US/` (gitignored).
+The pipeline runs across the three shipped App Store locales (`en-US`, `ja`, `de-DE`) and the two required device sizes. Raw simulator captures are committed under `screenshots/raw/<locale>/`; the `LinkCleanScreenshots` macOS target reads the locale-keyed `Screenshots/captions.json`, composites the teal caption frame, and writes App Store-ready PNGs to `fastlane/screenshots/<locale>/` (gitignored). Only `en-US` raws are committed today — for any locale missing its own raw the composer falls back to the en-US screen, so `ja`/`de-DE` composite with localized captions over the English screens until recaptured in-language.
 
 | # | Shot (story) | Raw capture | iPhone 17 Pro Max → 1320×2868 | iPad Pro 13" (M5) → 2064×2752 |
 |---|---|---|---|---|
@@ -29,14 +29,17 @@ The English-only pipeline has three states across the two required device sizes.
 | 2 | History — 4 seeded rows with fetched titles + search | `02_history.png` | `iPhone69-2-history.png` | `iPad13-2-history.png` |
 | 3 | Default Parameters catalog — sectioned toggles, host-scoped rules | `03_parameters.png` | `iPhone69-3-parameters.png` | `iPad13-3-parameters.png` |
 
-Build and install the DEBUG app on each booted simulator, then capture:
+Build and install the DEBUG app on each booted simulator, then capture. `LOCALE` defaults to `en-US`; set it to `ja` or `de-DE` to capture with the app launched in that language:
 
 ```bash
 DEVICE_PROFILE=iphone69 bash scripts/capture-raw-screenshots.sh
 DEVICE_PROFILE=ipad13 bash scripts/capture-raw-screenshots.sh
+# in-language (optional — the composer falls back to en-US screens otherwise):
+LOCALE=ja    DEVICE_PROFILE=iphone69 bash scripts/capture-raw-screenshots.sh
+LOCALE=de-DE DEVICE_PROFILE=iphone69 bash scripts/capture-raw-screenshots.sh
 ```
 
-The script launches with `-screenshotMode`, which bypasses onboarding, restores default cleaning rules, suppresses analytics startup and DEBUG-only UI, and makes seeded History replacement deterministic. Run the `LinkCleanScreenshots` scheme afterward to generate the final PNGs.
+The script launches with `-screenshotMode`, which bypasses onboarding, restores default cleaning rules, suppresses analytics startup and DEBUG-only UI, and makes seeded History replacement deterministic. Run the `LinkCleanScreenshots` scheme afterward to generate the final PNGs — it emits every locale present in `captions.json` (en-US screens stand in wherever a localized raw hasn't been captured yet).
 
 History rows render real thumbnails from committed fixtures in `Screenshots/fixtures/history/` — actual LinkPresentation fetches (image-then-icon, square-cropped 256px), generated once per item with `scripts/fetch-history-thumbnails.swift` (usage in its header; fixture names must match the `thumbnail:` field in `LinkCleanApp.seedSampleHistory`). The capture script passes `-screenshotFixtures <dir>`; without that arg (e.g. a plain `-seedHistory` dev launch) rows fall back to domain monograms. X and the example-shop row have no fixture on purpose — LinkPresentation gets nothing useful from x.com's login wall, so monograms there are honest; the Spotify row awaits a real episode URL (an episode page's og-image is its cover art; the homepage's is an illegible player collage).
 

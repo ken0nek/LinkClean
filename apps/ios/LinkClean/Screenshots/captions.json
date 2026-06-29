@@ -1,11 +1,35 @@
 {
-  "01_home": {
-    "headline": "Share the destination,\nnot the tracking"
+  "en-US": {
+    "01_home": {
+      "headline": "Share just the clean link,\nnothing else"
+    },
+    "02_history": {
+      "headline": "Every link you’ve cleaned,\none tap away"
+    },
+    "03_parameters": {
+      "headline": "Decide what goes\nand what stays"
+    }
   },
-  "02_history": {
-    "headline": "Every link you’ve cleaned,\none tap away"
+  "ja": {
+    "01_home": {
+      "headline": "共有したいのは、\nきれいなリンクだけ"
+    },
+    "02_history": {
+      "headline": "クリーンにしたリンクは、\nすべてワンタップで"
+    },
+    "03_parameters": {
+      "headline": "消すか、残すか\n選ぶのはあなた"
+    }
   },
-  "03_parameters": {
-    "headline": "Decide what goes\nand what stays"
+  "de-DE": {
+    "01_home": {
+      "headline": "Teile den sauberen Link,\nsonst nichts"
+    },
+    "02_history": {
+      "headline": "Jeder bereinigte Link,\nnur ein Tippen entfernt"
+    },
+    "03_parameters": {
+      "headline": "Entscheide, was weg muss\nund was bleibt"
+    }
   }
 }
