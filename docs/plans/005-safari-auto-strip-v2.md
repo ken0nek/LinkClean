@@ -24,8 +24,12 @@
 
 ## Status
 
-- **State**: **PLANNED** (designed via brainstorming 2026-06-27). Safari v1 (plan 004)
-  is built + device-verified (commits `86c0d61`, `4880bf1`); this extends that target.
+- **State**: **SHELVED at Phase 0** (2026-06-27) — the throwaway spike ran on Ken's device,
+  but the **core strip test was never reached** (we stopped at the host-permission step), so
+  the load-bearing feasibility question is **still unproven**. Direction pivoted to polishing
+  Safari **v1** instead. **Findings + the exact resume point are in "Phase 0 spike — device
+  findings" below.** Safari v1 (plan 004) is built + device-verified (commits `86c0d61`,
+  `4880bf1`); this extends that target.
 - **Priority**: P2 — extends the Safari surface with a "set it and forget it" cleaner;
   a retention/ambient-value lever, **not** a wedge.
 - **Effort**: M for the build, **+ a Phase 0 DNR feasibility spike** (the load-bearing risk).
@@ -36,6 +40,53 @@
 - **Category**: direction (feature) — new OS-surface behavior (growth-roadmap §4 S2 v2).
 - **Target**: a feature release after v1 ships.
 - **Planned at**: commit `4880bf1`, 2026-06-27.
+
+## Phase 0 spike — device findings (2026-06-27, SHELVED before the gate)
+
+A throwaway DNR spike ran on a physical iPhone (iOS 26). **The core gate — does iOS Safari
+honor `removeParams` and strip a param on navigation? — was NEVER reached** (we stopped at
+the host-permission step). So v2's load-bearing feasibility is **still unproven**. What the
+spike *did* nail down:
+
+1. **`updateEnabledRulesets` works** — a static ruleset enables programmatically from the
+   popup with no host access (`ruleset: ENABLED` confirmed on device).
+2. **`permissions.request({origins})` is a no-op on iOS** — it resolves `false`, shows no
+   prompt. A Safari web extension gets **no programmatic host grant**; host access is granted
+   **only** through Safari's native UI. (So a Phase-1 opt-in can't be a simple in-popup
+   button — it must route the user to Settings / the native per-site flow.)
+3. **Grant path (native):** Settings → Apps → Safari → Extensions → LinkClean → **All
+   Websites → Allow** (defaults to "Ask"); or tap the extension on a page → "would like to
+   access [site]" modal → Always Allow on Every Website.
+4. **`optional_host_permissions` DOES surface on iOS** — it appears on the extension's
+   Settings page as a grantable **"All Websites → Ask"** row. So the plan's **optional,
+   opt-in** host model (decision 5) **is feasible** — do **not** switch to non-optional
+   `host_permissions`. (We nearly did; the Settings screenshot proved it unnecessary.)
+5. **★ Privacy win — decision 5 vindicated + a competitive edge.** Because LinkClean is
+   **DNR-only + `activeTab`** (no content script), iOS assigns it the *milder* permission
+   class. Verbatim, side by side:
+   - **LinkClean** → "**Browsing History** — Can see your browsing history on the current
+     tab's webpage when you use the extension."
+   - **Clean Links** (content scripts) → "**Webpage Contents and Browsing History** — Can
+     read and alter sensitive information on webpages, **including passwords, phone numbers,
+     and credit cards**…"
+   The honest story ("it can't read your pages") is **literally true on iOS**, and our prompt
+   is *gentler than the free competitor's*. **Keep v2 content-script-free** to preserve this.
+
+**To resume — start exactly here:** re-create the spike (a `redirect` + `removeParams`
+ruleset + the manifest perms below; see Scope), set LinkClean **All Websites → Allow**,
+reopen the popup (state → `host perm: granted`), load
+`https://example.com/?utm_source=test&keep=1`, and watch the **address bar** (NOT the popup's
+"Cleaned link" — that's the v1 *manual* Swift clean, not DNR). `utm_source` gone → mechanism
+proven, go to Phase 1. Survives even with All Websites = Allow → the optional grant isn't
+reaching the DNR engine; only **then** try a non-optional `host_permissions` diagnostic.
+Still open after that: reload/flash UX, `removeParams` case-sensitivity, and whether
+`requestDomains` host-scoping works on iOS.
+
+**The throwaway spike was reverted** from the working tree (v1 restored clean) so v1 polish
+could proceed. It was: a hand-written `rules.json` (one `redirect` +
+`removeParams:["utm_source"]`, `resourceTypes:["main_frame"]`), manifest
+`declarativeNetRequest` + `optional_host_permissions:["*://*/*"]` + a disabled `auto_strip`
+ruleset, and popup Enable/Disable/diag buttons.
 
 ## Why this matters
 
